@@ -280,3 +280,7 @@ footer .wrap { padding-block: 22px; display: flex; flex-wrap: wrap; gap: 10px 24
   .belt-track, .blob, .menu-list li { animation: none; }
   .dish-info > div, .thumb img { transition-duration: .01s; }
 }
+
+/* Phone and email in the contact block are real links, so taps can be counted. */
+.info address a.sel { color: var(--ink); font-weight: 500; text-decoration: none; border-bottom: 1px solid var(--line); }
+.info address a.sel:hover { border-bottom-color: var(--accent); color: var(--accent); }

@@ -22,6 +22,8 @@ module.exports = {
     ink: '#101820', muted: '#5b6672', line: '#e4e9ef'
   },
   cta: { label: 'Get a quote', href: '#book' },
+  // Owner panel reporting. Remove this block and the site reports nothing.
+  track: { endpoint: 'https://example.test/collect', siteId: '00000000-0000-0000-0000-000000000001' },
 
   hero: {
     label: 'Featured services',

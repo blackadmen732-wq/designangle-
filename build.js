@@ -37,6 +37,18 @@ function photo(src, alt, opts) {
   return `<img class="photo" src="img/${esc(src)}" alt="${esc(alt || '')}"${o.eager ? ' fetchpriority="high"' : ' loading="lazy"'}${o.id ? ` id="${o.id}"` : ''}>`;
 }
 
+// A phone number becomes a tel: link (tappable, and countable). An email
+// becomes a mailto: link. Anything else is plain selectable text.
+function contactLine(line) {
+  var t = String(line).trim();
+  var digits = t.replace(/[^0-9+]/g, '');
+  if (/^[+(]?[0-9][0-9().\-\s]{6,}$/.test(t) && digits.length >= 7)
+    return `<a class="sel" href="tel:${esc(digits)}">${esc(t)}</a>`;
+  if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t))
+    return `<a class="sel" href="mailto:${esc(t)}">${esc(t)}</a>`;
+  return `<span class="sel">${esc(t)}</span>`;
+}
+
 function jsonLd(site) {
   const s = site.seo || {};
   if (!s.type) return '';
@@ -194,7 +206,7 @@ ${jsonLd(site)}
               ${contact.hours.map((h) => `<tr><td>${esc(h[0])}</td><td>${esc(h[1])}</td></tr>`).join('\n              ')}
             </table>
           </div>
-          ${contact.blocks.map((b) => `<div><h3>${esc(b.title)}</h3><address>${b.lines.map((l) => (b.selectable ? `<span class="sel">${esc(l)}</span>` : esc(l))).join('<br>')}</address></div>`).join('\n          ')}
+          ${contact.blocks.map((b) => `<div><h3>${esc(b.title)}</h3><address>${b.lines.map(contactLine).join('<br>')}</address></div>`).join('\n          ')}
         </div>
         <form id="reqForm" novalidate data-reveal data-confirm="${esc(form.confirm)}" data-note="${esc(form.note || '')}" data-name-error="${esc(form.nameError || 'Add your name.')}" data-date-error="${esc(form.dateError || 'Pick a date.')}">
           <h3>${esc(form.title)}</h3>
@@ -232,6 +244,8 @@ ${jsonLd(site)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/SplitText.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js"></script>
+${site.track ? `<script>window.DA_TRACK={endpoint:"${esc(site.track.endpoint)}",siteId:"${esc(site.track.siteId)}"};</script>
+<script src="track.js" defer></script>` : ''}
 <script src="site.js"></script>
 </body>
 </html>
@@ -260,6 +274,7 @@ function build(name) {
   fs.mkdirSync(out, { recursive: true });
   fs.writeFileSync(path.join(out, 'index.html'), render(site));
   for (const f of ['site.css', 'site.js']) fs.copyFileSync(path.join(TEMPLATE, f), path.join(out, f));
+  if (site.track) fs.copyFileSync(path.join(TEMPLATE, 'track.js'), path.join(out, 'track.js'));
   fs.cpSync(path.join(SITES, name, 'img'), path.join(out, 'img'), { recursive: true });
   console.log(`Built dist/${name}/  (${site.name})`);
 }

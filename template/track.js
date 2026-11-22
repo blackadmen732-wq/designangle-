@@ -38,9 +38,14 @@
       referrer: document.referrer ? new URL(document.referrer).hostname : '',
       device: device, visitor: visitor, meta: meta || {}
     });
+    // text/plain is a CORS-safelisted content type, so the browser sends the
+    // POST straight away. With application/json it sends a preflight first and
+    // then silently drops the beacon, which loses taps on outbound links.
+    // The collector reads the body as text and parses it, so this changes
+    // nothing on the server.
     try {
-      if (navigator.sendBeacon) navigator.sendBeacon(cfg.endpoint, new Blob([body], { type: 'application/json' }));
-      else fetch(cfg.endpoint, { method: 'POST', body: body, headers: { 'Content-Type': 'application/json' }, keepalive: true });
+      if (navigator.sendBeacon) navigator.sendBeacon(cfg.endpoint, new Blob([body], { type: 'text/plain;charset=UTF-8' }));
+      else fetch(cfg.endpoint, { method: 'POST', body: body, headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, keepalive: true });
     } catch (e) { /* never let reporting break the page */ }
   }
 

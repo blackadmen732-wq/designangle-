@@ -111,6 +111,15 @@ Two things the kit does not do, which a paying client will need:
    award-winning restaurant site builds its own reservations; they all embed OpenTable,
    Resy or Zenchef. Do the same.
 
+## The owner panel
+
+Each client gets a dashboard showing what their website did: visitors, taps on
+their phone number, enquiries from the form, and a box to request changes.
+The database and collector are live; see `portal/README.md` to add a client.
+
+What the panel will not do is overstate results. A tap on a phone button is
+counted as a tap, never as a completed call, and the page says so.
+
 ## Repository layout
 
 ```
@@ -122,6 +131,12 @@ template/
 sites/
   restaurant/            example: Pomelo Kitchen (invented)
   hvac/                  example: Northwind Heating & Air (invented)
+portal/
+  schema.sql             the portal database
+  functions/collect/     the endpoint websites report to
+  app/index.html         the owner dashboard
+  README.md              how to add a client
+OFFER.md                 packages, and the rules that protect the business
 docs/research/           two research reports behind the design decisions
 dist/                    build output, not committed
 ```

@@ -23,7 +23,11 @@ module.exports = {
   },
   cta: { label: 'Get a quote', href: '#book' },
   // Owner panel reporting. Remove this block and the site reports nothing.
-  track: { endpoint: 'https://example.test/collect', siteId: '00000000-0000-0000-0000-000000000001' },
+  // siteId is the mk_sites.id row created for this client. See portal/README.md.
+  track: {
+    endpoint: 'https://mhahkbssltukjhusjsjf.supabase.co/functions/v1/collect',
+    siteId: '1e85ed05-d756-4fcf-a6c2-af6efe65eef6',
+  },
 
   hero: {
     label: 'Featured services',

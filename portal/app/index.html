@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Website Panel</title>
+<meta name="description" content="What your website did this month.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* MK portal. Deliberately not the colour of any client site: this is the
+   studio's product, and an owner should never confuse it with their own. */
+:root {
+  --bg: #ffffff;
+  --panel: #fbfaf8;
+  --ink: #15171c;
+  --muted: #666d78;
+  --faint: #8b929c;
+  --line: #e7e5e1;
+  --accent: #0f6b5c;        /* single hue: every bar and link */
+  --accent-soft: #e4f0ec;
+  --warn: #9a5b00;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--body); font-size: 16px; line-height: 1.5;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.02em; line-height: 1.1; }
+p { margin: 0; }
+a { color: var(--accent); }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+[hidden] { display: none !important; }
+.wrap {
+  max-width: 1080px; margin-inline: auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+.btn {
+  background: var(--ink); color: #fff; border: 0; border-radius: 10px;
+  padding: 12px 18px; font-weight: 600; font-size: 15px;
+  transition: background .2s, transform .2s;
+}
+.btn:hover { background: var(--accent); }
+.btn:active { transform: scale(.98); }
+.btn.ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--line); }
+.btn.ghost:hover { color: var(--ink); border-color: var(--ink); background: transparent; }
+
+/* ---- sign in ---- */
+#signin { display: grid; place-items: center; min-height: 100vh; }
+.card-in { width: min(400px, 100%); display: grid; gap: 18px; }
+.card-in h1 { font-size: 30px; font-weight: 800; }
+label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; }
+input {
+  font: inherit; font-size: 16px; padding: 12px 14px; border-radius: 10px;
+  border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); width: 100%;
+}
+input:focus { border-color: var(--ink); }
+.err { color: #b3261e; font-size: 14px; }
+
+/* ---- shell ---- */
+header.bar { border-bottom: 1px solid var(--line); position: sticky; top: env(safe-area-inset-top, 0px); background: rgba(255,255,255,.92); backdrop-filter: blur(10px); z-index: 5; }
+header.bar .wrap { display: flex; align-items: center; gap: 16px; padding-block: 14px; flex-wrap: wrap; }
+.biz { margin-right: auto; display: grid; gap: 2px; min-width: 0; }
+.biz b { font-family: var(--display); font-size: 19px; font-weight: 800; }
+.biz span { font-size: 13px; color: var(--muted); }
+.plan { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+        background: var(--accent-soft); color: var(--accent); padding: 5px 10px; border-radius: 99px; }
+main .wrap { padding-block: 28px 56px; display: grid; gap: 22px; }
+/* Grid and flex children refuse to shrink below their content unless told.
+   Without this a wide table drags the whole page sideways on a phone. */
+main .wrap > *, .card > *, .scroll-x { min-width: 0; max-width: 100%; }
+.sec-title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.sec-title h2 { font-size: 22px; font-weight: 800; }
+.sec-title span { font-size: 13px; color: var(--faint); }
+
+/* ---- stat tiles ---- */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 12px; }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 4px; }
+.tile .n { font-family: var(--display); font-size: 38px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.tile .k { font-size: 14px; font-weight: 600; }
+.tile .sub { font-size: 12.5px; color: var(--faint); }
+.tile.lead { background: var(--accent-soft); border-color: #c9e2da; }
+.tile.lead .n { color: var(--accent); }
+
+/* ---- chart ---- */
+.card { border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.chart-wrap { position: relative; margin-top: 16px; }
+svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
+.bar { fill: var(--accent); }
+.bar-hit { fill: transparent; cursor: pointer; }
+.bar.on { fill: var(--ink); }
+.grid-line { stroke: var(--line); stroke-width: 1; }
+.axis-txt { fill: var(--faint); font-family: var(--body); font-size: 11px; }
+.tip {
+  position: absolute; pointer-events: none; background: var(--ink); color: #fff;
+  font-size: 12.5px; padding: 7px 10px; border-radius: 8px; white-space: nowrap;
+  transform: translate(-50%, -112%); opacity: 0; transition: opacity .12s;
+}
+.tip.on { opacity: 1; }
+.tip b { font-variant-numeric: tabular-nums; }
+
+/* ---- tables ---- */
+/* A table is the one thing allowed to be wider than the screen, and only
+   inside its own scroller. Without this the nowrap cells push the whole
+   page wider on a phone. */
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 14px; }
+table { width: 100%; border-collapse: collapse; min-width: 460px; }
+th { text-align: left; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); font-weight: 600; padding-bottom: 8px; }
+td { padding: 11px 0; border-top: 1px solid var(--line); font-size: 15px; vertical-align: top; }
+td.when { color: var(--muted); font-size: 13.5px; white-space: nowrap; }
+.pill { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+.empty { color: var(--muted); font-size: 15px; padding: 18px 0; }
+
+/* ---- notes & locked ---- */
+.note { background: #fff8ec; border: 1px solid #f0e2c8; border-radius: 12px; padding: 13px 15px; font-size: 14px; color: var(--warn); }
+.locked { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; margin-top: 14px; }
+.locked div { border: 1px dashed var(--line); border-radius: 12px; padding: 14px; font-size: 14px; color: var(--faint); }
+.locked b { display: block; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+textarea {
+  font: inherit; font-size: 15px; width: 100%; min-height: 96px; resize: vertical;
+  border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px;
+  background: var(--bg); color: var(--ink);
+}
+textarea:focus { border-color: var(--ink); }
+.row-end { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.ok { color: var(--accent); font-size: 14px; font-weight: 500; }
+@media (max-width: 560px) { .tile .n { font-size: 32px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- sign in -->
+<section id="signin" class="wrap" hidden>
+  <form class="card-in" id="loginForm">
+    <h1>Your website panel</h1>
+    <p style="color:var(--muted);font-size:15px">Sign in to see what your website did this month.</p>
+    <label for="em">Email<input id="em" type="email" autocomplete="username" required></label>
+    <label for="pw">Password<input id="pw" type="password" autocomplete="current-password" required></label>
+    <button class="btn" type="submit">Sign in</button>
+    <p class="err" id="loginErr" hidden></p>
+    <p style="color:var(--faint);font-size:13px">Forgotten your password? Contact your studio and they will reset it.</p>
+  </form>
+</section>
+
+<!-- dashboard -->
+<div id="app" hidden>
+  <header class="bar">
+    <div class="wrap">
+      <div class="biz"><b id="bizName">—</b><span id="bizSite"></span></div>
+      <span class="plan" id="planName">—</span>
+      <button class="btn ghost" id="out" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div class="sec-title">
+        <h2>Last 30 days</h2>
+        <span id="range"></span>
+      </div>
+
+      <div class="tiles" id="tiles"></div>
+
+      <p class="note">
+        <b>Call taps are not completed calls.</b> This counts people who tapped your
+        phone number on the website. It cannot tell whether the call connected or
+        was answered. A tracking number would show real calls.
+      </p>
+
+      <section class="card">
+        <div class="sec-title">
+          <h2>Visitors each day</h2>
+          <span>hover a bar for the exact figure</span>
+        </div>
+        <div class="chart-wrap" id="chartWrap"></div>
+      </section>
+
+      <section class="card">
+        <div class="sec-title"><h2>Enquiries</h2><span>from the website form</span></div>
+        <div id="leads"></div>
+      </section>
+
+      <section class="card">
+        <div class="sec-title"><h2>Request a change</h2><span>text, photos, prices, hours</span></div>
+        <p style="color:var(--muted);font-size:14.5px;margin-top:8px">
+          Small edits are included and usually done within two business days. Anything
+          needing a new page or a redesign gets a written quote first.
+        </p>
+        <form id="editForm" style="margin-top:12px">
+          <textarea id="editBody" placeholder="What would you like changed?" required></textarea>
+          <div class="row-end">
+            <span class="ok" id="editOk" hidden>Sent. Your studio has it.</span>
+            <button class="btn" type="submit">Send request</button>
+          </div>
+        </form>
+        <div id="editList"></div>
+      </section>
+
+      <section class="card" id="lockedCard" hidden>
+        <div class="sec-title"><h2>Not on your plan yet</h2></div>
+        <div class="locked" id="locked"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/+esm';
+
+// Publishable key: safe in a browser. Row-level security decides what each
+// signed-in person can read, so this key alone shows nobody anything.
+const CFG = {
+  url: 'https://mhahkbssltukjhusjsjf.supabase.co',
+  key: 'sb_publishable_TI48mx2rEonk2g3Ds6Bihw_R9_Dsjbo',
+};
+const db = createClient(CFG.url, CFG.key);
+const $ = (id) => document.getElementById(id);
+const DAYS = 30;
+
+const FEATURES = {
+  menu: ['Menu and ordering', 'Edit your menu and take orders on the site'],
+  orders: ['Live orders', 'See and manage orders as they arrive'],
+  payments: ['Payments', 'Take payment on the website'],
+  inbox: ['One inbox', 'Calls, texts and form enquiries in one place'],
+  campaigns: ['Review requests', 'Ask happy customers for a review, automatically'],
+  automation: ['Missed-call texts', 'Text back anyone whose call you missed'],
+  assistant: ['AI booking assistant', 'Answers questions and books jobs by text'],
+  pipeline: ['Lead follow-up', 'Chases quotes that have gone quiet'],
+};
+
+/* ---------------- sign in ---------------- */
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const err = $('loginErr'); err.hidden = true;
+  const { error } = await db.auth.signInWithPassword({
+    email: $('em').value.trim(), password: $('pw').value,
+  });
+  if (error) { err.textContent = 'That email and password did not match.'; err.hidden = false; }
+});
+$('out').addEventListener('click', async () => { await db.auth.signOut(); location.reload(); });
+
+db.auth.getSession().then(({ data }) => data.session ? start() : show('signin'));
+db.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') start(); });
+
+function show(which) {
+  $('signin').hidden = which !== 'signin';
+  $('app').hidden = which !== 'app';
+}
+
+/* ---------------- load ---------------- */
+async function start() {
+  show('app');
+  const { data: accounts } = await db.from('mk_accounts').select('*, mk_plans(*)');
+  if (!accounts?.length) {
+    $('bizName').textContent = 'No website yet';
+    $('bizSite').textContent = 'Your studio has not linked a site to this login.';
+    return;
+  }
+  const acct = accounts[0];
+  $('bizName').textContent = acct.business_name;
+  $('planName').textContent = acct.mk_plans?.name ?? acct.plan_id;
+
+  const { data: sites } = await db.from('mk_sites').select('*').eq('account_id', acct.id);
+  const site = sites?.[0];
+  $('bizSite').textContent = site ? (site.is_live ? site.domain + ' — live' : site.domain + ' — not live yet') : 'No site linked';
+
+  const since = new Date(Date.now() - DAYS * 864e5).toISOString();
+  const fmt = (d) => new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  $('range').textContent = fmt(since) + ' to ' + fmt(Date.now());
+
+  const [{ data: daily }, { data: leads }, { data: edits }] = await Promise.all([
+    db.from('mk_site_daily').select('*').gte('day', since).order('day'),
+    db.from('mk_leads').select('*').gte('created_at', since).order('created_at', { ascending: false }).limit(50),
+    db.from('mk_edit_requests').select('*').order('created_at', { ascending: false }).limit(10),
+  ]);
+
+  renderTiles(daily ?? [], leads ?? []);
+  renderChart(daily ?? []);
+  renderLeads(leads ?? []);
+  renderEdits(edits ?? []);
+  renderLocked(acct.mk_plans?.features ?? []);
+  $('editForm').dataset.account = acct.id;
+}
+
+function sum(rows, k) { return rows.reduce((t, r) => t + (Number(r[k]) || 0), 0); }
+
+function renderTiles(daily, leads) {
+  const tiles = [
+    ['lead', leads.length, 'Enquiries', 'people who filled in the form'],
+    ['', sum(daily, 'visitors'), 'Visitors', 'different people, counted once a day'],
+    ['', sum(daily, 'call_taps'), 'Call taps', 'tapped your phone number'],
+    ['', sum(daily, 'views'), 'Page views', 'pages opened in total'],
+  ];
+  $('tiles').innerHTML = tiles.map(([cls, n, k, sub]) =>
+    `<div class="tile ${cls}"><span class="n">${n}</span><span class="k">${k}</span><span class="sub">${sub}</span></div>`
+  ).join('');
+}
+
+/* One series, so one hue and no legend: the heading names it.
+   Bars sit on the baseline with rounded tops and a 2px gap. */
+function renderChart(daily) {
+  const wrap = $('chartWrap');
+  const byDay = new Map(daily.map((d) => [d.day.slice(0, 10), d]));
+  const days = [];
+  for (let i = DAYS - 1; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
+    const row = byDay.get(d);
+    days.push({ date: d, visitors: Number(row?.visitors || 0) });
+  }
+  const max = Math.max(4, ...days.map((d) => d.visitors));
+  const W = 900, H = 240, padL = 34, padB = 26, padT = 10;
+  const plotW = W - padL, plotH = H - padB - padT;
+  const step = plotW / days.length, bw = Math.max(3, step - 2);
+
+  const ticks = [0, Math.round(max / 2), max];
+  const y = (v) => padT + plotH - (v / max) * plotH;
+
+  const grid = ticks.map((t) =>
+    `<line class="grid-line" x1="${padL}" x2="${W}" y1="${y(t)}" y2="${y(t)}"></line>
+     <text class="axis-txt" x="${padL - 8}" y="${y(t) + 4}" text-anchor="end">${t}</text>`).join('');
+
+  // Bars first, then the invisible hit areas on top, so a hover is never
+  // swallowed by the bar itself.
+  const bars = days.map((d, i) => {
+    const h = d.visitors === 0 ? 0 : Math.max(2, (d.visitors / max) * plotH);
+    const x = padL + i * step;
+    return `<rect class="bar" data-i="${i}" x="${x}" y="${padT + plotH - h}" width="${bw}" height="${h}" rx="${Math.min(4, bw / 2)}"></rect>`;
+  }).join('');
+  const hits = days.map((d, i) =>
+    `<rect class="bar-hit" x="${padL + i * step}" y="${padT}" width="${bw}" height="${plotH}" data-i="${i}"></rect>`
+  ).join('');
+
+  const labelAt = (i) => padL + i * step + bw / 2;
+  const marks = [0, Math.floor(DAYS / 2), DAYS - 1].map((i) =>
+    `<text class="axis-txt" x="${labelAt(i)}" y="${H - 6}" text-anchor="middle">${
+      new Date(days[i].date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</text>`).join('');
+
+  wrap.innerHTML =
+    `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Visitors each day for the last ${DAYS} days">
+       ${grid}${bars}${hits}${marks}
+     </svg>
+     <div class="tip" id="tip"></div>
+     <details style="margin-top:12px">
+       <summary style="font-size:13.5px;color:var(--muted);cursor:pointer">See the numbers as a table</summary>
+       <div class="scroll-x"><table><thead><tr><th>Day</th><th>Visitors</th></tr></thead><tbody>${
+         days.map((d) => `<tr><td class="when">${d.date}</td><td>${d.visitors}</td></tr>`).join('')
+       }</tbody></table></div>
+     </details>`;
+
+  const tip = $('tip'), svg = wrap.querySelector('svg');
+  const clear = () => {
+    tip.classList.remove('on');
+    svg.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on'));
+  };
+  svg.addEventListener('mousemove', (e) => {
+    const hit = e.target.closest('.bar-hit');
+    if (!hit) { clear(); return; }
+    const i = +hit.dataset.i, d = days[i], r = svg.getBoundingClientRect();
+    svg.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on'));
+    svg.querySelector(`.bar[data-i="${i}"]`)?.classList.add('on');
+    tip.innerHTML = `${new Date(d.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} &middot; <b>${d.visitors}</b>`;
+    tip.style.left = (e.clientX - r.left) + 'px';
+    tip.style.top = (e.clientY - r.top) + 'px';
+    tip.classList.add('on');
+  });
+  svg.addEventListener('mouseleave', clear);
+}
+
+function renderLeads(leads) {
+  if (!leads.length) {
+    $('leads').innerHTML = '<p class="empty">No enquiries yet in this period. They will appear here the moment someone uses the form.</p>';
+    return;
+  }
+  $('leads').innerHTML =
+    `<div class="scroll-x"><table><thead><tr><th>Name</th><th>Wanted</th><th>For</th><th>Came in</th></tr></thead><tbody>${
+      leads.map((l) => `<tr>
+        <td><b>${esc(l.name)}</b>${l.contact ? '<br><span class="when">' + esc(l.contact) + '</span>' : ''}</td>
+        <td>${l.requested ? '<span class="pill">' + esc(l.requested) + '</span>' : '—'}</td>
+        <td class="when">${esc(l.preferred || '—')}</td>
+        <td class="when">${new Date(l.created_at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</td>
+      </tr>`).join('')
+    }</tbody></table></div>`;
+}
+
+function renderEdits(edits) {
+  if (!edits.length) { $('editList').innerHTML = ''; return; }
+  $('editList').innerHTML =
+    `<div class="scroll-x"><table><thead><tr><th>Request</th><th>Scope</th><th>Status</th><th>Sent</th></tr></thead><tbody>${
+      edits.map((r) => `<tr>
+        <td>${esc(r.body)}</td>
+        <td><span class="pill">${r.scope === 'small' ? 'included' : 'quoted'}</span></td>
+        <td class="when">${esc(r.status)}</td>
+        <td class="when">${new Date(r.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</td>
+      </tr>`).join('')
+    }</tbody></table></div>`;
+}
+
+function renderLocked(features) {
+  const missing = Object.entries(FEATURES).filter(([k]) => !features.includes(k));
+  if (!missing.length) return;
+  $('lockedCard').hidden = false;
+  $('locked').innerHTML = missing.map(([, [name, what]]) =>
+    `<div><b>${name}</b>${what}</div>`).join('');
+}
+
+$('editForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = $('editBody').value.trim(); if (!body) return;
+  const { error } = await db.from('mk_edit_requests')
+    .insert({ account_id: e.target.dataset.account, body });
+  if (!error) {
+    $('editBody').value = '';
+    $('editOk').hidden = false;
+    setTimeout(() => { $('editOk').hidden = true; }, 4000);
+    const { data } = await db.from('mk_edit_requests').select('*').order('created_at', { ascending: false }).limit(10);
+    renderEdits(data ?? []);
+  }
+});
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+</script>
+</body>
+</html>

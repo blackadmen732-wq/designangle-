@@ -205,5 +205,22 @@
     msg.className = 'msg';
     var b = document.createElement('b'); b.textContent = text; msg.appendChild(b);
     if (form.dataset.note) msg.appendChild(document.createTextNode(' ' + form.dataset.note));
+
+    // Send the enquiry to the owner's panel. Unlike the anonymous counts in
+    // track.js this carries the person's own details, so it is only ever sent
+    // because they filled the form in and pressed the button.
+    var cfg = window.DA_TRACK;
+    if (cfg && cfg.endpoint && cfg.siteId) {
+      try {
+        fetch(cfg.endpoint, {
+          method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+          body: JSON.stringify({
+            siteId: cfg.siteId, kind: 'lead', name: name,
+            requested: $('bk-choice').value,
+            preferred: nice + ', ' + $('bk-time').value
+          })
+        }).catch(function () {});
+      } catch (e) { /* the confirmation above still stands */ }
+    }
   });
 })();

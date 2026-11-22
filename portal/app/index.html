@@ -131,6 +131,15 @@ textarea {
 textarea:focus { border-color: var(--ink); }
 .row-end { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
 .ok { color: var(--accent); font-size: 14px; font-weight: 500; }
+/* business details editor */
+.field-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+.field-row input { font-size: 15px; padding: 10px 12px; }
+.icon-btn { border: 1.5px solid var(--line); background: var(--bg); color: var(--muted);
+            border-radius: 9px; width: 40px; height: 40px; font-size: 18px; line-height: 1; }
+.icon-btn:hover { border-color: #b3261e; color: #b3261e; }
+.two-up { display: grid; grid-template-columns: 1fr 180px; gap: 12px; align-items: end; }
+.sub-label { font-size: 12px; color: var(--faint); margin-top: 4px; }
+@media (max-width: 620px) { .field-row { grid-template-columns: 1fr 1fr auto; } .two-up { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .tile .n { font-size: 32px; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -188,8 +197,47 @@ textarea:focus { border-color: var(--ink); }
         <div id="leads"></div>
       </section>
 
+      <section class="card" id="detailsCard" hidden>
+        <div class="sec-title"><h2>Your business details</h2><span>changes appear on your website within a minute</span></div>
+        <p style="color:var(--muted);font-size:14.5px;margin-top:8px">
+          Change these yourself, any time. You do not need to ask us.
+        </p>
+        <form id="detailsForm" style="margin-top:16px;display:grid;gap:18px">
+          <label for="d-phone">Phone number
+            <input id="d-phone" type="tel" placeholder="(555) 010-4470">
+            <span class="sub-label">This updates the tap-to-call button everywhere on your site.</span>
+          </label>
+
+          <div>
+            <span style="font-size:13px;font-weight:600">Opening hours</span>
+            <div id="hoursRows" style="margin-top:8px"></div>
+            <button class="btn ghost" type="button" id="addHour">Add a line</button>
+          </div>
+
+          <div>
+            <span style="font-size:13px;font-weight:600">Notice banner</span>
+            <span class="sub-label" style="display:block;margin-bottom:8px">
+              For a holiday, a closure or anything urgent. It shows at the top of your
+              website and disappears on its own after the date you choose.
+            </span>
+            <div class="two-up">
+              <input id="d-notice" type="text" placeholder="Closed Thursday for Thanksgiving">
+              <label for="d-until" style="font-size:12px;color:var(--faint)">Hide it after
+                <input id="d-until" type="date">
+              </label>
+            </div>
+            <p class="err" id="noticeErr" hidden>Choose a date for the notice to disappear, so it cannot be left up by accident.</p>
+          </div>
+
+          <div class="row-end">
+            <span class="ok" id="detailsOk" hidden>Saved. Your website is updating.</span>
+            <button class="btn" type="submit">Save changes</button>
+          </div>
+        </form>
+      </section>
+
       <section class="card">
-        <div class="sec-title"><h2>Request a change</h2><span>text, photos, prices, hours</span></div>
+        <div class="sec-title"><h2>Request a change</h2><span>anything else: text, photos, prices</span></div>
         <p style="color:var(--muted);font-size:14.5px;margin-top:8px">
           Small edits are included and usually done within two business days. Anything
           needing a new page or a redesign gets a written quote first.
@@ -276,10 +324,11 @@ async function start() {
   const fmt = (d) => new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
   $('range').textContent = fmt(since) + ' to ' + fmt(Date.now());
 
-  const [{ data: daily }, { data: leads }, { data: edits }] = await Promise.all([
+  const [{ data: daily }, { data: leads }, { data: edits }, { data: settings }] = await Promise.all([
     db.from('mk_site_daily').select('*').gte('day', since).order('day'),
     db.from('mk_leads').select('*').gte('created_at', since).order('created_at', { ascending: false }).limit(50),
     db.from('mk_edit_requests').select('*').order('created_at', { ascending: false }).limit(10),
+    site ? db.from('mk_site_settings').select('*').eq('site_id', site.id).maybeSingle() : Promise.resolve({ data: null }),
   ]);
 
   renderTiles(daily ?? [], leads ?? []);
@@ -288,6 +337,7 @@ async function start() {
   renderEdits(edits ?? []);
   renderLocked(acct.mk_plans?.features ?? []);
   $('editForm').dataset.account = acct.id;
+  if (site) renderDetails(site, settings);
 }
 
 function sum(rows, k) { return rows.reduce((t, r) => t + (Number(r[k]) || 0), 0); }
@@ -410,6 +460,69 @@ function renderLocked(features) {
   $('locked').innerHTML = missing.map(([, [name, what]]) =>
     `<div><b>${name}</b>${what}</div>`).join('');
 }
+
+/* ---------------- business details the owner edits ---------------- */
+function hourRow(label, value) {
+  const row = document.createElement('div');
+  row.className = 'field-row';
+  const a = document.createElement('input'); a.type = 'text'; a.placeholder = 'Monday'; a.value = label || '';
+  const b = document.createElement('input'); b.type = 'text'; b.placeholder = '09:00 - 17:00'; b.value = value || '';
+  a.setAttribute('aria-label', 'Day or label'); b.setAttribute('aria-label', 'Hours');
+  const x = document.createElement('button');
+  x.type = 'button'; x.className = 'icon-btn'; x.textContent = '\u00d7';
+  x.setAttribute('aria-label', 'Remove this line');
+  x.addEventListener('click', () => row.remove());
+  row.append(a, b, x);
+  return row;
+}
+
+function renderDetails(site, settings) {
+  $('detailsCard').hidden = false;
+  $('detailsForm').dataset.site = site.id;
+  $('d-phone').value = settings?.phone ?? '';
+  $('d-notice').value = settings?.notice ?? '';
+  $('d-until').value = settings?.notice_until ?? '';
+  const rows = $('hoursRows');
+  rows.textContent = '';
+  const hours = Array.isArray(settings?.hours) && settings.hours.length
+    ? settings.hours : [['', '']];
+  hours.forEach(([l, v]) => rows.appendChild(hourRow(l, v)));
+}
+
+$('addHour').addEventListener('click', () => $('hoursRows').appendChild(hourRow('', '')));
+
+$('detailsForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const siteId = e.target.dataset.site;
+  const hours = [...$('hoursRows').querySelectorAll('.field-row')]
+    .map((r) => [...r.querySelectorAll('input')].map((i) => i.value.trim()))
+    .filter((pair) => pair[0] || pair[1]);
+  const notice = $('d-notice').value.trim();
+  const until = $('d-until').value;
+
+  // A banner with no end date is the one that gets left up for months. If
+  // there is a notice there must be a date, and clearing the notice clears
+  // the date with it.
+  const noticeErr = $('noticeErr');
+  if (notice && !until) {
+    noticeErr.hidden = false;
+    $('d-until').focus();
+    return;
+  }
+  noticeErr.hidden = true;
+
+  const row = {
+    site_id: siteId,
+    phone: $('d-phone').value.trim() || null,
+    hours,
+    notice: notice || null,
+    notice_until: notice ? until : null,
+  };
+  const { error } = await db.from('mk_site_settings').upsert(row, { onConflict: 'site_id' });
+  if (error) return;
+  $('detailsOk').hidden = false;
+  setTimeout(() => { $('detailsOk').hidden = true; }, 4000);
+});
 
 $('editForm').addEventListener('submit', async (e) => {
   e.preventDefault();

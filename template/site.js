@@ -185,6 +185,45 @@
     window.addEventListener('load', function () { ST.refresh(); });
   }
 
+  /* ---------- Details the owner changes in their panel ----------
+     The page already contains the hours and phone built into it, so if this
+     fetch fails or is slow the visitor still sees correct information. This
+     only overwrites them when newer values actually arrive. */
+  (function liveDetails() {
+    var cfg = window.DA_TRACK;
+    if (!cfg || !cfg.endpoint || !cfg.siteId) return;
+    var url = cfg.endpoint.replace(/\/collect$/, '/settings') + '?siteId=' + encodeURIComponent(cfg.siteId);
+    fetch(url).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (!d) return;
+
+      if (d.phone) {
+        all('[data-live="phone"]').forEach(function (a) {
+          a.textContent = d.phone;
+          a.setAttribute('href', 'tel:' + d.phone.replace(/[^0-9+]/g, ''));
+        });
+      }
+
+      if (d.hours && d.hours.length) {
+        all('[data-live="hours"]').forEach(function (t) {
+          var body = t.tBodies[0] || t;
+          body.textContent = '';
+          d.hours.forEach(function (row) {
+            var tr = body.insertRow();
+            tr.insertCell().textContent = row[0];
+            tr.insertCell().textContent = row[1];
+          });
+        });
+      }
+
+      if (d.notice) {
+        var bar = $('noticeBar');
+        bar.querySelector('span').textContent = d.notice;
+        bar.hidden = false;
+        if (window.ScrollTrigger) window.ScrollTrigger.refresh();
+      }
+    }).catch(function () { /* the built-in details stand */ });
+  })();
+
   /* ---------- Request form. It only shows a message; connect it to a real service before launch. ---------- */
   var form = $('reqForm'), msg = $('bk-msg'), date = $('bk-date');
   var now = new Date(), iso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);

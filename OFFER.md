@@ -131,13 +131,50 @@ The schema enforces the order of operations: `messaging_registration` must be
 `approved` and a matching `message_consent` row must exist before the portal
 sends anything. Do not add a bypass.
 
-### 6. Delivery-app promo cards
+### 6. Two outside dependencies that do not work the way the plan assumes
+
+Both were checked against the vendors' own documentation on 22 November 2026.
+Re-check before building on either.
+
+**Cal.com cannot be the booking engine.** Its own Platform API documentation
+says: *"This is now deprecated and under maintenance for existing users only -
+no new customers can sign up for the platform plan"*
+([cal.com/docs/platform/faq](https://cal.com/docs/platform/faq)). A new agency
+cannot sign up, so any plan that names Cal.com as the default booking provider
+is already blocked. The alternatives, in the order worth trying:
+
+| Option | Fits | Cost | Catch |
+|---|---|---|---|
+| **Build a slot engine on the portal database** | HVAC visits, table bookings, most local trades | nothing beyond hosting | you own the edge cases: holidays, travel time, double-booking |
+| **Google Calendar API** | a one-person business | free | it is a calendar, not a booking product; no services or staff rules |
+| **Square Appointments** | clients already on Square | free tier for one location | ties the client to Square |
+| **Cal.com self-hosted** | complex multi-staff scheduling | free, but you run it | AGPL, so offering it as a service carries source obligations |
+
+For an HVAC company booking a two-hour arrival window, or a restaurant taking a
+table, the first option is the right one. These are not hard scheduling
+problems, and a per-booking fee eats a $397 margin. Reach for a provider when a
+client genuinely needs multi-staff, multi-room scheduling.
+
+**Google Business Profile posting is manual, not API.** Google's own
+documentation says that when a third party's client needs API access, *the
+third party should not request access on the client's behalf; the client must
+apply themselves*, and access is reviewed within about 14 days per Cloud
+project ([prerequisites](https://developers.google.com/my-business/content/prereqs),
+[FAQ](https://developers.google.com/my-business/content/faq)).
+
+So do not build a posting integration. Instead the client adds MK Web Studio as
+a **manager** on their Business Profile, which Google supports directly, and
+the two posts a month are made by hand. At ten clients that is twenty posts a
+month, which is an afternoon. Revisit the API only when the manual work stops
+being worth it.
+
+### 7. Delivery-app promo cards
 
 Promo cards in DoorDash and Uber Eats bags point to **the restaurant's own
 ordering page or QR code**. Never use the apps' names, logos or colours in a way
 that suggests they endorse the promotion.
 
-### 7. Never invent a client fact
+### 8. Never invent a client fact
 
 No guarantee, response time, certification, years in business, review count or
 price goes on a site unless the client gave it to you. The example sites in
@@ -156,11 +193,34 @@ Reasons: it is deliverable now, it proves the monthly fee, and it needs no
 payment processing, no carrier registration and no AI. Launching four tiers at
 once means one customer in each and four half-finished products.
 
-| Order | Build | Blocked by |
+| Order | Build | State |
 |---|---|---|
-| 1 | Website kit | done |
-| 2 | $150 panel: analytics, leads, edit requests, reports | a database and a host |
-| 3 | Call tracking numbers | a Twilio account |
-| 4 | $197: integrate an existing ordering system | a processor account per client |
-| 5 | $297: messaging | A2P registration per client, consent capture |
-| 6 | $397: AI booking | everything above |
+| 1 | Website kit | **done** |
+| 2 | $150 panel: analytics, leads, edit requests, self-service details | **done**, needs hosting |
+| 3 | Call tracking numbers | needs a Twilio account |
+| 4 | Booking engine on the portal database | not started; see section 6 |
+| 5 | $397 AI booking gateway on top of that engine | blocked by 4 |
+| 6 | $197: integrate an existing ordering system | needs a processor account per client |
+| 7 | $297: messaging | blocked by A2P registration per client |
+
+The order changed after checking the dependencies. Booking now comes before
+ordering and messaging, because it is the only one of the three with no outside
+blocker: no carrier registration, no payment processor, no API approval. It is
+also what an HVAC company, a salon, a dentist and a garage all need, while
+ordering only suits restaurants and shops.
+
+### The AI booking gateway
+
+The design in the specification is right and should be kept: the assistant gets
+a fixed set of named tools, and **the server decides whether each action is
+allowed, not the assistant**. Two rules matter more than the rest.
+
+- The assistant may only say an appointment is confirmed after the booking
+  engine has returned a real booking id. If the engine fails, it creates a lead
+  and tells a person. It never invents a confirmation.
+- Every booking records which assistant or member of staff made it, so an
+  unexpected change on a live calendar can be traced.
+
+One correction to the specification: a published `LocalBusiness` schema does
+not let an outside assistant book anything. Being found and being allowed to
+act are separate systems, and the second needs scoped authorisation.

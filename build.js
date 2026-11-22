@@ -43,7 +43,7 @@ function contactLine(line) {
   var t = String(line).trim();
   var digits = t.replace(/[^0-9+]/g, '');
   if (/^[+(]?[0-9][0-9().\-\s]{6,}$/.test(t) && digits.length >= 7)
-    return `<a class="sel" href="tel:${esc(digits)}">${esc(t)}</a>`;
+    return `<a class="sel" data-live="phone" href="tel:${esc(digits)}">${esc(t)}</a>`;
   if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t))
     return `<a class="sel" href="mailto:${esc(t)}">${esc(t)}</a>`;
   return `<span class="sel">${esc(t)}</span>`;
@@ -100,6 +100,7 @@ function render(site) {
 ${jsonLd(site)}
 </head>
 <body>
+<div class="notice-bar" id="noticeBar" hidden><div class="wrap"><span></span></div></div>
 <header class="top" id="top">
   <div class="wrap">
     <a class="logo" href="#top"><i></i>${esc(site.short || site.name)}</a>
@@ -202,7 +203,7 @@ ${jsonLd(site)}
         <div class="info" data-reveal>
           <div>
             <h3>${esc(contact.hoursTitle || 'Hours')}</h3>
-            <table class="hours">
+            <table class="hours" data-live="hours">
               ${contact.hours.map((h) => `<tr><td>${esc(h[0])}</td><td>${esc(h[1])}</td></tr>`).join('\n              ')}
             </table>
           </div>

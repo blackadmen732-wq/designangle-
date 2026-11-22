@@ -10,6 +10,7 @@ the same dashboard; nobody is migrated to a different system.
 | `schema.sql` — database, permissions, compliance tables | **live** |
 | `functions/collect/index.ts` — the endpoint websites report to | **deployed** |
 | `app/index.html` — the $150 owner panel | **built** |
+| `functions/settings/index.ts` — owner-editable details, read by websites | **deployed** |
 | Ordering, messaging, AI tiers | not built — see `../OFFER.md` |
 
 Tables are prefixed `mk_` so the portal can share a Postgres database with
@@ -55,6 +56,8 @@ lives in `mk_leads`, apart from the anonymous counts.
 | `mk_calls` | real tracked calls. Empty until a tracking number exists |
 | `mk_messaging_registration` | A2P 10DLC status per client |
 | `mk_message_consent` | consent per person, per purpose |
+| `mk_site_settings` | phone, hours and notice the owner edits themselves |
+| `mk_settings_log` | who changed those details, and what they were before |
 
 Two of these exist to prevent a mistake rather than to store data:
 
@@ -62,6 +65,26 @@ Two of these exist to prevent a mistake rather than to store data:
   The panel labels them "call taps" and says so in plain words on the page.
 - `mk_messaging_registration` and `mk_message_consent` must both be satisfied
   before any automated text is sent. See `../OFFER.md` section 5.
+
+## Details the owner changes themselves
+
+Hours, phone number and a notice banner are editable in the panel, with no
+request to the studio. The website reads them on load and falls back to the
+values built into the page, so a failed or slow request never leaves a visitor
+looking at a blank hours table.
+
+Two safeguards:
+
+- **A notice must have an end date.** The panel refuses to save one without it,
+  and the endpoint stops sending a notice whose date has passed, so a holiday
+  banner cannot be left up until March.
+- **Every change is logged** to `mk_settings_log` with who made it and the
+  previous values, so an unexpected change on a live site can be traced.
+
+Adding more editable fields means three steps: a column on `mk_site_settings`,
+a line in the `settings` function's response, and a field in the panel. The
+website side needs a `data-live="<name>"` marker in `build.js` and a branch in
+the `liveDetails` function in `template/site.js`.
 
 ## Adding a client
 
@@ -120,6 +143,11 @@ what each signed-in person can read, so the key alone shows nobody anything.
   unknown event type (400), a GET (405) and an oversized body (413).
 - A real browser loading a built site produced a page view, a call tap, a form
   submission and an enquiry, all of which landed in the database.
+- Changing the hours, phone and notice in the database changed what the built
+  website showed. Blocking the settings request left the built-in hours and
+  phone in place, with no banner and no error.
+- The panel's editor loads current values, adds and removes hours lines, sends
+  the correct row, and refuses a notice with no end date.
 
 **Not yet verified:** signing in to the panel from a normal browser. The
 sandbox this was built in rewrites the API key on outbound requests, so

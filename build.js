@@ -224,6 +224,10 @@ ${jsonLd(site)}
             <label class="full" for="bk-choice">${esc(form.choiceLabel)}
               <select id="bk-choice" name="choice">${form.choices.map((x) => `<option${x === form.defaultChoice ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>
             </label>
+            ${form.serviceArea ? `<label class="full" for="bk-zip">${esc(form.zipLabel || 'Your ZIP code')}
+              <input id="bk-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="${esc(form.zipPlaceholder || '43215')}">
+              <span class="area-msg" id="areaMsg" role="status" aria-live="polite"></span>
+            </label>` : ''}
           </div>
           <button class="btn" type="submit">${esc(form.button)}</button>
           <div class="msg" id="bk-msg" role="status" hidden></div>

@@ -185,6 +185,44 @@
     window.addEventListener('load', function () { ST.refresh(); });
   }
 
+  /* ---------- "Do you come out to me?" ----------
+     Answered as soon as the ZIP is five digits, before the visitor fills in
+     anything else. The distance travels with the enquiry so the owner sees
+     how far the job is without looking it up. */
+  var area = null;
+  (function serviceArea() {
+    var zipEl = $('bk-zip'), out = $('areaMsg'), cfg = window.DA_TRACK;
+    if (!zipEl || !out || !cfg || !cfg.endpoint || !cfg.siteId) return;
+    var base = cfg.endpoint.replace(/\/collect$/, '/service-area');
+    var timer = null, last = '';
+
+    function ask(zip) {
+      out.className = 'area-msg on thinking';
+      out.textContent = 'Checking\u2026';
+      fetch(base + '?siteId=' + encodeURIComponent(cfg.siteId) + '&zip=' + encodeURIComponent(zip))
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (!d || zipEl.value.trim() !== zip) return;   // they kept typing
+          area = (d.status === 'in_area' || d.status === 'outside_area') ? d : null;
+          if (d.status === 'not_configured') { out.className = 'area-msg'; out.textContent = ''; return; }
+          out.className = 'area-msg on ' + (d.status === 'in_area' ? 'yes' : 'no');
+          out.textContent = d.message || '';
+        })
+        .catch(function () { out.className = 'area-msg'; out.textContent = ''; area = null; });
+    }
+
+    zipEl.addEventListener('input', function () {
+      var zip = zipEl.value.replace(/[^0-9]/g, '').slice(0, 5);
+      if (zipEl.value !== zip) zipEl.value = zip;
+      clearTimeout(timer);
+      area = null;
+      if (zip.length < 5) { out.className = 'area-msg'; out.textContent = ''; last = ''; return; }
+      if (zip === last) return;
+      last = zip;
+      timer = setTimeout(function () { ask(zip); }, 250);
+    });
+  })();
+
   /* ---------- Details the owner changes in their panel ----------
      The page already contains the hours and phone built into it, so if this
      fetch fails or is slow the visitor still sees correct information. This
@@ -256,7 +294,13 @@
           body: JSON.stringify({
             siteId: cfg.siteId, kind: 'lead', name: name,
             requested: $('bk-choice').value,
-            preferred: nice + ', ' + $('bk-time').value
+            preferred: nice + ', ' + $('bk-time').value,
+            zip: $('bk-zip') ? $('bk-zip').value.trim() : '',
+            // The owner should see how far the job is without looking it up.
+            distance: area ? {
+              miles: area.road_miles, minutes: area.drive_minutes,
+              in_area: area.status === 'in_area', estimate: true
+            } : null
           })
         }).catch(function () {});
       } catch (e) { /* the confirmation above still stands */ }

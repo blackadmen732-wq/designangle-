@@ -128,6 +128,8 @@ module.exports = {
       dateLabel: 'Preferred date', timeLabel: 'Arrival window',
       times: ['08:00 – 10:00', '10:00 – 12:00', '12:00 – 14:00', '14:00 – 16:00', '16:00 – 18:00'], defaultTime: '10:00 – 12:00',
       choiceLabel: 'What do you need?', choices: ['Repair', 'New installation', 'Tune-up', 'Not sure yet'], defaultChoice: 'Repair',
+      // Checks the ZIP against the service radius set in the owner's panel.
+      serviceArea: true, zipLabel: 'Your ZIP code', zipPlaceholder: '43215',
       button: 'Request this visit',
       confirm: '{choice} visit on {date}, {time}, for {name}.',
       note: 'This is a preview site, so the request has not been sent to anyone yet.',

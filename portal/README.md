@@ -11,6 +11,8 @@ the same dashboard; nobody is migrated to a different system.
 | `functions/collect/index.ts` — the endpoint websites report to | **deployed** |
 | `app/index.html` — the $150 owner panel | **built** |
 | `functions/settings/index.ts` — owner-editable details, read by websites | **deployed** |
+| `functions/service-area/index.ts` — "do you come out to me, and how far?" | **deployed** |
+| `functions/load-zips/index.ts` — one-off Census ZIP centroid loader | **deployed, already run** |
 | Ordering, messaging, AI tiers | not built — see `../OFFER.md` |
 
 Tables are prefixed `mk_` so the portal can share a Postgres database with
@@ -58,6 +60,7 @@ lives in `mk_leads`, apart from the anonymous counts.
 | `mk_message_consent` | consent per person, per purpose |
 | `mk_site_settings` | phone, hours and notice the owner edits themselves |
 | `mk_settings_log` | who changed those details, and what they were before |
+| `mk_zip_points` | 33,791 US ZIP centroids from the Census Bureau (public domain) |
 
 Two of these exist to prevent a mistake rather than to store data:
 
@@ -85,6 +88,44 @@ Adding more editable fields means three steps: a column on `mk_site_settings`,
 a line in the `settings` function's response, and a field in the panel. The
 website side needs a `data-live="<name>"` marker in `build.js` and a branch in
 the `liveDetails` function in `template/site.js`.
+
+## Service area and travel distance
+
+Before a visitor picks a time, the form answers two questions the owner would
+otherwise discover at 8am: **do we come out there, and how far is it?**
+
+This costs nothing to run. Distance between two points is arithmetic, and the
+ZIP coordinates are public Census data held in your own database. No maps key,
+no per-lookup fee, no rate limit.
+
+Set it up per client:
+
+```sql
+update mk_accounts a set
+  base_zip = '43215', base_lat = z.lat, base_lon = z.lon,
+  service_radius = 25        -- miles; null means no limit
+from mk_zip_points z
+where z.zip = '43215' and a.slug = 'their-slug';
+```
+
+Then switch it on in their `content.js`:
+
+```js
+form: { ..., serviceArea: true, zipLabel: 'Your ZIP code' }
+```
+
+The distance is stored on the lead, so the owner sees "47 mi, about 90 min,
+outside area" on the enquiry without looking anything up.
+
+**It is an estimate and is labelled as one.** Straight-line distance multiplied
+by the account's `road_factor` (1.30 by default) at `avg_speed_mph` (32). That
+is honest for "can we come?" but nobody should plan a tight day around it. For
+real routed drive times, put a routing engine behind the same response shape;
+nothing else changes. Self-hosted OSRM is the usual free choice.
+
+Accuracy check against reality: Columbus to Cleveland comes out at 128 straight-line
+miles against about 142 by road, and New York to Los Angeles at 2,448 miles
+against a true great-circle distance of roughly 2,446.
 
 ## Adding a client
 
@@ -148,6 +189,10 @@ what each signed-in person can read, so the key alone shows nobody anything.
   phone in place, with no banner and no error.
 - The panel's editor loads current values, adds and removes hours lines, sends
   the correct row, and refuses a notice with no end date.
+- The service-area check answers correctly for nearby ZIPs, distant ZIPs, an
+  unknown ZIP and a malformed one, and rejects an unknown site. A real browser
+  typing a ZIP on the built site saw the right answer, and the distance arrived
+  on the lead in the database.
 
 **Not yet verified:** signing in to the panel from a normal browser. The
 sandbox this was built in rewrites the API key on outbound requests, so

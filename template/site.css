@@ -290,3 +290,11 @@ footer .wrap { padding-block: 22px; display: flex; flex-wrap: wrap; gap: 10px 24
 .notice-bar { background: var(--ink); color: var(--bg); font-size: 15px; }
 .notice-bar .wrap { padding-block: 11px; display: flex; gap: 10px; align-items: center; }
 .notice-bar .wrap::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+
+/* Service-area answer under the ZIP field. It appears as soon as there are
+   five digits, so nobody fills in a whole form to be told we do not come out. */
+.area-msg { font-size: 13.5px; font-weight: 500; line-height: 1.45; display: none; }
+.area-msg.on { display: block; }
+.area-msg.yes { color: var(--leaf); }
+.area-msg.no { color: var(--accent); }
+.area-msg.thinking { color: var(--muted); }

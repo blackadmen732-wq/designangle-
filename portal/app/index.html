@@ -115,7 +115,8 @@ table { width: 100%; border-collapse: collapse; min-width: 460px; }
 th { text-align: left; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); font-weight: 600; padding-bottom: 8px; }
 td { padding: 11px 0; border-top: 1px solid var(--line); font-size: 15px; vertical-align: top; }
 td.when { color: var(--muted); font-size: 13.5px; white-space: nowrap; }
-.pill { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+.pill { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.pill.far { background: #fdeaea; color: #b3261e; }
 .empty { color: var(--muted); font-size: 15px; padding: 18px 0; }
 
 /* ---- notes & locked ---- */
@@ -424,16 +425,27 @@ function renderChart(daily) {
   svg.addEventListener('mouseleave', clear);
 }
 
+// How far the job is, as it stood when they asked. Marked as an estimate,
+// because it is a straight-line distance adjusted for roads, not a routed
+// drive time, and the owner should not plan a tight day around it.
+function distanceCell(l) {
+  if (l.road_miles == null) return '<span class="when">—</span>';
+  const far = l.in_area === false;
+  return `<span class="${far ? 'pill far' : 'pill'}">${l.road_miles} mi</span>` +
+         `<br><span class="when">about ${l.drive_minutes} min${far ? ', outside area' : ''}</span>`;
+}
+
 function renderLeads(leads) {
   if (!leads.length) {
     $('leads').innerHTML = '<p class="empty">No enquiries yet in this period. They will appear here the moment someone uses the form.</p>';
     return;
   }
   $('leads').innerHTML =
-    `<div class="scroll-x"><table><thead><tr><th>Name</th><th>Wanted</th><th>For</th><th>Came in</th></tr></thead><tbody>${
+    `<div class="scroll-x"><table><thead><tr><th>Name</th><th>Wanted</th><th>How far</th><th>For</th><th>Came in</th></tr></thead><tbody>${
       leads.map((l) => `<tr>
         <td><b>${esc(l.name)}</b>${l.contact ? '<br><span class="when">' + esc(l.contact) + '</span>' : ''}</td>
         <td>${l.requested ? '<span class="pill">' + esc(l.requested) + '</span>' : '—'}</td>
+        <td>${distanceCell(l)}</td>
         <td class="when">${esc(l.preferred || '—')}</td>
         <td class="when">${new Date(l.created_at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</td>
       </tr>`).join('')

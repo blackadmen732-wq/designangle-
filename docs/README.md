@@ -60,6 +60,7 @@ Do not re-derive these per platform. They are the method.
 | `phone/app-patterns-dark.html` | Eight patterns from two dark media apps. One thing dominates the screen. |
 | `phone/light-dense-patterns.html` | Seven patterns for the opposite case: light ground, several things that matter at once. Values read from Material 3, Base Web and Carbon. |
 | `phone/reviewboost-screens.html` | A worked example: four screens of a real light, dense product. |
+| `phone/motion-spec.md` | Twenty animation rules. Seven are checked by `audit.js --motion`; thirteen need a person, and the file says which is which. |
 
 **Read both pattern files, not one.** The dark set says make one thing huge
 and cut the rest. On an owner's dashboard that is wrong, and the light set
@@ -76,8 +77,18 @@ because the kit itself is the reference: `node build.js` and look at it.
 ## Checking either
 
 ```bash
-node tools/audit.js <file> --width 400     # phone
-node tools/audit.js <file> --width 1280    # web
+node tools/audit.js <file> --width 400              # phone
+node tools/audit.js <file> --width 1280             # web
+node tools/audit.js <file> --width 400 --motion     # and the motion spec
+```
+
+Run `--motion` over **http**, not `file://`. Chromium refuses to read an
+external stylesheet's rules on a file:// page, so the reduced-motion check
+cannot see the block and says it could not verify rather than guessing:
+
+```bash
+cd dist && python3 -m http.server 8077 &
+node tools/audit.js http://localhost:8077/restaurant/index.html --motion
 ```
 
 Both, every time. Several faults in this repo only appeared at one width:

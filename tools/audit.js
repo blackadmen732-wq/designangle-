@@ -10,6 +10,7 @@
  *   node tools/audit.js dist/restaurant/index.html
  *   node tools/audit.js docs/app-patterns.html --width 400
  *   node tools/audit.js dist/hvac/index.html --json
+ *   node tools/audit.js dist/hvac/index.html --motion   (the motion spec too)
  *
  * Exit code 1 if any rule fails, so it can gate a build.
  */
@@ -204,6 +205,69 @@ async function audit(target, opts) {
       });
     });
 
+    /* --- motion spec facts (docs/phone/motion-spec.md) --- */
+    out.spec = { bounce: [], press: [], stagger: [], dropdown: [],
+                 reduced: false, sheetsUnread: 0 };
+
+    // Does a reduced-motion block exist anywhere in the page's stylesheets?
+    // An external sheet loaded over file:// throws on .cssRules in Chromium,
+    // so count what could not be read. Not being able to see a rule is not
+    // the same as the rule being absent, and reporting it as absent was
+    // this tool telling the page off for its own blind spot.
+    for (var si = 0; si < document.styleSheets.length; si++) {
+      var rules = null;
+      try { rules = document.styleSheets[si].cssRules; } catch (e) { rules = null; }
+      if (!rules) { out.spec.sheetsUnread++; continue; }
+      for (var ri = 0; ri < rules.length; ri++) {
+        var cond = rules[ri].conditionText || (rules[ri].media && rules[ri].media.mediaText) || '';
+        if (/prefers-reduced-motion/.test(cond)) out.spec.reduced = true;
+      }
+    }
+
+    function bez(str) {
+      var m = String(str).match(/cubic-bezier\(([^)]+)\)/);
+      if (!m) return null;
+      var p = m[1].split(',').map(parseFloat);
+      return p.length === 4 ? p : null;
+    }
+
+    var everyday = 'button, [role="button"], [role="tab"], input, select, a[href]';
+    document.querySelectorAll(everyday).forEach(function (el) {
+      if (!visible(el)) return;
+      var cs = getComputedStyle(el);
+      var sel = el.className && typeof el.className === 'string'
+        ? '.' + el.className.trim().split(/\s+/)[0] : el.tagName.toLowerCase();
+
+      // Rule 6: overshoot on something pressed often
+      [cs.transitionTimingFunction, cs.animationTimingFunction].forEach(function (tf) {
+        (tf || '').split(',').forEach(function (one) {
+          var b = bez(one);
+          if (b && (b[1] > 1.001 || b[3] > 1.001)) {
+            out.spec.bounce.push({ sel: sel, curve: one.trim() });
+          }
+        });
+      });
+    });
+
+    // Rule 3: stagger step between siblings that carry animation-delay
+    document.querySelectorAll('*').forEach(function (el) {
+      var kids = Array.from(el.children).filter(function (c) {
+        var d = getComputedStyle(c).animationDelay;
+        return d && d !== '0s' && parseFloat(d) > 0;
+      });
+      if (kids.length < 3) return;
+      var ds = kids.map(function (c) { return parseFloat(getComputedStyle(c).animationDelay) * 1000; });
+      ds.sort(function (a, b) { return a - b; });
+      var steps = [];
+      for (var i = 1; i < ds.length; i++) steps.push(ds[i] - ds[i - 1]);
+      var step = steps.reduce(function (a, b) { return a + b; }, 0) / steps.length;
+      out.spec.stagger.push({
+        sel: el.className && typeof el.className === 'string'
+          ? '.' + el.className.trim().split(/\s+/)[0] : el.tagName.toLowerCase(),
+        step: Math.round(step), count: kids.length, total: Math.round(ds[ds.length - 1])
+      });
+    });
+
     /* --- sideways scroll --- */
     var de = document.documentElement;
     if (de.scrollWidth > de.clientWidth + 1) {
@@ -293,6 +357,44 @@ async function audit(target, opts) {
         : 'shorten it to under ' + SLOW_PAINT_MS + 'ms' });
   });
 
+  /* ---- motion spec, only when asked ---- */
+  if (opts.motion) {
+    found.spec.bounce.forEach(function (b) {
+      var key = 'bnc' + b.sel + b.curve;
+      if (seen[key]) return; seen[key] = 1;
+      fails.push({ rule: 'motion-spec-bounce', where: b.sel,
+        detail: b.curve + ' overshoots, on something pressed often',
+        sample: '', fix: 'keep bounce for the rare moment; use a curve that ends at 1' });
+    });
+
+    found.spec.stagger.forEach(function (st) {
+      // 30ms per row, and the last row should not wait longer than ~240ms
+      if (st.step > 45) {
+        fails.push({ rule: 'motion-spec-stagger', where: st.sel,
+          detail: st.step + 'ms per row across ' + st.count + ' rows; the spec is ~30ms',
+          sample: '', fix: 'drop to 30ms on a dense list, or keep 55ms only on a marketing page' });
+      }
+      if (st.total > 240) {
+        fails.push({ rule: 'motion-spec-stagger', where: st.sel,
+          detail: 'the last row waits ' + st.total + 'ms',
+          sample: '', fix: 'cap it: animation-delay: min(calc(var(--i) * 30ms), 240ms)' });
+      }
+    });
+
+    if (!found.spec.reduced) {
+      if (found.spec.sheetsUnread) {
+        fails.push({ rule: 'motion-spec-reduced', where: 'stylesheet',
+          detail: 'could not verify: ' + found.spec.sheetsUnread + ' stylesheet(s) unreadable '
+                + '(external sheets over file:// throw on .cssRules)',
+          sample: '', fix: 'serve the page over http to check this, e.g. npx serve dist/<site>' });
+      } else {
+        fails.push({ rule: 'motion-spec-reduced', where: 'stylesheet',
+          detail: 'no @media (prefers-reduced-motion: reduce) block found',
+          sample: '', fix: 'add one and disable transitions and animations inside it' });
+      }
+    }
+  }
+
   if (found.overflow) {
     fails.push({ rule: 'overflow', where: found.overflow.widest,
       detail: 'page is ' + found.overflow.page + 'px wide in a ' + found.overflow.viewport + 'px viewport',
@@ -307,14 +409,15 @@ if (require.main === module) {
   var argv = process.argv.slice(2);
   var target = argv.find(function (a) { return a[0] !== '-'; });
   if (!target) {
-    console.log('usage: node tools/audit.js <file-or-url> [--width 400] [--json]');
+    console.log('usage: node tools/audit.js <file-or-url> [--width 400] [--json] [--motion]');
     process.exit(2);
   }
   var wi = argv.indexOf('--width');
   var opts = {
     width: wi !== -1 ? parseInt(argv[wi + 1], 10) : 400,
     height: 900,
-    json: argv.indexOf('--json') !== -1
+    json: argv.indexOf('--json') !== -1,
+    motion: argv.indexOf('--motion') !== -1
   };
 
   audit(target, opts).then(function (res) {

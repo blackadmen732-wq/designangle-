@@ -34,6 +34,16 @@ To look at it:
 npx serve dist/hvac
 ```
 
+## Scale, money, and what is not built
+
+`docs/SCALE-AND-TERMS.md` answers four things with measured numbers: whether
+clients pay before or after (before — the preview is what makes that
+sellable), whether one system runs 500 sites (yes, about $45 a month, but
+only with event retention or the database fills in 14.5 months), what the
+booking feature actually does today (it is a request form, not a booking
+engine — and the $397 tier promises a booking engine), and what bundling
+ReviewBoost into every plan really costs.
+
 ## The whole process, start to finish
 
 `docs/RUNBOOK.md` is the sequence with real timings: what you need at each

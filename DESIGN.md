@@ -81,14 +81,18 @@ client, but keep the pairing shape: one characterful, one neutral.
 
 ## 4. Spacing and layout
 
-- **One scale:** 4, 8, 12, 16, 24, 32, 48, 64, 96. Add 2 for dense screens.
+- **One scale:** 2, 4, 8, 12, 16, 24, 32, 40, 48, 64. Above 64, this kit uses
+  96 on marketing pages, which is its own choice and not a cited one.
 
-  This used to read "multiples of 8: 8, 16, 24, 32, 44, 64", which was wrong
-  twice. 44 is the minimum touch target, not a spacing step, and having it in
-  a multiples-of-8 list made the scale look arbitrary. And starting at 8 left
-  no step for a hairline gap. Every value above appears in Carbon 11.63.0,
-  Material 3 `v0_192` and Uber Base Web 18.2.0 — checked against the published
-  packages, not chosen. See `docs/research/motion-values-from-shipped-systems.md`.
+  Two corrections live in this line. It first read "multiples of 8: 8, 16, 24,
+  32, 44, 64" — 44 is the minimum touch target, not a spacing step, and 8 as a
+  floor left no step for a hairline gap. It then claimed every value was in
+  Carbon, Material 3 and Base Web, which was also wrong: Material 3 stops at
+  72px so 96 is not in it, and 40 is in all three and had been dropped. The
+  scale above is the true three-way intersection, checked against the packages.
+
+  `template/site.css` does not fully keep to it — there are gaps of 22, 28, 44
+  and 56 in there. That is a real inconsistency and it is not yet fixed.
 - Side gutter never below 20px, written as `max(20px, env(safe-area-inset-left, 0px))`.
 - Lay out with flex or grid and `gap`, not margins.
 - Everything stacks to one column at 860px. Test at **400px wide**.
@@ -102,6 +106,10 @@ bounce, elastic (except the thumbnail pop) or linear-looking curves.
 | Thing | Duration | Ease |
 |---|---|---|
 | Interface feedback (buttons, hovers, tabs) | under 200ms | ease-out |
+
+The code does not keep to this: `template/site.css` has .25s to .4s hovers on
+`.top`, `.nav a::after`, `.btn`, `.round`, `.thumb` and `.tabs button`. Known
+and unfixed, listed here rather than left to be discovered.
 | Text reveals | 0.9s, 0.08s stagger | `expo.out` |
 | Full-screen wipes, photo slides | 1.1 to 1.4s | `expo.inOut` |
 | Anything scroll-linked or looping | n/a | `none` (linear) |

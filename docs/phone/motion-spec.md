@@ -1,7 +1,11 @@
 # The motion spec
 
-Twenty rules for interface animation, with the seven that a machine can check
-marked and wired into `tools/audit.js --motion`.
+Twenty rules for interface animation. **Three are wired into
+`tools/audit.js --motion` today: bounce, stagger and reduced motion.** The
+table below marked seven as checked, which was wrong — four of them have no
+grading code behind them. They are marked *planned* now, and the table says
+which is which, because a spec that claims coverage it does not have is worse
+than one that claims none.
 
 **Where these came from.** They are one practitioner's demonstrated
 recommendations, relayed through a review of reference videos. They are not a
@@ -17,15 +21,15 @@ Those conflicts are resolved here rather than left for someone to trip over.
 
 ## The seven the audit checks
 
-| # | Rule | How it is checked |
-|---|---|---|
-| 1 | Entrances ease out | `transition-timing-function` / `animation-timing-function` on an entering element must decelerate: the bezier's second control point y ≥ 0.9 |
-| 2 | Dropdowns and popovers: 150–250ms | duration read from computed style |
-| 3 | List stagger: ~30ms per row | `animation-delay` difference between siblings |
-| 4 | Button press: scale to 0.97 | `:active` transform |
-| 5 | Exits are ~20% shorter than entrances | both durations present on the same element |
-| 6 | No bounce on everyday controls | bezier y > 1.0 (overshoot) on a button, tab or input is a fault |
-| 7 | `prefers-reduced-motion` is honoured | the media query exists and disables motion |
+| # | Rule | Status | How |
+|---|---|---|---|
+| 3 | List stagger: ~30ms per row | **checked** | `animation-delay` step between siblings, and the total wait of the last row |
+| 6 | No bounce on everyday controls | **checked** | a bezier with a control-point y above 1.0 on a button, tab or input |
+| 7 | `prefers-reduced-motion` is honoured | **checked** | the media query exists; says *could not verify* when a stylesheet is unreadable |
+| 1 | Entrances ease out | planned | needs the **first** control point, not the second. The stated test (second y ≥ 0.9) would pass an ease-in-out, which is exactly the fault it is meant to catch |
+| 2 | Dropdowns: 150–250ms | planned | needs a way to tell a dropdown from anything else that transitions |
+| 4 | Button press: scale to 0.97 | planned | `:active` styles are not in computed style without synthesising the state |
+| 5 | Exits ~20% shorter than entrances | planned | needs both durations declared on one element |
 
 ```bash
 node tools/audit.js <page> --motion
@@ -33,7 +37,7 @@ node tools/audit.js <page> --motion
 
 ---
 
-## 1. Entrances ease out ✅ checked
+## 1. Entrances ease out — planned, not checked
 
 A thing arriving should start fast and settle. Accelerating into place reads
 as the element being pushed rather than landing.
@@ -43,7 +47,7 @@ cubic-bezier(0.22, 1, 0.36, 1)` with the comment *"commonly used for entering
 elements"*. Material 3 ships `easing-standard-decelerate: cubic-bezier(0, 0,
 0, 1)` for the same purpose. Two systems, same instruction.
 
-## 2. Dropdowns: 150–250ms ✅ checked
+## 2. Dropdowns: 150–250ms — planned, not checked
 
 **Backed, and it narrows an existing rule.** Material's `short3` is 150ms and
 `short4` is 200ms; Uber has `timing150`, `timing200` and `timing250`. The band
@@ -71,13 +75,13 @@ That is defensible on a marketing page, where the stagger is the effect. On a
 dense list it is too slow. This is the clearest case of a web rule and a phone
 rule genuinely differing.
 
-## 4. Button press: scale to 0.97 ✅ checked
+## 4. Button press: scale to 0.97 — planned, not checked
 
 **Already what this kit does.** `template/site.css` has
 `.btn:active { transform: scale(.97) }` and the dark pattern page uses `.97`
 and `.94`. Independent arrival at the same number is worth something.
 
-## 5. Exits are ~20% shorter than entrances ✅ checked
+## 5. Exits are ~20% shorter than entrances — planned, not checked
 
 **Backed by structure if not by number.** Both Material and Uber ship separate
 accelerate and decelerate curves rather than one reversed curve, which is the

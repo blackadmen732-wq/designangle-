@@ -147,7 +147,7 @@ module.exports = {
 
       button: 'Request this visit',
       confirm: '{choice} visit on {date}, {time}, for {name}.',
-      note: 'This is a preview site, so the request has not been sent to anyone yet.',
+      note: 'This is a demonstration site. Your details were sent to the demo panel, not to a heating company.',
       nameError: 'Add your name so we know who to ask for.',
       phoneError: 'Add a phone number so we can confirm the visit.',
       addressError: 'Add the address so we know where to come.',

@@ -59,11 +59,22 @@ One scale, multiples of **4**. Nothing between: no 13px, no 27px.
 4  8  12  16  24  32  48  64  96
 ```
 
-Every step here is in Carbon, Material 3 **and** Uber Base Web, checked
-against the published packages. Material builds from an explicit
-`--md-sys-space-unit: 8px` with quarter steps; Carbon and Base Web both start
-their ladders at 2px. Add **2** when you are building something dense — it is
-in all three and nothing marketing-shaped needs it.
+**Correction.** This file previously claimed every step above appears in
+Carbon, Material 3 and Uber Base Web. That was wrong, and checking it is what
+found it: Material 3's space tokens stop at `space-900`, which is 9 x 8 = 72px,
+so **96 is not in Material 3**. And **40 is in all three** and had been left
+out.
+
+The real intersection of the three published scales is:
+
+```
+2  4  8  12  16  24  32  40  48  64
+```
+
+Use that. The 2 and the 4 are what a dense screen needs; 96 and above are fine
+on a marketing page but are this kit's choice, not a cited one. Material builds
+from an explicit `--md-sys-space-unit: 8px` with quarter steps; Carbon and Base
+Web both start their ladders at 2px.
 
 **44 is not on this scale.** It is the minimum touch target, which is a
 different rule with a different reason, and it does not belong in a spacing
@@ -111,11 +122,14 @@ cheap.
 |---|---|---|
 | Buttons, hovers, toggles, tabs | under 200ms | ease-out |
 
-200ms is not a taste. It is Google's INP threshold for a tap counting as
-responsive, so it is the number that is actually measured in the field.
-Uber's `timing200` and Material 3's `short4` both sit at the same place:
-200ms is where small interface feedback ends in every published system
-checked. See `docs/research/motion-values-from-shipped-systems.md`.
+200ms is not a taste, but the reason first given here was wrong. INP measures
+the time from a tap to the **next paint** — it is about how fast the interface
+starts responding, not how long an animation then runs. A 300ms transition on
+an element that begins moving immediately does not fail INP.
+
+The real support is simpler and still holds: Uber ships `timing200` and
+Material 3 calls 200ms `short4`, the end of its short band. Two published
+systems put the ceiling for small interface feedback in the same place. See `docs/research/motion-values-from-shipped-systems.md`.
 
 **State the intent, not a magic bezier.** Earlier versions of this file named
 two specific curves. They were never wired into anything, so anyone matching
@@ -206,10 +220,16 @@ Everything above applies. These are the extra constraints.
 screen, not at the top. A button in the top-right corner of a tall phone is
 a two-handed operation.
 
-**Navigation floats.** A pill-shaped bar sitting above the bottom edge with a
-margin around it reads as more considered than a bar locked to the edge. If
-there is a create action, give it its own circular button beside the bar rather
-than cramming it in as a fifth tab.
+**A bar anchors or floats by what it carries, not by the ground behind it.**
+Anchor a bar that summarises what is above it — a total, a count, a selection —
+because a total that floats is detached from the list it totals. Float a bar
+that only moves you between places: it is a control panel, not part of the
+page. Either way, if there is a create action, give it its own circular button
+beside the bar rather than cramming it in as a fifth tab.
+
+This replaces an unconditional "navigation floats", and a claim elsewhere that
+a bar must anchor on a light ground. Both were wrong; see
+`docs/phone/video-findings.html`.
 
 **Respect the safe areas.** Content clears the notch and the home indicator:
 

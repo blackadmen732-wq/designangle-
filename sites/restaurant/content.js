@@ -133,7 +133,7 @@ module.exports = {
       choiceLabel: 'Guests', choices: ['1', '2', '3', '4', '5', '6', '7', '8'], defaultChoice: '2',
       button: 'Request this table',
       confirm: 'Table for {choice} on {date} at {time}, under {name}.',
-      note: 'This is a preview site, so the request has not been sent to a restaurant yet.',
+      note: 'This is a demonstration site and no booking system is connected, so nothing was sent.',
       nameError: 'Add a name for the booking.', dateError: 'Pick a date for the booking.'
     }
   },

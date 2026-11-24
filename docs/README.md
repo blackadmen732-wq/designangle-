@@ -60,7 +60,7 @@ Do not re-derive these per platform. They are the method.
 | `phone/app-patterns-dark.html` | Eight patterns from two dark media apps. One thing dominates the screen. |
 | `phone/light-dense-patterns.html` | Seven patterns for the opposite case: light ground, several things that matter at once. Values read from Material 3, Base Web and Carbon. |
 | `phone/reviewboost-screens.html` | A worked example: four screens of a real light, dense product. |
-| `phone/motion-spec.md` | Twenty animation rules. Seven are checked by `audit.js --motion`; thirteen need a person, and the file says which is which. |
+| `phone/motion-spec.md` | Twenty animation rules. Three are checked by `audit.js --motion` today; four more are specified but not yet graded, and the file marks which. |
 | `phone/video-findings.html` | What six reference redesigns showed, and the three documented rules they proved wrong. |
 
 **Read both pattern files, not one.** The dark set says make one thing huge

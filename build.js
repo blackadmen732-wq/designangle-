@@ -214,7 +214,10 @@ ${jsonLd(site)}
               data-name-error="${esc(form.nameError || 'Add your name so we know who to ask for.')}"
               data-phone-error="${esc(form.phoneError || 'Add a phone number so we can confirm.')}"
               data-address-error="${esc(form.addressError || 'Add the address so we know where to come.')}"
-              data-date-error="${esc(form.dateError || 'Pick a date.')}">
+              data-date-error="${esc(form.dateError || 'Pick a date.')}"
+              data-sending="${esc(form.sending || 'Sending your request…')}"
+              data-failed="${esc(form.failed || 'That did not send. Please call us instead — we do not have your request.')}"
+              data-callfallback="${esc(form.callFallback || (site.seo && site.seo.telephone) || '')}">
           <h3>${esc(form.title)}</h3>
 
           <fieldset class="group">

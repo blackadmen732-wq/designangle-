@@ -311,8 +311,10 @@
      make a lead usable: who you are, how to reach you, where the work is,
      and what you need. A name with no phone number is not a lead.
 
-     It only shows a confirmation; connect it to a real service before launch. */
+     The confirmation is only shown once the collector has accepted the lead.
+     If it has not, the person is told so and given the phone number. */
   var form = $('reqForm'), msg = $('bk-msg'), date = $('bk-date');
+  var submitBtn = form.querySelector('button[type="submit"], button:not([type])');
   var now = new Date(), iso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   date.min = iso; if (!date.value) date.value = iso;
 
@@ -340,36 +342,101 @@
     }
 
     var nice = new Date(date.value + 'T12:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
-    var text = form.dataset.confirm
-      .replace('{choice}', val('bk-choice')).replace('{date}', nice)
-      .replace('{time}', val('bk-time')).replace('{name}', name);
-    msg.className = 'msg';
-    var b = document.createElement('b'); b.textContent = text; msg.appendChild(b);
-    if (form.dataset.note) msg.appendChild(document.createTextNode(' ' + form.dataset.note));
-
-    // Send the enquiry to the owner's panel. Unlike the anonymous counts in
-    // track.js this carries the person's own details, so it is only ever sent
-    // because they filled the form in and pressed the button.
     var cfg = window.DA_TRACK;
-    if (cfg && cfg.endpoint && cfg.siteId) {
-      try {
-        fetch(cfg.endpoint, {
-          method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-          body: JSON.stringify({
-            siteId: cfg.siteId, kind: 'lead',
-            name: name, phone: phone, email: val('bk-email'),
-            address: addr, city: val('bk-city'), zip: val('bk-zip'),
-            requested: val('bk-choice'),
-            preferred: nice + ', ' + val('bk-time'),
-            message: val('bk-notes'),
-            // The owner should see how far the job is without looking it up.
-            distance: area ? {
-              miles: area.road_miles, minutes: area.drive_minutes,
-              in_area: area.status === 'in_area', estimate: true
-            } : null
-          })
-        }).catch(function () {});
-      } catch (e) { /* the confirmation above still stands */ }
+    var canSend = !!(cfg && cfg.endpoint && cfg.siteId);
+
+    /* ---------------------------------------------------------------------
+       Never tell someone their request is in when it is not.
+
+       This used to paint the confirmation first and then fire the POST with
+       an empty .catch(). If the network was down, the browser was offline, a
+       blocker ate the request, or the site simply had no endpoint configured,
+       the visitor read "thanks, see you Tuesday" and the owner never heard.
+       On a trades site that is a lost job and a customer who believes they
+       booked one.
+
+       Now: the confirmation waits for the server to accept it. If it does not,
+       the person is told plainly and given the phone number, because a visitor
+       who calls is still a customer and a visitor who walks away is not.
+       --------------------------------------------------------------------- */
+
+    function confirmed() {
+      var text = form.dataset.confirm
+        .replace('{choice}', val('bk-choice')).replace('{date}', nice)
+        .replace('{time}', val('bk-time')).replace('{name}', name);
+      msg.className = 'msg';
+      msg.textContent = '';
+      var b = document.createElement('b'); b.textContent = text; msg.appendChild(b);
+      if (form.dataset.note) msg.appendChild(document.createTextNode(' ' + form.dataset.note));
+      if (submitBtn) submitBtn.disabled = false;
+      form.reset();
+    }
+
+    function failed() {
+      msg.className = 'msg err';
+      msg.textContent = form.dataset.failed || 'That did not send. Please call us instead.';
+      var tel = form.dataset.callfallback;
+      if (tel) {
+        msg.appendChild(document.createTextNode(' '));
+        var a = document.createElement('a');
+        a.href = 'tel:' + tel.replace(/[^0-9+]/g, '');
+        a.className = 'sel';
+        a.setAttribute('data-live', 'phone');
+        a.textContent = tel;
+        msg.appendChild(a);
+      }
+      if (submitBtn) submitBtn.disabled = false;   // they must be able to try again
+    }
+
+    if (!canSend) {
+      // No collector wired up. Saying nothing would be better than lying, but
+      // telling them to call is better than both.
+      failed();
+      return;
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+    msg.className = 'msg';
+    msg.textContent = form.dataset.sending || 'Sending your request…';
+
+    var payload = {
+      siteId: cfg.siteId, kind: 'lead',
+      name: name, phone: phone, email: val('bk-email'),
+      address: addr, city: val('bk-city'), zip: val('bk-zip'),
+      requested: val('bk-choice'),
+      preferred: nice + ', ' + val('bk-time'),
+      message: val('bk-notes'),
+      // The owner should see how far the job is without looking it up.
+      distance: area ? {
+        miles: area.road_miles, minutes: area.drive_minutes,
+        in_area: area.status === 'in_area', estimate: true
+      } : null
+    };
+
+    // A request that never resolves is the same as a failure to the person
+    // waiting, so give it a deadline and tell them either way.
+    var settled = false;
+    var deadline = setTimeout(function () {
+      if (!settled) { settled = true; failed(); }
+    }, 12000);
+
+    try {
+      fetch(cfg.endpoint, {
+        method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify(payload)
+      }).then(function (r) {
+        if (settled) return;
+        settled = true; clearTimeout(deadline);
+        if (r && r.ok) confirmed(); else failed();
+      }).catch(function () {
+        if (settled) return;
+        settled = true; clearTimeout(deadline);
+        failed();
+      });
+    } catch (e) {
+      settled = true; clearTimeout(deadline);
+      failed();
     }
   });
 })();

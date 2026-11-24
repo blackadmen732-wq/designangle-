@@ -34,6 +34,14 @@ To look at it:
 npx serve dist/hvac
 ```
 
+## The whole process, start to finish
+
+`docs/RUNBOOK.md` is the sequence with real timings: what you need at each
+stage, what the client gets, what they do not, and which things must be done
+once before any real client exists. The short version is about two and a half
+hours of your work per client, and everything else is waiting on their
+photographs.
+
 ## Show a prospect a preview, without building their site
 
 A prospect cannot picture themselves inside someone else's website. Showing
@@ -52,6 +60,11 @@ node tools/preview.js --name "Hartley Heating" --trade hvac --city "Dublin, OH"
 Under a minute, and it converts like the real thing, because the only thing
 most people need to see is their own name at the top of a page that looks
 expensive.
+
+It also writes `sites/<slug>/intake.md`: the list of what you need from that
+client, with their name on it, worded for them rather than for you. Send it
+the moment they show interest. The photographs are what you will wait days
+for, so the ask should be out before the deposit clears.
 
 **It reads as finished, and nothing on it is a claim about them.** Prices are
 removed, because a price is an offer and somebody will call expecting it.

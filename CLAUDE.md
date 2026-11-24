@@ -40,8 +40,15 @@ Build with `node build.js`, then look at it before saying it is done:
 ```bash
 node build.js                      # every site, into dist/
 node build.js hvac                 # one site
-python3 tools/critique.py shot.png --kind app    # cheap design review
+node tools/audit.js dist/hvac/index.html --width 400    # the rules, measured
+node tools/audit.js dist/hvac/index.html --width 1280
+python3 tools/critique.py shot.png --kind app           # the judgement call
 ```
+
+`tools/audit.js` is the half of review that is arithmetic: contrast against the
+real painted background, tap-target boxes, input sizes, layout-thrashing
+transitions, sideways overflow. It exits non-zero, so it can gate a build.
+Run it before the vision model, and never ask a model whether a ratio passes.
 
 Screenshot at **400×860** and **1280×900**. Both, every time.
 

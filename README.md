@@ -119,6 +119,33 @@ to take something that looks bad and make it look made. It loads automatically
 in this repo, so any session starts knowing it, and it applies to app screens
 as much as web pages.
 
+### Two halves of review
+
+`tools/audit.js` does the half that is arithmetic. It opens the page in a real
+browser, reads the computed styles, and reports exactly what is wrong:
+
+```bash
+node tools/audit.js dist/hvac/index.html --width 400
+node tools/audit.js dist/hvac/index.html --width 1280
+```
+
+It checks contrast against the colour actually painted behind the text
+(including through translucent layers), tap-target boxes including ones grown
+by a pseudo-element, input font sizes that make iOS zoom, transitions on
+properties that re-run layout, and sideways overflow. Every finding comes with
+the fix, and contrast findings come with the exact replacement colour. It exits
+non-zero, so it can gate a build.
+
+`tools/contrast.js` is the maths on its own:
+
+```bash
+node tools/contrast.js check "#db2235" "#ffffff"
+node tools/contrast.js darken "#e03a4b" "#ffffff" 4.5
+```
+
+`darken` keeps hue and saturation and walks lightness until it passes, so a
+client's brand colour stays their brand colour.
+
 `tools/critique.py` reviews a screenshot on your own NVIDIA credit, not
 Claude's:
 
@@ -152,6 +179,8 @@ sites/
   restaurant/            example: Pomelo Kitchen (invented)
   hvac/                  example: Northwind Heating & Air (invented)
 .claude/skills/design/  the design method, loaded automatically
+tools/audit.js         the design rules, measured in a real browser
+tools/contrast.js      WCAG contrast maths and brand-safe darkening
 tools/critique.py      screenshot review on your NVIDIA credit
 portal/
   schema.sql             the portal database

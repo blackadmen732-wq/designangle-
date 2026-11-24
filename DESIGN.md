@@ -31,7 +31,21 @@ Set them in `content.js` under `theme`:
 
 | Token | What it is | Restaurant | HVAC |
 |---|---|---|---|
-| `accent` | The single brand colour. Buttons, eyebrows, the dot in the wordmark. | `#e03a4b` | `#0b63ce` |
+| `accent` | The single brand colour. Buttons, eyebrows, the dot in the wordmark. | `#db2235` | `#0b63ce` |
+
+The restaurant accent was `#e03a4b`, which is **4.31:1 on white** and fails the
+4.5:1 rule this file sets, on text we were shipping. `#db2235` is the same hue
+and saturation, darkened until it passes everywhere it is used:
+
+| Use | Ratio |
+|---|---|
+| accent text on white (`.eyebrow`, `.msg.err`) | 4.89:1 |
+| accent text on `--soft` `#fff4f1` (`.btn.locate`) | 4.53:1 |
+| white text on an accent button | 4.89:1 |
+
+`#fff4f1` is the binding case at 4.53:1, so do not lighten the accent past
+this. `node tools/contrast.js darken "<colour>" "<ground>" 4.5` recomputes it
+for a new client's brand colour and keeps the hue.
 | `soft` | The tinted section background. A very pale version of the accent. | `#fff4f1` | `#f1f6fc` |
 | `tint` | The blob behind the hero photo. Slightly stronger than `soft`. | `#ffe3dc` | `#dcebfb` |
 | `ink` | Text. Near-black, never pure `#000`. | `#1e1512` | `#101820` |
@@ -53,7 +67,10 @@ Rules:
 Two typefaces: one with character for headings, one plain for text. Both from Google Fonts,
 set as `theme.fontsUrl`, `theme.display` and `theme.body`.
 
-- Body text **17px**, line height **1.55**, measure **45 to 90 characters** (`max-width: 54ch`).
+- Body text **17px**, line height **1.55**, measure **45 to 90 characters**.
+  `54ch` gives that in Instrument Sans at 17px — measured, 45 to 60 per line.
+  `ch` is the width of "0" in whatever font is loaded, so that number is only
+  right for this face. Change the font and measure again.
 - Headings: `letter-spacing: -0.02em` and `text-wrap: balance`.
 - **Two weights only** per face. Use weight and colour for hierarchy before size.
 - Uppercase labels get `letter-spacing: .14em`.
@@ -64,7 +81,10 @@ client, but keep the pairing shape: one characterful, one neutral.
 
 ## 4. Spacing and layout
 
-- **Multiples of 8.** 8, 16, 24, 32, 44, 64.
+- **Multiples of 8.** 8, 16, 24, 32, 48, 64.
+  44 used to be in this list. It is the minimum touch target, not a spacing
+  step, and having it here made the scale look arbitrary. It lives with the
+  tap-target rule now.
 - Side gutter never below 20px, written as `max(20px, env(safe-area-inset-left, 0px))`.
 - Lay out with flex or grid and `gap`, not margins.
 - Everything stacks to one column at 860px. Test at **400px wide**.
@@ -77,7 +97,7 @@ bounce, elastic (except the thumbnail pop) or linear-looking curves.
 
 | Thing | Duration | Ease |
 |---|---|---|
-| Interface feedback (buttons, hovers, tabs) | under 300ms | ease-out |
+| Interface feedback (buttons, hovers, tabs) | under 200ms | ease-out |
 | Text reveals | 0.9s, 0.08s stagger | `expo.out` |
 | Full-screen wipes, photo slides | 1.1 to 1.4s | `expo.inOut` |
 | Anything scroll-linked or looping | n/a | `none` (linear) |

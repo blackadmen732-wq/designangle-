@@ -5,7 +5,7 @@
   --muted: #6f625c;
   --line: #eee7e2;
   --soft: #fff4f1;
-  --accent: #e03a4b;
+  --accent: #db2235;
   --leaf: #1f6b45;
   --tint: #ffe3dc;
   --on-photo: #ffffff;
@@ -212,7 +212,7 @@ section { scroll-margin-top: 80px; }
 .menu-list .p { font-family: var(--display); font-weight: 700; font-size: 19px; font-variant-numeric: tabular-nums; }
 .menu-list p { grid-column: 1 / -1; color: var(--muted); font-size: 15.5px; max-width: 48ch; }
 .menu-list .tag { font-family: var(--body); font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--leaf); margin-left: 8px; vertical-align: middle; }
-.menu-note { margin-top: 22px; color: var(--muted); font-size: 14px; }
+.menu-note { margin-top: 22px; color: var(--muted); font-size: 15px; }
 
 /* Story */
 .story { background: var(--soft); overflow: clip; }
@@ -310,7 +310,7 @@ footer .wrap { padding-block: 22px; display: flex; flex-wrap: wrap; gap: 10px 24
   padding: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--ink);
   margin-bottom: 14px; width: 100%; border-bottom: 1px solid var(--line);
 }
-.opt { font-weight: 400; color: var(--faint, #9aa0a6); text-transform: none; letter-spacing: 0; }
+.opt { font-weight: 400; color: var(--faint, #70777f); text-transform: none; letter-spacing: 0; }
 .fields .full { grid-column: 1 / -1; }
 textarea {
   font: inherit; font-size: 16px; color: var(--ink); background: var(--bg); width: 100%;
@@ -331,3 +331,68 @@ textarea:hover, textarea:focus { border-color: var(--ink); }
 }
 .btn.locate:hover { background: var(--accent); color: var(--bg); border-color: transparent; }
 .btn.locate[disabled] { opacity: .6; cursor: default; }
+
+/* ---------------------------------------------------------------------------
+   Tap targets.
+
+   Every one of these keeps the look it already had. What grows is the
+   invisible box you can hit, because the rule is about the box around the
+   control, not the control. tools/audit.js measures these; it found them.
+
+   The phone link matters most. A 21px-tall tel: link is the single most
+   valuable tap on a trades site, and on a phone it was a near miss.
+   --------------------------------------------------------------------------- */
+
+a.sel[href^="tel:"], a.sel[href^="mailto:"], .info address a.sel {
+  position: relative;
+  display: inline-block;
+  padding-block: 2px;
+}
+a.sel[href^="tel:"]::after,
+a.sel[href^="mailto:"]::after,
+.info address a.sel::after {
+  content: ""; position: absolute;
+  inset: 50% 0 auto 0; height: 44px; transform: translateY(-50%);
+}
+
+/* Carousel dots: 26x22 visually, 44 tall to the thumb. */
+.dots button { position: relative; }
+.dots button::after {
+  content: ""; position: absolute;
+  inset: 50% -9px auto -9px; height: 44px; transform: translateY(-50%);
+}
+
+/* Gallery thumbs: 41px square, 44 to the thumb. */
+.thumb { position: relative; }
+.thumb::after { content: ""; position: absolute; inset: -2px; border-radius: inherit; }
+
+/* The header button lands at 43px on a phone. One pixel, but it is the rule. */
+.btn { min-height: 44px; }
+
+/* Inline links inside running text sit at the line height. Grow the box
+   around them, not the text, so the line spacing is untouched. */
+main a:not(.btn):not(.sel):not(.logo) { position: relative; display: inline-block; }
+main a:not(.btn):not(.sel):not(.logo)::after {
+  content: ""; position: absolute;
+  inset: 50% 0 auto 0; height: 44px; transform: translateY(-50%);
+}
+
+/* The wordmark in the header is a link home. */
+.logo { position: relative; }
+.logo::after {
+  content: ""; position: absolute;
+  inset: 50% 0 auto 0; height: 44px; transform: translateY(-50%);
+}
+
+/* "optional" was #9aa0a6 on white: 2.64:1. This is the same grey, deep
+   enough to read, still clearly quieter than the label beside it. */
+.opt { color: var(--faint, #70777f); }
+
+/* The header nav already spends ::after on the hover underline, so the hit
+   area goes on ::before. 31px tall on a laptop that happens to have a touch
+   screen is a miss; this costs nothing and removes the question. */
+.nav a::before {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: max(100% + 8px, 44px); height: 44px;
+  transform: translate(-50%, -50%);
+}

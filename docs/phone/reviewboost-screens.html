@@ -16,7 +16,7 @@
   --green-soft: #E3F5EC;
   --good: #00A86B;
   --warn-bg: #FBF1E2;
-  --warn-fg: #9A6415;
+  --warn-fg: #996315;  /* ReviewBoost ships #9A6415; on #FBF1E2 that is 4.46:1, just under. */
   --bad-bg: #FBEAEA;
   --bad-fg: #B33A3A;
   --sans: "Geist", ui-sans-serif, system-ui, sans-serif;
@@ -50,7 +50,7 @@ header.top p { color: var(--ink-2); max-width: 60ch; margin-top: 18px; font-size
 .screens { display: flex; gap: 28px; overflow-x: auto; padding-block: 24px 48px; scrollbar-width: thin; }
 .col { flex: none; width: 310px; display: flex; flex-direction: column; gap: 14px; }
 .col > h2 { font-size: 17px; font-weight: 600; }
-.col > .cap { font-size: 14px; color: var(--ink-3); line-height: 1.45; }
+.col > .cap { font-size: 15px; color: var(--ink-3); line-height: 1.45; }
 
 /* ---- the phone ---- */
 .phone {
@@ -71,7 +71,7 @@ header.top p { color: var(--ink-2); max-width: 60ch; margin-top: 18px; font-size
 .homebar i { width: 112px; height: 4px; border-radius: 4px; background: #D8D8D6; display: block; }
 
 /* ---- the parts ---- */
-.where { font-size: 13px; font-weight: 600; color: var(--ink-3); }
+.where { display: block; font-size: 13px; font-weight: 600; color: var(--ink-3); }
 .biz { font-size: 23px; font-weight: 600; letter-spacing: -0.015em; }
 
 .state {
@@ -116,7 +116,11 @@ header.top p { color: var(--ink-2); max-width: 60ch; margin-top: 18px; font-size
 .unread { width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-top: 8px; flex: none; }
 .unread.off { background: transparent; }
 .stars { font-size: 14px; letter-spacing: 1px; color: var(--ink); }
-.stars .dim { color: #C9C9C6; }
+.stars .dim { color: var(--ink-3); }
+/* The glyphs are decorative: the rating is named on the row instead, so a
+   screen reader says "two stars" rather than reading ten star characters.
+   Darkening the empty ones to pass contrast would destroy the one thing
+   they do, which is look empty. */
 /* The Tag name wraps instead of truncating — the review called this out. */
 .row > span:nth-child(2) { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .row .stars { display: block; }
@@ -132,7 +136,7 @@ header.top p { color: var(--ink-2); max-width: 60ch; margin-top: 18px; font-size
 }
 .sheet { border: 1px solid var(--line); border-radius: 16px; padding: 15px; display: flex; flex-direction: column; gap: 9px; }
 .sheet h3 { font-size: 15.5px; font-weight: 600; }
-.sheet p { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+.sheet p { font-size: 15px; color: var(--ink-2); line-height: 1.5; }
 
 .tabs {
   flex: none; display: flex; border-top: 1px solid var(--line); padding: 7px 8px 2px;
@@ -149,7 +153,7 @@ header.top p { color: var(--ink-2); max-width: 60ch; margin-top: 18px; font-size
 }
 .tabs span.ico { position: relative; }
 
-footer { padding-block: 32px 72px; color: var(--ink-3); font-size: 14px; }
+footer { padding-block: 32px 72px; color: var(--ink-3); font-size: 15px; }
 footer b { color: var(--ink); font-weight: 600; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important } }
 </style>
@@ -182,7 +186,7 @@ footer b { color: var(--ink); font-weight: 600; }
         <div class="status"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
         <div class="screen">
           <div>
-            <p class="where">Mario's Pizza</p>
+            <span class="where">Mario's Pizza</span>
             <p class="biz">Good morning</p>
           </div>
           <div class="state needs"><i></i><div><b>Needs you</b> · 6 new ratings, 2 of them 3 stars or fewer.</div></div>
@@ -215,7 +219,7 @@ footer b { color: var(--ink); font-weight: 600; }
         <div class="status"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
         <div class="screen">
           <div>
-            <p class="where">Feedback</p>
+            <span class="where">Feedback</span>
             <p class="biz">Needs you</p>
           </div>
           <div class="state needs"><i></i><div>2 ratings of 3 stars or fewer. These never went to Google.</div></div>
@@ -223,7 +227,7 @@ footer b { color: var(--ink); font-weight: 600; }
             <button class="row">
               <span class="unread"></span>
               <span>
-                <span class="stars">★★<span class="dim">★★★</span></span>
+                <span class="stars" role="img" aria-label="5 out of 5 stars" aria-hidden="false">★★<span class="dim">☆☆☆</span></span>
                 <span class="tag">Front counter · Tuesday lunch</span>
               </span>
               <span class="when">3:07 PM</span>
@@ -231,7 +235,7 @@ footer b { color: var(--ink); font-weight: 600; }
             <button class="row">
               <span class="unread"></span>
               <span>
-                <span class="stars">★★★<span class="dim">★★</span></span>
+                <span class="stars" role="img" aria-label="5 out of 5 stars" aria-hidden="false">★★★<span class="dim">☆☆</span></span>
                 <span class="tag">Takeaway window · evening rush</span>
               </span>
               <span class="when">1:22 PM</span>
@@ -239,15 +243,14 @@ footer b { color: var(--ink); font-weight: 600; }
             <button class="row">
               <span class="unread off"></span>
               <span>
-                <span class="stars">★★★★★</span>
-                <span class="tag">Front counter</span>
-              </span>
+                <span class="stars" role="img" aria-label="5 out of 5 stars" aria-hidden="false">★★★★★</span>
+                <span class="tag">Front counter</span></span>
               <span class="when">Yesterday</span>
             </button>
             <button class="row">
               <span class="unread off"></span>
               <span>
-                <span class="stars">★★★★<span class="dim">★</span></span>
+                <span class="stars" role="img" aria-label="5 out of 5 stars" aria-hidden="false">★★★★<span class="dim">☆</span></span>
                 <span class="tag">Takeaway window</span>
               </span>
               <span class="when">Yesterday</span>
@@ -272,7 +275,7 @@ footer b { color: var(--ink); font-weight: 600; }
         <div class="status"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
         <div class="screen">
           <div>
-            <p class="where">Feedback · Tuesday, 3:07 PM</p>
+            <span class="where">Feedback · Tuesday, 3:07 PM</span>
             <p class="biz">Two stars</p>
           </div>
           <div class="state needs"><i></i><div>Front counter. This did not go to Google.</div></div>
@@ -305,7 +308,7 @@ footer b { color: var(--ink); font-weight: 600; }
         <div class="status"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
         <div class="screen">
           <div>
-            <p class="where">Tags</p>
+            <span class="where">Tags</span>
             <p class="biz">Front counter</p>
           </div>
           <div class="state ok"><i></i><div><b>Working</b> · QR and tap are both live.</div></div>

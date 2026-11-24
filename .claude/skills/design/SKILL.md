@@ -53,11 +53,15 @@ Screenshot it. Run the critique tool. Fix the worst thing. Look again.
 
 ### Spacing
 
-One scale, multiples of **4** or **8**. Nothing between: no 13px, no 27px.
+One scale, multiples of **4**. Nothing between: no 13px, no 27px.
 
 ```
 4  8  12  16  24  32  48  64  96
 ```
+
+**44 is not on this scale.** It is the minimum touch target, which is a
+different rule with a different reason, and it does not belong in a spacing
+sequence. Keep the two apart or the scale stops being a scale.
 
 Gaps come from the layout (`gap` in flex or grid), not per-element margins,
 which collapse and double unpredictably. Space groups things: related items
@@ -72,7 +76,7 @@ Hierarchy comes from **weight and colour before size**.
 |---|---|
 | Body size | 15–17px, never below 15 on a phone |
 | Line height | ~1.5 for body, ~1.1 for large headings |
-| Line length | 45–90 characters (`max-width: 65ch`) |
+| Line length | 45–90 characters, aim 55–75. `ch` is the width of "0" in *that* typeface, so the right `max-width` differs per font — measure it, do not copy a number. This kit's 17px Instrument Sans needs `54ch` to land at 45–60. |
 | Heading tracking | tighten slightly: `letter-spacing: -0.02em` |
 | Uppercase labels | loosen: `letter-spacing: 0.1em` |
 | Numbers in columns | `font-variant-numeric: tabular-nums` |
@@ -100,12 +104,24 @@ cheap.
 | Thing | Duration | Ease |
 |---|---|---|
 | Buttons, hovers, toggles, tabs | under 200ms | ease-out |
+
+200ms is not a taste. It is Google's INP threshold for a tap counting as
+responsive, so it is the number that is actually measured in the field.
 | Things entering | 0.4–0.9s | `cubic-bezier(0.33, 1, 0.68, 1)` |
 | Full-screen moves, page transitions | 0.7–1.2s | `cubic-bezier(0.76, 0, 0.24, 1)` |
 | Anything scroll-linked or looping | — | linear |
 
 Rules that do not bend:
-- Animate **only `transform` and `opacity`**. Never width, height, top, left.
+- **Never transition a property that re-runs layout**: width, height, top,
+  left, margin, padding, font-size, gap, or `all`. Those recalculate the page
+  on every frame and drop frames. `transform` and `opacity` do not, which is
+  why they are the default answer.
+- Paint-only properties — background, colour, border-colour, box-shadow — do
+  *not* re-run layout. Transitioning one briefly on hover or focus is fine and
+  every shipping design system does it. Keep those under 200ms. The fault is a
+  slow one, or a layout one, not a coloured one.
+- A hover that changes instantly, with no transition on it at all, is not an
+  animation and breaks nothing.
 - **Never animate frequent actions.** Navigation, tabs and the main button must
   feel instant. A delight the hundredth time is a cost.
 - Spend motion on the rare moment: the load, the hero, the transition.
@@ -224,6 +240,21 @@ thing on the page memorable and let everything else be quiet.
 
 ## 6. The critique loop
 
+**Run `tools/audit.js` first.** It opens the page in a real browser, reads the
+computed styles and checks what can be measured exactly: contrast ratios
+against the real painted background, tap-target boxes including any grown by a
+pseudo-element, input font sizes, layout-thrashing transitions and sideways
+overflow. It is deterministic and it is free.
+
+```bash
+node tools/audit.js dist/restaurant/index.html --width 400
+node tools/audit.js dist/restaurant/index.html --width 1280
+```
+
+Never ask a vision model whether 4.31:1 passes. It cannot divide. Spend the
+model on whether the thing looks good, which is the part arithmetic cannot
+reach.
+
 `tools/critique.py` sends a screenshot to a vision model on the user's own
 NVIDIA credit and returns specific fixes. Use it for the mechanical half of
 review so the expensive model is spent on judgement.
@@ -260,7 +291,7 @@ Use **400×860** for a phone and **1280×900** for desktop. Check both.
 - [ ] Every gap comes from one spacing scale
 - [ ] Two typefaces, three or four sizes
 - [ ] Two colours plus one accent; neutrals tinted toward it
-- [ ] Body text passes 4.5:1 contrast
+- [ ] `node tools/audit.js <page> --width 400` and `--width 1280` both clean
 - [ ] Phone width 400px: no sideways scroll, nothing clipped
 - [ ] Touch targets 44px, inputs 16px
 - [ ] One motion tempo; nothing frequent is animated

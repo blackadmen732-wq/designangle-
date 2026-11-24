@@ -20,7 +20,7 @@ const DIST = path.join(ROOT, 'dist');
 
 const DEFAULT_THEME = {
   bg: '#ffffff', ink: '#1e1512', muted: '#6f625c', line: '#eee7e2', soft: '#fff4f1',
-  accent: '#e03a4b', tag: '#1f6b45', tint: '#ffe3dc',
+  accent: '#db2235', tag: '#1f6b45', tint: '#ffe3dc',
   display: '"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif',
   body: '"Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif',
   fontsUrl: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap'

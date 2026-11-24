@@ -17,7 +17,7 @@ module.exports = {
     address: { streetAddress: '214 Harbour Street', addressLocality: 'Your City' }
   },
   theme: {
-    accent: '#e03a4b', soft: '#fff4f1', tint: '#ffe3dc', tag: '#1f6b45'
+    accent: '#db2235', soft: '#fff4f1', tint: '#ffe3dc', tag: '#1f6b45'
   },
   cta: { label: 'Reserve', href: '#visit' },
 

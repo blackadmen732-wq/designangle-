@@ -120,7 +120,15 @@ async function audit(target, opts) {
       // element it happens to use. Those are meant to be small.
       if (cs.textTransform === 'uppercase' || parseFloat(cs.letterSpacing) > 0.6) bodyish = false;
 
+      // Text painted by a clipped background gradient reports color:transparent,
+      // and flattening that onto its own background gives a false 1:1. The
+      // audit cannot evaluate a gradient per-glyph, so it says so rather than
+      // reporting a failure it did not actually measure.
+      var clipped = (cs.webkitBackgroundClip === 'text' || cs.backgroundClip === 'text')
+                    && (cs.color === 'rgba(0, 0, 0, 0)' || cs.color === 'transparent');
+
       out.text.push({
+        clipped: clipped,
         bodyish: bodyish,
         inCode: inCode,
         tag: el.tagName.toLowerCase(),
@@ -293,6 +301,16 @@ async function audit(target, opts) {
   var seen = {};
 
   found.text.forEach(function (t) {
+    if (t.clipped) {
+      var ck = 'clip' + t.sel;
+      if (!seen[ck]) { seen[ck] = 1;
+        fails.push({ rule: 'contrast-unverified', where: t.sel,
+          detail: 'painted by a clipped background gradient, so the ratio cannot be read from computed style',
+          sample: t.sample,
+          fix: 'check the darkest stop of the gradient against the ground by hand' });
+      }
+      return;
+    }
     var fg = parseRGB(t.color), bg = parseRGB(t.ground);
     if (!fg || !bg) return;
     if (fg.a < 1) fg = over(fg, bg);

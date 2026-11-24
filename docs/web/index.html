@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design Angle</title>
+<meta name="description" content="A design system that checks its own work. Every rule it states, it measures.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* ===========================================================================
+   Design Angle — front page.
+
+   The craft target is an app icon: a true squircle, a rim light, one specular
+   arc, and depth that comes from layered light rather than from a drop shadow.
+   Everything here is CSS; there is no image in the page at all.
+   =========================================================================== */
+
+:root{
+  --void:#060607;
+  --ground:#0b0b0d;
+  --raise:#141417;
+  --raise-2:#1c1c20;
+  --edge:#26262b;
+  --edge-lit:#34343b;
+
+  --ink:#f4f3f1;
+  --ink-2:#b9b7b2;      /* 8.9:1 on --ground */
+  --ink-3:#8f8d88;      /* 5.3:1 on --ground */
+
+  --red:#ff3a4d;        /* lit, for large display type only */
+  --red-deep:#db2235;   /* the kit accent: 4.89:1 on white, used on light */
+  --jade:#4ade9a;
+
+  --sans:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
+  --disp:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;
+
+  /* two-part elevation, the Material 3 shape: one tight, one wide */
+  --lift-1:0 1px 2px rgb(0 0 0/.5), 0 2px 8px rgb(0 0 0/.3);
+  --lift-2:0 2px 4px rgb(0 0 0/.55), 0 12px 32px -8px rgb(0 0 0/.5);
+
+  --enter:cubic-bezier(.22,1,.36,1);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--void);color:var(--ink);
+  font-family:var(--sans);font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+h1,h2,h3{margin:0;font-family:var(--disp);font-weight:800;line-height:1.02;letter-spacing:-.035em;text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+
+.wrap{
+  max-width:1140px;margin-inline:auto;
+  padding-left:max(22px,env(safe-area-inset-left,0px));
+  padding-right:max(22px,env(safe-area-inset-right,0px));
+}
+
+/* --- the icon craft -------------------------------------------------------
+   A squircle is not a rounded rectangle. Its curvature is continuous, so the
+   straight edge eases into the corner instead of meeting an arc. A browser
+   border-radius cannot do that, so the shape is an SVG superellipse used as
+   a clip-path. The lighting is three layers over it:
+     1. the body, a radial gradient offset toward the light
+     2. a rim, brightest where the light lands and fading away
+     3. one specular arc, low and wide, clipped by the shape itself
+   -------------------------------------------------------------------------- */
+.sq{
+  position:relative;flex:none;
+  clip-path:url(#squircle);
+  isolation:isolate;
+}
+.sq::before,.sq::after{content:"";position:absolute;inset:0;pointer-events:none}
+/* rim */
+.sq::before{
+  background:
+    linear-gradient(145deg,rgb(255 255 255/.42),rgb(255 255 255/.06) 26%,transparent 46%),
+    linear-gradient(315deg,rgb(255 255 255/.14),transparent 34%);
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude;-webkit-mask-composite:xor;
+  padding:1.6px;
+  z-index:3;
+}
+/* specular arc: a wide ellipse rising from below, blurred, clipped by the squircle */
+.sq::after{
+  background:radial-gradient(130% 78% at 50% 142%,
+    rgb(255 255 255/.72) 0%, rgb(255 255 255/.30) 28%,
+    rgb(255 255 255/.05) 46%, transparent 60%);
+  filter:blur(.4px);
+  z-index:2;
+  opacity:.9;
+}
+.sq > .face{position:absolute;inset:0;z-index:1}
+.sq > .mark{position:absolute;inset:0;z-index:4;display:grid;place-items:center}
+
+/* the brand mark: deep red body, light from the upper left */
+.sq.brand > .face{
+  background:
+    radial-gradient(118% 100% at 18% 6%, #ff5668 0%, #c0122a 32%, #5c0714 62%, #1a0309 100%),
+    #140207;
+}
+.sq.brand .glyph{
+  width:46%;height:46%;
+  display:block;
+  filter:drop-shadow(0 1px 1px rgb(0 0 0/.5));
+}
+
+
+/* --- the craft, taken apart ------------------------------------------------ */
+.layers{margin-top:38px;display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(176px,1fr))}
+.layer{display:grid;gap:13px;justify-items:center;text-align:center;
+  grid-template-rows:auto auto auto 1fr;align-content:start}
+.layer .demo{width:100%;max-width:168px;aspect-ratio:1;position:relative}
+.layer .sq{position:absolute;inset:0}
+.layer h3{font-family:var(--sans);font-size:15.5px;font-weight:600;letter-spacing:0}
+.layer p{font-size:15px;color:var(--ink-3);line-height:1.46}
+.layer .step{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--ink-3)}
+
+/* each demo turns off the layers above it */
+.sq.only-shape > .face{background:#2a2a30}
+.sq.only-shape::before,.sq.only-shape::after{display:none}
+.sq.only-body::before,.sq.only-body::after{display:none}
+/* a flat brand fill, so step 03 and 04 visibly add something */
+.sq.flat > .face{background:#8e1024}
+.sq.flat::before,.sq.flat::after{display:none}
+.sq.flat-rim > .face{background:#8e1024}
+.sq.flat-rim::after{display:none}
+.sq.only-rim::after{display:none}
+
+/* a rounded rectangle, for the comparison that makes the point */
+.rr{position:absolute;inset:0;border-radius:23.5%;background:#2a2a30}
+
+.vs{margin-top:34px;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.vsItem{background:var(--raise);border:1px solid var(--edge);border-radius:18px;padding:20px;display:grid;gap:14px;justify-items:center;text-align:center}
+.vsItem .demo{width:132px;height:132px;position:relative}
+.vsItem .demo .sq{position:absolute;inset:0}
+.vsItem p{font-size:15px;color:var(--ink-3);line-height:1.46}
+.vsItem b{color:var(--ink);font-weight:600;font-size:15.5px}
+
+header.top{
+  position:relative;
+  padding-block:clamp(72px,11vh,124px) clamp(64px,9vh,104px);
+  background:
+    radial-gradient(76% 52% at 20% -8%, rgb(219 34 53/.16), transparent 62%),
+    radial-gradient(60% 46% at 92% 8%, rgb(74 222 154/.05), transparent 60%),
+    var(--void);
+  overflow:hidden;
+}
+/* the faint grid, barely there: it is a measuring tool, not decoration */
+header.top::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgb(255 255 255/.028) 1px,transparent 1px),
+                   linear-gradient(90deg,rgb(255 255 255/.028) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask:radial-gradient(72% 58% at 24% 10%,#000 0%,transparent 72%);
+}
+
+.heroGrid{position:relative;display:grid;gap:clamp(40px,6vw,72px);align-items:center;
+  grid-template-columns:minmax(0,1.32fr) minmax(0,.68fr)}
+@media (max-width:900px){ .heroGrid{grid-template-columns:minmax(0,1fr)} .heroArt{order:-1;justify-self:start} }
+
+/* the mark at display size, where the craft is actually visible */
+.heroArt{position:relative;display:grid;place-items:center}
+.heroArt .sq{width:min(302px,62vw);aspect-ratio:1;box-shadow:
+  0 2px 6px rgb(0 0 0/.6), 0 30px 80px -24px rgb(219 34 53/.42), 0 60px 120px -40px rgb(0 0 0/.9)}
+.heroArt .glyph{width:44%;height:44%}
+.heroArt figcaption{margin-top:20px;font-size:14px;color:var(--ink-3);text-align:center;max-width:34ch;line-height:1.5}
+.heroArt figcaption b{color:var(--ink-2);font-weight:600}
+
+.lockup{position:relative;display:flex;align-items:center;gap:15px}
+.lockup .sq{width:52px;height:52px}
+.lockup b{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.02em}
+.lockup i{font-style:normal;font-size:14px;color:var(--ink-3);margin-left:2px}
+
+h1{
+  position:relative;
+  margin-top:clamp(40px,6vh,64px);
+  font-size:clamp(46px,8.4vw,104px);
+  max-width:15ch;
+}
+h1 .lit{
+  /* darkest stop measured at 3.37:1 on the ground; #9c0f22 was 2.42 and failed */
+  background:linear-gradient(170deg,#ffb3bb 0%,var(--red) 34%,#c4162c 96%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+@supports not (background-clip:text){ h1 .lit{color:var(--red)} }
+
+.lede{
+  position:relative;margin-top:30px;max-width:56ch;
+  font-size:clamp(18px,2.1vw,21px);line-height:1.52;color:var(--ink-2);
+}
+.lede b{color:var(--ink);font-weight:600}
+
+.cta{position:relative;margin-top:40px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.btn{
+  position:relative;display:inline-flex;align-items:center;gap:10px;
+  min-height:52px;padding-inline:26px;border:0;border-radius:14px;
+  font:inherit;font-weight:600;font-size:16px;cursor:pointer;text-decoration:none;
+  transition:transform .18s var(--enter);
+}
+.btn::after{content:"";position:absolute;inset:50% -2px auto -2px;height:52px;transform:translateY(-50%)}
+.btn.solid{background:var(--ink);color:var(--void);box-shadow:var(--lift-1)}
+.btn.solid:active{transform:scale(.985)}
+.btn.line{color:var(--ink);border:1px solid var(--edge-lit);background:rgb(255 255 255/.02)}
+.btn .arr{transition:transform .18s var(--enter)}
+.btn:hover .arr{transform:translateX(3px)}
+
+.under{position:relative;margin-top:22px;font-size:15px;color:var(--ink-3)}
+.under code{font-family:ui-monospace,"SF Mono",Menlo,monospace;color:var(--ink-2);font-size:14px}
+
+/* --- sections -------------------------------------------------------------- */
+section{padding-block:clamp(64px,9vh,104px);border-top:1px solid var(--edge);background:var(--ground)}
+.kicker{font-size:14px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+h2{margin-top:13px;font-size:clamp(30px,4.4vw,46px);max-width:19ch}
+.say{margin-top:18px;max-width:62ch;color:var(--ink-2);font-size:17px}
+
+/* the proof: a real measured before and after */
+.proof{margin-top:38px;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(286px,1fr))}
+.card{
+  background:linear-gradient(180deg,var(--raise-2),var(--raise));
+  border:1px solid var(--edge);border-radius:20px;padding:22px;
+  box-shadow:var(--lift-1);
+}
+.card .state{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600}
+.card .state .pip{width:8px;height:8px;border-radius:50%;flex:none}
+.card.was .state{color:#ff8a86} .card.was .pip{background:#ff6b63}
+.card.now .state{color:var(--jade)} .card.now .pip{background:var(--jade)}
+
+.swatch{
+  margin-top:16px;height:92px;border-radius:14px;display:grid;place-items:center;
+  font-family:var(--disp);font-weight:700;font-size:21px;letter-spacing:-.01em;
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.22);
+}
+.swatch.was{background:#ffffff;color:#e03a4b}
+.swatch.now{background:#ffffff;color:#db2235}
+
+.read{margin-top:16px;display:grid;gap:9px}
+.read div{display:flex;justify-content:space-between;align-items:baseline;gap:14px;font-size:15px}
+.read dt{color:var(--ink-3)}
+.read dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+.read .fail{color:#ff8a86} .read .pass{color:var(--jade)}
+
+/* terminal */
+.term{
+  margin-top:34px;border-radius:18px;overflow:hidden;
+  border:1px solid var(--edge);box-shadow:var(--lift-2);
+  background:#08080a;
+}
+.term .bar{
+  display:flex;align-items:center;gap:8px;padding:12px 16px;
+  border-bottom:1px solid var(--edge);background:var(--raise);
+}
+.term .bar s{width:11px;height:11px;border-radius:50%;background:var(--edge-lit);display:block}
+.term .bar span{margin-left:8px;font-size:13px;color:var(--ink-3);font-family:ui-monospace,Menlo,monospace}
+.term pre{
+  margin:0;padding:20px 18px;overflow-x:auto;
+  font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13.5px;line-height:1.72;color:var(--ink-2);
+}
+.term .cmd{color:var(--ink)} .term .dim{color:#7a7873}
+.term .bad{color:#ff8a86} .term .good{color:var(--jade)} .term .num{color:#ffd479}
+
+/* rules */
+.rules{margin-top:36px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.rule{
+  background:var(--raise);border:1px solid var(--edge);border-radius:17px;padding:19px;
+}
+.rule h3{font-family:var(--sans);font-size:16.5px;font-weight:600;letter-spacing:0;line-height:1.35}
+.rule p{margin-top:8px;font-size:15px;color:var(--ink-3);line-height:1.5}
+.rule .n{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--ink-3);letter-spacing:.04em}
+
+/* split */
+.split{margin-top:36px;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.col{background:var(--raise);border:1px solid var(--edge);border-radius:20px;padding:24px;box-shadow:var(--lift-1)}
+.col > h3{font-size:22px;letter-spacing:-.02em}
+.col ul{margin:15px 0 0;padding:0;list-style:none;display:grid;gap:10px}
+.col li{position:relative;padding-left:21px;font-size:15.5px;color:var(--ink-2);line-height:1.5}
+.col li::before{
+  content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;border-radius:2px;
+  background:var(--edge-lit);
+}
+.col.a li::before{background:var(--red-deep)}
+.col.b li::before{background:var(--jade)}
+
+footer{padding-block:54px 76px;background:var(--void);border-top:1px solid var(--edge);color:var(--ink-3);font-size:15px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:center}
+footer b{color:var(--ink-2);font-weight:600}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<!-- the superellipse used by every squircle on the page -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <defs>
+    <clipPath id="squircle" clipPathUnits="objectBoundingBox">
+      <path d="M1.0000,0.5000 L0.9998,0.6369 L0.9994,0.6806 L0.9986,0.7123 L0.9975,0.7381 L0.9961,0.7601 L0.9944,0.7794 L0.9924,0.7968 L0.9901,0.8126 L0.9874,0.8271 L0.9844,0.8405 L0.9811,0.8530 L0.9774,0.8646 L0.9735,0.8755 L0.9691,0.8857 L0.9644,0.8952 L0.9594,0.9043 L0.9539,0.9127 L0.9481,0.9207 L0.9419,0.9282 L0.9353,0.9353 L0.9282,0.9419 L0.9207,0.9481 L0.9127,0.9539 L0.9043,0.9594 L0.8952,0.9644 L0.8857,0.9691 L0.8755,0.9735 L0.8646,0.9774 L0.8530,0.9811 L0.8405,0.9844 L0.8271,0.9874 L0.8126,0.9901 L0.7968,0.9924 L0.7794,0.9944 L0.7601,0.9961 L0.7381,0.9975 L0.7123,0.9986 L0.6806,0.9994 L0.6369,0.9998 L0.5000,1.0000 L0.3631,0.9998 L0.3194,0.9994 L0.2877,0.9986 L0.2619,0.9975 L0.2399,0.9961 L0.2206,0.9944 L0.2032,0.9924 L0.1874,0.9901 L0.1729,0.9874 L0.1595,0.9844 L0.1470,0.9811 L0.1354,0.9774 L0.1245,0.9735 L0.1143,0.9691 L0.1048,0.9644 L0.0957,0.9594 L0.0873,0.9539 L0.0793,0.9481 L0.0718,0.9419 L0.0647,0.9353 L0.0581,0.9282 L0.0519,0.9207 L0.0461,0.9127 L0.0406,0.9043 L0.0356,0.8952 L0.0309,0.8857 L0.0265,0.8755 L0.0226,0.8646 L0.0189,0.8530 L0.0156,0.8405 L0.0126,0.8271 L0.0099,0.8126 L0.0076,0.7968 L0.0056,0.7794 L0.0039,0.7601 L0.0025,0.7381 L0.0014,0.7123 L0.0006,0.6806 L0.0002,0.6369 L0.0000,0.5000 L0.0002,0.3631 L0.0006,0.3194 L0.0014,0.2877 L0.0025,0.2619 L0.0039,0.2399 L0.0056,0.2206 L0.0076,0.2032 L0.0099,0.1874 L0.0126,0.1729 L0.0156,0.1595 L0.0189,0.1470 L0.0226,0.1354 L0.0265,0.1245 L0.0309,0.1143 L0.0356,0.1048 L0.0406,0.0957 L0.0461,0.0873 L0.0519,0.0793 L0.0581,0.0718 L0.0647,0.0647 L0.0718,0.0581 L0.0793,0.0519 L0.0873,0.0461 L0.0957,0.0406 L0.1048,0.0356 L0.1143,0.0309 L0.1245,0.0265 L0.1354,0.0226 L0.1470,0.0189 L0.1595,0.0156 L0.1729,0.0126 L0.1874,0.0099 L0.2032,0.0076 L0.2206,0.0056 L0.2399,0.0039 L0.2619,0.0025 L0.2877,0.0014 L0.3194,0.0006 L0.3631,0.0002 L0.5000,0.0000 L0.6369,0.0002 L0.6806,0.0006 L0.7123,0.0014 L0.7381,0.0025 L0.7601,0.0039 L0.7794,0.0056 L0.7968,0.0076 L0.8126,0.0099 L0.8271,0.0126 L0.8405,0.0156 L0.8530,0.0189 L0.8646,0.0226 L0.8755,0.0265 L0.8857,0.0309 L0.8952,0.0356 L0.9043,0.0406 L0.9127,0.0461 L0.9207,0.0519 L0.9282,0.0581 L0.9353,0.0647 L0.9419,0.0718 L0.9481,0.0793 L0.9539,0.0873 L0.9594,0.0957 L0.9644,0.1048 L0.9691,0.1143 L0.9735,0.1245 L0.9774,0.1354 L0.9811,0.1470 L0.9844,0.1595 L0.9874,0.1729 L0.9901,0.1874 L0.9924,0.2032 L0.9944,0.2206 L0.9961,0.2399 L0.9975,0.2619 L0.9986,0.2877 L0.9994,0.3194 L0.9998,0.3631 L1.0000,0.5000 Z"/>
+    </clipPath>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <div class="lockup">
+      <div class="sq brand" role="img" aria-label="Design Angle">
+        <span class="face"></span>
+        <span class="mark">
+          <svg class="glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 21 L12 3 L21 21" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.4 15.6 H16.6" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".55"/>
+          </svg>
+        </span>
+      </div>
+      <b>Design Angle<i>— the kit</i></b>
+    </div>
+
+    <div class="heroGrid">
+      <div>
+        <h1>Design rules are worthless <span class="lit">until something measures them.</span></h1>
+
+        <p class="lede">
+          Every kit says body text needs 4.5&nbsp;to&nbsp;1. This one opens the page in a
+          real browser and reads the colour actually painted behind the text.
+          <b>It found its own brand red failing on a live client site.</b>
+        </p>
+
+        <div class="cta">
+          <a class="btn solid" href="#proof">See what it caught <span class="arr" aria-hidden="true">→</span></a>
+          <a class="btn line" href="#craft">How the mark is built</a>
+        </div>
+
+        <p class="under">One command: <code>node tools/audit.js &lt;page&gt; --width 400</code></p>
+      </div>
+
+      <figure class="heroArt" style="margin:0">
+        <div class="sq brand" role="img" aria-label="The Design Angle mark">
+          <span class="face"></span>
+          <span class="mark">
+            <svg class="glyph" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3 21 L12 3 L21 21" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7.4 15.6 H16.6" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".55"/>
+            </svg>
+          </span>
+        </div>
+        <figcaption><b>No image file.</b> A clipped superellipse, a rim light and one specular arc — all CSS.</figcaption>
+      </figure>
+    </div>
+  </div>
+</header>
+
+
+<section id="craft">
+  <div class="wrap">
+    <p class="kicker">The craft</p>
+    <h2>An icon is four layers of light, not a rounded square.</h2>
+    <p class="say">
+      The shape people recognise from a home screen is a <b>superellipse</b> — its
+      curvature is continuous, so the straight edge eases into the corner instead
+      of meeting an arc at a visible seam. No <code>border-radius</code> does that.
+      This one is an SVG path used as a clip, and the depth on top of it is three
+      more layers, in this order.
+    </p>
+
+    <div class="layers">
+      <div class="layer">
+        <div class="demo"><div class="sq only-shape"><span class="face"></span></div></div>
+        <div class="step">01</div>
+        <h3>The shape</h3>
+        <p>A clipped superellipse. Flat fill, nothing else yet.</p>
+      </div>
+      <div class="layer">
+        <div class="demo"><div class="sq flat"><span class="face"></span></div></div>
+        <div class="step">02</div>
+        <h3>Flat fill</h3>
+        <p>The brand colour, evenly lit. Nothing here says which way is up.</p>
+      </div>
+      <div class="layer">
+        <div class="demo"><div class="sq flat-rim"><span class="face"></span></div></div>
+        <div class="step">03</div>
+        <h3>Rim light</h3>
+        <p>A 1.6px inner edge, bright where the light lands and gone by the opposite corner. This alone reads as glass.</p>
+      </div>
+      <div class="layer">
+        <div class="demo"><div class="sq brand"><span class="face"></span></div></div>
+        <div class="step">04</div>
+        <h3>Body gradient and arc</h3>
+        <p>A radial gradient offset toward the light, plus one wide ellipse rising from below. One, not two.</p>
+      </div>
+    </div>
+
+    <div class="vs">
+      <div class="vsItem">
+        <div class="demo"><div class="rr"></div></div>
+        <b>border-radius: 23.5%</b>
+        <p>Four arcs joined to four straight edges. The seam is small, and once you see it you cannot stop.</p>
+      </div>
+      <div class="vsItem">
+        <div class="demo"><div class="sq only-shape"><span class="face"></span></div></div>
+        <b>Clipped superellipse</b>
+        <p>Curvature that never stops changing. This is the difference people read as "made by someone", without being able to name it.</p>
+      </div>
+      <div class="vsItem">
+        <div class="demo"><div class="sq brand"><span class="face"></span></div></div>
+        <b>With the three light layers</b>
+        <p>Same shape. The depth is entirely gradient and clip — there is no image, no blur filter, and no 3D.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="proof">
+  <div class="wrap">
+    <p class="kicker">What it caught</p>
+    <h2>The accent had been shipping at 4.31 to 1.</h2>
+    <p class="say">
+      Not a hypothetical. <code>#e03a4b</code> was the brand colour on a live
+      restaurant site, used for the eyebrow label and the form's error text.
+      It fails the 4.5 to 1 rule the kit itself sets, and it had been failing
+      the whole time, because nothing was checking.
+    </p>
+
+    <div class="proof">
+      <div class="card was">
+        <div class="state"><span class="pip"></span>Was shipping</div>
+        <div class="swatch was">Wood-fire kitchen</div>
+        <dl class="read">
+          <div><dt>On white</dt><dd class="fail">4.31 : 1</dd></div>
+          <div><dt>On the soft tint</dt><dd class="fail">3.99 : 1</dd></div>
+          <div><dt>Needs</dt><dd>4.50 : 1</dd></div>
+        </dl>
+      </div>
+      <div class="card now">
+        <div class="state"><span class="pip"></span>After</div>
+        <div class="swatch now">Wood-fire kitchen</div>
+        <dl class="read">
+          <div><dt>On white</dt><dd class="pass">4.89 : 1</dd></div>
+          <div><dt>On the soft tint</dt><dd class="pass">4.53 : 1</dd></div>
+          <div><dt>Hue shift</dt><dd>none</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <p class="say" style="margin-top:26px">
+      The replacement was not picked by eye. <code>contrast.js</code> holds hue and
+      saturation and walks lightness down until it passes everywhere the colour is
+      used — so a client's brand red stays their red, only deep enough to read.
+    </p>
+
+    <div class="term">
+      <div class="bar"><s></s><s></s><s></s><span>designangle — audit</span></div>
+<pre><span class="cmd">$ node tools/audit.js dist/restaurant/index.html --width 400</span>
+
+  contrast <span class="dim">(1)</span>
+    .eyebrow  <span class="bad">#e03a4b on #ffffff is 4.31:1, needs 4.5:1</span>
+      "Wood-fire kitchen &amp; citrus bar"
+      -&gt; use <span class="num">#db2235</span> (4.89:1)
+
+  touch-target <span class="dim">(8)</span>
+    .sel  <span class="bad">119x21px, needs 44px in both directions</span>
+      "(555) 010-2140"
+      -&gt; keep the look, grow the box
+
+<span class="dim">  12 to fix.</span>
+
+<span class="cmd">$ node tools/audit.js dist/restaurant/index.html --width 400</span>
+
+  <span class="good">nothing measurable is wrong.</span></pre>
+    </div>
+
+    <p class="say" style="margin-top:26px">
+      That second finding was the expensive one. The phone number on a trades
+      site is a <b>21&nbsp;pixel tall tap target</b> — the single most valuable
+      thing on the page, at half the size a thumb needs.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="kicker">What runs</p>
+    <h2>The half of review that is arithmetic.</h2>
+    <p class="say">
+      A vision model cannot divide. Asking one whether 4.31 passes 4.5 wastes it
+      on a job a calculator does better. These are measured first; judgement is
+      spent on whether the thing looks good.
+    </p>
+
+    <div class="rules">
+      <div class="rule">
+        <div class="n">01</div>
+        <h3>Contrast against the real background</h3>
+        <p>Not the declared colour — the one actually painted, flattened through every translucent layer above it.</p>
+      </div>
+      <div class="rule">
+        <div class="n">02</div>
+        <h3>The box, not the icon</h3>
+        <p>44px minimum, counting a hit area grown by a pseudo-element. The look stays the size it was drawn.</p>
+      </div>
+      <div class="rule">
+        <div class="n">03</div>
+        <h3>Transitions that re-run layout</h3>
+        <p>Width, height, top, gap. Paint-only properties are allowed, briefly — the rule's reason is frame drops, not colour.</p>
+      </div>
+      <div class="rule">
+        <div class="n">04</div>
+        <h3>Inputs below 16px</h3>
+        <p>iOS zooms the page on focus and the layout jumps under the thumb already moving toward the field.</p>
+      </div>
+      <div class="rule">
+        <div class="n">05</div>
+        <h3>Sideways overflow</h3>
+        <p>At 400 and at 1280. Several faults here appeared at exactly one of the two.</p>
+      </div>
+      <div class="rule">
+        <div class="n">06</div>
+        <h3>Its own blind spots</h3>
+        <p>When a stylesheet cannot be read, it says <em>could not verify</em>. A tool that blames the page for what it failed to see is worse than none.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="split">
+  <div class="wrap">
+    <p class="kicker">Two sets of rules</p>
+    <h2>What is true on a phone is not true on a page.</h2>
+    <p class="say">
+      Most kits carry one list and pretend. These are kept apart, and each rule
+      says why it does not cross over.
+    </p>
+
+    <div class="split">
+      <div class="col a">
+        <h3>Phone</h3>
+        <ul>
+          <li>44px targets, because a thumb is 10mm across and arrives roughly</li>
+          <li>Actions in the bottom third, where the thumb already is</li>
+          <li>Inputs at 16px or iOS zooms on focus</li>
+          <li>Safe-area insets for the notch and the home indicator</li>
+          <li>Full-bleed media, text inset — most of what reads as native</li>
+        </ul>
+      </div>
+      <div class="col b">
+        <h3>Web</h3>
+        <ul>
+          <li>Hover states, which do not exist on a touch screen</li>
+          <li>Line-length caps, because the device is not the constraint</li>
+          <li>Breakpoints across every width from 320 to 2560</li>
+          <li>Scroll-linked motion, which fights a phone's own scrolling</li>
+          <li>A fold people scroll past by habit</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="say" style="margin-top:26px">
+      The split is <b>sparse against dense</b>, not dark against light. That was
+      wrong when it was written, and a reference redesign disproved it: a dark
+      map screen can be denser than a white dashboard.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Measured 24 November 2026. Every number on this page came from a real run.</span>
+    <span><b>Design Angle</b> — proprietary. Demo content is invented and labelled.</span>
+  </div>
+</footer>
+</html>

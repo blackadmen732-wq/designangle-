@@ -389,17 +389,31 @@ footer p + p { margin-top: 12px; }
   <!-- 6 -->
   <section class="pat">
     <p class="n">Pattern 06</p>
-    <h2>The bar sits on the edge. It does not float.</h2>
-    <p class="why">
-      The dark set says navigation floats: a translucent blurred pill lifted off
-      the bottom. That needs something to float above — artwork, a video, a dark
-      field with depth in it.
+    <h2>The bar anchors when content runs under it, floats when it does not.</h2>
+    <p class="cite" style="border-color:var(--bad-fg)">
+      <b>This pattern was wrong when first written, and the correction is the
+      useful part.</b> It originally said a bar must anchor on a light ground,
+      because a floating pill needs something to float above. Checking that
+      against the reference material disproved it: the Uber Eats redesign floats
+      its nav on a warm off-white ground, and it works. So does the Spotify one
+      on dark. The ground colour was never the variable.
     </p>
     <p class="why">
-      On a white list there is nothing behind it. A floating pill over white reads
-      as a thing that has come loose. Anchor it to the edge, give it a top
-      hairline and the faintest upward shadow, and it reads as part of the
-      furniture.
+      What actually decides it is whether the bar is <em>summarising</em> or
+      <em>navigating</em>.
+    </p>
+    <p class="why">
+      <b>Anchor it</b> when the bar carries a value tied to what is above it — a
+      total, a count, a selection. A total that floats is detached from the list
+      it totals. Give it a top hairline and the faintest upward shadow so it
+      reads as the bottom of the sheet.
+    </p>
+    <p class="why">
+      <b>Float it</b> when the bar only moves you between places. Then it is a
+      control panel, not part of the page, and lifting it off the edge with a
+      solid fill and a margin says so. Both redesigns that float also pull the
+      create action out as its own circle beside the pill, rather than cramming
+      it in as a fifth tab.
     </p>
     <div class="demo">
       <figure>
@@ -414,7 +428,7 @@ footer p + p { margin-top: 12px; }
             <button class="b primary">Pay now</button>
           </div>
         </div>
-        <figcaption><b>Anchored.</b> Top hairline, a 1px upward shadow, and the number beside the action.</figcaption>
+        <figcaption><b>Anchored, correctly.</b> This bar carries a total, so it belongs to the list above it. A nav bar in the same place would float instead.</figcaption>
       </figure>
     </div>
 <pre>.sticky-bar {
@@ -465,8 +479,13 @@ footer p + p { margin-top: 12px; }
   groups things better than any border. Nothing frequent is animated.</p>
   <p><b>What flipped.</b> No glow — a light screen does not need lighting. Cards
   take a hairline or a two-part shadow, because value alone has nowhere to go.
-  The bar is anchored, not floating. And several numbers are allowed to be
-  equally important, which is the rule the dark set could not have found,
-  because a media screen never has that problem.</p>
+  And several numbers are allowed to be equally important, which is the rule
+  the dark set could not have found, because a media screen never has that
+  problem.</p>
+  <p><b>What was wrong here, and is now fixed.</b> This page first claimed a bar
+  must anchor on a light ground. The reference material disproves it — a light
+  marketplace redesign floats its nav and it reads correctly. The real rule is
+  about what the bar carries, not what colour sits behind it. Left uncorrected,
+  that would have been a confident, cited, wrong instruction.</p>
   <p>Content is invented and labelled as such. Figures are illustrative.</p>
 </footer>

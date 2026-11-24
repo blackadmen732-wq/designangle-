@@ -61,10 +61,18 @@ Do not re-derive these per platform. They are the method.
 | `phone/light-dense-patterns.html` | Seven patterns for the opposite case: light ground, several things that matter at once. Values read from Material 3, Base Web and Carbon. |
 | `phone/reviewboost-screens.html` | A worked example: four screens of a real light, dense product. |
 | `phone/motion-spec.md` | Twenty animation rules. Seven are checked by `audit.js --motion`; thirteen need a person, and the file says which is which. |
+| `phone/video-findings.html` | What six reference redesigns showed, and the three documented rules they proved wrong. |
 
 **Read both pattern files, not one.** The dark set says make one thing huge
 and cut the rest. On an owner's dashboard that is wrong, and the light set
 says why. Neither is the whole method.
+
+**The split is sparse against dense, not dark against light.** That was wrong
+when this folder was created and is corrected in `phone/video-findings.html`.
+The Google Maps redesign is dark and dense; the Uber Eats one is light and
+dense. Ground colour decides how things separate — value on dark, hairline or
+shadow on light — and nothing else. Density decides whether one thing
+dominates.
 
 ## Web references
 

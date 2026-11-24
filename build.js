@@ -113,7 +113,25 @@ ${site.preview ? `<div class="preview-bar"><div class="wrap"><b>Preview</b><span
 </header>
 
 <main>
-  ${(site.layout === 'still') ? `
+  ${(site.layout === 'atelier') ? `
+  <section class="hero hero-atelier" aria-label="${esc(hero.label || 'Featured')}">
+    <div class="shot">
+      <div class="shot-img">${photo(hero.slides[0].img, hero.slides[0].alt, { eager: true })}</div>
+      <div class="hero-scrim" aria-hidden="true"></div>
+    </div>
+    <div class="wrap">
+      <div class="atelier-text">
+        <p class="eyebrow">${esc(hero.eyebrow)}</p>
+        <h1 id="headline">${esc(hero.headline)} <em>${esc(hero.headlineAccent || '')}</em></h1>
+        ${hero.lead ? `<p class="atelier-lead">${esc(hero.lead)}</p>` : ''}
+        <div class="hero-cta">
+          <a class="btn" href="${esc(hero.primary.href)}"${ext(hero.primary.href)}>${esc(hero.primary.label)} ${arrow}</a>
+          ${seo.telephone ? `<a class="hero-tel" href="tel:${esc(String(seo.telephone).replace(/[^0-9+]/g, ''))}">${esc(seo.telephone)}</a>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="hero-foot" aria-hidden="true"><span>${esc(hero.footNote || '')}</span><i></i></div>
+  </section>` : (site.layout === 'still') ? `
   <section class="hero hero-still" aria-label="${esc(hero.label || 'Featured')}">
     <div class="wrap">
       <div class="still-text">
@@ -160,6 +178,19 @@ ${site.preview ? `<div class="preview-bar"><div class="wrap"><b>Preview</b><span
 
   ${site.layout === 'still' ? '' : `<div class="belt" aria-hidden="true"><div class="belt-track" id="belt">${beltSet.repeat(4)}</div></div>`}
 
+  ${site.layout === 'atelier' ? `
+  <section class="sec gallery" id="${esc(show.id)}" aria-label="${esc(show.title)}">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-reveal>${esc(show.eyebrow)}</p>
+        <h2 data-split>${esc(show.title)}</h2>
+        <p data-reveal>${esc(show.text)}</p>
+      </div>
+      <div class="plates">
+        ${show.cards.map((c, i) => `<figure class="plate plate-${i % 5}"><div class="plate-pic">${photo(c.img, c.alt)}</div><figcaption><h3>${esc(c.title)}</h3>${c.meta ? `<span class="p">${esc(c.meta)}</span>` : ''}<p>${esc(c.text)}</p></figcaption></figure>`).join('\n        ')}
+      </div>
+    </div>
+  </section>` : `
   <section class="hs" id="${esc(show.id)}" aria-label="${esc(show.title)}">
     <div class="hs-track" id="hsTrack">
       <div class="hs-intro">
@@ -170,7 +201,7 @@ ${site.preview ? `<div class="preview-bar"><div class="wrap"><b>Preview</b><span
       ${show.cards.map((c) => `<article class="card"><div class="pic">${photo(c.img, c.alt)}</div><div class="row"><h3>${esc(c.title)}</h3>${c.meta ? `<span class="p">${esc(c.meta)}</span>` : ''}</div><p>${esc(c.text)}</p></article>`).join('\n      ')}
     </div>
     <div class="hs-bar" aria-hidden="true"><i id="hsBar"></i></div>
-  </section>
+  </section>`}
 
   <section class="sec" id="${esc(list.id)}">
     <div class="wrap">
@@ -182,7 +213,7 @@ ${site.preview ? `<div class="preview-bar"><div class="wrap"><b>Preview</b><span
       <div class="tabs" role="tablist" aria-label="${esc(list.eyebrow)}" id="tabs" data-reveal>
         ${list.groups.map((g, i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-panel="${i}">${esc(g.name)}</button>`).join('\n        ')}
       </div>
-      ${list.groups.map((g, i) => `<ul class="menu-list" role="tabpanel" data-panel="${i}"${i ? ' hidden' : ''}>
+      ${list.groups.map((g, i) => `<ul class="menu-list${site.layout === 'atelier' ? ' ledger' : ''}" role="tabpanel" data-panel="${i}"${i ? ' hidden' : ''}>
         ${g.items.map((it, k) => `<li style="--i:${k}"><h3>${esc(it.title)}${it.tag ? `<span class="tag">${esc(it.tag)}</span>` : ''}</h3><span class="p">${esc(it.meta || '')}</span><p>${esc(it.text)}</p></li>`).join('\n        ')}
       </ul>`).join('\n      ')}
       ${list.note ? `<p class="menu-note">${esc(list.note)}</p>` : ''}

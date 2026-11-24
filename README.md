@@ -147,12 +147,21 @@ module.exports = { layout: 'still', /* ... */ };
 
 | `layout` | For | What it does |
 |---|---|---|
-| `studio` *(default)* | restaurants, trades, salons | Text left, photo carousel right: arrows, dots, two thumbnails, a tint blob, and a moving belt under the fold. Suits a business whose visitor is **comparing** — a menu, a price list, a service range. |
+| `studio` *(default)* | restaurants, trades | Text left, photo carousel right: arrows, dots, two thumbnails, a tint blob, and a moving belt under the fold. Suits a business whose visitor is **comparing** — a menu, a price list, a service range. |
 | `still` | meditation, therapy, anything calm | One centred column, one photograph, and none of the carousel furniture. Suits a business where nobody compares five options and picks the best value, and where the controls are noise. |
+| `atelier` | salons, studios, anywhere the work is what sells | One photograph at full bleed with the name over it, then an asymmetric gallery and a price ledger. Suits a business whose visitor is **not reading a feature list** — they are deciding whether the place looks like somewhere they want to spend an hour. |
 
 The difference is structural. `studio` renders a carousel, thumbnails, a blob,
-an arch mask and a marquee; `still` renders none of them. `<body>` carries
-`layout-<name>` so the stylesheet can vary spacing and type weight too.
+an arch mask and a marquee; `still` and `atelier` render none of them.
+`<body>` carries `layout-<name>` so the stylesheet can vary spacing and type
+weight too.
+
+**On `atelier`'s dark first screen.** That is one photographic panel, not a
+dark theme — the body of the page stays on the client's own light ground.
+Type over a photograph needs a scrim and light ink whatever the business is;
+that is a legibility requirement, not a style choice, and it stops at the fold.
+`tools/audit.js` grades it by reading the pixels actually painted behind the
+text, so the scrim has to earn its keep rather than merely look present.
 
 Adding a third is a block in `build.js` and a section in `template/site.css`.
 

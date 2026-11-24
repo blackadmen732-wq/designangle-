@@ -92,7 +92,7 @@ Found missing when this file was reviewed:
 | Census ZCTA centroids | `mk_zip_points` | US Census, public domain |
 | NVIDIA NIM API | `tools/critique.py` sends screenshots to it | a third-party service, not a library — screenshots of client work leave the machine when it runs |
 | Site photographs, restaurant and hvac | `sites/*/img/` | **unverified** — came from stock sources and the per-image licence is not recorded |
-| Site photographs, salon | `sites/salon/img/` | Unsplash, free licence. Collected 24 Nov 2026 from unsplash.com search results, taking only `images.unsplash.com` assets. `plus.unsplash.com` premium and Getty-credited results were excluded deliberately: those are licensed, not free. The Unsplash licence permits commercial use without attribution. |
+| Site photographs, salon | `sites/salon/img/` | Unsplash, free licence. Collected 24 Nov 2026 from unsplash.com search results, taking only `images.unsplash.com` assets. `plus.unsplash.com` premium, `media.istockphoto.com` and Getty-credited results were excluded deliberately: those are licensed, not free. The Unsplash licence permits commercial use without attribution. Re-shot the same day: nine near-identical stock macros of a hand against fabric were replaced with hands-at-work photography, each one looked at full size before it was chosen rather than judged from a thumbnail. |
 
 The photographs are the one with real exposure. Record the source and licence
 of every image in a client site, or replace it with the client's own.

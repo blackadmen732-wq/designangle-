@@ -10,12 +10,27 @@
  * "cream background, serif display, terracotta accent" as a tell, and that is
  * exactly what a salon site defaults to. So: a warm off-white that is cooler
  * and greyer than cream, a grotesque rather than a serif for display, and a
- * deep wine accent instead of terracotta. The photography is nude, peach and
- * grey; the accent contrasts it rather than matching it, which is why the
- * page reads as composed instead of coordinated.
+ * deep wine accent instead of terracotta.
+ *
+ * On the layout, and why it is not the default. A person choosing a salon is
+ * not comparing items on a list; they are deciding whether the place looks
+ * like somewhere they want to sit for an hour. The default layout — text
+ * beside a carousel, arrows, dots, thumbnails — answers the first question and
+ * gets in the way of the second. `layout: 'atelier'` answers the second: one
+ * photograph at full bleed with the name over it, then an asymmetric gallery
+ * and a price ledger. See template/site.css, "LAYOUT: atelier".
+ *
+ * On the photography. An earlier version of this file ran on stock macro shots
+ * of a hand against fabric — nine near-identical pictures, interchangeable and
+ * badly lit. No layout rescues a page built from those. These are hands at
+ * work: craft, motion and real light, which is what the business actually
+ * sells.
  */
 module.exports = {
   lang: 'en',
+
+  // Not the default layout. See template/site.css, "LAYOUT: atelier".
+  layout: 'atelier',
   name: 'Maison Verrier',
   short: 'Verrier',
 
@@ -47,46 +62,25 @@ module.exports = {
     primary: { label: 'Book a chair', href: '#book' },
     headline: 'An hour that is',
     headlineAccent: 'entirely yours.',
+    lead: 'Hair and nails in a four-chair studio. The person who starts your '
+        + 'appointment is the one who finishes it.',
+    footNote: 'Scroll',
     slides: [
-      { img: 'nails-nude.webp',
-        alt: 'A hand with soft pink manicured nails resting on white fabric',
-        title: 'Gel manicure',
-        text: 'Shaped, cuticles tidied, two coats and a top coat. Lasts about three weeks.',
-        meta: '55 minutes',
-        tint: '#f3e9ea' },
-      { img: 'hair-motion.webp',
-        alt: 'A woman with long blonde hair caught mid-movement in warm light',
-        title: 'Cut and finish',
-        text: 'A consultation first, then a cut that works the way your hair already falls.',
+      { img: 'hero-cut.webp',
+        alt: 'Scissors cutting into a long, glossy curtain of dark hair',
+        title: 'Colour and cutting',
+        text: 'A consultation first, then a cut that works the way your hair '
+            + 'already falls.',
         meta: '70 minutes',
-        tint: '#f6ece3' },
-      { img: 'nails-tortoise.webp',
-        alt: 'A hand with tortoiseshell patterned nails against a grey knit sleeve',
-        title: 'Nail art',
-        text: 'Freehand, per nail. Bring a photograph or let us suggest something.',
-        meta: 'From 80 minutes',
-        tint: '#eee9e6' },
-      { img: 'polish-applied.webp',
-        alt: 'A technician painting a client’s nails at a white table',
-        title: 'The appointment itself',
-        text: 'One technician, one client, no second chair running alongside. '
-            + 'You are not being fitted around somebody else.',
-        meta: 'Always',
-        tint: '#f3ece6' },
-      { img: 'polish-wall.webp',
-        alt: 'Rows of nail polish bottles arranged on pale shelves',
-        title: 'Two hundred colours',
-        text: 'We will not rush you through the wall. Nobody ever picks the first one.',
-        meta: 'In the studio',
-        tint: '#f2eeea' }
+        tint: '#2a1b18' }
     ]
   },
 
   belt: [
     { img: 'tools.webp', text: 'Sterilized between every client' },
     { img: 'interior-chairs.webp', text: 'Four chairs, never more' },
-    { img: 'nails-warm.webp', text: 'Gel, builder gel, or plain polish' },
-    { img: 'polish-applied.webp', text: 'Walk-ins when we have a gap' },
+    { img: 'brush-blonde.webp', text: 'Gel, builder gel, or plain polish' },
+    { img: 'long-hair.webp', text: 'Walk-ins when we have a gap' },
     { img: 'nails-ombre.webp', text: 'Soak-off done properly, never scraped' }
   ],
 
@@ -98,32 +92,36 @@ module.exports = {
     text: 'Hair on the left side of the studio, nails on the right, and the '
         + 'same two people have been doing both since we opened.',
     cards: [
-      { img: 'nails-peach.webp',
-        alt: 'A hand with peach, grey and white nails resting on a knitted jumper',
-        title: 'Gel',
-        meta: '55 min',
-        text: 'Hard-wearing and glossy. Soaked off properly, never scraped.' },
-      { img: 'hair-motion.webp',
-        alt: 'Long blonde hair in motion, lit from behind',
+      { img: 'hero-cut.webp',
+        alt: 'Scissors cutting into a long, glossy curtain of dark hair',
         title: 'Cutting',
         meta: '70 min',
-        text: 'Dry-cut where it suits the hair. You see the shape as it happens.' },
-      { img: 'nails-ombre.webp',
-        alt: 'A hand with blue and white ombre nails',
-        title: 'Ombre and chrome',
-        meta: '90 min',
-        text: 'Blended by hand, not stamped. Allow the extra half hour.' },
+        text: 'Dry-cut where it suits the hair, so you see the shape as it '
+            + 'happens rather than after it has been blown out.' },
+      { img: 'brush-blonde.webp',
+        alt: 'A round brush lifting a section of pale blonde hair against white',
+        title: 'Blow-dry and finish',
+        meta: '45 min',
+        text: 'Smooth or with movement. Booked on its own, or on the end of '
+            + 'anything else.' },
+      { img: 'updo-hands.webp',
+        alt: 'Two hands pinning a braided updo at the nape of a neck',
+        title: 'Hair up',
+        meta: '60 min',
+        text: 'Weddings, and Tuesdays. Timed to the hour you need to be '
+            + 'somewhere.' },
       { img: 'braids.webp',
-        alt: 'A close portrait of fine braids, black and white',
+        alt: 'A close black-and-white portrait of fine, neatly parted braids',
         title: 'Braiding and protective styles',
         meta: 'Quoted',
-        text: 'Priced on length and time, quoted before we start.' },
-      { img: 'nails-tipped.webp',
-        alt: 'A hand with pale nails and dark tortoiseshell tips',
-        title: 'Tips and french',
-        meta: '65 min',
-        text: 'A tip in a second colour. Freehand, so the line follows your nail '
-            + 'rather than a sticker.' }
+        text: 'Priced on length and time, quoted before we start, and never '
+            + 'rushed to fit a slot.' },
+      { img: 'nails-tortoise.webp',
+        alt: 'A hand with dark tortoiseshell-patterned nails against a grey sleeve',
+        title: 'Nails',
+        meta: '55 min',
+        text: 'Gel, builder gel and freehand art. Soaked off properly, never '
+            + 'scraped.' }
     ]
   },
 
@@ -166,8 +164,8 @@ module.exports = {
     navLabel: 'The studio',
     eyebrow: 'Since 2019',
     title: 'Four chairs, two people',
-    img: 'interior-chairs.webp',
-    alt: 'A stylist working at a row of salon chairs and mirrors, black and white',
+    img: 'two-stylists.webp',
+    alt: 'Two stylists working together on a client’s hair in a bright studio',
     paragraphs: [
       'Maison Verrier is Claire and Ode. Claire cuts and colours, Ode does '
       + 'nails, and between them they have been doing this for longer than '
@@ -186,8 +184,11 @@ module.exports = {
   },
 
   band: {
-    img: 'nails-warm.webp',
-    alt: 'A hand with warm nude nails resting on soft fabric',
+    // Not the green-wall interior that was here: that photograph carries a
+    // product brand's name on the shelving, which puts a partnership on a
+    // client's homepage that they may not have.
+    img: 'interior-chairs.webp',
+    alt: 'A stylist working at a row of salon chairs and mirrors, black and white',
     title: 'Appointments open on the first of the month.',
     link: { label: 'Book yours', href: '#book' }
   },

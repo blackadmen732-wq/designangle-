@@ -18,6 +18,7 @@
 var path = require('path');
 var fs = require('fs');
 var C = require('./contrast.js');
+var PNG = require('./png.js');
 
 var MIN_TARGET = 44;     // px, the tappable box
 var MIN_INPUT_FONT = 16; // px, below this iOS zooms on focus
@@ -81,20 +82,51 @@ async function audit(target, opts) {
       return cs.visibility !== 'hidden' && cs.display !== 'none' && parseFloat(cs.opacity) > 0.05;
     }
 
-    /* Walk up for the first ancestor that actually paints a background. */
+    /* Walk up for the first ancestor that actually paints a background.
+       `found` records whether one was really there: when the walk falls all the
+       way through to the page default, the answer is a guess, and that is the
+       only case where the pixels need photographing. */
+    var groundFound = false;
     function groundOf(el) {
       var n = el;
+      groundFound = false;
       while (n && n !== document.documentElement) {
         var bg = getComputedStyle(n).backgroundColor;
         var m = bg.match(/rgba?\(([^)]+)\)/);
         if (m) {
           var p = m[1].split(/[,\s/]+/).filter(Boolean).map(parseFloat);
           var a = p.length > 3 ? p[3] : 1;
-          if (a > 0.92) return bg;
+          /* body does not count as "found": it is the page default, which is
+             exactly the fall-through case that needs its pixels read. */
+          if (a > 0.92) { groundFound = (n !== document.body); return bg; }
         }
         n = n.parentElement;
       }
       return getComputedStyle(document.body).backgroundColor || 'rgb(255,255,255)';
+    }
+
+    /* Does something paint between this text and the background the walk
+       found? A full-bleed hero puts its photograph in an absolutely positioned
+       sibling, so groundOf() walks straight past it and returns the page
+       colour. elementsFromPoint sees what the screen sees. */
+    var stamp = 0;
+    function paintedOver(el) {
+      var r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return false;
+      if (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return false;
+      var pts = [[r.left + r.width * .5, r.top + r.height * .5],
+                 [r.left + 4, r.top + 4], [r.right - 4, r.bottom - 4]];
+      for (var i = 0; i < pts.length; i++) {
+        var stack = document.elementsFromPoint(pts[i][0], pts[i][1]);
+        var at = stack.indexOf(el);
+        if (at < 0) continue;
+        for (var k = at + 1; k < stack.length; k++) {
+          var n = stack[k], ns = getComputedStyle(n);
+          if (n.tagName === 'IMG' || n.tagName === 'VIDEO' || n.tagName === 'CANVAS') return true;
+          if (ns.backgroundImage && ns.backgroundImage !== 'none') return true;
+        }
+      }
+      return false;
     }
 
     /* --- text nodes with real content --- */
@@ -136,7 +168,25 @@ async function audit(target, opts) {
         stops = (cs.backgroundImage || '').match(/rgba?\([^)]*\)/g) || null;
       }
 
+      /* groundOf() must run before this: it sets groundFound, and an element
+         that sits on a real opaque background (a white pill button over a
+         photograph) needs no sampling — the walk already had it right. */
+      var ground = groundOf(el);
+      var over = groundFound ? false : paintedOver(el);
+      var mark = null, rect = null;
+      if (over) {
+        mark = 'da' + (++stamp);
+        el.setAttribute('data-da-audit', mark);
+        var rr = el.getBoundingClientRect();
+        rect = { x: Math.max(0, Math.floor(rr.left)), y: Math.max(0, Math.floor(rr.top)),
+                 width: Math.max(1, Math.ceil(Math.min(rr.width, innerWidth - rr.left))),
+                 height: Math.max(1, Math.ceil(Math.min(rr.height, innerHeight - rr.top))) };
+      }
+
       out.text.push({
+        overPaint: over,
+        mark: mark,
+        rect: rect,
         clipped: clipped,
         stops: stops,
         bodyish: bodyish,
@@ -144,7 +194,7 @@ async function audit(target, opts) {
         tag: el.tagName.toLowerCase(),
         sample: own.slice(0, 44),
         color: cs.color,
-        ground: groundOf(el),
+        ground: ground,
         size: size,
         large: large,
         sel: el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\s+/)[0] : el.tagName.toLowerCase()
@@ -304,6 +354,68 @@ async function audit(target, opts) {
     return out;
   }, { MIN_TARGET: MIN_TARGET, MIN_INPUT_FONT: MIN_INPUT_FONT, LAYOUT_PROPS: LAYOUT_PROPS, SLOW_PAINT_MS: SLOW_PAINT_MS });
 
+  /* ---- Read the pixels actually behind text that sits over a photograph ----
+     The text is hidden, the region is photographed, and the worst-contrasting
+     pixel in it becomes the ground. Worst, not average: a headline is readable
+     only if its palest letter clears the brightest thing behind it. This is the
+     one case the DOM walk cannot answer, and guessing it either waves through
+     white-on-white or condemns every photographic hero on the web. */
+  for (var ti = 0; ti < found.text.length; ti++) {
+    var tr = found.text[ti];
+    if (!tr.overPaint || !tr.mark || !tr.rect) continue;
+    var sel = '[data-da-audit="' + tr.mark + '"]';
+    try {
+      /* The glyphs are made transparent rather than the element hidden. Hiding
+         it also removes its own background — a white pill button vanished and
+         the audit measured the photograph behind the button instead of the
+         button, then reported the label as 1.08:1 against it. */
+      await page.$eval(sel, function (e) {
+        e.setAttribute('data-da-colour', e.style.color || '');
+        e.style.color = 'transparent'; e.style.textShadow = 'none';
+        /* Child elements are beside the glyphs, not behind them. A logo's mark
+           sits inside the same box as its wordmark, and taking the worst pixel
+           in that box reported the white mark as the background of the white
+           text — 1.00:1 for something plainly readable on the screen. */
+        Array.prototype.forEach.call(e.children, function (c) {
+          c.setAttribute('data-da-vis', c.style.visibility || '');
+          c.style.visibility = 'hidden';
+        });
+      });
+      var shot = await page.screenshot({ clip: tr.rect });
+      await page.$eval(sel, function (e) {
+        e.style.color = e.getAttribute('data-da-colour') || '';
+        e.style.textShadow = ''; e.removeAttribute('data-da-colour');
+        Array.prototype.forEach.call(e.children, function (c) {
+          c.style.visibility = c.getAttribute('data-da-vis') || '';
+          c.removeAttribute('data-da-vis');
+        });
+      });
+      var px = PNG.pixels(PNG.decode(shot));
+      var ink = parseRGB(tr.color);
+      if (!ink || !px.length) continue;
+      var inkHex = toHex(ink), worstR = null, worstPx = null, worstRGB = null;
+      /* Sample on a grid rather than every pixel: a 680x300 headline box is
+         200k pixels and the answer does not change. */
+      var step = Math.max(1, Math.floor(px.length / 4000));
+      for (var pi = 0; pi < px.length; pi += step) {
+        var q = px[pi];
+        var qh = toHex({ r: q[0], g: q[1], b: q[2], a: 1 }), rr2;
+        try { rr2 = C.ratio(inkHex, qh); } catch (e) { continue; }
+        if (worstR === null || rr2 < worstR) {
+          worstR = rr2; worstPx = qh;
+          /* rgb(), not hex: the grader parses computed-style strings, and a
+             hex ground made parseRGB return null, so every sampled run was
+             dropped before it was ever compared. */
+          worstRGB = 'rgb(' + q[0] + ', ' + q[1] + ', ' + q[2] + ')';
+        }
+      }
+      if (worstPx) {
+        tr.ground = worstRGB; tr.measured = true;
+        if (process.env.DA_DEBUG) console.error('MEASURED', tr.sel, tr.sample.slice(0,18), '->', worstPx);
+      }
+    } catch (e) { if (process.env.DA_DEBUG) console.error("SAMPLE FAIL", tr.sel, e.message); }
+  }
+
   await browser.close();
 
   /* ---- grade it here, in Node, where the maths is reliable ---- */
@@ -358,12 +470,21 @@ async function audit(target, opts) {
       if (seen[key]) return;
       seen[key] = 1;
       var fixed = C.fix(fgHex, bgHex, need);
+      /* When the ink is already as far as it can go — white on a mid-tone, say
+         — "use #ffffff" is not advice, it is the colour that just failed. Say
+         what would actually work instead. */
+      var advice = (fixed.ratio + 0.005 < need || fixed.hex.toLowerCase() === fgHex.toLowerCase())
+        ? 'ink cannot go further on this ground (best ' + fixed.ratio.toFixed(2)
+          + ':1) — darken what is behind it'
+          + (t.measured ? ', which here is the photograph: deepen the scrim' : '')
+        : 'use ' + fixed.hex + ' (' + fixed.ratio.toFixed(2) + ':1)';
       fails.push({
         rule: 'contrast',
         where: t.sel,
-        detail: fgHex + ' on ' + bgHex + ' is ' + r.toFixed(2) + ':1, needs ' + need + ':1',
+        detail: fgHex + ' on ' + bgHex + ' is ' + r.toFixed(2) + ':1, needs ' + need + ':1'
+              + (t.measured ? ' (background read from the rendered pixels)' : ''),
         sample: t.sample,
-        fix: 'use ' + fixed.hex + ' (' + fixed.ratio.toFixed(2) + ':1)'
+        fix: advice
       });
     }
     // Two different floors. Body copy must clear 15px. Anything else only

@@ -88,17 +88,44 @@ create index if not exists events_site_kind_idx on mk_events(site_id, kind, crea
 -- ---------------------------------------------------------------- mk_leads
 -- A real enquiry from the website form. This is the number that matters.
 
+-- Synced from the live database on 24 November 2026. The version previously
+-- in this file was nine columns behind: every contact and distance field had
+-- been added by migration and never written back, so nobody reading the repo
+-- could see what a lead actually holds.
 create table if not exists mk_leads (
-  id         uuid primary key default gen_random_uuid(),
-  site_id    uuid not null references mk_sites(id) on delete cascade,
-  name       text not null,
-  contact    text,
-  requested  text,                              -- 'Repair', 'Table for 2'
-  preferred  text,                              -- date and time they asked for
-  message    text,
-  status     text not null default 'new',       -- new | contacted | won | lost
-  created_at timestamptz not null default now()
+  id            uuid primary key default gen_random_uuid(),
+  site_id       uuid not null references mk_sites(id) on delete cascade,
+
+  -- what the CUSTOMER submitted. This is the enquiry as made, and it is
+  -- evidence: the owner is not granted permission to change any of it.
+  name          text not null,
+  contact       text,
+  phone         text,
+  email         text,
+  address       text,
+  city          text,
+  zip           text,
+  requested     text,                           -- 'Repair', 'Table for 2'
+  preferred     text,                           -- what they ASKED for, free text.
+                                                -- Not an appointment. Nothing agreed it.
+  message       text,
+  created_at    timestamptz not null default now(),
+
+  -- computed when the enquiry arrives, from the account's base postcode
+  road_miles    integer,                        -- straight line x road factor
+  drive_minutes integer,                        -- an estimate, and labelled as one
+  in_area       boolean,
+
+  -- what the OWNER records after speaking to them. These three are the only
+  -- columns an owner may write.
+  status        text not null default 'new',    -- new | contacted | booked | done | lost
+  scheduled_at  timestamptz,                    -- what was actually arranged
+  owner_note    text
 );
+
+-- Finding today's jobs for one site stays cheap as years of leads accumulate.
+create index if not exists mk_leads_schedule_idx
+  on mk_leads (site_id, scheduled_at) where scheduled_at is not null;
 create index if not exists leads_site_idx on mk_leads(site_id, created_at desc);
 
 -- -------------------------------------------------------- edit requests
@@ -195,6 +222,24 @@ create policy events_read on mk_events for select to authenticated
 
 create policy leads_read on mk_leads for select to authenticated
   using (site_id in (select id from mk_sites where account_id in (select mk_my_account_ids())));
+
+-- An owner may schedule and annotate their own leads. The grant is
+-- column-level on purpose: a policy decides WHICH rows, a grant decides WHICH
+-- COLUMNS, and without the grant the policy is unreachable — which is exactly
+-- how this shipped the first time, with an owner unable to update anything.
+--
+-- The customer's own words stay unwritable. If an owner could edit the phone
+-- number or what was asked for, a disputed job would come down to a record
+-- only one side can change.
+create policy leads_owner_update on mk_leads
+  for update to authenticated
+  using (site_id in (select s.id from mk_sites s
+         where s.account_id in (select account_id from mk_account_users)))
+  with check (site_id in (select s.id from mk_sites s
+         where s.account_id in (select account_id from mk_account_users)));
+
+grant update (scheduled_at, status, owner_note) on mk_leads to authenticated;
+revoke update on mk_leads from anon;
 
 create policy leads_update on mk_leads for update to authenticated
   using (site_id in (select id from mk_sites where account_id in (select mk_my_account_ids())));

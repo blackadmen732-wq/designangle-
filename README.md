@@ -34,6 +34,27 @@ To look at it:
 npx serve dist/hvac
 ```
 
+## The two halves are separate, and that is tested
+
+The design kit and the business side share a repository and nothing else.
+
+```
+DESIGN                              BUSINESS
+build.js    template/   tools/      portal/   OFFER.md
+.claude/skills/design/              Supabase, the panel, leads
+```
+
+`build.js`, `tools/audit.js`, `tools/contrast.js` and `tools/preview.js`
+import nothing from `portal/`. Verified by deleting `portal/` outright and
+running all four: every one still worked. The only mentions of the collector
+anywhere in the design half are two comments in `template/site.js` and one
+line in `DESIGN.md`, explaining why the form behaves as it does.
+
+So you can design with this — a page, a phone screen, anything — without
+touching or knowing about the business side. The design skill loads on its
+own and the tools run on any HTML file, including files that have nothing to
+do with a client site.
+
 ## Scale, money, and what is not built
 
 `docs/SCALE-AND-TERMS.md` answers four things with measured numbers: whether

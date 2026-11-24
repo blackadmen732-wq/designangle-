@@ -180,7 +180,10 @@ The distance is stored on the lead, so the owner sees "47 mi, about 90 min,
 outside area" on the enquiry without looking anything up.
 
 **It is an estimate and is labelled as one.** Straight-line distance multiplied
-by the account's `road_factor` (1.30 by default) at `avg_speed_mph` (32). That
+by the account's `road_factor` (1.30 by default). The time comes from
+`mk_drive_minutes()`, where speed rises with trip length — a flat
+`avg_speed_mph` of 32 told an owner a 129-mile job was "about 242 min" when
+the real drive is about 110. That
 is honest for "can we come?" but nobody should plan a tight day around it. For
 real routed drive times, put a routing engine behind the same response shape;
 nothing else changes. Self-hosted OSRM is the usual free choice.
@@ -231,7 +234,11 @@ what each signed-in person can read, so the key alone shows nobody anything.
 
 ## Before a real client is onboarded
 
-- [ ] Delete the demo login `demo-owner@mkwebstudio.test` and the demo account
+- [x] **Done 24 Nov 2026.** The demo login `demo-owner@mkwebstudio.test` is
+      deleted. The hvac account, its site and its six leads are kept, because
+      `sites/hvac/content.js` carries that site id in its `track` block and
+      deleting the account would break the demo site's collector. The login
+      was the risk; the data is yours.
 - [ ] Turn on leaked-password protection in Supabase Auth settings
 - [ ] Decide where the panel is hosted and give clients that URL
 - [ ] Check the panel in a normal browser on a real phone

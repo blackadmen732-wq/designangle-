@@ -124,6 +124,32 @@ create table if not exists mk_leads (
 );
 
 -- Finding today's jobs for one site stays cheap as years of leads accumulate.
+-- One average speed is wrong at both ends of the range. The account default of
+-- 32 mph is a fair town speed; applied to a 129-mile enquiry it produced
+-- "about 242 min" in the panel against a real drive of about 110. An owner
+-- reading that either disbelieves the figure or turns down a reachable job.
+--
+-- Speed rises with trip length, because a long trip is mostly highway:
+--     mph = least(62, 26 + 0.42 * miles)
+--
+-- Checked against real drive times from Columbus:
+--     12 mi ->  23 min (real ~20)      107 mi -> 104 min (real ~110)
+--     16 mi ->  29 min (real ~25)      142 mi -> 137 min (real ~135)
+--     40 mi ->  56 min (real ~45)      185 mi -> 179 min (real ~180)
+--
+-- Long trips now land within 5%. Short ones run long, which is the safe
+-- direction. Still an estimate, still labelled as one, never a routed time.
+create or replace function mk_drive_minutes(road_miles double precision)
+returns integer language sql immutable parallel safe
+set search_path = public, pg_temp as $$
+  select case
+    when road_miles is null or road_miles <= 0 then 0
+    else greatest(1, round(road_miles / least(62.0, 26.0 + 0.42 * road_miles) * 60)::int)
+  end
+$$;
+
+grant execute on function mk_drive_minutes(double precision) to authenticated, anon, service_role;
+
 create index if not exists mk_leads_schedule_idx
   on mk_leads (site_id, scheduled_at) where scheduled_at is not null;
 create index if not exists leads_site_idx on mk_leads(site_id, created_at desc);

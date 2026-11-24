@@ -111,6 +111,26 @@ Two things the kit does not do, which a paying client will need:
    award-winning restaurant site builds its own reservations; they all embed OpenTable,
    Resy or Zenchef. Do the same.
 
+## The design method
+
+`.claude/skills/design/SKILL.md` holds the method itself: the order of work,
+the type, colour, spacing and motion systems, the phone-screen rules, and how
+to take something that looks bad and make it look made. It loads automatically
+in this repo, so any session starts knowing it, and it applies to app screens
+as much as web pages.
+
+`tools/critique.py` reviews a screenshot on your own NVIDIA credit, not
+Claude's:
+
+```bash
+python3 tools/critique.py shot.png --kind app --fix
+```
+
+It handles the mechanical half of review — hierarchy, spacing, contrast, touch
+targets — so the expensive model is spent on judgement. About one point in
+three is wrong, because it sees one still image with no hover, scroll or
+motion. Argue with it.
+
 ## The owner panel
 
 Each client gets a dashboard showing what their website did: visitors, taps on
@@ -131,6 +151,8 @@ template/
 sites/
   restaurant/            example: Pomelo Kitchen (invented)
   hvac/                  example: Northwind Heating & Air (invented)
+.claude/skills/design/  the design method, loaded automatically
+tools/critique.py      screenshot review on your NVIDIA credit
 portal/
   schema.sql             the portal database
   functions/collect/     the endpoint websites report to

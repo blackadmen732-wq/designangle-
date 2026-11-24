@@ -1,0 +1,492 @@
+<title>App Screen Patterns</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a dark reference sheet. Each pattern is shown live at phone scale
+   with the rule that produces it beside it. Pulled apart from two app
+   redesign walkthroughs, frame by frame. */
+:root {
+  --page: #070707;
+  --surface: #121212;        /* a card is lighter than the page, never outlined */
+  --surface-2: #1c1c1c;
+  --ink: #ffffff;
+  --ink-2: #a8a8a8;          /* same size as --ink, lower value: hierarchy without size */
+  --ink-3: #6e6e6e;
+  --hair: rgba(255,255,255,.09);
+  --spotify: #1ed760;
+  --netflix: #e50914;
+  --font: "Instrument Sans", -apple-system, system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font-family: var(--font); font-size: 16px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { margin: 0; line-height: 1.1; letter-spacing: -0.025em; }
+p { margin: 0; }
+code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .88em; }
+
+.wrap {
+  max-width: 1120px; margin-inline: auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+header.top { padding-block: 72px 48px; border-bottom: 1px solid var(--hair); }
+header.top h1 { font-size: clamp(34px, 6vw, 60px); font-weight: 700; max-width: 16ch; }
+header.top p { color: var(--ink-2); max-width: 58ch; margin-top: 20px; font-size: 17px; }
+.src { margin-top: 28px; font-size: 13.5px; color: var(--ink-3); }
+
+section { padding-block: 56px; border-bottom: 1px solid var(--hair); }
+.sec-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
+.sec-head h2 { font-size: 26px; font-weight: 700; }
+.num {
+  font-size: 12px; font-weight: 600; color: var(--ink-3);
+  border: 1px solid var(--hair); border-radius: 999px; padding: 3px 10px;
+}
+.lede { color: var(--ink-2); max-width: 62ch; margin-bottom: 30px; }
+
+.split { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 32px; align-items: start; }
+.demo {
+  background: var(--surface); border-radius: 22px; padding: 22px; min-width: 0;
+  /* The glow. A large soft radial behind the content is what stops a dark
+     screen looking like a black rectangle. */
+  background-image: radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.07), transparent 60%);
+}
+.why { min-width: 0; display: grid; gap: 14px; }
+.why p { color: var(--ink-2); font-size: 15.5px; }
+.why b { color: var(--ink); font-weight: 600; }
+.why ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 15.5px; }
+.why li { margin-bottom: 6px; }
+pre {
+  margin: 0; background: #0d0d0d; border: 1px solid var(--hair); border-radius: 12px;
+  padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.6; color: #cfcfcf;
+}
+pre .k { color: #7fd6a0; }
+pre .c { color: var(--ink-3); }
+
+/* ---- the patterns themselves ---- */
+
+/* 1. Action row: one filled pill, circles of the same height beside it. */
+.action-row { display: flex; align-items: center; gap: 12px; }
+.pill {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  height: 56px; padding-inline: 34px; border: 0; border-radius: 999px;
+  font: inherit; font-weight: 700; font-size: 17px; cursor: pointer;
+  transition: transform .18s cubic-bezier(.33,1,.68,1), filter .18s;
+}
+.pill:hover { filter: brightness(1.08); }
+.pill:active { transform: scale(.97); }
+.pill.green { background: var(--spotify); color: #000; }
+.pill.white { background: #fff; color: #000; flex: 1; }
+.circ {
+  width: 56px; height: 56px; flex: none; border: 0; border-radius: 50%;
+  background: rgba(255,255,255,.11); color: var(--ink);
+  display: grid; place-items: center; cursor: pointer;
+  transition: background .18s, transform .18s cubic-bezier(.33,1,.68,1);
+}
+.circ:hover { background: rgba(255,255,255,.2); }
+.circ:active { transform: scale(.94); }
+
+/* 2. Tag pills: translucent fill, never an outline. */
+.tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag {
+  font-size: 13px; font-weight: 500; color: var(--ink-2);
+  background: rgba(255,255,255,.1); border-radius: 7px; padding: 5px 11px;
+}
+
+/* 3. Filter pills: the selected one inverts. */
+.filters { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
+.filter {
+  border: 0; border-radius: 999px; padding: 9px 18px; font: inherit;
+  font-size: 15px; font-weight: 500; cursor: pointer;
+  background: rgba(255,255,255,.1); color: var(--ink); transition: background .18s;
+}
+.filter:hover { background: rgba(255,255,255,.17); }
+.filter[aria-pressed="true"] { background: #fff; color: #000; font-weight: 600; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#4a4a4a,#2a2a2a); flex: none; }
+
+/* 4. Card: separated by value, no border and no shadow. */
+.media-card {
+  background: var(--surface-2); border-radius: 18px; padding: 14px;
+  display: grid; grid-template-columns: 92px minmax(0,1fr); gap: 14px; align-items: center;
+}
+.art { aspect-ratio: 1; border-radius: 11px; background: linear-gradient(135deg,#8a5a3a,#3a2318); }
+.media-card .label { font-size: 12.5px; color: var(--ink-3); }
+.media-card h4 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.media-card .sub { font-size: 14px; color: var(--ink-2); margin-bottom: 12px; }
+.mini-row { display: flex; align-items: center; gap: 9px; }
+.mini {
+  width: 38px; height: 38px; border: 0; border-radius: 50%; cursor: pointer;
+  background: rgba(255,255,255,.11); color: var(--ink); display: grid; place-items: center;
+}
+.mini-pill {
+  margin-left: auto; height: 38px; padding-inline: 20px; border: 0; border-radius: 999px;
+  background: var(--spotify); color: #000; font: inherit; font-weight: 700; font-size: 15px;
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+}
+
+/* 5. The row that bleeds off the edge: the cut card is the scroll cue. */
+.bleed { margin-inline: -22px; padding-inline: 22px; overflow-x: auto; scrollbar-width: none; }
+.bleed::-webkit-scrollbar { display: none; }
+.bleed-track { display: flex; gap: 12px; width: max-content; padding-bottom: 4px; }
+.bleed-item { width: 124px; flex: none; }
+.bleed-item .sq { aspect-ratio: 1; border-radius: 13px; margin-bottom: 9px; position: relative; }
+.bleed-item:nth-child(1) .sq { background: linear-gradient(135deg,#1e5c3a,#0d2a1b); }
+.bleed-item:nth-child(2) .sq { background: linear-gradient(135deg,#5a4433,#241a13); }
+.bleed-item:nth-child(3) .sq { background: linear-gradient(135deg,#8a6fa8,#3b2d4a); }
+.bleed-item:nth-child(4) .sq { background: linear-gradient(135deg,#3a4a6a,#1a2133); }
+.bleed-item .t { font-size: 14px; font-weight: 600; }
+.bleed-item .s { font-size: 13px; color: var(--ink-2); }
+.on-art {
+  position: absolute; right: 9px; bottom: 9px; width: 34px; height: 34px;
+  border-radius: 50%; background: rgba(0,0,0,.6); display: grid; place-items: center;
+  backdrop-filter: blur(6px);
+}
+
+/* 6. Floating nav: a pill above the edge, with the create action separate. */
+.nav-demo { position: relative; padding: 34px 0 14px; }
+.nav-bar { display: flex; align-items: center; gap: 10px; }
+.nav-pill {
+  flex: 1; display: flex; justify-content: space-around; align-items: center;
+  background: rgba(255,255,255,.07); border-radius: 999px; padding: 7px;
+  backdrop-filter: blur(16px);
+}
+.nav-item {
+  display: grid; justify-items: center; gap: 3px; padding: 7px 15px;
+  border-radius: 999px; font-size: 11px; color: var(--ink-3); cursor: pointer;
+}
+.nav-item.on { background: rgba(255,255,255,.12); color: var(--ink); }
+.nav-plus {
+  width: 54px; height: 54px; flex: none; border-radius: 50%; background: #fff;
+  color: #000; display: grid; place-items: center; cursor: pointer;
+}
+
+/* 7. Tab underline: the brand colour's only appearance. */
+.tabs-demo { display: flex; gap: 26px; border-bottom: 1px solid var(--hair); }
+.tab { padding-bottom: 12px; font-size: 16px; font-weight: 600; color: var(--ink-3); cursor: pointer; position: relative; }
+.tab.on { color: var(--ink); }
+.tab.on::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px;
+  height: 3px; background: var(--netflix); border-radius: 3px;
+}
+
+/* 8. Hero: image bleeds behind, a gradient makes the text readable. */
+.hero-demo { position: relative; border-radius: 18px; overflow: hidden; aspect-ratio: 4/3; }
+.hero-img { position: absolute; inset: 0; background: linear-gradient(140deg,#6a4535,#2a1a14 60%,#101010); }
+.hero-shade { position: absolute; inset: 0; background: linear-gradient(to top, #121212 4%, rgba(18,18,18,.5) 42%, transparent 72%); }
+.hero-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px; display: grid; gap: 11px; }
+.hero-body h3 { font-size: 27px; font-weight: 700; }
+
+footer { padding-block: 48px 72px; color: var(--ink-3); font-size: 14px; }
+@media (max-width: 760px) { .split { grid-template-columns: minmax(0,1fr); } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <h1>How those app redesigns actually work</h1>
+    <p>
+      Eight patterns, pulled frame by frame out of two app redesign walkthroughs
+      and rebuilt here in plain CSS. None of them is difficult. What makes the
+      screens look expensive is that all eight are applied together, and nothing
+      else is.
+    </p>
+    <p class="src">
+      Every demo below is live, not a picture. Resize the window, press the buttons.
+    </p>
+  </div>
+</header>
+
+<main>
+
+<section><div class="wrap">
+  <div class="sec-head"><span class="num">01</span><h2>The action row</h2></div>
+  <p class="lede">The single most copied thing in both redesigns, and the one that does the most work.</p>
+  <div class="split">
+    <div class="demo">
+      <div class="action-row" style="margin-bottom:18px">
+        <button class="pill white">
+          <svg width="15" height="17" viewBox="0 0 15 17" fill="currentColor" aria-hidden="true"><path d="M1 1.8v13.4a.8.8 0 0 0 1.2.7l11-6.7a.8.8 0 0 0 0-1.4l-11-6.7A.8.8 0 0 0 1 1.8Z"/></svg>
+          Play
+        </button>
+        <button class="circ" aria-label="Download">
+          <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M10 3v10m0 0 4-4m-4 4-4-4M4 16h12"/></svg>
+        </button>
+        <button class="circ" aria-label="Add to list">
+          <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
+        </button>
+      </div>
+      <div class="action-row">
+        <button class="pill green">
+          <svg width="13" height="15" viewBox="0 0 15 17" fill="currentColor" aria-hidden="true"><path d="M1 1.8v13.4a.8.8 0 0 0 1.2.7l11-6.7a.8.8 0 0 0 0-1.4l-11-6.7A.8.8 0 0 0 1 1.8Z"/></svg>
+          Play
+        </button>
+        <button class="circ" aria-label="Add">
+          <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="why">
+      <p><b>One filled pill, then circles.</b> The primary action is the only
+      thing with a solid fill. Everything beside it is a translucent circle with
+      an icon and no label.</p>
+      <p><b>They are the same height.</b> This is the detail people miss. The
+      pill and the circles are both 56px, so they sit on one baseline and read as
+      one object rather than three controls that happen to be near each other.</p>
+      <p><b>The fill is the only bright colour on the screen.</b> Green on one,
+      white on the other. Use it here and almost nowhere else.</p>
+      <pre><span class="c">/* same height is what makes the row look designed */</span>
+.pill { height: <span class="k">56px</span>; border-radius: <span class="k">999px</span>; padding-inline: <span class="k">34px</span> }
+.circ { width: <span class="k">56px</span>; height: <span class="k">56px</span>; border-radius: <span class="k">50%</span>;
+        background: <span class="k">rgba(255,255,255,.11)</span> }</pre>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><span class="num">02</span><h2>The glow behind everything</h2></div>
+  <p class="lede">What you are seeing as a "blurry background". It is one radial gradient.</p>
+  <div class="split">
+    <div class="demo" style="background-image:radial-gradient(130% 100% at 50% 0%, rgba(255,255,255,.14), transparent 62%)">
+      <div style="height:132px;display:grid;place-items:center;color:var(--ink-2);font-size:14.5px">
+        the same card, with a stronger glow
+      </div>
+    </div>
+    <div class="why">
+      <p><b>A flat dark screen looks like a switched-off television.</b> One
+      large, very soft radial gradient from the top makes it look lit.</p>
+      <p>On the Netflix screen the glow is the trailer still itself, blurred and
+      darkened behind the content. On Spotify it is a plain gradient. Same
+      effect, different source.</p>
+      <p><b>Keep it weak.</b> 7% to 14% white, spread across more than the whole
+      element. If you can see where it stops, it is too strong.</p>
+      <pre>background-image: radial-gradient(
+  <span class="k">120% 90% at 50% 0%</span>,
+  rgba(255,255,255,<span class="k">.07</span>), transparent <span class="k">60%</span>);</pre>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><span class="num">03</span><h2>Hierarchy without changing size</h2></div>
+  <p class="lede">Two lines, the same size, one of them quiet.</p>
+  <div class="split">
+    <div class="demo">
+      <div style="font-size:27px;font-weight:600;letter-spacing:-.02em">Good evening</div>
+      <div style="font-size:27px;font-weight:600;letter-spacing:-.02em;color:var(--ink-2)">Pick up where you left off</div>
+      <div style="margin-top:22px;font-size:12.5px;color:var(--ink-3)">Jump into a session based on your tastes</div>
+      <div style="font-size:19px;font-weight:700;letter-spacing:-.01em">Start listening</div>
+    </div>
+    <div class="why">
+      <p><b>"Good evening" and "Pick up where you left off" are the same size
+      and weight.</b> The second is simply a lower value grey. That is the whole
+      trick, and it reads as more considered than making the second line smaller.</p>
+      <p>The second pair inverts it: a small grey line <em>above</em> a larger
+      white one. The quiet line sets up the loud one.</p>
+      <p><b>Three text values, not three sizes.</b> White, mid grey, dim grey.
+      Reach for colour before you reach for size.</p>
+      <pre>--ink:   <span class="k">#ffffff</span>  <span class="c">/* the thing itself */</span>
+--ink-2: <span class="k">#a8a8a8</span>  <span class="c">/* same size, quieter */</span>
+--ink-3: <span class="k">#6e6e6e</span>  <span class="c">/* labels, captions */</span></pre>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><span class="num">04</span><h2>Pills, filters and tags</h2></div>
+  <p class="lede">Three sizes of the same idea. None of them has a border.</p>
+  <div class="split">
+    <div class="demo">
+      <div class="filters" style="margin-bottom:20px">
+        <span class="avatar"></span>
+        <button class="filter" aria-pressed="true">All</button>
+        <button class="filter" aria-pressed="false">Music</button>
+        <button class="filter" aria-pressed="false">Podcasts</button>
+      </div>
+      <div class="tags">
+        <span class="tag">TV MA</span>
+        <span class="tag">HD</span>
+        <span class="tag">Subtitles</span>
+        <span class="tag">Audio description</span>
+      </div>
+    </div>
+    <div class="why">
+      <p><b>Selected inverts, it does not outline.</b> The chosen filter goes
+      solid white with black text. The others are 10% white. No borders anywhere.</p>
+      <p><b>Tags are the same thing, smaller and squarer.</b> 10% white fill,
+      7px radius, grey text. They are information, not controls, so they never
+      look pressable.</p>
+      <p><b>A translucent fill beats a solid grey.</b> It picks up whatever is
+      behind it, so the same pill works over a photo or over the page.</p>
+      <pre>.filter        { background: <span class="k">rgba(255,255,255,.10)</span> }
+.filter[<span class="k">aria-pressed</span>="true"]
+               { background: <span class="k">#fff</span>; color: <span class="k">#000</span> }</pre>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><span class="num">05</span><h2>Cards separated by value</h2></div>
+  <p class="lede">No border. No shadow. Just lighter than what is behind it.</p>
+  <div class="split">
+    <div class="demo">
+      <div class="media-card">
+        <div class="art"></div>
+        <div>
+          <div class="label">Episode</div>
+          <h4>Ana Gasteyer</h4>
+          <div class="sub">Good Hang with Amy Poehler</div>
+          <div class="mini-row">
+            <button class="mini" aria-label="Add">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
+            </button>
+            <button class="mini" aria-label="More">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><circle cx="4" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="16" cy="10" r="1.6"/></svg>
+            </button>
+            <button class="mini-pill">
+              <svg width="11" height="13" viewBox="0 0 15 17" fill="currentColor" aria-hidden="true"><path d="M1 1.8v13.4a.8.8 0 0 0 1.2.7l11-6.7a.8.8 0 0 0 0-1.4l-11-6.7A.8.8 0 0 0 1 1.8Z"/></svg>
+              Play
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="why">
+      <p><b>Page #070707, card #1c1c1c.</b> That difference alone separates
+      them. Adding a border or a shadow on top makes it look like a web page
+      from 2014.</p>
+      <p><b>The artwork is square and sits flush</b> to the card's padding on
+      three sides, with its own smaller radius. Rounding inside rounding: the
+      inner radius is always smaller than the outer.</p>
+      <p><b>The action row repeats at a smaller size.</b> 38px circles, 38px
+      pill, same shapes as the big row. One vocabulary, two scales.</p>
+      <pre><span class="c">/* inner radius &lt; outer radius, always */</span>
+.media-card { border-radius: <span class="k">18px</span>; padding: <span class="k">14px</span> }
+.art        { border-radius: <span class="k">11px</span> }</pre>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><span class="num">06</span><h2>The row that runs off the edge</h2></div>
+  <p class="lede">The cut-off card is the scroll cue. Nothing else is needed.</p>
+  <div class="split">
+    <div class="demo">
+      <div class="bleed">
+        <div class="bleed-track">
+          <div class="bleed-item"><div class="sq"><span class="on-art"><svg width="12" height="14" viewBox="0 0 15 17" fill="#fff" aria-hidden="true"><path d="M1 1.8v13.4a.8.8 0 0 0 1.2.7l11-6.7a.8.8 0 0 0 0-1.4l-11-6.7A.8.8 0 0 0 1 1.8Z"/></svg></span></div><div class="t">DJ</div><div class="s">Made for you</div></div>
+          <div class="bleed-item"><div class="sq"></div><div class="t">Good Hang</div><div class="s">Gracie Abrams</div></div>
+          <div class="bleed-item"><div class="sq"></div><div class="t">The Fate of</div><div class="s">Taylor Swift</div></div>
+          <div class="bleed-item"><div class="sq"></div><div class="t">Greatest</div><div class="s">Arlo Parks</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="why">
+      <p><b>Never fit the row neatly.</b> The fourth card is deliberately half
+      off the screen. A row that ends flush looks finished, so nobody swipes it.</p>
+      <p><b>Negative margin, matching padding.</b> The scroller runs edge to
+      edge while the cards keep the page's gutter.</p>
+      <p><b>No arrows, no dots, no scrollbar.</b> The cut card does the whole job.</p>
+      <pre>.bleed { margin-inline: <span class="k">-22px</span>; padding-inline: <span class="k">22px</span>;
+         overflow-x: <span class="k">auto</span>; scrollbar-width: <span class="k">none</span> }</pre>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><span class="num">07</span><h2>Navigation that floats</h2></div>
+  <p class="lede">A bar locked to the bottom edge is the default. Lifting it off is the choice.</p>
+  <div class="split">
+    <div class="demo">
+      <div class="nav-demo">
+        <div class="nav-bar">
+          <div class="nav-pill">
+            <div class="nav-item on">
+              <svg width="21" height="21" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l8-6 8 6v10a1 1 0 0 1-1 1h-4v-6H8v6H4a1 1 0 0 1-1-1Z"/></svg>
+              Home
+            </div>
+            <div class="nav-item">
+              <svg width="21" height="21" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 4 4"/></svg>
+              Search
+            </div>
+            <div class="nav-item">
+              <svg width="21" height="21" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h4v14H4zM10 4h4v14h-4zM16 5l3 13"/></svg>
+              Library
+            </div>
+          </div>
+          <div class="nav-plus">
+            <svg width="23" height="23" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><path d="M11 4v14M4 11h14"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="why">
+      <p><b>A pill with air around it.</b> Translucent, blurred, floating above
+      the bottom edge instead of welded to it.</p>
+      <p><b>The active tab gets its own pill</b> inside the bar, rather than
+      just turning a different colour.</p>
+      <p><b>Create is a separate white circle.</b> Cramming it in as a fifth tab
+      is what every default does. Pulling it out makes it the one obvious action.</p>
+      <pre>.nav-pill { background: <span class="k">rgba(255,255,255,.07)</span>;
+            border-radius: <span class="k">999px</span>;
+            backdrop-filter: <span class="k">blur(16px)</span> }</pre>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><span class="num">08</span><h2>The hero, and where the brand colour goes</h2></div>
+  <p class="lede">The image runs behind everything. The brand colour appears once.</p>
+  <div class="split">
+    <div class="demo">
+      <div class="hero-demo">
+        <div class="hero-img"></div>
+        <div class="hero-shade"></div>
+        <div class="hero-body">
+          <h3>Black Mirror</h3>
+          <div class="tags">
+            <span class="tag">TV MA</span><span class="tag">HD</span><span class="tag">Subtitles</span>
+          </div>
+        </div>
+      </div>
+      <div class="tabs-demo" style="margin-top:22px">
+        <div class="tab on">Episodes</div>
+        <div class="tab">More Like This</div>
+        <div class="tab">Trailers</div>
+      </div>
+    </div>
+    <div class="why">
+      <p><b>Media is full-bleed, text keeps its gutter.</b> The image touches
+      every edge; the words stay inset. That one contrast is most of what makes
+      a screen feel native rather than like a web page in a phone frame.</p>
+      <p><b>The gradient is the readability.</b> It fades from the card's own
+      colour at the bottom to nothing at 72%, so the text sits on solid ground
+      without a box behind it.</p>
+      <p><b>Netflix red appears exactly once</b> on this screen: a 3px underline
+      on the active tab. Not the Play button, not the tags, not the headings.
+      That restraint is why it still reads as Netflix.</p>
+      <pre>background: linear-gradient(to top,
+  <span class="k">#121212 4%</span>, rgba(18,18,18,.5) <span class="k">42%</span>, transparent <span class="k">72%</span>);</pre>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><span class="num">—</span><h2>What is not here</h2></div>
+  <p class="lede" style="max-width:68ch">
+    No animation library, no 3D, no gradient mesh, no glassmorphism beyond one
+    backdrop blur on the nav. Nothing in these screens needs anything you do not
+    already have. The work is choosing one bright colour and spending it once,
+    making the important thing much larger than feels comfortable, and deleting
+    whatever competes with it.
+  </p>
+</div></section>
+
+</main>
+
+<footer><div class="wrap">
+  Rebuilt from two app redesign walkthroughs, frame by frame. Colours and shapes
+  are measured from the recordings; the code is written from scratch.
+</div></footer>

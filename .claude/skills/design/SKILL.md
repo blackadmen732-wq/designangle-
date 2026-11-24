@@ -113,6 +113,37 @@ Rules that do not bend:
 
 ---
 
+## 2b. The eight patterns that make an app screen look expensive
+
+`docs/app-patterns.html` is a live reference built by pulling two app redesign
+walkthroughs apart frame by frame. Open it when designing a phone screen.
+In short:
+
+1. **Action row.** One filled pill, then translucent circles **of the same
+   height**, on one baseline. The equal height is what makes three controls
+   read as one object.
+2. **A glow, not a flat ground.** One very soft radial gradient (7–14% white,
+   spread wider than the element). A flat dark screen looks switched off.
+3. **Hierarchy by value, not size.** Two lines the same size, the second a
+   lower-value grey. Three text values beats three text sizes.
+4. **Pills have no borders.** Selected inverts to solid white on black. Tags
+   are the same idea, smaller and squarer, in 10% white.
+5. **Cards separate by value.** Page `#070707`, card `#1c1c1c`. No border, no
+   shadow. Inner radius always smaller than outer.
+6. **Scrolling rows run off the edge.** The half-cut card is the only scroll
+   cue needed. Negative margin, matching padding.
+7. **Navigation floats.** A translucent blurred pill lifted off the bottom
+   edge, the active tab in its own pill, and create pulled out as a separate
+   circle.
+8. **The brand colour appears once.** Netflix red is a 3px underline on one
+   tab and nothing else on the screen. That restraint is why it still reads
+   as the brand.
+
+What is **not** in those screens: no animation library, no 3D, no mesh
+gradient, no glass beyond one backdrop blur. The work is choosing one bright
+colour, spending it once, making the important thing much larger than feels
+comfortable, and deleting what competes.
+
 ## 3. Phone app screens
 
 Everything above applies. These are the extra constraints.

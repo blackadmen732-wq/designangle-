@@ -81,10 +81,14 @@ client, but keep the pairing shape: one characterful, one neutral.
 
 ## 4. Spacing and layout
 
-- **Multiples of 8.** 8, 16, 24, 32, 48, 64.
-  44 used to be in this list. It is the minimum touch target, not a spacing
-  step, and having it here made the scale look arbitrary. It lives with the
-  tap-target rule now.
+- **One scale:** 4, 8, 12, 16, 24, 32, 48, 64, 96. Add 2 for dense screens.
+
+  This used to read "multiples of 8: 8, 16, 24, 32, 44, 64", which was wrong
+  twice. 44 is the minimum touch target, not a spacing step, and having it in
+  a multiples-of-8 list made the scale look arbitrary. And starting at 8 left
+  no step for a hairline gap. Every value above appears in Carbon 11.63.0,
+  Material 3 `v0_192` and Uber Base Web 18.2.0 — checked against the published
+  packages, not chosen. See `docs/research/motion-values-from-shipped-systems.md`.
 - Side gutter never below 20px, written as `max(20px, env(safe-area-inset-left, 0px))`.
 - Lay out with flex or grid and `gap`, not margins.
 - Everything stacks to one column at 860px. Test at **400px wide**.

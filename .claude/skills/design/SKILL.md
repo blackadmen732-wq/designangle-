@@ -59,6 +59,12 @@ One scale, multiples of **4**. Nothing between: no 13px, no 27px.
 4  8  12  16  24  32  48  64  96
 ```
 
+Every step here is in Carbon, Material 3 **and** Uber Base Web, checked
+against the published packages. Material builds from an explicit
+`--md-sys-space-unit: 8px` with quarter steps; Carbon and Base Web both start
+their ladders at 2px. Add **2** when you are building something dense — it is
+in all three and nothing marketing-shaped needs it.
+
 **44 is not on this scale.** It is the minimum touch target, which is a
 different rule with a different reason, and it does not belong in a spacing
 sequence. Keep the two apart or the scale stops being a scale.
@@ -150,9 +156,8 @@ Rules that do not bend:
 
 ## 2b. The eight patterns that make an app screen look expensive
 
-`docs/app-patterns.html` is a live reference built by pulling two app redesign
-walkthroughs apart frame by frame. Open it when designing a phone screen.
-In short:
+`docs/phone/app-patterns-dark.html` is a live reference built by pulling two
+app redesign walkthroughs apart frame by frame. In short:
 
 1. **Action row.** One filled pill, then translucent circles **of the same
    height**, on one baseline. The equal height is what makes three controls
@@ -173,6 +178,18 @@ In short:
 8. **The brand colour appears once.** Netflix red is a 3px underline on one
    tab and nothing else on the screen. That restraint is why it still reads
    as the brand.
+
+**Those eight came from two dark media apps, where one thing dominates the
+screen.** That is not most work. For a light, dense screen — a dashboard, a
+list of invoices, anything an owner scans rather than browses — read
+`docs/phone/light-dense-patterns.html` as well. Four of the eight flip:
+
+| Dark set says | On light |
+|---|---|
+| A glow, not a flat ground | No glow. A light screen does not need lighting, and a white radial on white is invisible. |
+| Cards separate by value, no border, no shadow | White has nowhere to go underneath. Use a hairline, or Material's two-part shadow. |
+| Navigation floats | Nothing to float above. Anchor it to the edge. |
+| Make one thing much larger than feels comfortable | Several numbers can be peers. Make them identical and let the *change* carry the emphasis. |
 
 What is **not** in those screens: no animation library, no 3D, no mesh
 gradient, no glass beyond one backdrop blur. The work is choosing one bright

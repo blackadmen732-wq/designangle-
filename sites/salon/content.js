@@ -45,7 +45,7 @@ module.exports = {
     label: 'Studio',
     eyebrow: 'German Village, Columbus',
     primary: { label: 'Book a chair', href: '#book' },
-    headline: 'Two hours that are',
+    headline: 'An hour that is',
     headlineAccent: 'entirely yours.',
     slides: [
       { img: 'nails-nude.webp',
@@ -66,12 +66,13 @@ module.exports = {
         text: 'Freehand, per nail. Bring a photograph or let us suggest something.',
         meta: 'From 80 minutes',
         tint: '#eee9e6' },
-      { img: 'hair-mono.webp',
-        alt: 'A stylist working on a client in a bright salon, black and white',
-        title: 'Colour',
-        text: 'Full head, half head, or a correction of somebody else’s work.',
-        meta: 'Consultation first',
-        tint: '#eceaea' },
+      { img: 'polish-applied.webp',
+        alt: 'A technician painting a client’s nails at a white table',
+        title: 'The appointment itself',
+        text: 'One technician, one client, no second chair running alongside. '
+            + 'You are not being fitted around somebody else.',
+        meta: 'Always',
+        tint: '#f3ece6' },
       { img: 'polish-wall.webp',
         alt: 'Rows of nail polish bottles arranged on pale shelves',
         title: 'Two hundred colours',
@@ -82,11 +83,11 @@ module.exports = {
   },
 
   belt: [
-    { img: 'tools.webp', text: 'Sterilised between every client' },
-    { img: 'interior.webp', text: 'Four chairs, never more' },
+    { img: 'tools.webp', text: 'Sterilized between every client' },
+    { img: 'interior-chairs.webp', text: 'Four chairs, never more' },
     { img: 'nails-warm.webp', text: 'Gel, builder gel, or plain polish' },
-    { img: 'manicure.webp', text: 'Walk-ins when we have a gap' },
-    { img: 'nails-ombre.webp', text: 'Removal and repair included' }
+    { img: 'polish-applied.webp', text: 'Walk-ins when we have a gap' },
+    { img: 'nails-ombre.webp', text: 'Soak-off done properly, never scraped' }
   ],
 
   showcase: {
@@ -117,11 +118,12 @@ module.exports = {
         title: 'Braiding and protective styles',
         meta: 'Quoted',
         text: 'Priced on length and time, quoted before we start.' },
-      { img: 'nails-white.webp',
-        alt: 'A hand with clean white nails',
-        title: 'The plain one',
-        meta: '40 min',
-        text: 'One colour, done exactly. Harder than it looks and we like doing it.' }
+      { img: 'nails-tipped.webp',
+        alt: 'A hand with pale nails and dark tortoiseshell tips',
+        title: 'Tips and french',
+        meta: '65 min',
+        text: 'A tip in a second colour. Freehand, so the line follows your nail '
+            + 'rather than a sticker.' }
     ]
   },
 
@@ -132,15 +134,15 @@ module.exports = {
     title: 'Prices',
     text: 'What you see is what you pay. Anything that would change the price '
         + 'gets said out loud before it happens.',
-    note: 'Prices are for a first appointment. Regulars on a standing booking '
-        + 'pay the same.',
+    note: 'The same price whether it is your first visit or your fiftieth. '
+        + 'Anything that would change it gets said before it happens.',
     groups: [
       { name: 'Nails', items: [
         { title: 'File and polish', meta: '$28', text: 'Shape, tidy, one colour.' },
         { title: 'Gel manicure', meta: '$48', text: 'Shaped, cuticles, gel colour and top coat.' },
         { title: 'Builder gel overlay', meta: '$62', text: 'On your own nail, for strength.' },
         { title: 'Nail art, per nail', meta: 'From $4', text: 'Freehand. Simple to involved.' },
-        { title: 'Soak-off and repair', meta: '$18', text: 'Free with any new set booked the same day.' },
+        { title: 'Soak-off and repair', meta: '$18', text: 'Included free if you are having something new put on the same visit.' },
         { title: 'Pedicure', meta: '$58', text: 'Soak, shape, heels, massage, polish.' }
       ]},
       { name: 'Hair', items: [
@@ -152,9 +154,9 @@ module.exports = {
         { title: 'Blow dry', meta: '$42', text: 'Smooth or with movement.' }
       ]},
       { name: 'Both', items: [
-        { title: 'Cut and gel manicure', meta: '$108', text: 'Booked together, same visit.' },
-        { title: 'Colour and pedicure', meta: '$235', text: 'The long one. Bring something to read.' },
-        { title: 'Before an occasion', meta: 'From $130', text: 'Hair up, nails done, timed to the hour you need.' }
+        { title: 'Cut and gel manicure', meta: '$108', text: 'Booked together, same visit. $120 apart.' },
+        { title: 'Full head and pedicure', meta: '$235', text: 'Full head of foils plus a pedicure, $253 apart. The long one; bring something to read.' },
+        { title: 'Before an occasion', meta: 'From $130', text: 'Hair up and nails done, timed to the hour you need.' }
       ]}
     ]
   },
@@ -164,8 +166,8 @@ module.exports = {
     navLabel: 'The studio',
     eyebrow: 'Since 2019',
     title: 'Four chairs, two people',
-    img: 'interior.webp',
-    alt: 'A bright salon interior with round mirrors and pale chairs',
+    img: 'interior-chairs.webp',
+    alt: 'A stylist working at a row of salon chairs and mirrors, black and white',
     paragraphs: [
       'Maison Verrier is Claire and Ode. Claire cuts and colours, Ode does '
       + 'nails, and between them they have been doing this for longer than '
@@ -179,7 +181,7 @@ module.exports = {
     facts: [
       { value: 4, label: 'chairs, never more' },
       { value: 2, label: 'of us, start to finish' },
-      { value: 200, suffix: '+', label: 'colours on the wall' }
+      { value: 200, label: 'colours on the wall' }
     ]
   },
 

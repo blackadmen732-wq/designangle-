@@ -389,9 +389,22 @@
     }
 
     if (!canSend) {
-      // No collector wired up. Saying nothing would be better than lying, but
-      // telling them to call is better than both.
-      failed();
+      /* No collector wired up. There are two reasons for that and they need
+         different answers.
+
+         A DEMO says so in its own note — form.dataset.note — because it is a
+         layout being shown to a prospect, and ending every demo in a red
+         error makes the kit look broken at exactly the wrong moment.
+
+         A LIVE SITE with no endpoint is a miswiring, and the visitor must be
+         told plainly and given the phone number rather than thanked for a
+         message nobody received. */
+      var demoNote = form.dataset.note || '';
+      if (/demonstration|preview|example/i.test(demoNote)) {
+        confirmed();
+      } else {
+        failed();
+      }
       return;
     }
 

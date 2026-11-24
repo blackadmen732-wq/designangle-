@@ -24,9 +24,22 @@ These exist because breaking them loses money or breaks trust.
 - **No automated text without registration and consent.** Both
   `mk_messaging_registration` and a matching `mk_message_consent` row must
   exist first. Do not add a bypass. See `OFFER.md` section 5.
-- **Never invent a client fact.** No guarantee, response time, price, review
-  count or certification that the client did not give you. The example sites
-  are invented and labelled as such in every file.
+- **Never launch a client fact they did not give you.** No guarantee, response
+  time, price, review count or certification unless the client said it. The
+  example sites are invented and labelled as such in every file.
+
+  This applies at **launch**, not to a sales preview. A preview full of visible
+  placeholders looks broken, and a broken-looking preview cannot do the only
+  job it has. `tools/preview.js` makes one that reads as finished — neutral
+  copy, no invented prices, no invented promises — and
+  `tools/launch-check.js` refuses to ship a site that still contains
+  placeholder or example text. It flags claims rather than blocking them,
+  because a client is entitled to make claims about their own business; it
+  only asks that somebody confirm they actually made it.
+
+  ```bash
+  node tools/launch-check.js <site>    # exit 1 means do not ship
+  ```
 - **A lead needs a name and a phone number.** The collector refuses one
   without them, so a miswired form fails loudly instead of filling the
   owner's list with enquiries nobody can answer.

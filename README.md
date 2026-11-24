@@ -53,19 +53,26 @@ Under a minute, and it converts like the real thing, because the only thing
 most people need to see is their own name at the top of a page that looks
 expensive.
 
-**What it will not do is invent a fact about them.** Every price, guarantee,
-response time, review count and credential from the example is stripped
-automatically — 31 of them on the HVAC example, 29 on the restaurant — and
-replaced with a visible `[placeholder]`. The phone number is left as a
-placeholder rather than a plausible fake, because a made-up number is
-somebody's real number. A banner across the top tells the viewer, on the
-page, that the words are a layout and not a quote.
+**It reads as finished, and nothing on it is a claim about them.** Prices are
+removed, because a price is an offer and somebody will call expecting it.
+Promises and credentials are replaced with neutral trade copy any business
+could stand behind. On the HVAC example that is 23 prices dropped and 8
+claims neutralised. Only what the business must actually supply — phone,
+email, hours — is left as a visible marker, and a banner across the top says
+the words are a layout, not a quote.
 
-Search the output for `[` before you send it. Then:
+The real risk was never the preview. It is the preview quietly becoming the
+live site with example words still in it, so the check lives at launch:
 
 ```bash
+node tools/launch-check.js <slug>      # exit 1 means do not ship
 node tools/audit.js dist/<slug>/index.html --width 400
 ```
+
+`launch-check` blocks placeholders, the preview banner and example names,
+phone numbers and domains. It **flags** promises, credentials, prices and
+review counts rather than blocking them — a client is entitled to make claims
+about their own business, so it only asks that somebody confirm they said it.
 
 ## Make a site for a new client
 
@@ -212,7 +219,8 @@ sites/
   restaurant/            example: Pomelo Kitchen (invented)
   hvac/                  example: Northwind Heating & Air (invented)
 .claude/skills/design/  the design method, loaded automatically
-tools/preview.js       a named preview for a prospect, with no invented facts
+tools/preview.js       a named preview for a prospect, polished, no invented facts
+tools/launch-check.js  refuses to ship a site with somebody else's words in it
 tools/audit.js         the design rules, measured in a real browser
 tools/contrast.js      WCAG contrast maths and brand-safe darkening
 tools/critique.py      screenshot review on your NVIDIA credit

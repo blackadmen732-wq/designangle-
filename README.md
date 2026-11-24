@@ -135,6 +135,27 @@ Then:
 The build fails with a clear message if a photo named in `content.js` is missing, so a
 broken image cannot reach a client.
 
+## Layouts
+
+A site picks a layout, not just colours. Recolouring one layout produces
+sites that are obviously the same page, which a prospect shown two demos
+notices immediately.
+
+```js
+module.exports = { layout: 'still', /* ... */ };
+```
+
+| `layout` | For | What it does |
+|---|---|---|
+| `studio` *(default)* | restaurants, trades, salons | Text left, photo carousel right: arrows, dots, two thumbnails, a tint blob, and a moving belt under the fold. Suits a business whose visitor is **comparing** — a menu, a price list, a service range. |
+| `still` | meditation, therapy, anything calm | One centred column, one photograph, and none of the carousel furniture. Suits a business where nobody compares five options and picks the best value, and where the controls are noise. |
+
+The difference is structural. `studio` renders a carousel, thumbnails, a blob,
+an arch mask and a marquee; `still` renders none of them. `<body>` carries
+`layout-<name>` so the stylesheet can vary spacing and type weight too.
+
+Adding a third is a block in `build.js` and a section in `template/site.css`.
+
 ## What is on the page
 
 Every site has the same eight parts, in this order:

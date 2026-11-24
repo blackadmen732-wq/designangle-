@@ -99,7 +99,7 @@ function render(site) {
 <style>:root{--bg:${t.bg};--ink:${t.ink};--muted:${t.muted};--line:${t.line};--soft:${t.soft};--accent:${t.accent};--leaf:${t.tag};--tint:${t.tint};--display:${t.display};--body:${t.body}}</style>
 ${jsonLd(site)}
 </head>
-<body>
+<body class="layout-${esc(site.layout || 'studio')}">
 ${site.preview ? `<div class="preview-bar"><div class="wrap"><b>Preview</b><span>${esc(site.preview)}</span></div></div>` : ''}
 <div class="notice-bar" id="noticeBar" hidden><div class="wrap"><span></span></div></div>
 <header class="top" id="top">
@@ -113,6 +113,23 @@ ${site.preview ? `<div class="preview-bar"><div class="wrap"><b>Preview</b><span
 </header>
 
 <main>
+  ${(site.layout === 'still') ? `
+  <section class="hero hero-still" aria-label="${esc(hero.label || 'Featured')}">
+    <div class="wrap">
+      <div class="still-text">
+        <p class="eyebrow">${esc(hero.eyebrow)}</p>
+        <h1 id="headline">${esc(hero.headline)} <em>${esc(hero.headlineAccent || '')}</em></h1>
+        ${hero.lead ? `<p class="still-lead">${esc(hero.lead)}</p>` : ''}
+        <div class="hero-cta">
+          <a class="btn" href="${esc(hero.primary.href)}"${ext(hero.primary.href)}>${esc(hero.primary.label)} ${arrow}</a>
+        </div>
+      </div>
+      <figure class="still-shot">
+        ${photo(hero.slides[0].img, hero.slides[0].alt, { eager: true })}
+        ${hero.slides[0].text ? `<figcaption>${esc(hero.slides[0].text)}</figcaption>` : ''}
+      </figure>
+    </div>
+  </section>` : `
   <section class="hero" aria-label="${esc(hero.label || 'Featured')}">
     <div class="wrap">
       <div class="hero-text">
@@ -139,9 +156,9 @@ ${site.preview ? `<div class="preview-bar"><div class="wrap"><b>Preview</b><span
         <button class="thumb t1" id="thumb1" type="button">${thumbImgs}</button>
       </div>
     </div>
-  </section>
+  </section>`}
 
-  <div class="belt" aria-hidden="true"><div class="belt-track" id="belt">${beltSet.repeat(4)}</div></div>
+  ${site.layout === 'still' ? '' : `<div class="belt" aria-hidden="true"><div class="belt-track" id="belt">${beltSet.repeat(4)}</div></div>`}
 
   <section class="hs" id="${esc(show.id)}" aria-label="${esc(show.title)}">
     <div class="hs-track" id="hsTrack">

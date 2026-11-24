@@ -429,3 +429,55 @@ main a:not(.btn):not(.sel):not(.logo)::after {
   background: var(--accent); color: #fff; padding: 4px 9px; border-radius: 999px; flex: none;
 }
 .preview-bar span{ color: #e8dfda; min-width: 0; }
+
+/* ===========================================================================
+   LAYOUT: still
+   ---------------------------------------------------------------------------
+   The default layout sells a thing you choose from: text on the left, a photo
+   carousel on the right, arrows, dots, two thumbnails, a tint blob. It suits a
+   menu or a price list, where the visitor is comparing.
+
+   Some businesses sell the opposite. Nobody compares five meditation sittings
+   and picks the best value. For those, every one of those controls is noise,
+   and the page's job is to be calm rather than to be browsable.
+
+   So: one centred column, one photograph, no carousel furniture at all. The
+   difference is structural, not a change of colour.
+   =========================================================================== */
+
+.hero-still { padding-block: clamp(56px, 11vh, 132px) clamp(40px, 7vh, 88px); }
+/* .hero .wrap sets a two-column grid, so this has to say one column
+   explicitly or the "centred" text ends up centred inside a left-hand
+   column, which reads as a mistake rather than a choice. */
+.hero-still .wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(36px, 5vw, 60px);
+  justify-items: center;
+  padding-block: 0;
+}
+
+.still-text { max-width: 30ch; text-align: center; display: grid; gap: 20px; justify-items: center; }
+.still-text h1 {
+  font-size: clamp(38px, 6.4vw, 78px);
+  font-weight: 700;              /* not 800: the page is quiet, the type should be */
+  letter-spacing: -0.025em; line-height: 1.1; text-wrap: balance;
+}
+.still-text h1 em { font-style: normal; color: var(--accent); }
+.still-lead { color: var(--muted); font-size: clamp(17px, 2vw, 20px); line-height: 1.55; max-width: 44ch; }
+
+.still-shot { margin: 0; width: min(100%, 980px); display: grid; gap: 16px; }
+.still-shot img {
+  width: 100%; height: clamp(300px, 54vh, 560px); object-fit: cover;
+  border-radius: 4px;            /* nearly square: an arch would be decoration */
+  display: block;
+}
+.still-shot figcaption {
+  color: var(--muted); font-size: 16px; line-height: 1.5;
+  max-width: 56ch; justify-self: center; text-align: center;
+}
+
+/* The still layout keeps more air between sections and never shouts. */
+.layout-still section { padding-block: clamp(56px, 9vh, 112px); }
+.layout-still .sec-head h2 { font-weight: 700; }
+.layout-still .mark { font-weight: 700; }

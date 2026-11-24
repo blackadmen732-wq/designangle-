@@ -10,10 +10,15 @@
  * grotesque at speed, prices in a tabbed list, five sliding photographs. The
  * right page for somebody choosing a colour.
  *
- * This is the opposite instrument. A meditation studio is sold on a feeling
- * the page itself has to have, so the ground is dark, the copy is short, the
- * photographs are rooms rather than people, and nothing is urgent. The one
- * warm colour is lamplight, used about four times in the whole page.
+ * This is the opposite instrument, and the difference is structural rather
+ * than a change of colour. The default layout sells a thing you choose from:
+ * carousel, arrows, dots, thumbnails, a tint blob. Nobody compares five
+ * meditation sittings and picks the best value, so all of that is noise here.
+ *
+ * `layout: 'still'` gives one centred column, one photograph, and none of the
+ * carousel furniture. The ground stays light, because a small local business
+ * is read in daylight by people who are not designers, and a dark page makes
+ * that harder for no gain. The calm comes from the space, not the darkness.
  *
  * What is deliberately avoided: sage green, beige, sunrise gradients, a lotus,
  * a person cross-legged on a beach, and the word "journey". Those are the
@@ -22,6 +27,9 @@
  */
 module.exports = {
   lang: 'en',
+
+  // Not the default layout. See template/site.css, "LAYOUT: still".
+  layout: 'still',
   name: 'Vesper',
   short: 'Vesper',
 
@@ -35,14 +43,14 @@ module.exports = {
   },
 
   theme: {
-    bg: '#11131a',        // night, with a blue cast so the warm photos glow
-    ink: '#ece7e0',       // 15.08:1
-    muted: '#9a958e',     // 6.24:1
-    line: '#262a33',
-    soft: '#1a1d26',
-    accent: '#e0a356',    // 8.43:1. Lamplight, not gold.
-    tag: '#8fb89a',       // 8.38:1
-    tint: '#1e2129'
+    bg: '#f7f5f0',        // paper, not cream and not beige
+    ink: '#23201c',       // 14.89:1
+    muted: '#6a645c',     // 5.37:1
+    line: '#e6e1d8',
+    soft: '#f1ede4',
+    accent: '#9c3a2a',    // 6.31:1. A seal red, not sage and not terracotta.
+    tag: '#4a5f4e',       // 6.34:1
+    tint: '#ece6da'
   },
 
   cta: { label: 'Sit with us', href: '#book' },
@@ -52,6 +60,9 @@ module.exports = {
     eyebrow: 'Franklinton, Columbus',
     headline: 'Nothing to achieve.',
     headlineAccent: 'Somewhere to sit.',
+    lead: 'A room above a bike shop on Rich Street, open from seven in the '
+        + 'morning. You can come in, sit down, and leave without speaking to '
+        + 'anybody.',
     primary: { label: 'See the timetable', href: '#times' },
     slides: [
       { img: 'doorway.webp',

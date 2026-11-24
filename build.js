@@ -209,26 +209,67 @@ ${jsonLd(site)}
           </div>
           ${contact.blocks.map((b) => `<div><h3>${esc(b.title)}</h3><address>${b.lines.map(contactLine).join('<br>')}</address></div>`).join('\n          ')}
         </div>
-        <form id="reqForm" novalidate data-reveal data-confirm="${esc(form.confirm)}" data-note="${esc(form.note || '')}" data-name-error="${esc(form.nameError || 'Add your name.')}" data-date-error="${esc(form.dateError || 'Pick a date.')}">
+        <form id="reqForm" novalidate data-reveal
+              data-confirm="${esc(form.confirm)}" data-note="${esc(form.note || '')}"
+              data-name-error="${esc(form.nameError || 'Add your name so we know who to ask for.')}"
+              data-phone-error="${esc(form.phoneError || 'Add a phone number so we can confirm.')}"
+              data-address-error="${esc(form.addressError || 'Add the address so we know where to come.')}"
+              data-date-error="${esc(form.dateError || 'Pick a date.')}">
           <h3>${esc(form.title)}</h3>
-          <div class="fields">
-            <label class="full" for="bk-name">${esc(form.nameLabel || 'Name')}
-              <input id="bk-name" name="name" type="text" autocomplete="name" placeholder="${esc(form.namePlaceholder || 'Your name')}" required>
-            </label>
-            <label for="bk-date">${esc(form.dateLabel || 'Date')}
-              <input id="bk-date" name="date" type="date" required>
-            </label>
-            <label for="bk-time">${esc(form.timeLabel || 'Time')}
-              <select id="bk-time" name="time">${form.times.map((x) => `<option${x === form.defaultTime ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>
-            </label>
-            <label class="full" for="bk-choice">${esc(form.choiceLabel)}
-              <select id="bk-choice" name="choice">${form.choices.map((x) => `<option${x === form.defaultChoice ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>
-            </label>
-            ${form.serviceArea ? `<label class="full" for="bk-zip">${esc(form.zipLabel || 'Your ZIP code')}
-              <input id="bk-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="${esc(form.zipPlaceholder || '43215')}">
-              <span class="area-msg" id="areaMsg" role="status" aria-live="polite"></span>
-            </label>` : ''}
-          </div>
+
+          <fieldset class="group">
+            <legend>${esc(form.contactLegend || 'How we reach you')}</legend>
+            <div class="fields">
+              <label class="full" for="bk-name">${esc(form.nameLabel || 'Name')}
+                <input id="bk-name" name="name" type="text" autocomplete="name" placeholder="${esc(form.namePlaceholder || 'Your name')}" required>
+              </label>
+              <label for="bk-phone">${esc(form.phoneLabel || 'Phone')}
+                <input id="bk-phone" name="phone" type="tel" autocomplete="tel" placeholder="${esc(form.phonePlaceholder || '(555) 000-0000')}" required>
+              </label>
+              <label for="bk-email">${esc(form.emailLabel || 'Email')} <span class="opt">optional</span>
+                <input id="bk-email" name="email" type="email" autocomplete="email" placeholder="${esc(form.emailPlaceholder || 'you@example.com')}">
+              </label>
+            </div>
+          </fieldset>
+
+          ${form.serviceArea ? `<fieldset class="group">
+            <legend>${esc(form.whereLegend || 'Where the work is')}</legend>
+            <button class="btn ghost locate" type="button" id="bk-locate">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="2.5" fill="currentColor"/><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 .5v2M8 13.5v2M.5 8h2M13.5 8h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              ${esc(form.locateLabel || 'Use my current location')}
+            </button>
+            <div class="fields" style="margin-top:12px">
+              <label class="full" for="bk-address">${esc(form.addressLabel || 'Street address')}
+                <input id="bk-address" name="address" type="text" autocomplete="street-address" placeholder="${esc(form.addressPlaceholder || '18 Foundry Lane')}" required>
+              </label>
+              <label for="bk-city">${esc(form.cityLabel || 'Town or city')} <span class="opt">optional</span>
+                <input id="bk-city" name="city" type="text" autocomplete="address-level2">
+              </label>
+              <label for="bk-zip">${esc(form.zipLabel || 'ZIP code')}
+                <input id="bk-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" placeholder="${esc(form.zipPlaceholder || '43215')}">
+              </label>
+              <span class="area-msg full" id="areaMsg" role="status" aria-live="polite"></span>
+            </div>
+          </fieldset>` : ''}
+
+          <fieldset class="group">
+            <legend>${esc(form.jobLegend || 'What you need')}</legend>
+            <div class="fields">
+              <label class="full" for="bk-choice">${esc(form.choiceLabel)}
+                <select id="bk-choice" name="choice">${form.choices.map((x) => `<option${x === form.defaultChoice ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>
+              </label>
+              <label for="bk-date">${esc(form.dateLabel || 'Date')}
+                <input id="bk-date" name="date" type="date" required>
+              </label>
+              <label for="bk-time">${esc(form.timeLabel || 'Time')}
+                <select id="bk-time" name="time">${form.times.map((x) => `<option${x === form.defaultTime ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select>
+              </label>
+              ${form.notesLabel ? `<label class="full" for="bk-notes">${esc(form.notesLabel)} <span class="opt">optional</span>
+                <textarea id="bk-notes" name="notes" rows="3" placeholder="${esc(form.notesPlaceholder || '')}"></textarea>
+              </label>` : ''}
+            </div>
+          </fieldset>
+
           <button class="btn" type="submit">${esc(form.button)}</button>
           <div class="msg" id="bk-msg" role="status" hidden></div>
         </form>

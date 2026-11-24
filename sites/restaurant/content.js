@@ -122,6 +122,13 @@ module.exports = {
     ],
     form: {
       title: 'Reserve a table',
+      contactLegend: 'How we reach you',
+      phoneLabel: 'Phone', phonePlaceholder: '(555) 000-0000',
+      emailLabel: 'Email',
+      jobLegend: 'Your table',
+      notesLabel: 'Anything we should know',
+      notesPlaceholder: 'Allergies, a birthday, a pushchair.',
+      phoneError: 'Add a phone number so we can confirm the table.',
       times: ['17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'], defaultTime: '19:00',
       choiceLabel: 'Guests', choices: ['1', '2', '3', '4', '5', '6', '7', '8'], defaultChoice: '2',
       button: 'Request this table',

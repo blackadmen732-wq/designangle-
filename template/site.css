@@ -298,3 +298,26 @@ footer .wrap { padding-block: 22px; display: flex; flex-wrap: wrap; gap: 10px 24
 .area-msg.yes { color: var(--leaf); }
 .area-msg.no { color: var(--accent); }
 .area-msg.thinking { color: var(--muted); }
+
+/* Grouped form. Three short blocks read as less work than one long list,
+   and they tell the visitor what is being asked for and why. */
+.group { border: 0; padding: 0; margin: 0 0 22px; min-width: 0; }
+.group:last-of-type { margin-bottom: 8px; }
+.group legend {
+  padding: 0; font-size: 12px; font-weight: 600; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+}
+.opt { font-weight: 400; color: var(--faint, #9aa0a6); text-transform: none; letter-spacing: 0; }
+.fields .full { grid-column: 1 / -1; }
+textarea {
+  font: inherit; font-size: 16px; color: var(--ink); background: var(--bg); width: 100%;
+  min-width: 0; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px;
+  resize: vertical; transition: border-color .2s;
+}
+textarea:hover, textarea:focus { border-color: var(--ink); }
+.btn.ghost {
+  background: transparent; color: var(--muted); border: 1.5px solid var(--line);
+}
+.btn.ghost:hover { background: transparent; color: var(--ink); border-color: var(--ink); transform: none; }
+.btn.locate { font-size: 14px; padding: 10px 16px; }
+.btn.locate[disabled] { opacity: .6; cursor: default; }

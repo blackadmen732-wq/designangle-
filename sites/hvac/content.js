@@ -125,15 +125,33 @@ module.exports = {
     ],
     form: {
       title: 'Request a visit',
+      contactLegend: 'How we reach you',
+      phoneLabel: 'Phone', phonePlaceholder: '(555) 000-0000',
+      emailLabel: 'Email',
+
+      // Service businesses need to know where the job is, and whether they
+      // even cover it, before anyone picks a time.
+      serviceArea: true,
+      whereLegend: 'Where the work is',
+      locateLabel: 'Use my current location',
+      addressLabel: 'Street address', addressPlaceholder: '18 Foundry Lane',
+      cityLabel: 'Town or city',
+      zipLabel: 'ZIP code', zipPlaceholder: '43215',
+
+      jobLegend: 'What you need',
+      choiceLabel: 'What do you need?', choices: ['Repair', 'New installation', 'Tune-up', 'Not sure yet'], defaultChoice: 'Repair',
       dateLabel: 'Preferred date', timeLabel: 'Arrival window',
       times: ['08:00 – 10:00', '10:00 – 12:00', '12:00 – 14:00', '14:00 – 16:00', '16:00 – 18:00'], defaultTime: '10:00 – 12:00',
-      choiceLabel: 'What do you need?', choices: ['Repair', 'New installation', 'Tune-up', 'Not sure yet'], defaultChoice: 'Repair',
-      // Checks the ZIP against the service radius set in the owner's panel.
-      serviceArea: true, zipLabel: 'Your ZIP code', zipPlaceholder: '43215',
+      notesLabel: 'Describe the problem',
+      notesPlaceholder: 'Make and model if you know it, and what it is doing.',
+
       button: 'Request this visit',
       confirm: '{choice} visit on {date}, {time}, for {name}.',
       note: 'This is a preview site, so the request has not been sent to anyone yet.',
-      nameError: 'Add your name so we know who to ask for.', dateError: 'Pick a date for the visit.'
+      nameError: 'Add your name so we know who to ask for.',
+      phoneError: 'Add a phone number so we can confirm the visit.',
+      addressError: 'Add the address so we know where to come.',
+      dateError: 'Pick a date for the visit.'
     }
   },
 

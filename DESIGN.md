@@ -133,7 +133,31 @@ Google's thresholds, which the site must meet on a phone:
   prices or review counts that they did not give you. The example sites are clearly
   marked as invented for this reason.
 
-## 9. Before you ship
+## 9. What a request form must ask for
+
+A lead the owner cannot act on is worth nothing, so every form asks for these
+and names the first one missing when it is not filled in:
+
+| Field | Why |
+|---|---|
+| Name | who to ask for |
+| **Phone** | how they get called back. A lead with no phone number is not a lead |
+| Email | optional, for the confirmation |
+| **Street address** | service businesses only. A ZIP alone cannot be driven to |
+| ZIP | checks the service area and gives the distance |
+| What they need | sets how long the job takes |
+| Date and window | **a window, never an exact time**. No trade can promise 2:00pm |
+| Describe the problem | optional, and worth more than it looks: the make and model means the right part is on the van |
+
+Group them under three short headings rather than listing a dozen fields: it
+reads as less work. Mark optional fields as optional; everything else is
+assumed required.
+
+The collector refuses a lead with no name or no phone number, so a form that
+is wired up wrong fails loudly instead of quietly filling the owner's list
+with enquiries nobody can answer.
+
+## 10. Before you ship
 
 - [ ] Real content, no placeholder text left anywhere
 - [ ] Real photos, one grade
@@ -144,4 +168,5 @@ Google's thresholds, which the site must meet on a phone:
 - [ ] LCP under 2.5s on a phone connection
 - [ ] `seo` block filled in with the real type, address and phone
 - [ ] The form posts somewhere real, or is replaced by a link to the real booking system
+- [ ] The form asks for a phone number, and an address if anyone has to drive there
 - [ ] No invented claims

@@ -115,6 +115,11 @@ table { width: 100%; border-collapse: collapse; min-width: 460px; }
 th { text-align: left; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); font-weight: 600; padding-bottom: 8px; }
 td { padding: 11px 0; border-top: 1px solid var(--line); font-size: 15px; vertical-align: top; }
 td.when { color: var(--muted); font-size: 13.5px; white-space: nowrap; }
+td .when a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+td .when a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+td > a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+td > a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.note-line { white-space: normal; display: inline-block; max-width: 30ch; margin-top: 4px; font-style: italic; }
 .pill { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
 .pill.far { background: #fdeaea; color: #b3261e; }
 .empty { color: var(--muted); font-size: 15px; padding: 18px 0; }
@@ -435,16 +440,39 @@ function distanceCell(l) {
          `<br><span class="when">about ${l.drive_minutes} min${far ? ', outside area' : ''}</span>`;
 }
 
+// The phone number is the point of a lead, so make it tappable: an owner
+// reading this on site can ring back without copying anything out.
+function contactLines(l) {
+  const phone = l.phone || l.contact;
+  const out = [];
+  if (phone) out.push(`<a href="tel:${esc(String(phone).replace(/[^0-9+]/g, ''))}">${esc(phone)}</a>`);
+  if (l.email) out.push(`<a href="mailto:${esc(l.email)}">${esc(l.email)}</a>`);
+  return out.length ? '<br><span class="when">' + out.join('<br>') + '</span>' : '';
+}
+
+// Where the job is. The address opens in whatever map app the owner uses.
+function placeCell(l) {
+  if (!l.address && !l.zip) return '<span class="when">—</span>';
+  const full = [l.address, l.city, l.zip].filter(Boolean).join(', ');
+  const below = [l.city, l.zip].filter(Boolean).join(' ');
+  return l.address
+    ? `<a href="https://maps.google.com/?q=${encodeURIComponent(full)}" target="_blank" rel="noopener">${esc(l.address)}</a>` +
+      (below ? `<br><span class="when">${esc(below)}</span>` : '')
+    : `<span class="when">${esc(below)}</span>`;
+}
+
 function renderLeads(leads) {
   if (!leads.length) {
     $('leads').innerHTML = '<p class="empty">No enquiries yet in this period. They will appear here the moment someone uses the form.</p>';
     return;
   }
   $('leads').innerHTML =
-    `<div class="scroll-x"><table><thead><tr><th>Name</th><th>Wanted</th><th>How far</th><th>For</th><th>Came in</th></tr></thead><tbody>${
+    `<div class="scroll-x"><table><thead><tr><th>Who</th><th>Where</th><th>Wanted</th><th>How far</th><th>For</th><th>Came in</th></tr></thead><tbody>${
       leads.map((l) => `<tr>
-        <td><b>${esc(l.name)}</b>${l.contact ? '<br><span class="when">' + esc(l.contact) + '</span>' : ''}</td>
-        <td>${l.requested ? '<span class="pill">' + esc(l.requested) + '</span>' : '—'}</td>
+        <td><b>${esc(l.name)}</b>${contactLines(l)}</td>
+        <td>${placeCell(l)}</td>
+        <td>${l.requested ? '<span class="pill">' + esc(l.requested) + '</span>' : '—'}${
+          l.message ? '<br><span class="when note-line">' + esc(l.message) + '</span>' : ''}</td>
         <td>${distanceCell(l)}</td>
         <td class="when">${esc(l.preferred || '—')}</td>
         <td class="when">${new Date(l.created_at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</td>

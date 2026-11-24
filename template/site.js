@@ -221,6 +221,50 @@
       last = zip;
       timer = setTimeout(function () { ask(zip); }, 250);
     });
+
+    /* "Use my current location". On a phone this is one tap instead of
+       typing a ZIP. The browser asks permission; nothing happens without it.
+       The coordinates only go to our own endpoint, which matches them to the
+       nearest ZIP we already hold and returns the ZIP, never a street
+       address. The visitor still types their address themselves. */
+    var btn = $('bk-locate');
+    if (!btn) return;
+    if (!navigator.geolocation) { btn.hidden = true; return; }
+
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      var original = btn.lastChild.textContent;
+      btn.lastChild.textContent = ' Finding you\u2026';
+      out.className = 'area-msg on thinking';
+      out.textContent = 'Checking your area\u2026';
+
+      function done(cls, text) {
+        btn.disabled = false;
+        btn.lastChild.textContent = original;
+        out.className = 'area-msg on ' + cls;
+        out.textContent = text;
+      }
+
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        var lat = pos.coords.latitude.toFixed(5), lon = pos.coords.longitude.toFixed(5);
+        fetch(base + '?siteId=' + encodeURIComponent(cfg.siteId) + '&lat=' + lat + '&lon=' + lon)
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (!d || !d.zip) { done('', d && d.message ? d.message : 'Type your ZIP code instead.'); return; }
+            zipEl.value = d.zip;
+            last = d.zip;
+            area = (d.status === 'in_area' || d.status === 'outside_area') ? d : null;
+            done(d.status === 'in_area' ? 'yes' : 'no', d.message || '');
+            var addrEl = $('bk-address');
+            if (addrEl && !addrEl.value) addrEl.focus();
+          })
+          .catch(function () { done('', 'Type your ZIP code instead.'); });
+      }, function () {
+        // Refused, or the device could not get a fix. Not an error worth
+        // alarming anyone about: the ZIP field is right there.
+        done('', 'No problem, type your ZIP code instead.');
+      }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+    });
   })();
 
   /* ---------- Details the owner changes in their panel ----------
@@ -262,23 +306,43 @@
     }).catch(function () { /* the built-in details stand */ });
   })();
 
-  /* ---------- Request form. It only shows a message; connect it to a real service before launch. ---------- */
+  /* ---------- The request form ----------
+     This is where the money comes from, so it asks for the few things that
+     make a lead usable: who you are, how to reach you, where the work is,
+     and what you need. A name with no phone number is not a lead.
+
+     It only shows a confirmation; connect it to a real service before launch. */
   var form = $('reqForm'), msg = $('bk-msg'), date = $('bk-date');
   var now = new Date(), iso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   date.min = iso; if (!date.value) date.value = iso;
+
+  function val(id) { var el = $(id); return el ? el.value.trim() : ''; }
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    var name = $('bk-name').value.trim();
     msg.hidden = false; msg.textContent = '';
-    if (!name || !date.value) {
+
+    var name = val('bk-name'), phone = val('bk-phone'), addr = val('bk-address');
+
+    // Check in the order the fields appear, so the message always points at
+    // the first thing that needs fixing rather than the last.
+    var problem = null;
+    if (!name) problem = ['bk-name', form.dataset.nameError];
+    else if (!phone) problem = ['bk-phone', form.dataset.phoneError];
+    else if ($('bk-address') && !addr) problem = ['bk-address', form.dataset.addressError];
+    else if (!date.value) problem = ['bk-date', form.dataset.dateError];
+
+    if (problem) {
       msg.className = 'msg err';
-      msg.textContent = !name ? form.dataset.nameError : form.dataset.dateError;
-      (name ? date : $('bk-name')).focus(); return;
+      msg.textContent = problem[1];
+      var bad = $(problem[0]); if (bad) bad.focus();
+      return;
     }
+
     var nice = new Date(date.value + 'T12:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
     var text = form.dataset.confirm
-      .replace('{choice}', $('bk-choice').value).replace('{date}', nice)
-      .replace('{time}', $('bk-time').value).replace('{name}', name);
+      .replace('{choice}', val('bk-choice')).replace('{date}', nice)
+      .replace('{time}', val('bk-time')).replace('{name}', name);
     msg.className = 'msg';
     var b = document.createElement('b'); b.textContent = text; msg.appendChild(b);
     if (form.dataset.note) msg.appendChild(document.createTextNode(' ' + form.dataset.note));
@@ -292,10 +356,12 @@
         fetch(cfg.endpoint, {
           method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
           body: JSON.stringify({
-            siteId: cfg.siteId, kind: 'lead', name: name,
-            requested: $('bk-choice').value,
-            preferred: nice + ', ' + $('bk-time').value,
-            zip: $('bk-zip') ? $('bk-zip').value.trim() : '',
+            siteId: cfg.siteId, kind: 'lead',
+            name: name, phone: phone, email: val('bk-email'),
+            address: addr, city: val('bk-city'), zip: val('bk-zip'),
+            requested: val('bk-choice'),
+            preferred: nice + ', ' + val('bk-time'),
+            message: val('bk-notes'),
             // The owner should see how far the job is without looking it up.
             distance: area ? {
               miles: area.road_miles, minutes: area.drive_minutes,

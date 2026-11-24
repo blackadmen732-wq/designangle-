@@ -53,7 +53,7 @@ lives in `mk_leads`, apart from the anonymous counts.
 | `mk_account_users` | who may sign in to which account |
 | `mk_sites` | the websites belonging to an account |
 | `mk_events` | views, call taps, form submits, booking clicks |
-| `mk_leads` | real enquiries from the website form |
+| `mk_leads` | real enquiries: name, phone, email, address, what they need |
 | `mk_edit_requests` | change requests, marked `small` or `quoted` |
 | `mk_calls` | real tracked calls. Empty until a tracking number exists |
 | `mk_messaging_registration` | A2P 10DLC status per client |
@@ -193,6 +193,11 @@ what each signed-in person can read, so the key alone shows nobody anything.
   unknown ZIP and a malformed one, and rejects an unknown site. A real browser
   typing a ZIP on the built site saw the right answer, and the distance arrived
   on the lead in the database.
+- The form asks for its fields in order and names the first one missing:
+  name, then phone, then address, then date. A browser reporting coordinates
+  in Dublin, Ohio had its ZIP filled in by the location button and was told
+  the right distance. The full enquiry, including address and the problem
+  description, reached the database.
 
 **Not yet verified:** signing in to the panel from a normal browser. The
 sandbox this was built in rewrites the API key on outbound requests, so

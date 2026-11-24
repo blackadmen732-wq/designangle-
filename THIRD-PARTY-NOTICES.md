@@ -91,7 +91,8 @@ Found missing when this file was reviewed:
 | Playwright | `tools/audit.js`, screenshots | Apache-2.0 |
 | Census ZCTA centroids | `mk_zip_points` | US Census, public domain |
 | NVIDIA NIM API | `tools/critique.py` sends screenshots to it | a third-party service, not a library — screenshots of client work leave the machine when it runs |
-| Site photographs | `sites/*/img/` | **unverified** — these came from stock sources and the per-image licence is not recorded. Do this before any of these demos is shown as a client's own site. |
+| Site photographs, restaurant and hvac | `sites/*/img/` | **unverified** — came from stock sources and the per-image licence is not recorded |
+| Site photographs, salon | `sites/salon/img/` | Unsplash, free licence. Collected 24 Nov 2026 from unsplash.com search results, taking only `images.unsplash.com` assets. `plus.unsplash.com` premium and Getty-credited results were excluded deliberately: those are licensed, not free. The Unsplash licence permits commercial use without attribution. |
 
 The photographs are the one with real exposure. Record the source and licence
 of every image in a client site, or replace it with the client's own.

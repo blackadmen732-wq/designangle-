@@ -384,9 +384,13 @@ main a:not(.btn):not(.sel):not(.logo)::after {
   inset: 50% 0 auto 0; height: 44px; transform: translateY(-50%);
 }
 
-/* "optional" was #9aa0a6 on white: 2.64:1. This is the same grey, deep
-   enough to read, still clearly quieter than the label beside it. */
-.opt { color: var(--faint, #70777f); }
+/* "optional" was #9aa0a6 on white: 2.64:1.
+   It was then hardcoded to #70777f, which I checked against pure white and
+   got 4.53:1. The salon theme's ground is #faf8f6, and the same grey reads
+   4.28:1 there — a fix that only worked for the themes it was tested on.
+   A hardcoded neutral cannot be right for every ground, so it uses the
+   theme's own muted token, which each theme must already clear. */
+.opt { color: var(--muted); }
 
 /* The header nav already spends ::after on the hover underline, so the hit
    area goes on ::before. 31px tall on a laptop that happens to have a touch

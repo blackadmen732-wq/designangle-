@@ -100,6 +100,7 @@ function render(site) {
 ${jsonLd(site)}
 </head>
 <body>
+${site.preview ? `<div class="preview-bar"><div class="wrap"><b>Preview</b><span>${esc(site.preview)}</span></div></div>` : ''}
 <div class="notice-bar" id="noticeBar" hidden><div class="wrap"><span></span></div></div>
 <header class="top" id="top">
   <div class="wrap">

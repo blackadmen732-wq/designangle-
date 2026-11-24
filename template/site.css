@@ -396,3 +396,18 @@ main a:not(.btn):not(.sel):not(.logo)::after {
   width: max(100% + 8px, 44px); height: 44px;
   transform: translate(-50%, -50%);
 }
+
+/* A preview is a layout, not a quote. This bar is what makes one safe to send:
+   the person looking at it is told on the page that the words are placeholders.
+   It is deliberately plain and not dismissible. */
+.preview-bar{
+  background: #1e1512; color: #fff;
+  font-size: 15px; line-height: 1.45;
+  padding-block: 12px;
+}
+.preview-bar .wrap{ display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.preview-bar b{
+  font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  background: var(--accent); color: #fff; padding: 4px 9px; border-radius: 999px; flex: none;
+}
+.preview-bar span{ color: #e8dfda; min-width: 0; }

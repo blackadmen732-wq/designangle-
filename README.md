@@ -34,6 +34,39 @@ To look at it:
 npx serve dist/hvac
 ```
 
+## Show a prospect a preview, without building their site
+
+A prospect cannot picture themselves inside someone else's website. Showing
+them Pomelo Kitchen and saying "yours would look like this" asks them to do
+imaginative work while deciding whether to trust you, and most will not
+bother. But hand-building a real site for every enquiry is hours of unpaid
+work, and most enquiries do not close.
+
+The preview is the middle. Their name, their town, their trade, in the real
+template:
+
+```bash
+node tools/preview.js --name "Hartley Heating" --trade hvac --city "Dublin, OH"
+```
+
+Under a minute, and it converts like the real thing, because the only thing
+most people need to see is their own name at the top of a page that looks
+expensive.
+
+**What it will not do is invent a fact about them.** Every price, guarantee,
+response time, review count and credential from the example is stripped
+automatically — 31 of them on the HVAC example, 29 on the restaurant — and
+replaced with a visible `[placeholder]`. The phone number is left as a
+placeholder rather than a plausible fake, because a made-up number is
+somebody's real number. A banner across the top tells the viewer, on the
+page, that the words are a layout and not a quote.
+
+Search the output for `[` before you send it. Then:
+
+```bash
+node tools/audit.js dist/<slug>/index.html --width 400
+```
+
 ## Make a site for a new client
 
 ```bash
@@ -179,6 +212,7 @@ sites/
   restaurant/            example: Pomelo Kitchen (invented)
   hvac/                  example: Northwind Heating & Air (invented)
 .claude/skills/design/  the design method, loaded automatically
+tools/preview.js       a named preview for a prospect, with no invented facts
 tools/audit.js         the design rules, measured in a real browser
 tools/contrast.js      WCAG contrast maths and brand-safe darkening
 tools/critique.py      screenshot review on your NVIDIA credit

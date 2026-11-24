@@ -127,8 +127,18 @@ async function audit(target, opts) {
       var clipped = (cs.webkitBackgroundClip === 'text' || cs.backgroundClip === 'text')
                     && (cs.color === 'rgba(0, 0, 0, 0)' || cs.color === 'transparent');
 
+      // When the paint comes from a gradient, pull every colour stop out of the
+      // computed background-image. The worst stop is what decides whether the
+      // text is readable, and finding it is arithmetic — which is this tool's
+      // half of the job, so it should not be handed back to a person.
+      var stops = null;
+      if (clipped) {
+        stops = (cs.backgroundImage || '').match(/rgba?\([^)]*\)/g) || null;
+      }
+
       out.text.push({
         clipped: clipped,
+        stops: stops,
         bodyish: bodyish,
         inCode: inCode,
         tag: el.tagName.toLowerCase(),
@@ -303,11 +313,36 @@ async function audit(target, opts) {
   found.text.forEach(function (t) {
     if (t.clipped) {
       var ck = 'clip' + t.sel;
-      if (!seen[ck]) { seen[ck] = 1;
+      if (seen[ck]) return;
+      seen[ck] = 1;
+
+      var gb = parseRGB(t.ground);
+      if (!t.stops || !t.stops.length || !gb) {
         fails.push({ rule: 'contrast-unverified', where: t.sel,
-          detail: 'painted by a clipped background gradient, so the ratio cannot be read from computed style',
+          detail: 'painted by a clipped background whose colours could not be read',
           sample: t.sample,
-          fix: 'check the darkest stop of the gradient against the ground by hand' });
+          fix: 'check the darkest part of the fill against the ground by hand' });
+        return;
+      }
+
+      // Grade the gradient on its worst stop against the real ground.
+      var need = t.large ? 3 : 4.5;
+      var worst = null, worstHex = null;
+      t.stops.forEach(function (st) {
+        var c = parseRGB(st); if (!c) return;
+        if (c.a < 1) c = over(c, gb);
+        var h = toHex(c), r;
+        try { r = C.ratio(h, toHex(gb)); } catch (e) { return; }
+        if (worst === null || r < worst) { worst = r; worstHex = h; }
+      });
+
+      if (worst !== null && worst < need) {
+        var fixed = C.fix(worstHex, toHex(gb), need);
+        fails.push({ rule: 'contrast', where: t.sel,
+          detail: 'gradient text: worst stop ' + worstHex + ' on ' + toHex(gb)
+                + ' is ' + worst.toFixed(2) + ':1, needs ' + need + ':1',
+          sample: t.sample,
+          fix: 'lighten that stop to ' + fixed.hex + ' (' + fixed.ratio.toFixed(2) + ':1)' });
       }
       return;
     }

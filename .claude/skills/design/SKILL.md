@@ -107,8 +107,27 @@ cheap.
 
 200ms is not a taste. It is Google's INP threshold for a tap counting as
 responsive, so it is the number that is actually measured in the field.
-| Things entering | 0.4–0.9s | `cubic-bezier(0.33, 1, 0.68, 1)` |
-| Full-screen moves, page transitions | 0.7–1.2s | `cubic-bezier(0.76, 0, 0.24, 1)` |
+Uber's `timing200` and Material 3's `short4` both sit at the same place:
+200ms is where small interface feedback ends in every published system
+checked. See `docs/research/motion-values-from-shipped-systems.md`.
+
+**State the intent, not a magic bezier.** Earlier versions of this file named
+two specific curves. They were never wired into anything, so anyone matching
+an existing site by reading the docs matched nothing. Pick a curve per intent
+and put it in one variable:
+
+| Intent | Shape | Uber's published value, if you want one |
+|---|---|---|
+| Entering | decelerate | `cubic-bezier(0.22, 1, 0.36, 1)` |
+| Exiting | accelerate | `cubic-bezier(0.64, 0, 0.78, 0)` |
+| Moving across | both | `cubic-bezier(0.83, 0, 0.17, 1)` |
+| Scroll-linked, looping | linear | `cubic-bezier(0, 0, 1, 1)` |
+
+Entering and exiting are not mirror images. Entering gets the longer duration
+and the softer landing; exiting is quicker, because nobody is waiting to look
+at a thing that is leaving.
+| Things entering | 0.4–0.9s | ease-out: decelerate into place |
+| Full-screen moves, page transitions | 0.7–1.2s | ease-in-out |
 | Anything scroll-linked or looping | — | linear |
 
 Rules that do not bend:

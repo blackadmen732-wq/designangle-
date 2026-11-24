@@ -103,8 +103,23 @@ bounce, elastic (except the thumbnail pop) or linear-looking curves.
 | Anything scroll-linked or looping | n/a | `none` (linear) |
 
 Standard CSS equivalents if you write a new effect:
-- Reveals: `cubic-bezier(0.33, 1, 0.68, 1)`
-- Wipes and transitions: `cubic-bezier(0.76, 0, 0.24, 1)`
+What this kit actually runs, measured rather than intended:
+
+- **Every CSS transition**: `cubic-bezier(.65, 0, .2, 1)`, from the single
+  `--ease` variable in `template/site.css`.
+- **Hero, showcase and wipes**: GSAP `expo.inOut`.
+- **The one spring**: `back.out(1.6)`, on the locate button.
+- **Anything scroll-linked**: `none`, i.e. linear. Correct, and the same
+  choice Uber ships as `easeLinear`.
+
+Two other curves used to be listed here. They appeared nowhere in the code,
+so anyone matching an existing site from this file matched nothing. They are
+gone.
+
+The open question, not decided here because it changes how live sites feel:
+one ease-in-out is doing entering, exiting and moving. Every published system
+separates those three. `docs/research/motion-values-from-shipped-systems.md`
+has the values and the argument.
 
 Rules:
 - **Animate only `transform` and `opacity`.** Never width, height, top or left.

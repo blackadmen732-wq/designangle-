@@ -5,6 +5,18 @@
  */
 module.exports = {
   lang: 'en',
+
+  // The sections this page has, in order. One name per line. Each name is also
+  // the key its content lives under below, so 'story' renders `story:`.
+  sections: [
+    'belt',
+    'showcase',
+    'list',
+    'story',
+    'band',
+    'contact'
+  ],
+
   name: 'Pomelo Kitchen',
   short: 'Pomelo',
   seo: {

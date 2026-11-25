@@ -165,6 +165,72 @@ text, so the scrim has to earn its keep rather than merely look present.
 
 Adding a third is a block in `build.js` and a section in `template/site.css`.
 
+## Sections
+
+A layout changes how the first screen looks. **Sections change what the page
+argues.** The two are separate on purpose: the kit used to vary the hero and
+then give every business the same four-part case — show your work, list your
+prices, tell your story, take a booking — which is right for a restaurant and
+wrong for a law firm.
+
+The list is flat, one name per line, in `content.js`:
+
+```js
+sections: [
+  'belt',
+  'showcase',
+  'list',
+  'story',
+  'band',
+  'contact'
+],
+```
+
+Each name is also the key its content lives under, so `'story'` renders
+`story:` and nothing else. No nesting, no options, no per-section config —
+the order of the list is the order of the page.
+
+| name | what it is | has a nav link |
+|---|---|---|
+| `belt` | scrolling marquee of short claims | no |
+| `showcase` | the work: cards, or an asymmetric gallery on `atelier` | yes |
+| `list` | tabbed groups of items with prices | yes |
+| `story` | photo, paragraphs, counted facts | yes |
+| `band` | full-bleed photo with one line over it | no |
+| `contact` | hours, address, and the enquiry form | yes |
+
+A section earns its nav link by having an `id`. Add it to the list and the
+link appears; remove it and the link goes too.
+
+**Omit `sections` entirely** and you get all six in the order above, so an
+older `content.js` builds unchanged.
+
+### It fails loudly on purpose
+
+A wrong section list is worse than a generic page: the page still builds, and
+it ships without its prices or without the form that takes the lead. So every
+wrong edit stops the build and names the file, the value and the fix.
+
+```
+Build failed.
+  sites/salon/content.js: `sections` lists "stroy", which is not a section.
+  Valid names: belt, showcase, list, story, band, contact
+  Did you mean "story"?
+```
+
+Caught: unknown names (with the nearest suggestion), duplicates, a name with
+no matching block, a list that is not an array, an empty list, an entry that
+is an object rather than a name, and dropping `contact` — which is refused
+outright, because a site that cannot take a lead has no job.
+
+Content that exists but is not listed is a **warning**, not an error: keeping
+a price list in the file while it is switched off is a reasonable thing to do,
+but it should not be silent.
+
+```bash
+node tools/test-sections.js    # 12 checks that bad edits cannot reach a page
+```
+
 ## What is on the page
 
 Every site has the same eight parts, in this order:

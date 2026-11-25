@@ -31,6 +31,17 @@ module.exports = {
 
   // Not the default layout. See template/site.css, "LAYOUT: atelier".
   layout: 'atelier',
+
+  // The sections this page has, in order. One name per line. Each name is also
+  // the key its content lives under below, so 'story' renders `story:`.
+  sections: [
+    'belt',
+    'showcase',
+    'list',
+    'story',
+    'band',
+    'contact'
+  ],
   name: 'Maison Verrier',
   short: 'Verrier',
 

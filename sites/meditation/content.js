@@ -30,6 +30,21 @@ module.exports = {
 
   // Not the default layout. See template/site.css, "LAYOUT: still".
   layout: 'still',
+
+  // The sections this page has, in order. One name per line.
+  //
+  // No 'belt'. A scrolling marquee of five claims is a device for a business
+  // that wants to look busy, and this one is selling the opposite. The belt
+  // used to be suppressed by a special case in build.js keyed on the layout,
+  // which hid the decision inside the renderer; leaving it off the list says
+  // the same thing where somebody editing the content can see it.
+  sections: [
+    'showcase',
+    'list',
+    'story',
+    'band',
+    'contact'
+  ],
   name: 'Vesper',
   short: 'Vesper',
 

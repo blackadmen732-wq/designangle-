@@ -189,10 +189,17 @@ async function act(page, step) {
   else if (step.back) await page.goBack();
   else if (step.wait) await page.waitForTimeout(step.wait);
 }
+// A press often answers in two parts: something now, the rest after a wait
+// (a request, then a success state that animates). Keep watching until
+// nothing is moving and the page has been quiet for 700ms.
 async function settle(page, ms = 2500) {
   const t = Date.now();
   await page.waitForTimeout(60);
-  while (Date.now() - t < ms && (await page.evaluate(() => __motion.running()))) await page.waitForTimeout(50);
+  while (Date.now() - t < ms) {
+    const busy = await page.evaluate(() => __motion.running() > 0 || (__motion.muts.length && performance.now() - __motion.muts[__motion.muts.length - 1] < 700));
+    if (!busy) break;
+    await page.waitForTimeout(50);
+  }
   await page.waitForTimeout(80);
 }
 

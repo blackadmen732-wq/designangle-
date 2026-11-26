@@ -120,8 +120,12 @@ function audit() {
     if (!el.matches('a, button, [role=button]') || !firstScreen(el)) return false;
     // Filters, tabs and segments choose a view; they are not calls to action.
     if (el.matches('[aria-pressed], [role=tab], [aria-current]') || el.closest('nav, [role=tablist], .chips, .segmented')) return false;
+    // A picker (it opens a menu or a sheet to choose from) sets something; it
+    // does not call to action. Nor does a card that links somewhere: a button
+    // is a control, not a panel of content.
+    if (el.matches('[aria-haspopup]')) return false;
     const r = el.getBoundingClientRect(), cs = getComputedStyle(el), words = (el.textContent || '').trim();
-    if (r.height < 34 || words.length < 3 || r.width < 72) return false;
+    if (r.height < 34 || r.height > 80 || words.length < 3 || r.width < 72) return false;
     const bg = rgba(cs.backgroundColor);
     return (bg && bg.a > 0.12) || cs.backgroundImage.includes('gradient') || parseFloat(cs.borderTopWidth) >= 1;
   });
@@ -199,7 +203,11 @@ function audit() {
   const gaps = [];
   for (const el of vis) {
     const cs = getComputedStyle(el);
+    // margin-inline: auto centres a column; what it computes to is not a choice.
+    const centred = el.parentElement && Math.abs(parseFloat(cs.marginLeft) - parseFloat(cs.marginRight)) < 1 && parseFloat(cs.marginLeft) > 0 &&
+      Math.abs(el.parentElement.clientWidth - el.getBoundingClientRect().width - parseFloat(cs.marginLeft) * 2 - parseFloat(getComputedStyle(el.parentElement).paddingLeft) * 2) < 2;
     for (const p of ['marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight', 'rowGap', 'columnGap']) {
+      if (centred && (p === 'marginLeft' || p === 'marginRight')) continue;
       const v = parseFloat(cs[p]); if (v >= 3 && v < 200 && cs[p] !== 'normal') gaps.push({ v, el, p });
     }
   }

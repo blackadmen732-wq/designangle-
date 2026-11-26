@@ -3,428 +3,424 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#04110c">
 <title>Website Panel</title>
 <meta name="description" content="What your website did this month.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Instrument+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
 <style>
-/* MK portal. Deliberately not the colour of any client site: this is the
-   studio's product, and an owner should never confuse it with their own.
+/* The owner panel, in the app style of app-style/ (measured from the app
+   redesign recordings). This file stands alone when deployed, so the parts
+   of app-style.css and app-icons.css it uses are copied in below; change
+   them there first.
 
    The one job of this screen: see who asked for work, and call them back.
-   So the enquiry count is the largest thing on it, the enquiries come
-   straight after the numbers, and each one ends in a Call button.
-
-   Patterns from docs/app-patterns.html: 01 the action row, 09 the context
-   as the headline, 10 facts as a row of numbers, 11 the action at the thumb. */
-:root {
-  --bg: #ffffff;
-  --panel: #f6f5f2;          /* a card is darker than the page, never outlined */
-  --ink: #15171c;
-  --muted: #535a65;          /* 7:1 on white */
-  --faint: #6a707a;          /* 5:1 on white: the lightest text allowed */
-  --line: #e7e5e1;
-  --fill: rgba(21, 23, 28, .07);   /* round buttons: picks up whatever is behind */
-  --accent: #0f6b5c;         /* single hue: the enquiry count, the bars, links */
-  --accent-soft: #e4f0ec;
-  --warn: #9a5b00;
-  --bad: #b3261e;
-  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
-  --body: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+   It borrows the Starbucks Rewards screen's structure: the owner's own photo
+   behind one huge thin number, a two-tone line under it, a bar against the
+   month before, cards that end in one gold button, and a floating dock with
+   the main action pulled out as a circle at the thumb. Deliberately not the
+   colours of any client site: this is the studio's product. */
+.ui {
+  --font: Inter, system-ui, sans-serif;
+  --page: #04110c;
+  --ink: #ffffff;
+  --ink-2: #c9d6d0;
+  --ink-3: #8fa79c;          /* labels and the quiet half of a two-tone line: 7:1 */
+  --surface: rgba(255, 255, 255, .07);
+  --fill: rgba(255, 255, 255, .1);
+  --fill-strong: rgba(255, 255, 255, .14);
+  --glass: rgba(24, 40, 34, .62);
+  --hair: rgba(255, 255, 255, .08);
+  --gold: #f5c25b;           /* the one accent: the actions that matter */
+  --on-gold: #241c00;
+  --good: #7fd8a8;
+  --bad: #ff9b8f;
+  --gutter: 16px;
   --ease: cubic-bezier(.33, 1, .68, 1);
-  color-scheme: light;
-}
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0; background: var(--bg); color: var(--ink);
-  font-family: var(--body); font-size: 16px; line-height: 1.5;
-  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  font-family: var(--font);
+  font-optical-sizing: none;
+  font-variation-settings: "opsz" 32;
   -webkit-font-smoothing: antialiased;
+  color: var(--ink);
+  background: var(--page);
+  color-scheme: dark;
 }
-h1, h2, h3 { font-family: var(--display); font-weight: 800; margin: 0; letter-spacing: -0.02em; line-height: 1.1; text-wrap: balance; }
-p { margin: 0; }
-b, strong, th { font-weight: 600; }   /* two weights per face: 400 and 600 */
-a { color: var(--accent); }
-button { font: inherit; cursor: pointer; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+@supports (font: -apple-system-body) { .ui { --font: -apple-system, BlinkMacSystemFont, Inter, sans-serif; } }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; background: #04110c; }
+body { margin: 0; min-height: 100vh; font-size: 16px; line-height: 1.4; }
+h1, h2, h3, p { margin: 0; }
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 10px; }
 [hidden] { display: none !important; }
-.wrap {
-  max-width: 1080px; margin-inline: auto;
-  padding-left: max(20px, env(safe-area-inset-left, 0px));
-  padding-right: max(20px, env(safe-area-inset-right, 0px));
-}
-.center { display: grid; place-items: center; min-height: 100vh; min-height: 100dvh; }
+b, strong { font-weight: 600; }
+.wrap { position: relative; z-index: 1; max-width: 760px; margin-inline: auto;
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px)); padding-right: max(var(--gutter), env(safe-area-inset-right, 0px)); }
+.dim { color: var(--ink-3); }
 
-/* ---- buttons: pills with no border; one filled per group ---- */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 48px; padding: 0 24px; border: 0; border-radius: 999px;
-  background: var(--ink); color: #fff; font-size: 16px; font-weight: 600; text-decoration: none;
-  transition: background-color .18s ease-out, transform .18s ease-out;
-}
-.btn:hover { background: #2b2f38; }
-.btn:active { transform: scale(.98); }
-.btn:disabled { opacity: .6; cursor: default; }
-.btn.ghost { background: var(--fill); color: var(--ink); }
-.btn.ghost:hover { background: rgba(21, 23, 28, .12); }
-.text-btn {
-  min-height: 44px; padding: 0 4px; border: 0; background: none;
-  color: var(--muted); font-size: 15px; font-weight: 600;
-}
-.text-btn:hover { color: var(--ink); }
+/* ---- controls from app-style ---- */
+.circle { width: 44px; height: 44px; flex: none; border-radius: 50%; display: grid; place-items: center;
+  background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4);
+  transition: transform .18s var(--ease), background-color .18s ease-out; }
+.circle:hover { background: rgba(255, 255, 255, .16); }
+.circle:active { transform: scale(.94); }
+.pill { height: 52px; padding-inline: 22px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  font-size: 16px; font-weight: 600; white-space: nowrap; transition: transform .18s var(--ease), filter .18s ease-out; }
+.pill:active { transform: scale(.98); }
+.pill:disabled { opacity: .6; cursor: default; }
+.pill.gold { background: var(--gold); color: var(--on-gold); }
+.pill.gold:hover { filter: brightness(1.06); }
+.pill.white { background: #ffffff; color: #0b1310; }
+.pill.glass { background: var(--fill); color: var(--ink); font-weight: 500; }
+.pill.glass:hover { background: var(--fill-strong); }
 
-/* ---- forms ---- */
-label { display: grid; gap: 8px; font-size: 14px; font-weight: 600; }
-input, textarea {
-  font: inherit; font-size: 16px;   /* 16px or iPhones zoom the page on focus */
-  width: 100%; min-height: 48px; padding: 12px 14px;
-  border: 1.5px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--ink);
-}
-input:focus, textarea:focus { border-color: var(--ink); }
-textarea { min-height: 112px; resize: vertical; }
-fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 8px; justify-items: start; }
-fieldset > * { justify-self: stretch; }
-fieldset > .btn { justify-self: start; }
-legend { padding: 0; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
-.stack { display: grid; gap: 24px; margin-top: 24px; max-width: 640px; }
-.sub-label { font-size: 13px; font-weight: 400; color: var(--faint); }
-.lede { color: var(--muted); font-size: 15px; }
-.fine { margin-top: 12px; font-size: 13px; color: var(--faint); }
+/* ---- sign in, and the screen when the panel cannot load ---- */
+/* Real artwork instead of a gradient and a card (the sign-in lesson): a
+   planet's edge at sunrise, drawn so it never has to be downloaded. */
+.art { position: absolute; inset: 0 0 auto 0; height: 560px; overflow: hidden; pointer-events: none;
+  background:
+    radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,.7), transparent), radial-gradient(1px 1px at 34% 9%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1px 1px at 58% 22%, rgba(255,255,255,.6), transparent), radial-gradient(1px 1px at 81% 13%, rgba(255,255,255,.55), transparent),
+    radial-gradient(1px 1px at 91% 31%, rgba(255,255,255,.4), transparent), radial-gradient(1px 1px at 7% 37%, rgba(255,255,255,.4), transparent),
+    radial-gradient(1.5px 1.5px at 24% 28%, rgba(255,255,255,.55), transparent), radial-gradient(1px 1px at 69% 40%, rgba(255,255,255,.3), transparent),
+    #03100b; }
+.art .glow { position: absolute; left: calc(50% + 94px); top: 267px; width: 600px; height: 220px; margin: -120px 0 0 -300px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 226, 180, .3), rgba(255, 200, 140, .1) 55%, transparent); }
+.art .planet { position: absolute; left: calc(50% - 526px); top: 265px; width: 1100px; height: 1100px; border-radius: 50%;
+  background: radial-gradient(farthest-side at 56% 0%, #43382c 0%, #2c251e 4%, #172019 10%, #08140f 17%, #04110c 26%);
+  box-shadow: 0 -1px 0 rgba(255, 236, 210, .55), 0 -6px 18px rgba(255, 215, 170, .18), inset 0 1.5px 1px rgba(255, 238, 215, .55), inset 0 10px 30px rgba(255, 210, 160, .1); }
+.art .flare { position: absolute; left: calc(50% + 88px); top: 261px; width: 12px; height: 12px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 10px 4px rgba(255, 245, 225, .9), 0 0 40px 14px rgba(255, 220, 170, .35); }
+.gate { position: relative; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden;
+  padding: 0 max(24px, env(safe-area-inset-right, 0px)) max(28px, env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px)); }
+.gate-body { position: relative; z-index: 1; width: min(400px, 100%); margin-inline: auto; padding-top: 340px; display: grid; gap: 12px; }
+.mark { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 22px; font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
+.mark i { position: relative; width: 22px; height: 22px; margin-top: 3px; border: 3.4px solid #fff; border-radius: 50%; }
+.mark i::after { content: ""; position: absolute; right: -8px; top: -9px; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.gate .lede { text-align: center; color: var(--ink-3); font-size: 15px; margin: -14px 0 14px; }
+.field { display: grid; gap: 7px; font-size: 13.5px; font-weight: 500; color: var(--ink-3); }
+.field input, .field textarea { font: inherit; font-size: 16px; font-weight: 400; color: var(--ink); width: 100%; min-height: 52px; padding: 14px 18px;
+  border: 1px solid var(--hair); border-radius: 18px; background: var(--surface); }
+.field textarea { min-height: 116px; resize: vertical; line-height: 1.45; }
+.field input::placeholder, .field textarea::placeholder { color: #7f978c; }
+.field input:focus, .field textarea:focus { outline: none; border-color: rgba(255, 255, 255, .32); background: rgba(255, 255, 255, .09); }
+.field input[type=date] { color-scheme: dark; }
+.gate .pill { width: 100%; margin-top: 6px; }
+.gate .help { margin-top: 16px; text-align: center; font-size: 14px; color: var(--ink-3); }
 .err { color: var(--bad); font-size: 14px; }
-.ok { color: var(--accent); font-size: 14px; font-weight: 600; margin-right: auto; }
-.row-end { display: flex; justify-content: flex-end; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ok { color: var(--good); font-size: 14px; font-weight: 500; }
 
-/* ---- sign in, and the message when the panel cannot load ---- */
-.card-in { width: min(400px, 100%); display: grid; gap: 16px; padding-block: 48px; }
-.card-in h1 { font-size: 32px; }
-.card-in .btn { width: 100%; }
+/* ---- the owner's photo behind everything ---- */
+.backdrop { position: absolute; z-index: 0; inset: 0 0 auto 0; height: 640px; overflow: hidden; pointer-events: none;
+  background: radial-gradient(70% 45% at 85% 10%, rgba(245, 194, 91, .14), transparent 70%), radial-gradient(80% 55% at 10% 0%, rgba(60, 150, 115, .28), transparent 70%); }
+.backdrop img { width: 100%; height: 100%; object-fit: cover; object-position: 65% 35%; filter: brightness(.62) saturate(.85) blur(1.5px); transform: scale(1.04); }
+.backdrop::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to right, rgba(4, 17, 12, .62), rgba(4, 17, 12, .12) 78%), linear-gradient(to bottom, rgba(4, 17, 12, .35) 0%, rgba(4, 17, 12, .55) 48%, #04110c 97%); }
 
-/* ---- header: the business is the headline (pattern 09) ---- */
-.top { padding-top: 12px; }
-.top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.plan {
-  font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
-  background: var(--accent-soft); color: var(--accent); padding: 4px 12px; border-radius: 999px;
-}
-.ctx { font-family: var(--body); font-size: 15px; font-weight: 400; letter-spacing: 0; color: var(--muted); }
-.top .ctx { margin-top: 20px; }
-.top h1 { margin-top: 4px; font-size: clamp(32px, 6vw, 52px); }
+/* ---- top: the business is the headline ---- */
+.top { padding-top: max(10px, env(safe-area-inset-top, 0px)); }
+.topbar { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.plan { height: 32px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 13.5px; font-weight: 500;
+  background: var(--glass); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.ctx { display: flex; align-items: center; gap: 8px; margin-top: 18px; font-size: 15px; color: var(--ink-2); }
+.ctx .live { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 4px rgba(127, 216, 168, .16); }
+.ctx .live.off { background: var(--ink-3); box-shadow: none; }
+.name { margin-top: 8px; font-size: 29px; font-weight: 400; line-height: 34px; letter-spacing: -0.01em; text-wrap: balance; }
 
-/* ---- sections: separated by space and a hairline, not boxed ---- */
-main .wrap { padding-bottom: 112px; }
-.sec { padding-block: 32px; border-top: 1px solid var(--line); min-width: 0; }
-.sec.numbers { border-top: 0; padding-top: 24px; }
-.sec-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 16px; }
-.sec-title h2 { font-size: 24px; }
-.sec-title span { font-size: 14px; color: var(--faint); }
+/* ---- the number ---- */
+.hero { padding-top: 36px; }
+.hero .label { font-size: 15px; color: var(--ink-2); }
+.hero .num { margin: 6px 0 0 -4px; font-size: 132px; font-weight: 200; line-height: .9; letter-spacing: -0.03em; font-variant-numeric: lining-nums; }
+.hero .what { margin-top: 18px; font-size: 29px; font-weight: 400; line-height: 1.14; letter-spacing: -0.01em; }
+.compare { display: flex; align-items: center; gap: 14px; margin-top: 18px; }
+.track { position: relative; width: 169px; height: 3px; flex: none; border-radius: 2px; background: rgba(255, 255, 255, .14); }
+.track i { position: absolute; inset: 0 auto 0 0; border-radius: 2px; background: var(--gold); }
+.track i::after { content: ""; position: absolute; right: -7px; top: 50%; width: 14px; height: 14px; margin-top: -7px; border-radius: 50%;
+  background: var(--gold); box-shadow: 0 0 0 2px rgba(4, 17, 12, .6); }
+.compare p { font-size: 14px; font-weight: 500; color: var(--ink-2); }
 
-/* ---- numbers: one hero, then facts in a row (pattern 10) ---- */
-.numbers .ctx { margin-bottom: 12px; }
-.numbers-row { display: grid; gap: 20px; }
-.hero-num { display: flex; align-items: flex-end; gap: 16px; min-width: 0; }
-.hero-num .n {
-  font-family: var(--display); font-size: clamp(76px, 20vw, 112px); font-weight: 800;
-  line-height: .8; letter-spacing: -0.04em; color: var(--accent); font-variant-numeric: tabular-nums;
-}
-.hero-k { display: grid; gap: 4px; min-width: 0; }
-.hero-k .k { font-family: var(--display); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
-.delta { font-size: 14px; color: var(--muted); }
-.delta.up { color: var(--accent); }
-.facts {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-  background: var(--panel); border-radius: 16px; padding-block: 16px;
-}
-.fact { display: grid; gap: 2px; align-content: start; padding-inline: 16px; min-width: 0; }
-.fact + .fact { border-left: 1px solid var(--line); }
-.fact b {
-  font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -0.02em;
-  line-height: 1.1; font-variant-numeric: tabular-nums;
-}
-.fact .k { font-size: 14px; line-height: 1.3; color: var(--muted); }
-.fact .delta { margin-top: 4px; font-size: 13px; font-weight: 600; }
-.note { margin-top: 16px; background: #fff8ec; border-radius: 12px; padding: 12px 16px; font-size: 14px; color: var(--warn); }
-@media (min-width: 860px) {
-  .numbers-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; gap: 40px; }
-  .facts { padding-block: 24px; }
-  .fact { padding-inline: 24px; }
-  .fact b { font-size: 34px; }
+/* ---- facts: three cards, number loud, label quiet ---- */
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 30px; }
+.fact { min-height: 96px; padding: 16px 14px 14px; border-radius: 22px; background: var(--surface); display: grid; align-content: start; gap: 2px; }
+.fact b { font-size: 26px; font-weight: 400; line-height: 1.1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.fact span { font-size: 13.5px; color: var(--ink-3); }
+.fact em { margin-top: 4px; font-style: normal; font-size: 12.5px; font-weight: 600; color: var(--ink-3); }
+.fact em.up { color: var(--good); }
+.fine { margin-top: 12px; font-size: 13px; color: var(--ink-3); }
+.note { display: flex; gap: 10px; margin-top: 12px; padding: 13px 16px; border-radius: 18px; background: rgba(255, 255, 255, .045); font-size: 14px; color: var(--ink-2); }
+.note .ic { --ic: 18px; margin-top: 1px; color: var(--gold); }
+
+/* ---- sections ---- */
+.sec { padding-top: 44px; scroll-margin-top: 16px; }
+.sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.sec-head h2 { font-size: 22px; font-weight: 400; letter-spacing: -0.01em; }
+.sec-head .count { min-width: 32px; height: 32px; padding: 0 10px; border-radius: 999px; display: grid; place-items: center; background: var(--fill); font-size: 14px; font-weight: 600; }
+.sec-sub { margin: -6px 0 16px; font-size: 14.5px; color: var(--ink-3); }
+
+/* ---- enquiries: a row that runs off the edge on a phone ---- */
+.leads { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+  margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); scroll-padding-inline: var(--gutter); }
+.leads::-webkit-scrollbar { display: none; }
+.leads.list { display: grid; overflow: visible; margin-inline: 0; padding-inline: 0; }
+.lead { flex: none; width: min(318px, 84vw); padding: 10px; border-radius: 26px; background: var(--surface); scroll-snap-align: start; display: flex; flex-direction: column; gap: 12px; }
+.leads.list .lead { width: auto; }
+.lead header { display: flex; align-items: center; gap: 12px; padding: 6px 6px 0; }
+.avatar { width: 46px; height: 46px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 16px; font-weight: 600;
+  background: radial-gradient(circle at 35% 30%, #2d5a48, #173a2e); color: #d9efe5; }
+.lead h3 { font-size: 17px; font-weight: 500; line-height: 1.25; overflow-wrap: anywhere; }
+.lead header p { font-size: 13.5px; color: var(--ink-3); }
+.lead .msg { padding: 0 8px; font-size: 15px; line-height: 1.45; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.tags { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 6px; }
+.tag { min-height: 30px; padding: 5px 12px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; background: var(--fill); font-size: 13.5px; color: var(--ink-2); }
+.tag .ic { --ic: 15px; color: var(--ink-3); }
+.tag.far { background: rgba(255, 155, 143, .14); color: var(--bad); }
+.tag.far .ic { color: var(--bad); }
+.lead .actions { display: flex; gap: 8px; margin-top: auto; }
+.lead .pill.gold { flex: 1; min-width: 0; height: 48px; padding-inline: 12px; font-size: 15px; }
+.lead .pill.gold span { overflow: hidden; text-overflow: ellipsis; }
+.lead .pill.off { flex: 1; height: 48px; background: var(--fill); color: var(--ink-3); font-weight: 400; font-size: 14px; }
+.lead .circle { width: 48px; height: 48px; background: var(--fill); }
+.more { margin-top: 12px; }
+.empty { padding: 22px; border-radius: 24px; background: var(--surface); color: var(--ink-2); font-size: 15px; }
+@media (min-width: 720px) {
+  .leads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; margin-inline: 0; padding-inline: 0; }
+  .lead { width: auto; }
 }
 
-/* ---- enquiries: cards on a phone, a table on a desk ---- */
-.lead-cards { display: grid; gap: 12px; }
-.lead { background: var(--panel); border-radius: 16px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
-.lead-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.lead h3 { font-size: 22px; min-width: 0; overflow-wrap: anywhere; }
-.lead .place { margin-top: -4px; font-size: 15px; color: var(--muted); }
-.lead-facts { display: flex; border-block: 1px solid var(--line); padding-block: 12px; }
-.lead-facts > div { display: grid; gap: 2px; align-content: start; flex: none; padding-inline: 12px; }
-.lead-facts > div:first-child { padding-left: 0; }
-.lead-facts > div:last-child { padding-right: 0; }
-.lead-facts > div + div { border-left: 1px solid var(--line); }
-.lead-facts > .grow { flex: 1 1 0; min-width: 0; }
-.lead-facts b { font-size: 15px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.lead-facts b.bad { color: var(--bad); }
-.lead-facts span { font-size: 13px; color: var(--muted); }
-.lead .msg { font-size: 15px; color: var(--muted); }
-/* Pattern 01: one filled pill, then circles of the same height. */
-.action-row { display: flex; align-items: center; gap: 8px; }
-.call {
-  flex: 1; min-width: 0; height: 48px; padding-inline: 12px; border-radius: 999px;
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  background: var(--ink); color: #fff; font-size: 15px; font-weight: 600; text-decoration: none;
-  transition: background-color .18s ease-out, transform .18s ease-out;
-}
-.call:hover { background: #2b2f38; }
-.call:active { transform: scale(.98); }
-.call svg { flex: none; }
-.call .short { display: none; }
-.call.off { background: var(--fill); color: var(--muted); font-weight: 400; }
-@media (max-width: 380px) { .call .long { display: none; } .call .short { display: inline; } }
-.circ {
-  width: 48px; height: 48px; flex: none; border-radius: 50%;
-  display: grid; place-items: center; background: var(--fill); color: var(--ink);
-  transition: background-color .18s ease-out;
-}
-.circ:hover { background: rgba(21, 23, 28, .12); }
-.lead-table { display: none; }
-@media (min-width: 720px) { .lead-cards { display: none; } .lead-table { display: block; } }
-
-/* A table is the one thing allowed to be wider than the screen, and only
-   inside its own scroller. */
-.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-table { width: 100%; border-collapse: collapse; }
-.lead-table table { min-width: 680px; }
-th { text-align: left; font-size: 13px; color: var(--faint); padding: 0 16px 8px 0; }
-td { padding: 12px 16px 12px 0; border-top: 1px solid var(--line); font-size: 15px; vertical-align: top; }
-.when { color: var(--muted); font-size: 14px; }
-td.when { white-space: nowrap; }
-td a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
-td a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-.note-line { display: inline-block; max-width: 32ch; margin-top: 4px; }
-.pill {
-  display: inline-block; font-size: 13px; font-weight: 600; line-height: 1.5; white-space: nowrap;
-  padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent);
-}
-.pill.far { background: #fdeaea; color: var(--bad); }
-.empty { color: var(--muted); font-size: 15px; }
-
-/* ---- chart: drawn at the width it is shown, so labels stay 12px ---- */
+/* ---- visits ---- */
+.chart-card { padding: 18px 16px 8px; border-radius: 26px; background: var(--surface); }
 .chart-wrap { position: relative; }
 #chartSvg svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
-.bar { fill: var(--accent); }
-.bar.on { fill: var(--ink); }
+.bar { fill: rgba(255, 255, 255, .24); }
+.bar.last, .bar.on { fill: var(--gold); }
 .bar-hit { fill: transparent; cursor: pointer; }
-.grid-line { stroke: var(--line); stroke-width: 1; }
-.axis-txt { fill: var(--faint); font-family: var(--body); font-size: 12px; }
-.tip {
-  position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap;
-  background: var(--ink); color: #fff; font-size: 13px; padding: 8px 12px; border-radius: 8px;
-  transform: translate(-50%, calc(-100% - 8px)); opacity: 0; transition: opacity .12s ease-out;
-}
+.grid-line { stroke: var(--hair); stroke-width: 1; }
+.axis-txt { fill: var(--ink-3); font-family: var(--font); font-size: 12px; }
+.tip { position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap; padding: 8px 12px; border-radius: 12px;
+  background: #ffffff; color: #0b1310; font-size: 13px; transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity .12s ease-out; }
 .tip.on { opacity: 1; }
-.chart-table summary {
-  min-height: 44px; display: inline-flex; align-items: center; gap: 8px; margin-top: 8px;
-  font-size: 14px; color: var(--muted);
-}
-.chart-table table { max-width: 360px; }
+details summary { list-style: none; cursor: pointer; }
+details summary::-webkit-details-marker { display: none; }
+.chart-table summary { min-height: 44px; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-3); }
+.chart-table summary .ic, .locked summary .ic { --ic: 18px; transition: transform .18s ease-out; }
+details[open] > summary .ic { transform: rotate(180deg); }
+.scroll-x { overflow-x: auto; }
+table { width: 100%; max-width: 360px; border-collapse: collapse; margin-bottom: 10px; }
+th { text-align: left; font-size: 13px; font-weight: 500; color: var(--ink-3); padding: 0 0 8px; }
+td { padding: 9px 0; border-top: 1px solid var(--hair); font-size: 14.5px; }
 
-/* ---- business details ---- */
-.field-row { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) 44px; gap: 8px; align-items: center; margin-bottom: 8px; }
-.icon-btn {
-  width: 44px; height: 44px; border: 0; border-radius: 50%; display: grid; place-items: center;
-  background: var(--fill); color: var(--muted); font-size: 20px; line-height: 1;
-  transition: background-color .18s ease-out, color .18s ease-out;
-}
-.icon-btn:hover { background: #fdeaea; color: var(--bad); }
-.two-up { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 12px; align-items: end; }
-.two-up label { font-size: 13px; font-weight: 400; color: var(--muted); }
-@media (max-width: 620px) { .two-up { grid-template-columns: minmax(0, 1fr); } }
+/* ---- forms ---- */
+.stack { display: grid; gap: 18px; max-width: 640px; }
+.hours { display: grid; gap: 8px; }
+.hour { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) 44px; gap: 8px; align-items: center; }
+.hour input { font: inherit; font-size: 16px; color: var(--ink); width: 100%; height: 52px; padding: 0 16px; border: 1px solid var(--hair); border-radius: 18px; background: var(--surface); }
+.hour input:focus { outline: none; border-color: rgba(255, 255, 255, .32); }
+.hour .circle { background: var(--fill); }
+.hour .circle:hover { background: rgba(255, 155, 143, .18); color: var(--bad); }
+.two-up { display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: 10px; align-items: end; }
+@media (max-width: 560px) { .two-up { grid-template-columns: minmax(0, 1fr); } }
+.legend { font-size: 13.5px; font-weight: 500; color: var(--ink-3); margin-bottom: 7px; }
+.hint { margin-top: 7px; font-size: 13px; color: var(--ink-3); }
+.row-end { display: flex; justify-content: flex-end; align-items: center; gap: 14px; flex-wrap: wrap; }
+.row-end .ok { margin-right: auto; }
+.edits { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 8px; }
+.edits li { padding: 14px 16px; border-radius: 20px; background: var(--surface); display: grid; gap: 6px; }
+.edits .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 13.5px; color: var(--ink-3); }
+.badge { height: 24px; padding: 0 10px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 12.5px; font-weight: 600; background: rgba(127, 216, 168, .14); color: var(--good); }
+.badge.quote { background: rgba(245, 194, 91, .14); color: var(--gold); }
 
-/* Pattern 11: while there are unsaved changes and the form's own button is
-   off screen, the save action waits at the thumb. */
-.savebar {
-  position: fixed; z-index: 10; left: 50%; bottom: max(16px, env(safe-area-inset-bottom, 0px));
-  width: min(560px, calc(100% - 32px)); min-height: 56px; transform: translateX(-50%);
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 6px 6px 6px 20px; border-radius: 999px; background: var(--ink); color: #fff;
-  font-size: 15px; box-shadow: 0 12px 32px rgba(21, 23, 28, .28);
-  animation: rise .2s var(--ease);
-}
-.savebar .btn { min-height: 44px; padding-inline: 20px; background: #fff; color: var(--ink); }
-.savebar .btn:hover { background: #ebebeb; }
-.savebar.done .btn { display: none; }
-@keyframes rise { from { opacity: 0; transform: translate(-50%, 12px); } }
-
-/* ---- change requests and locked features ---- */
-.edits { list-style: none; margin: 24px 0 0; padding: 0; }
-.edits li { display: grid; gap: 4px; padding-block: 12px; border-top: 1px solid var(--line); }
-.edits .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 14px; color: var(--muted); }
-summary { list-style: none; cursor: pointer; }
-summary::-webkit-details-marker { display: none; }
-summary::after {
-  content: ""; flex: none; width: 8px; height: 8px; margin-inline: 4px;
-  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
-  transform: translateY(-2px) rotate(45deg); transition: transform .18s ease-out;
-}
-details[open] > summary::after { transform: translateY(2px) rotate(-135deg); }
-#lockedCard summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
-#lockedCard summary h2 { font-size: 24px; }
-#lockedCard summary span { display: block; margin-top: 4px; font-size: 14px; color: var(--muted); }
-.locked {
-  list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 16px 32px;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
-}
+/* ---- not on the plan ---- */
+.locked { padding: 6px 18px; border-radius: 24px; background: var(--surface); }
+.locked summary { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.locked summary h2 { font-size: 18px; font-weight: 500; }
+.locked summary span { font-size: 14px; color: var(--ink-3); display: block; }
+.locked ul { list-style: none; margin: 4px 0 14px; padding: 0; display: grid; gap: 14px 28px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
 .locked li { display: grid; gap: 2px; font-size: 15px; }
-.locked span { color: var(--muted); }
+.locked li span { color: var(--ink-3); }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; animation: none !important; }
-}
+/* ---- the dock: sections in a floating bar, the main action at the thumb ---- */
+main { padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px)); }
+.dock { position: fixed; z-index: 20; left: 50%; bottom: max(14px, env(safe-area-inset-bottom, 0px)); width: min(728px, calc(100% - 32px));
+  transform: translateX(-50%); display: flex; align-items: center; gap: 12px; }
+.dock-bar { flex: 1; height: 64px; padding: 0 6px; border-radius: 999px; display: flex; align-items: center;
+  background: rgba(10, 28, 22, .84); -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35); }
+.dock-bar a { flex: 1; height: 52px; border-radius: 999px; display: grid; place-items: center; align-content: center; gap: 3px;
+  font-size: 12px; font-weight: 500; color: var(--ink-3); transition: background-color .18s ease-out, color .18s ease-out; }
+.dock-bar a .ic { --ic: 22px; }
+.dock-bar a[aria-current] { background: rgba(255, 255, 255, .1); color: var(--ink); }
+.dock-fab { width: 64px; height: 64px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--gold); color: var(--on-gold);
+  box-shadow: 0 10px 24px rgba(245, 194, 91, .25); transition: transform .18s var(--ease); }
+.dock-fab:active { transform: scale(.95); }
+.dock-fab .ic { --ic: 26px; }
+/* While there are unsaved changes and the form's own button is off screen,
+   the save action takes the dock's place at the thumb. */
+.savebar { position: fixed; z-index: 21; left: 50%; bottom: max(14px, env(safe-area-inset-bottom, 0px)); width: min(560px, calc(100% - 32px));
+  min-height: 64px; transform: translateX(-50%); padding: 6px 6px 6px 22px; border-radius: 999px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: rgba(10, 28, 22, .92); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  font-size: 15px; animation: rise .2s var(--ease); }
+.savebar .pill { height: 52px; }
+.savebar.done .pill { display: none; }
+@keyframes rise { from { opacity: 0; transform: translate(-50%, 12px); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+/*ICONS*/
+/* Copied from app-style/app-icons.css by app-style/tools/inline-icons.py. */
+.ic { display: inline-block; flex: none; width: var(--ic, 22px); height: var(--ic, 22px);
+      background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+.ic-chart { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5h15M7 16v-4M11 16V8M15 16v-6M19 16V5.5"/%3E%3C/svg%3E'); }
+.ic-chev-down { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/%3E%3C/svg%3E'); }
+.ic-clock { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Ccircle fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="8.5"/%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 7.5V12l3 2"/%3E%3C/svg%3E'); }
+.ic-close { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6 6 18"/%3E%3C/svg%3E'); }
+.ic-home { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/%3E%3C/svg%3E'); }
+.ic-inbox { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 13.5 6.4 6a1.5 1.5 0 0 1 1.4-1h8.4a1.5 1.5 0 0 1 1.4 1l2.4 7.5V18a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18zM4 13.5h4.5l1.2 2.2h4.6l1.2-2.2H20"/%3E%3C/svg%3E'); }
+.ic-info { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Ccircle fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="8.5"/%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 11v5"/%3E%3Ccircle fill="black" cx="12" cy="8" r="1.1"/%3E%3C/svg%3E'); }
+.ic-logout { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M14 4.5H6.5c-.6 0-1 .4-1 1v13c0 .6.4 1 1 1H14M10.5 12h10m0 0-3.5-3.5M20.5 12 17 15.5"/%3E%3C/svg%3E'); }
+.ic-mail { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Crect fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" x="3.5" y="5.5" width="17" height="13" rx="2.5"/%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m4.5 7 7.5 6 7.5-6"/%3E%3C/svg%3E'); }
+.ic-pencil { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l1-4.5L15.8 4.7a2 2 0 0 1 2.9 0l.6.6a2 2 0 0 1 0 2.9L9 18.5z"/%3E%3C/svg%3E'); }
+.ic-phone { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M5.3 3.8h3.3l1.6 4.4-2.2 1.4a11 11 0 0 0 6.4 6.4l1.4-2.2 4.4 1.6v3.3a1.8 1.8 0 0 1-1.9 1.8A16.5 16.5 0 0 1 3.5 5.7a1.8 1.8 0 0 1 1.8-1.9z"/%3E%3C/svg%3E'); }
+.ic-pin { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 21s6.5-5.6 6.5-11a6.5 6.5 0 0 0-13 0c0 5.4 6.5 11 6.5 11z"/%3E%3Ccircle fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="10" r="2.4"/%3E%3C/svg%3E'); }
+.ic-plus { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15M4.5 12h15"/%3E%3C/svg%3E'); }
+/*/ICONS*/
 </style>
 </head>
-<body>
+<body class="ui">
 
-<noscript>
-  <div class="wrap center"><p>This panel needs JavaScript. Switch it on in your browser, then reload the page.</p></div>
-</noscript>
+<noscript><div class="gate"><div class="gate-body"><p>This panel needs JavaScript. Switch it on in your browser, then reload the page.</p></div></div></noscript>
 
 <!-- shown only when the sign-in code cannot be downloaded, instead of a blank page -->
-<section id="boot" class="wrap center" hidden>
-  <div class="card-in">
-    <h1>The panel did not load</h1>
-    <p class="lede">Check your internet connection, then try again. If it keeps happening, tell your studio.</p>
-    <button class="btn" type="button" onclick="location.reload()">Try again</button>
+<section id="boot" class="gate" hidden>
+  <div class="art" aria-hidden="true"><i class="glow"></i><i class="planet"></i><i class="flare"></i></div>
+  <div class="gate-body">
+    <p class="mark"><i></i>Website panel</p>
+    <p class="lede">The panel did not load. Check your internet connection, then try again. If it keeps happening, tell your studio.</p>
+    <button class="pill white" type="button" onclick="location.reload()">Try again</button>
   </div>
 </section>
 
-<!-- sign in -->
-<section id="signin" class="wrap center" hidden>
-  <form class="card-in" id="loginForm">
-    <h1>Your website panel</h1>
-    <p class="lede">Sign in to see what your website did this month.</p>
-    <label for="em">Email<input id="em" type="email" autocomplete="username" required></label>
-    <label for="pw">Password<input id="pw" type="password" autocomplete="current-password" required></label>
-    <button class="btn" type="submit">Sign in</button>
+<section id="signin" class="gate" hidden>
+  <div class="art" aria-hidden="true"><i class="glow"></i><i class="planet"></i><i class="flare"></i></div>
+  <form class="gate-body" id="loginForm">
+    <h1 class="mark"><i></i>Website panel</h1>
+    <p class="lede">What your website did this month.</p>
+    <label class="field" for="em">Email<input id="em" type="email" autocomplete="username" required></label>
+    <label class="field" for="pw">Password<input id="pw" type="password" autocomplete="current-password" required></label>
+    <button class="pill white" type="submit">Sign in</button>
     <p class="err" id="loginErr" hidden></p>
-    <p class="fine">Forgotten your password? Contact your studio and they will reset it.</p>
+    <p class="help">Forgotten your password? Your studio can reset it.</p>
   </form>
 </section>
 
-<!-- dashboard -->
 <div id="app" hidden>
-  <header class="top">
-    <div class="wrap">
-      <div class="top-row">
-        <span class="plan" id="planName">—</span>
-        <button class="text-btn" id="out" type="button">Sign out</button>
-      </div>
-      <p class="ctx" id="bizSite"></p>
-      <h1 id="bizName">—</h1>
+  <div class="backdrop" id="backdrop" aria-hidden="true"><img id="backdropImg" alt="" hidden></div>
+
+  <header class="top wrap">
+    <div class="topbar">
+      <span class="plan" id="planName">—</span>
+      <button class="circle" id="out" type="button" aria-label="Sign out"><i class="ic ic-logout"></i></button>
     </div>
+    <p class="ctx"><i class="live" id="liveDot"></i><span id="bizSite"></span></p>
+    <h1 class="name"><span id="bizName">—</span><br><span class="dim">Last 30 days, <span id="range"></span></span></h1>
   </header>
 
-  <main>
-    <div class="wrap">
-      <section class="sec numbers" aria-labelledby="numbersTitle">
-        <h2 class="ctx" id="numbersTitle">Last 30 days · <span id="range"></span></h2>
-        <div class="numbers-row">
-          <div class="hero-num" id="heroNum"></div>
-          <div class="facts" id="facts"></div>
-        </div>
-        <p class="fine" id="factsNote"></p>
-        <p class="note">
-          <b>Call taps are not completed calls.</b> This counts people who tapped your
-          phone number on the website. It cannot tell whether the call connected or
-          was answered. A tracking number would show real calls.
-        </p>
-      </section>
+  <main class="wrap">
+    <section class="hero" id="overview" aria-labelledby="heroWhat">
+      <p class="label">Your website brought in</p>
+      <p class="num" id="heroNum">0</p>
+      <p class="what" id="heroWhat">Enquiries <span class="dim">from the form</span></p>
+      <div class="compare" id="compare" hidden><span class="track"><i id="compareFill"></i></span><p id="compareText"></p></div>
+      <div class="facts" id="facts"></div>
+      <p class="fine" id="factsNote"></p>
+      <p class="note"><i class="ic ic-info"></i><span><b>Call taps are not completed calls.</b> This counts people who tapped your
+        phone number on the website. It cannot tell whether the call connected or was answered. A tracking number would show real calls.</span></p>
+    </section>
 
-      <section class="sec" aria-labelledby="leadsTitle">
-        <div class="sec-title"><h2 id="leadsTitle">Enquiries</h2><span>from the website form, newest first</span></div>
-        <div id="leads"></div>
-        <p class="fine" id="leadsNote" hidden>Distances are estimates: a straight line adjusted for roads, not a planned route.</p>
-      </section>
+    <section class="sec" id="enquiries" aria-labelledby="leadsTitle">
+      <div class="sec-head"><h2 id="leadsTitle">Enquiries <span class="dim">newest first</span></h2><span class="count" id="leadCount" hidden></span></div>
+      <div id="leads"></div>
+      <p class="fine" id="leadsNote" hidden>Distances are estimates: a straight line adjusted for roads, not a planned route.</p>
+    </section>
 
-      <section class="sec" aria-labelledby="chartTitle">
-        <div class="sec-title"><h2 id="chartTitle">Visits each day</h2><span id="chartHint"></span></div>
-        <div class="chart-wrap" id="chartWrap">
-          <div id="chartSvg"></div>
-          <div class="tip" id="tip" aria-hidden="true"></div>
-        </div>
+    <section class="sec" id="visits" aria-labelledby="chartTitle">
+      <div class="sec-head"><h2 id="chartTitle">Visits <span class="dim">each day</span></h2></div>
+      <div class="chart-card">
+        <p class="fine" id="chartHint" style="margin:0 0 10px"></p>
+        <div class="chart-wrap" id="chartWrap"><div id="chartSvg"></div><div class="tip" id="tip" aria-hidden="true"></div></div>
         <details class="chart-table">
-          <summary>See the numbers as a table</summary>
+          <summary>See the numbers as a table <i class="ic ic-chev-down"></i></summary>
           <div class="scroll-x" id="chartRows"></div>
         </details>
-      </section>
+      </div>
+    </section>
 
-      <section class="sec" id="detailsCard" hidden aria-labelledby="detailsTitle">
-        <div class="sec-title"><h2 id="detailsTitle">Your business details</h2><span>changes appear on your website within a minute</span></div>
-        <p class="lede">Change these yourself, any time. You do not need to ask us.</p>
-        <form id="detailsForm" class="stack">
-          <label for="d-phone">Phone number
-            <input id="d-phone" type="tel" placeholder="(555) 010-4470">
-            <span class="sub-label">This updates the tap-to-call button everywhere on your site.</span>
-          </label>
-
-          <fieldset>
-            <legend>Opening hours</legend>
-            <div id="hoursRows"></div>
-            <button class="btn ghost" type="button" id="addHour">Add a line</button>
-          </fieldset>
-
-          <fieldset>
-            <legend>Notice banner</legend>
-            <span class="sub-label">
-              For a holiday, a closure or anything urgent. It shows at the top of your
-              website and disappears on its own after the date you choose.
-            </span>
-            <div class="two-up">
-              <input id="d-notice" type="text" aria-label="Notice text" placeholder="Closed Thursday for Thanksgiving">
-              <label for="d-until">Hide it after<input id="d-until" type="date"></label>
-            </div>
-            <p class="err" id="noticeErr" hidden>Choose a date for the notice to disappear, so it cannot be left up by accident.</p>
-          </fieldset>
-
-          <p class="err" id="detailsErr" hidden>That did not save. Check your connection and try again.</p>
-          <div class="row-end">
-            <span class="ok" id="detailsOk" hidden>Saved. Your website is updating.</span>
-            <button class="btn" type="submit" id="detailsSave">Save changes</button>
+    <section class="sec" id="details" hidden aria-labelledby="detailsTitle">
+      <div class="sec-head"><h2 id="detailsTitle">Your <span class="dim">details</span></h2></div>
+      <p class="sec-sub">Change these yourself, any time. They appear on your website within a minute.</p>
+      <form id="detailsForm" class="stack">
+        <label class="field" for="d-phone">Phone number
+          <input id="d-phone" type="tel" placeholder="(555) 010-4470">
+          <span class="hint">This updates the tap-to-call button everywhere on your site.</span>
+        </label>
+        <div>
+          <p class="legend">Opening hours</p>
+          <div class="hours" id="hoursRows"></div>
+          <button class="pill glass" type="button" id="addHour" style="margin-top:10px"><i class="ic ic-plus"></i>Add a line</button>
+        </div>
+        <div>
+          <p class="legend">Notice banner</p>
+          <p class="hint" style="margin:0 0 10px">For a holiday, a closure or anything urgent. It shows at the top of your website and disappears on its own after the date you choose.</p>
+          <div class="two-up">
+            <label class="field"><input id="d-notice" type="text" aria-label="Notice text" placeholder="Closed Thursday for Thanksgiving"></label>
+            <label class="field" for="d-until">Hide it after<input id="d-until" type="date"></label>
           </div>
-        </form>
-      </section>
+          <p class="err" id="noticeErr" hidden style="margin-top:8px">Choose a date for the notice to disappear, so it cannot be left up by accident.</p>
+        </div>
+        <p class="err" id="detailsErr" hidden>That did not save. Check your connection and try again.</p>
+        <div class="row-end">
+          <span class="ok" id="detailsOk" hidden>Saved. Your website is updating.</span>
+          <button class="pill gold" type="submit" id="detailsSave">Save changes</button>
+        </div>
+      </form>
+    </section>
 
-      <section class="sec" aria-labelledby="editTitle">
-        <div class="sec-title"><h2 id="editTitle">Request a change</h2><span>anything else: text, photos, prices</span></div>
-        <p class="lede">
-          Small edits are included and usually done within two business days. Anything
-          needing a new page or a redesign gets a written quote first.
-        </p>
-        <form id="editForm" class="stack">
-          <textarea id="editBody" aria-label="What would you like changed?" placeholder="What would you like changed?" required></textarea>
-          <p class="err" id="editErr" hidden>That did not send. Check your connection and try again.</p>
-          <div class="row-end">
-            <span class="ok" id="editOk" hidden>Sent. Your studio has it.</span>
-            <button class="btn" type="submit">Send request</button>
-          </div>
-        </form>
-        <div id="editList"></div>
-      </section>
+    <section class="sec" id="changes" aria-labelledby="editTitle">
+      <div class="sec-head"><h2 id="editTitle">Request <span class="dim">a change</span></h2></div>
+      <p class="sec-sub">Anything else: text, photos, prices. Small edits are included and usually done within two business days. A new page or a redesign gets a written quote first.</p>
+      <form id="editForm" class="stack">
+        <label class="field"><textarea id="editBody" aria-label="What would you like changed?" placeholder="What would you like changed?" required></textarea></label>
+        <p class="err" id="editErr" hidden>That did not send. Check your connection and try again.</p>
+        <div class="row-end">
+          <span class="ok" id="editOk" hidden>Sent. Your studio has it.</span>
+          <button class="pill gold" type="submit">Send request</button>
+        </div>
+      </form>
+      <div id="editList"></div>
+    </section>
 
-      <section class="sec" id="lockedCard" hidden>
-        <details>
-          <summary><div><h2>Not on your plan yet</h2><span id="lockedCount"></span></div></summary>
-          <ul class="locked" id="locked"></ul>
-          <p class="fine">Ask your studio about any of these.</p>
-        </details>
-      </section>
-    </div>
+    <section class="sec" id="lockedCard" hidden>
+      <details class="locked">
+        <summary><div><h2>Not on your plan yet</h2><span id="lockedCount"></span></div><i class="ic ic-chev-down"></i></summary>
+        <ul id="locked"></ul>
+        <p class="fine" style="margin:0 0 14px">Ask your studio about any of these.</p>
+      </details>
+    </section>
   </main>
+
+  <nav class="dock" id="dock" aria-label="Sections">
+    <div class="dock-bar">
+      <a href="#overview" data-sec="overview"><i class="ic ic-home"></i>Overview</a>
+      <a href="#enquiries" data-sec="enquiries"><i class="ic ic-inbox"></i>Enquiries</a>
+      <a href="#visits" data-sec="visits"><i class="ic ic-chart"></i>Visits</a>
+      <a href="#changes" data-sec="changes"><i class="ic ic-pencil"></i>Changes</a>
+    </div>
+    <a class="dock-fab" id="callNext" hidden><i class="ic ic-phone"></i></a>
+  </nav>
 
   <div class="savebar" id="saveBar" role="status" hidden>
     <span id="saveBarText">You have unsaved changes</span>
-    <button class="btn" type="button" id="saveBarBtn">Save changes</button>
+    <button class="pill gold" type="button" id="saveBarBtn">Save changes</button>
   </div>
 </div>
 
@@ -451,14 +447,8 @@ const FEATURES = {
   pipeline: ['Lead follow-up', 'Chases quotes that have gone quiet'],
 };
 
-const ICON = {
-  phone: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 2.5h3l1.5 4-2 1.3a10 10 0 0 0 5.1 5.1l1.3-2 4 1.5v3a1.6 1.6 0 0 1-1.7 1.6A15.2 15.2 0 0 1 3 4.2a1.6 1.6 0 0 1 1.6-1.7Z"/></svg>',
-  pin: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10 18s6-5.2 6-10a6 6 0 0 0-12 0c0 4.8 6 10 6 10Z"/><circle cx="10" cy="8" r="2.2"/></svg>',
-  mail: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="m3 5.5 7 5.5 7-5.5"/></svg>',
-};
-
 // Loaded on its own, so a blocked or failed download shows a message
-// instead of a blank white page.
+// instead of a blank page.
 let db = null;
 try {
   const { createClient } = await import(CFG.client);
@@ -472,15 +462,14 @@ function wire() {
   $('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const err = $('loginErr'); err.hidden = true;
-    const { error } = await db.auth.signInWithPassword({
-      email: $('em').value.trim(), password: $('pw').value,
-    });
+    const { error } = await db.auth.signInWithPassword({ email: $('em').value.trim(), password: $('pw').value });
     if (error) { err.textContent = 'That email and password did not match.'; err.hidden = false; }
   });
   $('out').addEventListener('click', async () => { await db.auth.signOut(); location.reload(); });
   wireChart();
   wireDetails();
   wireEdits();
+  wireDock();
   db.auth.getSession().then(({ data }) => (data.session ? start() : show('signin')));
   db.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') start(); });
 }
@@ -509,17 +498,17 @@ async function start() {
   }
   const acct = accounts[0];
   $('bizName').textContent = acct.business_name;
-  $('planName').textContent = acct.mk_plans?.name ?? acct.plan_id;
+  $('planName').textContent = `${acct.mk_plans?.name ?? acct.plan_id} plan`;
 
   const { data: sites } = await db.from('mk_sites').select('*').eq('account_id', acct.id);
   const site = sites?.[0];
-  $('bizSite').textContent = site
-    ? `Your website · ${site.domain} · ${site.is_live ? 'live' : 'not live yet'}`
-    : 'No site linked yet';
+  $('bizSite').textContent = site ? `${site.domain} · ${site.is_live ? 'live' : 'not live yet'}` : 'No site linked yet';
+  $('liveDot').classList.toggle('off', !site?.is_live);
+  if (site) showPhoto(site);
 
   // Whole days in UTC, because that is how mk_site_daily groups them. Every
   // date on this page is printed in UTC too, so the bar marked Nov 26 holds
-  // Nov 26's rows. Printed in local time it read a day early in the US.
+  // Nov 26's rows.
   const days = lastDays(DAYS);
   const since = days[0] + 'T00:00:00Z';
   const before = new Date(Date.parse(since) - DAYS * DAY_MS).toISOString();
@@ -550,145 +539,118 @@ async function start() {
   renderLocked(acct.mk_plans?.features ?? []);
   $('editForm').dataset.account = acct.id;
   if (site) renderDetails(site, settings.data);
+  watchSections();
 }
 
-/* ---------------- numbers ---------------- */
+// The owner's own photo behind their numbers: the first photo of their
+// website, which the build saves as og.webp. Until the site is rebuilt, or
+// if it cannot load, the drawn glow behind it stays.
+function showPhoto(site) {
+  const img = $('backdropImg');
+  img.onload = () => { img.hidden = false; };
+  img.onerror = () => { img.hidden = true; };
+  img.src = site.photo_url || `https://${site.domain}/og.webp`;
+}
+
+/* ---------------- the number ---------------- */
 function renderNumbers(leads, prevLeads, cur, prev) {
-  $('heroNum').innerHTML =
-    `<b class="n">${fmtN(leads)}</b>
-     <span class="hero-k"><span class="k">${leads === 1 ? 'enquiry' : 'enquiries'}</span>${countChange(leads, prevLeads)}</span>`;
+  $('heroNum').textContent = fmtN(leads);
+  $('heroWhat').innerHTML = `${leads === 1 ? 'Enquiry' : 'Enquiries'} <span class="dim">from the form</span>`;
+
+  // Like a progress bar towards a reward: how this month stands against the
+  // month before. Full when it has caught up; the text says by how much.
+  if (prevLeads != null) {
+    const d = leads - prevLeads;
+    $('compare').hidden = false;
+    $('compareFill').style.width = `${Math.min(100, (leads / Math.max(prevLeads, 1)) * 100)}%`;
+    $('compareText').textContent = d === 0 ? 'Same as the 30 days before'
+      : d > 0 ? `${fmtN(d)} more than the 30 days before`
+      : `${fmtN(-d)} to match the 30 days before`;
+  }
 
   // A site that links out to a booking page reports booking clicks. For one
   // that does not, the third number is page views.
   const booked = sum(cur, 'book_clicks') + sum(prev, 'book_clicks') > 0;
-  const facts = [
-    ['visits', 'visitors'],
-    ['call taps', 'call_taps'],
-    booked ? ['booking clicks', 'book_clicks'] : ['page views', 'views'],
-  ];
+  const facts = [['visits', 'visitors'], ['call taps', 'call_taps'], booked ? ['booking clicks', 'book_clicks'] : ['page views', 'views']];
   $('facts').innerHTML = facts.map(([label, key]) => {
     const n = sum(cur, key), p = prev.length ? sum(prev, key) : null;
-    return `<div class="fact"><b>${fmtN(n)}</b><span class="k">${label}</span>${pctChange(n, p)}</div>`;
+    return `<div class="fact"><b>${fmtN(n)}</b><span>${label}</span>${change(n, p)}</div>`;
   }).join('');
-
   $('factsNote').textContent =
     'Visits count each person once a day, so someone who comes back on three days is three visits. ' +
     (booked ? 'Booking clicks are taps on your booking link, not finished bookings. ' : '') +
     'Changes compare with the 30 days before.';
 }
 
-// Enquiries are small whole numbers, so the change is said in words.
-function countChange(n, p) {
-  if (p == null) return '';
-  const d = n - p;
-  const text = d === 0 ? 'same as the 30 days before'
-    : `${fmtN(Math.abs(d))} ${d > 0 ? 'more' : 'fewer'} than the 30 days before`;
-  return `<span class="delta ${d > 0 ? 'up' : ''}">${text}</span>`;
-}
-
 // A percentage of a small number exaggerates, so below 20 it is a count.
-function pctChange(n, p) {
+function change(n, p) {
   if (p == null) return '';
-  const d = n - p;
-  const sign = d > 0 ? '+' : '−';
-  const text = d === 0 ? 'same'
-    : p < 20 ? `${sign}${fmtN(Math.abs(d))}`
-    : `${sign}${Math.round((Math.abs(d) / p) * 100)}%`;
-  return `<span class="delta ${d > 0 ? 'up' : ''}">${text}</span>`;
+  const d = n - p, sign = d > 0 ? '+' : '−';
+  const text = d === 0 ? 'same' : p < 20 ? `${sign}${fmtN(Math.abs(d))}` : `${sign}${Math.round((Math.abs(d) / p) * 100)}%`;
+  return `<em class="${d > 0 ? 'up' : ''}">${text}</em>`;
 }
 
 /* ---------------- enquiries ---------------- */
+const ICON = (n) => `<i class="ic ic-${n}"></i>`;
 const phoneOf = (l) => l.phone || (l.contact && !String(l.contact).includes('@') ? l.contact : '');
 const emailOf = (l) => l.email || (l.contact && String(l.contact).includes('@') ? l.contact : '');
 const placeOf = (l) => [l.address, l.city, l.zip].filter(Boolean).join(', ');
 const mapLink = (q) => 'https://maps.google.com/?q=' + encodeURIComponent(q);
+const initials = (name) => String(name).trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
 
 function renderLeads(leads, total) {
+  const count = $('leadCount');
+  count.hidden = !total; count.textContent = fmtN(total);
   if (!leads.length) {
     $('leads').innerHTML = '<p class="empty">No enquiries yet in this period. They will appear here the moment someone uses the form.</p>';
     $('leadsNote').hidden = true;
+    setCallNext(null);
     return;
   }
   $('leadsNote').hidden = !leads.some((l) => l.road_miles != null);
-  $('leads').innerHTML =
-    `<div class="lead-cards">${leads.map(leadCard).join('')}</div>
-     <div class="scroll-x lead-table"><table><thead><tr><th>Who</th><th>Where</th><th>Wanted</th><th>How far</th><th>When</th><th>Came in</th></tr></thead><tbody>${
-       leads.map(leadRow).join('')
-     }</tbody></table></div>` +
+  $('leads').innerHTML = `<div class="leads" id="leadRail">${leads.map(leadCard).join('')}</div>` +
+    (leads.length > 3 ? `<button class="pill glass more" type="button" id="leadMode">Show them as a list</button>` : '') +
     (total > leads.length ? `<p class="fine">Showing the ${leads.length} newest of ${fmtN(total)}.</p>` : '');
+  const mode = $('leadMode');
+  if (mode) mode.addEventListener('click', () => {
+    const list = $('leadRail').classList.toggle('list');
+    mode.textContent = list ? 'Show them in a row' : 'Show them as a list';
+  });
+  setCallNext(leads.find((l) => phoneOf(l)));
 }
 
-// On a phone: the name, a row of facts, what they said, and one Call button.
+// One enquiry: who, what and when, what they said, where, then one gold
+// button to call them back with the map and email beside it.
 function leadCard(l) {
   const phone = phoneOf(l), email = emailOf(l), place = placeOf(l);
   const tel = String(phone).replace(/[^0-9+]/g, '');
-  const facts = [];
+  const tags = [];
   if (l.road_miles != null) {
     const far = l.in_area === false;
-    const sub = far ? 'outside your area' : l.drive_minutes != null ? `about ${esc(l.drive_minutes)} min` : 'estimate';
-    facts.push(`<div><b class="${far ? 'bad' : ''}">${esc(l.road_miles)} mi</b><span>${sub}</span></div>`);
+    tags.push(`<span class="tag${far ? ' far' : ''}">${ICON('pin')}${esc(l.road_miles)} mi${far ? ', outside your area' : l.drive_minutes != null ? `, about ${esc(l.drive_minutes)} min` : ''}</span>`);
   }
-  // A word joiner each side of the dash keeps a time range such as
-  // "13:00–15:00" on one line; a phone is narrow enough to split it.
-  if (l.preferred) facts.push(`<div class="grow"><b>${esc(l.preferred).replace(/(\d{1,2}:\d{2})\s*[–-]\s*(?=\d{1,2}:\d{2})/g, '$1\u2060–\u2060')}</b><span>when they want it</span></div>`);
-  facts.push(`<div><b>${esc(ago(l.created_at))}</b><span>came in</span></div>`);
-
-  const call = tel
-    ? `<a class="call" href="tel:${esc(tel)}">${ICON.phone}<span class="long">Call ${esc(phone)}</span><span class="short">Call back</span></a>`
-    : '<span class="call off">No phone number given</span>';
+  if (l.preferred) tags.push(`<span class="tag">${ICON('clock')}${esc(l.preferred)}</span>`);
   return `<article class="lead">
-    <div class="lead-head"><h3>${esc(l.name)}</h3>${l.requested ? `<span class="pill">${esc(l.requested)}</span>` : ''}</div>
-    ${place ? `<p class="place">${esc(place)}</p>` : ''}
-    <div class="lead-facts">${facts.join('')}</div>
+    <header><span class="avatar" aria-hidden="true">${esc(initials(l.name))}</span>
+      <div><h3>${esc(l.name)}</h3><p>${[l.requested, ago(l.created_at)].filter(Boolean).map(esc).join(' · ')}</p></div></header>
     ${l.message ? `<p class="msg">${esc(l.message)}</p>` : ''}
-    <div class="action-row">
-      ${call}
-      ${place ? `<a class="circ" href="${esc(mapLink(place))}" target="_blank" rel="noopener" aria-label="Open ${esc(place)} in maps">${ICON.pin}</a>` : ''}
-      ${email ? `<a class="circ" href="mailto:${esc(email)}" aria-label="Email ${esc(email)}">${ICON.mail}</a>` : ''}
+    ${place ? `<div class="tags"><span class="tag">${ICON('home')}${esc(place)}</span></div>` : ''}
+    ${tags.length ? `<div class="tags">${tags.join('')}</div>` : ''}
+    <div class="actions">
+      ${tel ? `<a class="pill gold" href="tel:${esc(tel)}">${ICON('phone')}<span>Call ${esc(phone)}</span></a>` : '<span class="pill off">No phone number given</span>'}
+      ${place ? `<a class="circle" href="${esc(mapLink(place))}" target="_blank" rel="noopener" aria-label="Open ${esc(place)} in maps">${ICON('pin')}</a>` : ''}
+      ${email ? `<a class="circle" href="mailto:${esc(email)}" aria-label="Email ${esc(email)}">${ICON('mail')}</a>` : ''}
     </div>
   </article>`;
 }
 
-// On a desk: one row each, every column lined up for scanning.
-function leadRow(l) {
-  return `<tr>
-    <td><b>${esc(l.name)}</b>${contactLines(l)}</td>
-    <td>${placeCell(l)}</td>
-    <td>${l.requested ? '<span class="pill">' + esc(l.requested) + '</span>' : '—'}${
-      l.message ? '<br><span class="when note-line">' + esc(l.message) + '</span>' : ''}</td>
-    <td>${distanceCell(l)}</td>
-    <td class="when">${esc(l.preferred || '—')}</td>
-    <td class="when">${new Date(l.created_at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</td>
-  </tr>`;
-}
-
-// The phone number is the point of a lead, so it is tappable.
-function contactLines(l) {
-  const phone = phoneOf(l), email = emailOf(l);
-  const out = [];
-  if (phone) out.push(`<a href="tel:${esc(String(phone).replace(/[^0-9+]/g, ''))}">${esc(phone)}</a>`);
-  if (email) out.push(`<a href="mailto:${esc(email)}">${esc(email)}</a>`);
-  return out.length ? '<br><span class="when">' + out.join('<br>') + '</span>' : '';
-}
-
-// Where the job is. The address opens in whatever map app the owner uses.
-function placeCell(l) {
-  if (!l.address && !l.zip) return '<span class="when">—</span>';
-  const below = [l.city, l.zip].filter(Boolean).join(' ');
-  return l.address
-    ? `<a href="${esc(mapLink(placeOf(l)))}" target="_blank" rel="noopener">${esc(l.address)}</a>` +
-      (below ? `<br><span class="when">${esc(below)}</span>` : '')
-    : `<span class="when">${esc(below)}</span>`;
-}
-
-// How far the job is, as it stood when they asked. An estimate: a straight
-// line adjusted for roads, not a routed drive time. The note under the list
-// says so, and the minutes say "about".
-function distanceCell(l) {
-  if (l.road_miles == null) return '<span class="when">—</span>';
-  const far = l.in_area === false;
-  return `<span class="${far ? 'pill far' : 'pill'}">${esc(l.road_miles)} mi</span>` +
-         `<br><span class="when">${far ? 'outside your area' : l.drive_minutes != null ? 'about ' + esc(l.drive_minutes) + ' min' : 'estimate'}</span>`;
+// The gold circle at the thumb calls the newest enquiry that left a number.
+function setCallNext(l) {
+  const fab = $('callNext');
+  if (!l) { fab.hidden = true; return; }
+  fab.hidden = false;
+  fab.href = 'tel:' + String(phoneOf(l)).replace(/[^0-9+]/g, '');
+  fab.setAttribute('aria-label', `Call ${l.name}, your newest enquiry`);
 }
 
 function ago(iso) {
@@ -701,88 +663,63 @@ function ago(iso) {
   return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 }
 
-/* ---------------- chart ---------------- */
+/* ---------------- visits ---------------- */
 let chart = null;
 
 function renderChart(days, cur) {
   const byDay = new Map(cur.map((d) => [String(d.day).slice(0, 10), d]));
   chart = days.map((date) => ({ date, visits: Number(byDay.get(date)?.visitors || 0) }));
-  $('chartHint').textContent = matchMedia('(hover: hover)').matches
-    ? 'hover a bar for the exact figure' : 'tap a bar for the exact figure';
-  $('chartRows').innerHTML =
-    `<table><thead><tr><th>Day</th><th>Visits</th></tr></thead><tbody>${
-      chart.map((d) => `<tr><td class="when">${fmtDay(d.date, { weekday: 'short' })}</td><td>${fmtN(d.visits)}</td></tr>`).join('')
-    }</tbody></table>`;
+  $('chartHint').textContent = matchMedia('(hover: hover)').matches ? 'Hover a bar for the exact figure.' : 'Tap a bar for the exact figure.';
+  $('chartRows').innerHTML = `<table><thead><tr><th>Day</th><th>Visits</th></tr></thead><tbody>${
+    chart.map((d) => `<tr><td>${fmtDay(d.date, { weekday: 'short' })}</td><td>${fmtN(d.visits)}</td></tr>`).join('')}</tbody></table>`;
   $('chartSvg').dataset.w = '';
   drawChart();
 }
 
-// One series, so one hue and no legend: the heading names it. Drawn at the
-// width it is shown at, so the labels stay 12px on a phone instead of
-// shrinking with the whole picture. Redrawn when that width changes.
+// Drawn at the width it is shown at, so labels stay 12px on a phone.
+// Today's bar carries the gold; the rest are quiet.
 function drawChart() {
   if (!chart) return;
   const box = $('chartSvg');
-  const W = Math.max(280, Math.round($('chartWrap').clientWidth));
+  const W = Math.max(260, Math.round($('chartWrap').clientWidth));
   if (box.dataset.w === String(W)) return;
   box.dataset.w = String(W);
   $('tip').classList.remove('on');
-
-  const H = W < 600 ? 180 : 240, padL = 36, padB = 28, padT = 8;
+  const H = W < 600 ? 170 : 220, padL = 30, padB = 26, padT = 6;
   const plotW = W - padL, plotH = H - padB - padT;
-  const step = plotW / chart.length;
-  const bw = Math.max(3, step - (step >= 12 ? 4 : 2));
+  const step = plotW / chart.length, bw = Math.max(3, step - (step >= 12 ? 4 : 2.5));
   const max = niceMax(Math.max(0, ...chart.map((d) => d.visits)));
   const y = (v) => padT + plotH - (v / max) * plotH;
-
-  const grid = [0, max / 2, max].map((t) =>
-    `<line class="grid-line" x1="${padL}" x2="${W}" y1="${y(t)}" y2="${y(t)}"></line>
+  const grid = [0, max / 2, max].map((t) => `<line class="grid-line" x1="${padL}" x2="${W}" y1="${y(t)}" y2="${y(t)}"></line>
      <text class="axis-txt" x="${padL - 8}" y="${y(t) + 4}" text-anchor="end">${fmtN(t)}</text>`).join('');
+  const last = chart.length - 1;
   const bars = chart.map((d, i) => {
     const h = d.visits === 0 ? 0 : Math.max(2, (d.visits / max) * plotH);
-    return `<rect class="bar" data-i="${i}" x="${padL + i * step + (step - bw) / 2}" y="${padT + plotH - h}" width="${bw}" height="${h}" rx="${Math.min(3, bw / 2)}"></rect>`;
+    return `<rect class="bar${i === last ? ' last' : ''}" data-i="${i}" x="${padL + i * step + (step - bw) / 2}" y="${padT + plotH - h}" width="${bw}" height="${h}" rx="${Math.min(3, bw / 2)}"></rect>`;
   }).join('');
-  // Hit areas cover the whole column, so a finger does not have to land on
-  // a 7px bar. Drawn after the bars so a hover is never swallowed by one.
-  const hits = chart.map((d, i) =>
-    `<rect class="bar-hit" data-i="${i}" x="${padL + i * step}" y="${padT}" width="${step}" height="${plotH}"></rect>`).join('');
-  const last = chart.length - 1, mid = Math.floor(last / 2);
+  const hits = chart.map((d, i) => `<rect class="bar-hit" data-i="${i}" x="${padL + i * step}" y="${padT}" width="${step}" height="${plotH}"></rect>`).join('');
+  const mid = Math.floor(last / 2);
   const marks = [[0, 'start', padL], [mid, 'middle', padL + mid * step + step / 2], [last, 'end', W]]
-    .map(([i, anchor, x]) => `<text class="axis-txt" x="${x}" y="${H - 8}" text-anchor="${anchor}">${fmtDay(chart[i].date)}</text>`).join('');
-
-  box.innerHTML =
-    `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img"
-          aria-label="Visits each day for the last ${chart.length} days. The same numbers are in the table below.">
-       ${grid}${bars}${hits}${marks}
-     </svg>`;
+    .map(([i, anchor, x]) => `<text class="axis-txt" x="${x}" y="${H - 6}" text-anchor="${anchor}">${fmtDay(chart[i].date)}</text>`).join('');
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Visits each day for the last ${chart.length} days. The same numbers are in the table below.">${grid}${bars}${hits}${marks}</svg>`;
 }
 
 function niceMax(v) {
   if (v <= 4) return 4;
-  for (let p = 1; ; p *= 10) {
-    for (const m of p === 1 ? [6, 8, 10] : [1.2, 1.6, 2, 3, 4, 5, 6, 8, 10]) {
-      const c = Math.round(m * p);
-      if (c >= v) return c;
-    }
-  }
+  for (let p = 1; ; p *= 10) for (const m of p === 1 ? [6, 8, 10] : [1.2, 1.6, 2, 3, 4, 5, 6, 8, 10]) { const c = Math.round(m * p); if (c >= v) return c; }
 }
 
 function wireChart() {
   const box = $('chartSvg'), tip = $('tip');
-  const clear = () => {
-    tip.classList.remove('on');
-    box.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on'));
-  };
+  const clear = () => { tip.classList.remove('on'); box.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on')); };
   const point = (e) => {
     const hit = e.target.closest?.('.bar-hit');
     if (!hit || !chart) { clear(); return; }
-    const i = +hit.dataset.i, d = chart[i];
-    const bar = box.querySelector(`.bar[data-i="${i}"]`);
+    const i = +hit.dataset.i, d = chart[i], bar = box.querySelector(`.bar[data-i="${i}"]`);
     box.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on'));
     bar?.classList.add('on');
     tip.innerHTML = `${fmtDay(d.date, { weekday: 'short' })} &middot; <b>${fmtN(d.visits)}</b> ${d.visits === 1 ? 'visit' : 'visits'}`;
-    const wrap = $('chartWrap').getBoundingClientRect(), r = hit.getBoundingClientRect();
-    const half = tip.offsetWidth / 2;
+    const wrap = $('chartWrap').getBoundingClientRect(), r = hit.getBoundingClientRect(), half = tip.offsetWidth / 2;
     tip.style.left = Math.min(Math.max(r.left + r.width / 2 - wrap.left, half), wrap.width - half) + 'px';
     tip.style.top = ((bar ?? hit).getBoundingClientRect().top - wrap.top) + 'px';
     tip.classList.add('on');
@@ -791,18 +728,39 @@ function wireChart() {
   box.addEventListener('pointerdown', point);
   // A finger lifting is not leaving: on touch the figure stays until the next tap.
   box.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') clear(); });
-  let t;
-  addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawChart, 120); });
+  let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawChart, 120); });
+}
+
+/* ---------------- the dock follows the page ---------------- */
+function wireDock() {
+  $('dock').addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-sec]');
+    if (!a) return;
+    e.preventDefault();
+    document.getElementById(a.dataset.sec)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  });
+}
+function watchSections() {
+  const links = [...document.querySelectorAll('.dock-bar a')];
+  const mark = (id) => links.forEach((a) => (a.dataset.sec === id ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
+  mark('overview');
+  if (!('IntersectionObserver' in window)) return;
+  const seen = new Map();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => seen.set(en.target.id, en.isIntersecting ? en.intersectionRatio : 0));
+    const ids = ['overview', 'enquiries', 'visits', 'changes'];
+    const best = ids.reduce((a, b) => ((seen.get(b) || 0) > (seen.get(a) || 0) ? b : a), ids[0]);
+    mark(best);
+  }, { threshold: [0, .2, .4, .6, .8, 1] });
+  ['overview', 'enquiries', 'visits', 'details', 'changes'].forEach((id) => { const el = $(id); if (el) io.observe(el); });
 }
 
 /* ---------------- change requests and plan ---------------- */
 function renderEdits(edits) {
-  $('editList').innerHTML = edits.length
-    ? `<ul class="edits">${edits.map((r) => `<li>
-        <p>${esc(r.body)}</p>
-        <p class="meta"><span class="pill">${r.scope === 'small' ? 'included' : 'quoted'}</span>${esc(r.status)} · sent ${fmtDate(r.created_at)}</p>
-      </li>`).join('')}</ul>`
-    : '';
+  $('editList').innerHTML = edits.length ? `<ul class="edits">${edits.map((r) => `<li>
+      <p>${esc(r.body)}</p>
+      <p class="meta"><span class="badge${r.scope === 'small' ? '' : ' quote'}">${r.scope === 'small' ? 'Included' : 'Quoted'}</span>${esc(r.status)} · sent ${fmtDate(r.created_at)}</p>
+    </li>`).join('')}</ul>` : '';
 }
 
 function wireEdits() {
@@ -833,17 +791,19 @@ let dirty = false, formButtonSeen = true, flashing = false;
 
 function setDirty(v) { dirty = v; syncSaveBar(); }
 function syncSaveBar() {
-  $('saveBar').hidden = !flashing && !(dirty && !formButtonSeen && !$('detailsCard').hidden);
+  const show = flashing || (dirty && !formButtonSeen && !$('details').hidden);
+  $('saveBar').hidden = !show;
+  $('dock').hidden = show;
 }
 
 function hourRow(label, value) {
   const row = document.createElement('div');
-  row.className = 'field-row';
+  row.className = 'hour';
   const a = document.createElement('input'); a.type = 'text'; a.placeholder = 'Monday'; a.value = label || '';
   const b = document.createElement('input'); b.type = 'text'; b.placeholder = '09:00 - 17:00'; b.value = value || '';
   a.setAttribute('aria-label', 'Day or label'); b.setAttribute('aria-label', 'Hours');
   const x = document.createElement('button');
-  x.type = 'button'; x.className = 'icon-btn'; x.textContent = '×';
+  x.type = 'button'; x.className = 'circle'; x.innerHTML = ICON('close');
   x.setAttribute('aria-label', 'Remove this line');
   x.addEventListener('click', () => { row.remove(); setDirty(true); });
   row.append(a, b, x);
@@ -851,7 +811,7 @@ function hourRow(label, value) {
 }
 
 function renderDetails(site, settings) {
-  $('detailsCard').hidden = false;
+  $('details').hidden = false;
   $('detailsForm').dataset.site = site.id;
   $('d-phone').value = settings?.phone ?? '';
   $('d-notice').value = settings?.notice ?? '';
@@ -869,8 +829,7 @@ function wireDetails() {
   $('addHour').addEventListener('click', () => { $('hoursRows').appendChild(hourRow('', '')); setDirty(true); });
   $('saveBarBtn').addEventListener('click', () => form.requestSubmit());
   if ('IntersectionObserver' in window) {
-    new IntersectionObserver(([e]) => { formButtonSeen = e.isIntersecting; syncSaveBar(); })
-      .observe($('detailsSave'));
+    new IntersectionObserver(([e]) => { formButtonSeen = e.isIntersecting; syncSaveBar(); }).observe($('detailsSave'));
   }
   addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
   form.addEventListener('submit', saveDetails);
@@ -878,8 +837,7 @@ function wireDetails() {
 
 async function saveDetails(e) {
   e.preventDefault();
-  const siteId = e.target.dataset.site;
-  const hours = [...$('hoursRows').querySelectorAll('.field-row')]
+  const hours = [...$('hoursRows').querySelectorAll('.hour')]
     .map((r) => [...r.querySelectorAll('input')].map((i) => i.value.trim()))
     .filter((pair) => pair[0] || pair[1]);
   const notice = $('d-notice').value.trim();
@@ -888,31 +846,17 @@ async function saveDetails(e) {
   // A banner with no end date is the one that gets left up for months. If
   // there is a notice there must be a date, and clearing the notice clears
   // the date with it.
-  if (notice && !until) {
-    $('noticeErr').hidden = false;
-    $('d-until').focus();
-    return;
-  }
+  if (notice && !until) { $('noticeErr').hidden = false; $('d-until').focus(); return; }
   $('noticeErr').hidden = true;
   $('detailsErr').hidden = true;
 
-  const row = {
-    site_id: siteId,
-    phone: $('d-phone').value.trim() || null,
-    hours,
-    notice: notice || null,
-    notice_until: notice ? until : null,
-  };
+  const row = { site_id: e.target.dataset.site, phone: $('d-phone').value.trim() || null, hours, notice: notice || null, notice_until: notice ? until : null };
   const buttons = [$('detailsSave'), $('saveBarBtn')];
   buttons.forEach((b) => { b.disabled = true; });
   const { error } = await db.from('mk_site_settings').upsert(row, { onConflict: 'site_id' });
   buttons.forEach((b) => { b.disabled = false; });
+  if (error) { $('detailsErr').hidden = false; $('saveBarText').textContent = 'That did not save. Try again.'; return; }
 
-  if (error) {
-    $('detailsErr').hidden = false;
-    $('saveBarText').textContent = 'That did not save. Try again.';
-    return;
-  }
   // Saved from the floating bar: confirm there, where the owner is looking.
   if (!$('saveBar').hidden) {
     flashing = true;
@@ -926,7 +870,6 @@ async function saveDetails(e) {
     }, 2500);
   }
   setDirty(false);
-  $('saveBarText').textContent = flashing ? 'Saved. Your website is updating.' : 'You have unsaved changes';
   $('detailsOk').hidden = false;
   setTimeout(() => { $('detailsOk').hidden = true; }, 4000);
 }
@@ -937,17 +880,11 @@ function lastDays(n) {
   for (let i = n - 1; i >= 0; i--) out.push(new Date(Date.now() - i * DAY_MS).toISOString().slice(0, 10));
   return out;
 }
-function fmtDay(d, opts = {}) {
-  return new Date(d + 'T00:00:00Z').toLocaleDateString(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC', ...opts });
-}
-function fmtDate(iso) {
-  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-}
+function fmtDay(d, opts = {}) { return new Date(d + 'T00:00:00Z').toLocaleDateString(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC', ...opts }); }
+function fmtDate(iso) { return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }); }
 function fmtN(n) { return Number(n).toLocaleString(); }
 function sum(rows, k) { return rows.reduce((t, r) => t + (Number(r[k]) || 0), 0); }
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-}
+function esc(s) { return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 </script>
 </body>
 </html>

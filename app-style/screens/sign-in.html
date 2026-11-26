@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign In Study</title>
+<!-- The sign-in screen from nuhushaik's "the sign-in page AI gives you"
+     video, after the fixes: real artwork instead of a gradient, Apple and
+     Google first, email as a button, no container, no cheesy copy, the legal
+     links at the bottom, and a badge for the last method used. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../app-style.css">
+<link rel="stylesheet" href="../app-icons.css">
+<style>
+  body { margin: 0; }
+  .si { --page: #0e0e0e; background: #0e0e0e; }
+  /* The artwork: a planet's edge at sunrise, drawn rather than downloaded. */
+  .si-sky { position: absolute; inset: 0 0 auto 0; height: 560px; overflow: hidden;
+    background:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,.7), transparent), radial-gradient(1px 1px at 34% 9%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 58% 22%, rgba(255,255,255,.6), transparent), radial-gradient(1px 1px at 81% 13%, rgba(255,255,255,.55), transparent),
+      radial-gradient(1px 1px at 91% 31%, rgba(255,255,255,.4), transparent), radial-gradient(1px 1px at 7% 37%, rgba(255,255,255,.4), transparent),
+      radial-gradient(1px 1px at 46% 34%, rgba(255,255,255,.35), transparent), radial-gradient(1px 1px at 69% 40%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1.5px 1.5px at 24% 28%, rgba(255,255,255,.55), transparent), radial-gradient(1px 1px at 76% 27%, rgba(255,255,255,.45), transparent),
+      #0b0b0c; }
+  .si-glow { position: absolute; left: 290px; top: 267px; width: 0; height: 0; }
+  .si-glow::before { content: ""; position: absolute; left: -300px; top: -120px; width: 600px; height: 220px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(255, 226, 180, .3), rgba(255, 200, 140, .1) 55%, transparent); }
+  .si-glow::after { content: ""; position: absolute; left: -230px; top: -1px; width: 460px; height: 2px;
+    background: linear-gradient(to right, transparent, rgba(255, 236, 205, .5) 40%, #fff 50%, rgba(255, 236, 205, .5) 60%, transparent); filter: blur(.4px); }
+  .si-planet { position: absolute; left: -330px; top: 265px; width: 1100px; height: 1100px; border-radius: 50%;
+    background: radial-gradient(farthest-side at 56% 0%, #43382c 0%, #2c251e 4%, #1b1714 10%, #121110 17%, #0e0e0e 26%);
+    box-shadow: 0 -1px 0 rgba(255, 236, 210, .55), 0 -6px 18px rgba(255, 215, 170, .18), inset 0 1.5px 1px rgba(255, 238, 215, .55), inset 0 10px 30px rgba(255, 210, 160, .1); }
+  .si-flare { position: absolute; left: 284px; top: 261px; width: 12px; height: 12px; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 10px 4px rgba(255, 245, 225, .9), 0 0 40px 14px rgba(255, 220, 170, .35); }
+  .si-logo { position: absolute; left: 0; right: 0; top: 478px; display: flex; align-items: center; justify-content: center; gap: 16px;
+    font-size: 32.5px; font-weight: 600; letter-spacing: -0.01em; }
+  .si-mark { position: relative; width: 25px; height: 25px; margin-top: 5px; border: 3.6px solid #fff; border-radius: 50%; }
+  .si-mark::after { content: ""; position: absolute; right: -9px; top: -10px; width: 7px; height: 7px; border-radius: 50%; background: #fff; }
+  .si-btns { position: absolute; left: 24px; right: 23px; top: 582px; display: grid; gap: 12.5px; }
+  .si-btns .pill { height: 50.5px; font-size: 17px; font-weight: 500; gap: 11px; position: relative; }
+  .si-btns .pill.light .ic { --ic: 22px; color: #000; }
+  .si-btns .pill.dark { background: rgba(255, 255, 255, .13); }
+  .si-last { position: absolute; right: 19px; top: -7px; height: 17px; padding: 0 8px; border-radius: 999px; display: grid; place-items: center;
+    background: #2b2b2b; color: #f0f0f0; font-size: 11.6px; font-weight: 500; }
+  .si-legal { position: absolute; left: 0; right: 0; top: 782px; display: flex; justify-content: center; gap: 24px; }
+  .si-legal a { font-size: 14.4px; color: #8a8a8a; }
+</style>
+</head>
+<body>
+<div class="ui ui-dark ui-phone si">
+  <div class="si-sky"></div>
+  <div class="si-glow"></div>
+  <div class="si-planet"></div>
+  <div class="si-flare"></div>
+  <div class="ui-status"><span>9:41</span><span class="ui-status-icons"><i class="ic ic-signal"></i><i class="ic ic-wifi"></i><i class="ic ic-battery"></i></span></div>
+  <div class="ui-island"></div>
+
+  <p class="si-logo"><span class="si-mark"></span>halo</p>
+
+  <div class="si-btns">
+    <button class="pill light"><i class="ic ic-apple"></i>Continue with Apple</button>
+    <button class="pill light">
+      <svg width="21" height="21" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23 12.3c0-.8-.1-1.6-.2-2.3H12v4.4h6.2a5.3 5.3 0 0 1-2.3 3.5v2.9h3.7c2.2-2 3.4-5 3.4-8.5z"/><path fill="#34A853" d="M12 23.5c3.1 0 5.7-1 7.6-2.8l-3.7-2.9c-1 .7-2.3 1.1-3.9 1.1-3 0-5.5-2-6.4-4.7H1.8v3A11.5 11.5 0 0 0 12 23.5z"/><path fill="#FBBC05" d="M5.6 14.2a6.9 6.9 0 0 1 0-4.4v-3H1.8a11.5 11.5 0 0 0 0 10.4z"/><path fill="#EA4335" d="M12 5.1c1.7 0 3.2.6 4.4 1.7l3.3-3.3A11.5 11.5 0 0 0 1.8 6.8l3.8 3C6.5 7.1 9 5.1 12 5.1z"/></svg>
+      Continue with Google<span class="si-last">Last used</span>
+    </button>
+    <button class="pill dark">Continue with email</button>
+  </div>
+  <nav class="si-legal"><a>Privacy policy</a><a>Terms of service</a></nav>
+  <div class="ui-home-bar"></div>
+</div>
+</body>
+</html>

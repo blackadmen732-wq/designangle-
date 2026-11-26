@@ -322,6 +322,11 @@ function build(name) {
   for (const f of ['site.css', 'site.js']) fs.copyFileSync(path.join(TEMPLATE, f), path.join(out, f));
   if (site.track) fs.copyFileSync(path.join(TEMPLATE, 'track.js'), path.join(out, 'track.js'));
   fs.cpSync(path.join(SITES, name, 'img'), path.join(out, 'img'), { recursive: true });
+  // The first hero photo again, at a path that never changes. The owner
+  // panel shows it behind the owner's numbers, so their panel carries their
+  // own business rather than a stock gradient.
+  const first = site.hero.slides[0].img;
+  if (path.extname(first) === '.webp') fs.copyFileSync(path.join(SITES, name, 'img', first), path.join(out, 'og.webp'));
   console.log(`Built dist/${name}/  (${site.name})`);
 }
 

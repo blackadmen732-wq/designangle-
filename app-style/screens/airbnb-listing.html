@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Airbnb Listing Study</title>
+<!-- A study of the Airbnb listing redesign by uidesignmahsa, rebuilt from
+     measured frames. Brand names belong to their owners; the photos are the
+     kit's own free-licence stock. Not for shipping. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../app-style.css">
+<link rel="stylesheet" href="../app-icons.css">
+<style>
+  body { margin: 0; }
+  /* Warm, not grey: every fill is white with a little warmth over a warm page. */
+  .ab { --page: #121313; --warm: rgba(255, 240, 222, .09); --ink-3: #a39f9b; }
+  .ab .hero::after { background: linear-gradient(to top, #121313 0%, rgba(18, 19, 19, .86) 22%, rgba(18, 19, 19, .3) 44%, transparent 62%); }
+  .ab .heart { color: #eb2a49; }
+  .ab-thumbs { position: absolute; right: 16.5px; top: 335px; display: flex; gap: 7px; }
+  .ab-thumbs img, .ab-thumbs span { width: 45px; height: 45px; border-radius: 14px; object-fit: cover; border: 2px solid rgba(255, 255, 255, .9); }
+  .ab-thumbs span { display: grid; place-items: center; border: 0; width: 43px; background: rgba(40, 32, 26, .72);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); font-size: 14px; font-weight: 500; }
+  .ab-title { font-size: 29.5px; font-weight: 400; line-height: 34px; letter-spacing: -0.01em; color: #fcf9f4; }
+  .ab-title span { color: #99948f; }
+  .ab-where { font-size: 15.5px; color: var(--ink-3); }
+  .ab .tag.lg { background: var(--warm); color: #e8e4de; font-weight: 400; font-size: 14.5px; }
+  .ab-rate { position: absolute; left: 17px; right: 17px; top: 574px; height: 92px; padding: 22px 22px 0 17px; border-radius: 32px; background: var(--warm);
+    display: grid; grid-template-columns: auto 1fr auto; gap: 0 26px; }
+  .ab-rate .big { font-size: 31.5px; font-weight: 400; line-height: 1.1; letter-spacing: -0.01em; }
+  .ab-rate .stars { display: flex; gap: 1.5px; margin-top: 3px; color: #e79335; }
+  .ab-rate .stars .ic { --ic: 10.5px; }
+  .ab-rate .fav b { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 16px; font-weight: 500; }
+  .ab-rate .fav .ic { --ic: 19px; color: #e8a33a; }
+  .ab-rate .fav span, .ab-rate .rev span { display: block; margin-top: 4px; font-size: 13.2px; color: var(--ink-3); }
+  .ab-rate .rev { text-align: center; padding-top: 5px; }
+  .ab-rate .rev b { font-size: 22px; font-weight: 400; }
+  .ab-host { position: absolute; left: 17px; right: 17px; top: 675px; height: 64px; padding: 0 20px 0 8px; border-radius: 32px; background: var(--warm);
+    display: flex; align-items: center; gap: 12px; }
+  .ab-host .avatar { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; flex: none;
+    background: radial-gradient(circle at 35% 30%, #c79a77, #7c5638); font-size: 19px; font-weight: 500; color: #fff3e8; }
+  .ab-host b { display: block; font-size: 16px; font-weight: 500; }
+  .ab-host span { display: block; margin-top: 2px; font-size: 14px; color: var(--ink-3); }
+  .ab-host .ic { margin-left: auto; --ic: 20px; color: var(--ink-3); }
+  .ab .pill.light { justify-content: flex-start; padding-left: 20px; gap: 14px; font-size: 16px; font-weight: 500; }
+  .ab .pill.light .sub { font-size: 13.2px; font-weight: 400; color: #737373; }
+  .ab .circle.lg { background: rgba(255, 245, 235, .1); }
+</style>
+</head>
+<body>
+<div class="ui ui-dark ui-phone ab">
+  <div class="hero" style="position:absolute; top:0; left:0; right:0; height:575px"><img src="../../sites/hvac/img/room-warm.webp" alt="" style="object-position:40% 50%; filter:brightness(.66) sepia(.18) saturate(1.05)"></div>
+  <div class="ui-status"><span>9:41</span><span class="ui-status-icons"><i class="ic ic-signal"></i><i class="ic ic-wifi"></i><i class="ic ic-battery"></i></span></div>
+  <div class="ui-island"></div>
+  <div class="topbar">
+    <button class="circle" aria-label="Back"><i class="ic ic-arrow-left"></i></button>
+    <div class="end"><button class="circle" aria-label="Share"><i class="ic ic-share"></i></button><button class="circle heart" aria-label="Saved"><i class="ic ic-heart-fill"></i></button></div>
+  </div>
+
+  <div class="ab-thumbs">
+    <img src="../../sites/hvac/img/room-light.webp" alt=""><img src="../../sites/hvac/img/room-blue.webp" alt=""><img src="../../sites/hvac/img/room-chair.webp" alt="">
+    <span>+15</span>
+  </div>
+
+  <h1 class="ab-title" style="position:absolute; left:17px; top:407.7px">Sunny Silicon Valley<br><span>Crashpad and Workspace</span></h1>
+  <p class="ab-where" style="position:absolute; left:17px; top:486.6px">Room in San Carlos, California</p>
+  <div class="tags" style="position:absolute; left:17px; top:521.5px; gap:8.5px">
+    <span class="tag lg"><i class="ic ic-bed"></i>1 queen bed</span><span class="tag lg"><i class="ic ic-shower"></i>Shared bathroom</span>
+  </div>
+
+  <div class="ab-rate">
+    <div><p class="big">4.93</p><p class="stars"><i class="ic ic-star"></i><i class="ic ic-star"></i><i class="ic ic-star"></i><i class="ic ic-star"></i><i class="ic ic-star"></i></p></div>
+    <div class="fav"><b><i class="ic ic-medal"></i>Guest favorite</b><span>Top 10% of homes</span></div>
+    <div class="rev"><b>184</b><span>Reviews</span></div>
+  </div>
+
+  <a class="ab-host"><span class="avatar">E</span><div><b>Stay with Eric</b><span>Superhost, 11 years hosting</span></div><i class="ic ic-chev-right"></i></a>
+
+  <div class="thumb-fade"></div>
+  <div class="thumb-cta" style="left:16.5px; right:16.5px; bottom:30px">
+    <button class="pill light">Check availability <span class="sub">Add dates for prices</span></button>
+    <button class="circle lg" aria-label="Choose dates"><i class="ic ic-calendar"></i></button>
+  </div>
+  <div class="ui-home-bar"></div>
+</div>
+</body>
+</html>

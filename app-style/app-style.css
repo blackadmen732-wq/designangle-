@@ -1,0 +1,298 @@
+/* =========================================================================
+   App style: the look of the app redesigns, as a system.
+
+   Measured frame by frame from six screen recordings: the Netflix, Uber
+   Eats, Google Maps, Airbnb and Starbucks redesigns by uidesignmahsa, and
+   the sign-in redesign by nuhushaik. Every number here was read off those
+   frames, cropped to the phone screen and scaled to iOS points. With the
+   viewport at 393 wide (an iPhone 15 or 16), 1 CSS px is 1 pt.
+
+   Two grounds, one vocabulary:
+     .ui-dark    the cinema ground: Netflix, Maps, Airbnb, Starbucks, sign-in
+     .ui-light   the market ground: Uber Eats
+   Each screen sets one --accent and spends it once or twice.
+
+   What makes it this style and not a template:
+     - headings in two tones: the same size and weight, the second half grey
+     - big type in regular or light weights, never bold; one huge thin number
+     - one white pill at 56pt with circles of the same height beside it
+     - 44pt translucent circles floating over a full-bleed photo
+     - the photo fades into the page; cards are lighter than the page, no borders
+     - the main action floats at the bottom, at the thumb
+   ========================================================================= */
+
+.ui {
+  /* Inter, with its display optical size, everywhere; SF Pro on Apple devices
+     (below), which is what the redesigns were drawn in. Never put
+     -apple-system first unconditionally: Chromium reads it as "system UI"
+     on every platform and gives Segoe or Roboto instead of Inter. */
+  --font: Inter, system-ui, sans-serif;
+  --gutter: 16px;
+  --tap: 44px;              /* top-bar circles */
+  --control: 56px;          /* the primary pill and the circles beside it */
+  --control-sm: 52px;
+  --chip: 40px;
+  --tag: 24px;
+  --r-card: 24px;
+  --r-card-xl: 32px;        /* rating cards and host rows: nearly a capsule */
+  --r-tile: 18px;
+  --r-media: 18px;
+  --ease: cubic-bezier(.33, 1, .68, 1);
+  font-family: var(--font);
+  /* The display cut at every size, as the designs were drawn (SF Pro Display
+     in Figma). Inter's text cut is about 5% wider below 32pt and stops the
+     widths matching. */
+  font-optical-sizing: none;
+  font-variation-settings: "opsz" 32;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--ink);
+  background: var(--page);
+  font-size: 16px;
+  line-height: 1.3;
+}
+/* Only WebKit understands this font keyword, and WebKit means an Apple
+   device (Safari, or any browser on iOS): there, use the real SF Pro. */
+@supports (font: -apple-system-body) {
+  .ui { --font: -apple-system, BlinkMacSystemFont, Inter, sans-serif; }
+}
+.ui *, .ui *::before, .ui *::after { box-sizing: border-box; }
+.ui :where(h1, h2, h3, h4, p, ul, ol, figure) { margin: 0; padding: 0; }
+.ui :where(button) { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+.ui :where(a) { color: inherit; text-decoration: none; }
+.ui :where(img) { display: block; max-width: 100%; }
+
+/* ---- grounds ----------------------------------------------------------- */
+.ui-dark {
+  --page: #090909;
+  --ink: #ffffff;
+  --ink-2: #c6c4c4;          /* body copy */
+  --ink-3: #959595;          /* labels, inactive tabs, the quiet half of a two-tone title */
+  --ink-on-pill-2: #707070;  /* secondary words inside a white pill (the recording's #838383 fails 4.5:1) */
+  --surface: rgba(255, 255, 255, .07);        /* cards: lighter than the page, never outlined */
+  --surface-solid: #1c1c1c;
+  --fill: rgba(255, 255, 255, .10);           /* tags, segmented tracks */
+  --fill-strong: rgba(255, 255, 255, .15);    /* circles */
+  --glass: rgba(40, 40, 40, .55);             /* circles over a photo */
+  --hair: rgba(255, 255, 255, .08);
+  --pill: #ffffff;
+  --on-pill: #060606;
+  --home-bar: #ffffff;
+  color-scheme: dark;
+}
+.ui-light {
+  --page: #f8f8f5;
+  --ink: #0c0e0b;
+  --ink-2: #686a67;          /* the quiet half of a two-tone title */
+  --ink-3: #6b6d6a;          /* labels; the recording's #888a87 fails 4.5:1 */
+  --ink-on-pill-2: #6b6d6a;
+  --surface: #ffffff;
+  --surface-solid: #ffffff;
+  --fill: #ebebe8;
+  --fill-strong: #efefec;
+  --glass: rgba(255, 255, 255, .78);
+  --hair: rgba(12, 14, 11, .07);
+  --pill: #131715;           /* selected chip, active tab in the bar */
+  --on-pill: #ffffff;
+  --shadow: 0 8px 24px rgba(40, 40, 20, .07), 0 1px 3px rgba(40, 40, 20, .06);
+  --home-bar: #0c0e0b;
+  color-scheme: light;
+}
+
+/* ---- the phone frame, for mockups and references only ----------------- */
+.ui-phone {
+  position: relative; width: 393px; height: 852px; overflow: hidden;
+  background: var(--page);
+}
+.ui-status {
+  position: absolute; z-index: 30; top: 0; left: 0; right: 0; height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 27px 0 25px; pointer-events: none;
+  font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--status, var(--ink));
+}
+.ui-status .ic-signal { --ic: 19px; }
+.ui-status .ic-wifi { --ic: 19px; margin-left: 3px; }
+.ui-status .ic-battery { --ic: 28px; margin-left: 3px; }
+.ui-status-icons { display: flex; align-items: center; }
+.ui-island {
+  position: absolute; z-index: 31; top: 11px; left: 50%; width: 97px; height: 30px;
+  transform: translateX(-50%); border-radius: 20px; background: #000;
+}
+.ui-home-bar {
+  position: absolute; z-index: 31; bottom: 8px; left: 50%; width: 134px; height: 5px;
+  transform: translateX(-50%); border-radius: 3px; background: var(--home-bar);
+}
+
+/* ---- type -------------------------------------------------------------- */
+/* Sizes are the ones measured, rounded to the half point. Weights stay at
+   400 or 500 for anything large: bold is for buttons and short labels. */
+.t-mega    { font-size: 132px; font-weight: 200; line-height: .9; letter-spacing: -0.03em; }
+.t-display { font-size: 44px; font-weight: 500; line-height: 1.05; letter-spacing: -0.02em; }
+.t-title   { font-size: 29px; font-weight: 400; line-height: 1.14; letter-spacing: -0.01em; }
+.t-title-2 { font-size: 22px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; }
+.t-head    { font-size: 17px; font-weight: 500; line-height: 1.3; }
+.t-body    { font-size: 15.5px; font-weight: 400; line-height: 1.38; }
+.t-sub     { font-size: 13px; font-weight: 400; line-height: 1.35; color: var(--ink-3); }
+.t-micro   { font-size: 11.5px; font-weight: 500; line-height: 1.2; }
+/* Two tones: the same size and weight, the second half in grey. */
+.dim { color: var(--ink-3); }
+.ui-dark .t-title .dim, .ui-dark .t-title-2 .dim, .ui-dark .t-display .dim { color: #9a9590; }
+.accent { color: var(--accent); }
+
+/* ---- layout ------------------------------------------------------------ */
+.pad { padding-inline: var(--gutter); }
+.row { display: flex; align-items: center; }
+.between { justify-content: space-between; }
+.grow { flex: 1; min-width: 0; }
+
+/* ---- the photo that runs behind everything ---------------------------- */
+.hero { position: relative; overflow: hidden; }
+.hero > img, .hero > .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* On the dark ground every photo is graded down, so white type and glass
+   circles hold over it. The recordings sit at about 70% brightness. */
+.ui-dark .hero > img { filter: brightness(.7) saturate(.92); }
+/* The fade is the readability: from the page colour at the bottom to
+   nothing, so text sits on solid ground without a box behind it. */
+.hero::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, var(--page) 0%, color-mix(in srgb, var(--page) 70%, transparent) 26%, transparent 58%);
+}
+.hero.fade-top::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--page) 85%, transparent) 0%, transparent 22%);
+}
+
+/* ---- circles: 44 at the top over a photo, 56 beside the main pill ------ */
+.circle {
+  width: var(--tap); height: var(--tap); flex: none; border-radius: 50%;
+  display: grid; place-items: center; color: var(--ink);
+  background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4);
+  transition: transform .18s var(--ease), background-color .18s ease-out;
+}
+.circle:active { transform: scale(.94); }
+.circle.lg { width: var(--control); height: var(--control); background: var(--fill-strong); }
+.circle.md { width: var(--control-sm); height: var(--control-sm); background: var(--fill-strong); }
+.circle.solid { background: var(--surface-solid); }
+.topbar {
+  position: absolute; z-index: 20; left: var(--gutter); right: var(--gutter); top: 57px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.topbar .end { display: flex; gap: 8px; }
+
+/* ---- the action row: one filled pill, circles of the same height ------- */
+.actions { display: flex; align-items: center; gap: 8px; }
+.pill {
+  flex: 1; min-width: 0; height: var(--control); border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--pill); color: var(--on-pill); font-size: 17px; font-weight: 600;
+  transition: transform .18s var(--ease), filter .18s ease-out;
+}
+.pill:active { transform: scale(.98); }
+.pill .sub { font-weight: 500; color: var(--ink-on-pill-2); }
+.pill.md { height: var(--control-sm); }
+.pill.brand { background: var(--accent); color: var(--on-accent, #fff); }
+.pill.dark { background: #262626; color: #fff; }
+.pill.light { background: #ffffff; color: #111111; }
+
+/* ---- tags: information, not controls, so they never look pressable ---- */
+.tags { display: flex; flex-wrap: wrap; gap: 7px; }
+.tag {
+  height: var(--tag); padding-inline: 9px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--fill); color: #c8c8c8; font-size: 13px; font-weight: 500; white-space: nowrap;
+}
+.ui-light .tag { color: var(--ink); }
+.tag .ic { --ic: 15px; }
+.tag.lg { height: 32px; padding-inline: 12px; font-size: 15px; gap: 7px; }
+.tag.lg .ic { --ic: 18px; }
+
+/* ---- chips: controls; the selected one inverts ------------------------- */
+.chips { display: flex; gap: 9px; overflow-x: auto; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none; height: var(--chip); padding-inline: 16px 18px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 9px;
+  background: var(--fill); color: var(--ink); font-size: 17px; font-weight: 500; white-space: nowrap;
+}
+.chip[aria-pressed="true"] { background: var(--pill); color: var(--on-pill); }
+.chip .ic { --ic: 21px; }
+.chip.sm { height: 34px; font-size: 13.5px; padding-inline: 12px 16px; gap: 7px; background: var(--fill); }
+.chip.sm .ic { --ic: 18px; }
+
+/* ---- cards ------------------------------------------------------------- */
+.card { border-radius: var(--r-card); background: var(--surface); }
+.ui-light .card { box-shadow: var(--shadow); }
+.card.xl { border-radius: var(--r-card-xl); }
+
+/* ---- tabs with one short underline in the accent (Netflix) ------------- */
+.tabs-line { position: relative; display: flex; gap: 24px; border-bottom: 1px solid var(--hair); padding-bottom: 12px; }
+.tabs-line a { font-size: 16px; font-weight: 500; color: var(--ink-3); white-space: nowrap; }
+.tabs-line a[aria-current] { color: var(--ink); position: relative; }
+.tabs-line a[aria-current]::after {
+  content: ""; position: absolute; left: -2px; bottom: -14px; width: 21px; height: 3px;
+  border-radius: 2px; background: var(--accent);
+}
+
+/* ---- segmented: a track with one white pill (Starbucks, Maps) --------- */
+.segmented {
+  display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px;
+  background: var(--fill); overflow-x: auto; scrollbar-width: none;
+}
+.segmented::-webkit-scrollbar { display: none; }
+.segmented a {
+  flex: 1 0 auto; height: 36px; padding-inline: 14px; border-radius: 999px;
+  display: grid; place-items: center; font-size: 15px; font-weight: 500; color: var(--ink-3); white-space: nowrap;
+}
+.segmented a[aria-current] { background: #ffffff; color: #111111; }
+
+/* ---- facts in a row: the number loud, the label quiet ------------------ */
+.stats { display: flex; gap: 24px; }
+.stats b { display: block; font-size: 17.5px; font-weight: 400; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.stats span { display: block; font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+
+/* ---- the floating bar: a pill, an active item, and a separate circle --- */
+.dock {
+  position: absolute; z-index: 25; left: 12px; right: 12px; bottom: 27px;
+  display: flex; align-items: center; gap: 16px;
+}
+.dock-bar {
+  flex: 1; height: 60px; border-radius: 999px; padding: 6px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
+}
+.ui-light .dock-bar { box-shadow: var(--shadow); }
+.dock-bar a { flex: 1; display: grid; place-items: center; color: var(--ink-3); }
+.dock-bar a[aria-current] {
+  flex: none; height: 47px; padding-inline: 16px 20px; border-radius: 999px;
+  display: flex; gap: 8px; align-items: center; background: var(--pill); color: var(--on-pill);
+  font-size: 16px; font-weight: 500;
+}
+.dock-fab {
+  width: 60px; height: 60px; flex: none; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: var(--on-accent, #fff);
+}
+.ui-light .dock-fab { box-shadow: 0 8px 20px rgba(0, 120, 70, .25); }
+.dock-fab .ic { --ic: 28px; }
+/* A labelled bar (Starbucks): icon over a small label in each slot. */
+.dock-bar.labelled { height: 63px; padding: 0 12px; }
+.dock-bar.labelled a { gap: 3px; font-size: 12px; }
+.dock-bar.labelled a .ic { --ic: 22px; }
+
+/* ---- the main action waiting at the thumb (Maps, Airbnb) -------------- */
+.thumb-cta {
+  position: absolute; z-index: 25; left: var(--gutter); right: var(--gutter); bottom: 30px;
+  display: flex; gap: 8px; align-items: center;
+}
+.thumb-fade {
+  position: absolute; z-index: 24; left: 0; right: 0; bottom: 0; height: 150px; pointer-events: none;
+  background: linear-gradient(to top, var(--page) 38%, transparent);
+}
+
+/* ---- rows that run off the edge: the cut card is the scroll cue ------- */
+.rail { display: flex; gap: 9px; overflow-x: auto; scrollbar-width: none; padding-inline: var(--gutter); scroll-padding-inline: var(--gutter); }
+.rail::-webkit-scrollbar { display: none; }
+.rail > * { flex: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui *, .ui *::before, .ui *::after { transition: none !important; animation: none !important; }
+}

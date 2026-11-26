@@ -17,6 +17,7 @@
  *     (24 x 24px on a desktop, where it is a mouse)      WCAG 2.5.8
  *   - a form field under 16px on a phone (iPhone zooms)  design skill 3
  *   - text closer than 20px to the side of the screen    DESIGN.md 4
+ *     (16px on app screens built with app-style)
  *   - with scripts off, a heading or paragraph is invisible   DESIGN.md 5
  *   - a script error
  * Warns (reported, never fails):
@@ -103,6 +104,9 @@ function audit({ phone }) {
 
   // 44px for a thumb (design skill, phone rules); 24px for a mouse (WCAG 2.5.8).
   const min = phone ? 44 : 24;
+  // Words keep a gutter: 20px on the kit's websites (DESIGN.md 4); 16px on
+  // app screens built with app-style (.ui), the iOS margin every redesign uses.
+  const gutter = document.querySelector('.ui') ? 16 : 20;
   const contrast = new Map(), small = new Map(), fields = new Map(), tiny = new Map(), weights = new Map(), edge = new Map();
   // Moving text (a marquee) crosses the edges on purpose.
   const moving = (el) => { for (let e = el; e; e = e.parentElement) if (e.getAnimations().length) return true; return false; };
@@ -131,8 +135,8 @@ function audit({ phone }) {
       const bleed = box.width >= innerWidth - 40;
       if (!offScreen && !bleed && !el.closest('pre') && !moving(el)) {
         const left = box.left, right = innerWidth - box.right;
-        if (left < 19.5) edge.set(name(el), `${Math.round(left)}px from the left edge`);
-        else if (right < 19.5 && !inScroller(el)) edge.set(name(el), `${Math.round(right)}px from the right edge`);
+        if (left < gutter - .5) edge.set(name(el), `${Math.round(left)}px from the left edge`);
+        else if (right < gutter - .5 && !inScroller(el)) edge.set(name(el), `${Math.round(right)}px from the right edge`);
       }
       if (!(el instanceof SVGElement)) {
         const family = cs.fontFamily.split(',')[0].replace(/["']/g, '').trim();
@@ -168,7 +172,7 @@ function audit({ phone }) {
   for (const [k, v] of contrast) fails.push(`contrast ${v}  ${k}`);
   for (const [k, v] of small) fails.push(`tap target ${v}, needs ${min}x${min}  ${k}`);
   for (const [k, v] of fields) fails.push(`form field text ${v}, needs 16px or iPhones zoom  ${k}`);
-  for (const [k, v] of edge) fails.push(`text ${v}, needs a 20px gutter  ${k}`);
+  for (const [k, v] of edge) fails.push(`text ${v}, needs a ${gutter}px gutter  ${k}`);
   for (const [k, v] of tiny) warns.push(`text ${v}  ${k}`);
   for (const [family, set] of weights) {
     if (set.size > 2) warns.push(`${set.size} weights of ${family} (${[...set].sort((a, b) => a - b).join(', ')}); DESIGN.md allows two`);

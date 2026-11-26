@@ -54,7 +54,8 @@ const leads = [
 const TABLES = {
   mk_accounts: [{ id: 'a1', business_name: 'Northwind Heating & Air', plan_id: 'starter',
     mk_plans: { name: 'Starter', features: ['inbox'] } }],
-  mk_sites: [{ id: 's1', account_id: 'a1', domain: 'northwind.example', is_live: true }],
+  // photo_url stands in for https://<domain>/og.webp, which a real site serves.
+  mk_sites: [{ id: 's1', account_id: 'a1', domain: 'northwind.example', is_live: true, photo_url: '../../sites/hvac/img/thermostat.webp' }],
   mk_site_daily: daily,
   mk_leads: leads,
   mk_edit_requests: [

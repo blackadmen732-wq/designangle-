@@ -75,6 +75,11 @@ icons = {
  'wifi':    '<path fill="black" d="M12 19.5 9.4 16.6a3.7 3.7 0 0 1 5.2 0zM6.6 13.8a7.7 7.7 0 0 1 10.8 0l-1.5 1.6a5.6 5.6 0 0 0-7.8 0zM3.8 11a11.8 11.8 0 0 1 16.4 0l-1.5 1.6a9.6 9.6 0 0 0-13.4 0z"/>',
  'logout':  f'<path {S} d="M14 4.5H6.5c-.6 0-1 .4-1 1v13c0 .6.4 1 1 1H14M10.5 12h10m0 0-3.5-3.5M20.5 12 17 15.5"/>',
  'inbox':   f'<path {S} d="M4 13.5 6.4 6a1.5 1.5 0 0 1 1.4-1h8.4a1.5 1.5 0 0 1 1.4 1l2.4 7.5V18a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18zM4 13.5h4.5l1.2 2.2h4.6l1.2-2.2H20"/>',
+ 'pause':   '<rect fill="black" x="6.5" y="4.5" width="3.6" height="15" rx="1.2"/><rect fill="black" x="13.9" y="4.5" width="3.6" height="15" rx="1.2"/>',
+ 'play-fill':'<path fill="black" d="M7.5 4.6v14.8c0 .8.9 1.3 1.6.9l11.3-7.4c.6-.4.6-1.3 0-1.7L9.1 3.7c-.7-.4-1.6.1-1.6.9z"/>',
+ 'grid':    f'<rect {S} x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect {S} x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect {S} x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect {S} x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/>',
+ 'library': f'<path {S} d="M5 4.5v15M9.5 4.5v15M14 5.3l4.6 14"/>',
+ 'headphones':f'<path {S} d="M4.5 14v-2a7.5 7.5 0 0 1 15 0v2M4.5 14h2.5v5.5H6a1.5 1.5 0 0 1-1.5-1.5zM19.5 14H17v5.5h1a1.5 1.5 0 0 0 1.5-1.5z"/>',
  'battery': '<rect x="1.5" y="7" width="19" height="10" rx="2.6" fill="none" stroke="black" stroke-opacity=".4" stroke-width="1"/><rect x="3" y="8.5" width="16" height="7" rx="1.5" fill="black"/><path d="M21.7 10.3v3.4c.6-.2 1-.9 1-1.7s-.4-1.5-1-1.7z" fill="black" fill-opacity=".45"/>',
 }
 out = ['/* Icons for app-style.css, drawn as CSS masks: an icon takes the colour of the',

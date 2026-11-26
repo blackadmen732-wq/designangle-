@@ -150,12 +150,6 @@ In short:
     leaves the row of buttons, becomes the only filled one, and floats at the
     bottom with a fade behind it. The page scrolls under it.
 
-**The recipe is chosen per brand, not by default.** The dark ground, the
-photo behind everything and the floating controls suit a dark brand like
-Netflix. Turned on a light brand they do damage: the Airbnb redesign goes
-dark and its one red, on its main button, disappears. Before going dark,
-ask whether the brand is dark. The kit's sites and the owner panel are light;
-they take the structure (9, 10, 11) and leave the dark ground behind.
 
 What is **not** in those screens: no animation library, no 3D, no mesh
 gradient, no glass beyond one backdrop blur. The work is choosing one bright
@@ -301,3 +295,4 @@ Use **400×860** for a phone and **1280×900** for desktop. Check both.
 - [ ] No item from the generated-design list above
 - [ ] Real content and real images, no placeholder anything
 - [ ] `node tools/check.js` passes, and you have opened the screenshots
+- [ ] `node tools/slop.js` names no bottleneck (app screens: see the app-style skill)

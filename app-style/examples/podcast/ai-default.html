@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Podcast App AI Default</title>
+<!-- DELIBERATELY BAD. The podcast home screen a generic AI tool produces
+     when asked for "a modern podcast app", built on purpose to prove that
+     tools/slop.js catches the tells. Never ship anything like it. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  body { margin: 0; font-family: Inter, sans-serif; color: #fff; min-height: 100vh;
+    background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 40%, #db2777 100%); }
+  .blob { position: fixed; width: 260px; height: 260px; border-radius: 50%; filter: blur(60px); background: rgba(236, 72, 153, .55); top: -60px; right: -80px; }
+  .blob.two { background: rgba(99, 102, 241, .6); top: 420px; left: -120px; }
+  .wrap { position: relative; padding: 22px 18px 90px; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .08em; padding: 5px 11px; border-radius: 999px; background: rgba(255,255,255,.18); }
+  h1 { font-size: 34px; line-height: 1.1; margin: 14px 0 10px; font-weight: 800;
+    background: linear-gradient(90deg, #fff, #f9a8d4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { font-size: 13px; line-height: 1.25; opacity: .85; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 9px; margin: 18px 0 22px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 42px; padding: 0 17px; border-radius: 13px; font-weight: 600; font-size: 14px; color: #fff; text-decoration: none; }
+  .btn.a { background: linear-gradient(90deg, #f472b6, #8b5cf6); }
+  .btn.b { border: 1.5px solid rgba(255,255,255,.6); }
+  .btn.c { background: rgba(255,255,255,.2); }
+  .card { padding: 15px; border-radius: 22px; margin-bottom: 13px; background: rgba(255,255,255,.14);
+    -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,.25); }
+  .card h3 { margin: 6px 0 4px; font-size: 17px; }
+  .card p { margin: 0; font-size: 13px; opacity: .8; line-height: 1.25; }
+  .row { display: flex; gap: 11px; align-items: center; }
+  .art { width: 58px; height: 58px; border-radius: 9px; display: grid; place-items: center; font-size: 30px; background: rgba(255,255,255,.2); }
+  .tags span { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-right: 5px; background: #fde047; color: #581c87; }
+  h2 { font-size: 20px; margin: 26px 0 12px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+  .grid .card { margin: 0; text-align: center; border-radius: 18px; }
+</style>
+</head>
+<body>
+<div class="blob"></div><div class="blob two"></div>
+<div class="wrap">
+  <span class="pill">✨ NEW: AI-POWERED RECOMMENDATIONS</span>
+  <h1>Unlock Your Next Favorite Podcast 🎧</h1>
+  <p class="lede">Discover amazing shows, seamlessly curated for you. Elevate your listening journey with cutting-edge recommendations that inspire every moment!</p>
+  <div class="ctas">
+    <a class="btn a" href="#">🚀 Start Listening</a>
+    <a class="btn b" href="#">Browse Categories</a>
+    <a class="btn c" href="#">Get Premium ✨</a>
+  </div>
+  <div class="card">
+    <div class="tags"><span>🔥 TRENDING</span><span>NEW</span><span>HOT</span></div>
+    <div class="row"><div class="art">🎙️</div><div><h3>The Daily Deep Dive</h3><p>Join us on an incredible journey as we explore the stories that shape our world, featuring amazing guests and stunning insights every single day!</p></div></div>
+  </div>
+  <div class="card">
+    <div class="tags"><span>⭐ TOP RATED</span><span>EXCLUSIVE</span></div>
+    <div class="row"><div class="art">🧠</div><div><h3>Mindset Mastery Unleashed</h3><p>Transform your life with game-changing strategies from world-class experts. Harness the power of your mind and skyrocket your success!</p></div></div>
+  </div>
+  <h2>🎯 Explore Categories</h2>
+  <div class="grid">
+    <div class="card"><div style="font-size:34px">💼</div><h3>Business</h3><p>Grow your empire</p></div>
+    <div class="card"><div style="font-size:34px">🧘</div><h3>Wellness</h3><p>Find your zen</p></div>
+    <div class="card"><div style="font-size:34px">🎭</div><h3>Comedy</h3><p>Laugh out loud</p></div>
+    <div class="card"><div style="font-size:34px">🔬</div><h3>Science</h3><p>Mind-blowing facts</p></div>
+  </div>
+</div>
+</body>
+</html>

@@ -175,7 +175,9 @@ function audit({ phone }) {
   for (const [k, v] of edge) fails.push(`text ${v}, needs a ${gutter}px gutter  ${k}`);
   for (const [k, v] of tiny) warns.push(`text ${v}  ${k}`);
   for (const [family, set] of weights) {
-    if (set.size > 2) warns.push(`${set.size} weights of ${family} (${[...set].sort((a, b) => a - b).join(', ')}); DESIGN.md allows two`);
+    // DESIGN.md allows two weights on the kit's websites; app-style uses four (200 for the one huge number, 400, 500, 600).
+    const allowed = document.querySelector('.ui') ? 4 : 2;
+    if (set.size > allowed) warns.push(`${set.size} weights of ${family} (${[...set].sort((a, b) => a - b).join(', ')}); ${allowed === 2 ? 'DESIGN.md allows two' : 'app-style uses four at most'}`);
   }
   return { fails, warns };
 }

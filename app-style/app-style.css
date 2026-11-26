@@ -61,6 +61,9 @@
 .ui :where(button) { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
 .ui :where(a) { color: inherit; text-decoration: none; }
 .ui :where(img) { display: block; max-width: 100%; }
+/* Keyboard focus: always visible, in the screen's accent. */
+.ui :focus-visible { outline: 3px solid var(--accent, var(--ink)); outline-offset: 2px; border-radius: 12px; }
+.ui :is(a, button, [role=button], summary) { cursor: pointer; }
 
 /* ---- grounds ----------------------------------------------------------- */
 .ui-dark {
@@ -165,10 +168,15 @@
 /* ---- circles: 44 at the top over a photo, 56 beside the main pill ------ */
 .circle {
   width: var(--tap); height: var(--tap); flex: none; border-radius: 50%;
-  display: grid; place-items: center; color: var(--ink);
-  background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4);
+  display: grid; place-items: center; color: var(--ink); background: var(--fill-strong);
   transition: transform .18s var(--ease), background-color .18s ease-out;
 }
+/* Glass only where a control floats over a photo: the top bar, or .glass.
+   Blur behind every circle is one of the tells (unslop 15). */
+.topbar .circle, .circle.glass {
+  background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4);
+}
+.circle:hover { filter: brightness(1.15); }
 .circle:active { transform: scale(.94); }
 .circle.lg { width: var(--control); height: var(--control); background: var(--fill-strong); }
 .circle.md { width: var(--control-sm); height: var(--control-sm); background: var(--fill-strong); }
@@ -183,7 +191,7 @@
 .actions { display: flex; align-items: center; gap: 8px; }
 .pill {
   flex: 1; min-width: 0; height: var(--control); border-radius: 999px;
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   background: var(--pill); color: var(--on-pill); font-size: 17px; font-weight: 600;
   transition: transform .18s var(--ease), filter .18s ease-out;
 }
@@ -195,9 +203,9 @@
 .pill.light { background: #ffffff; color: #111111; }
 
 /* ---- tags: information, not controls, so they never look pressable ---- */
-.tags { display: flex; flex-wrap: wrap; gap: 7px; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
 .tag {
-  height: var(--tag); padding-inline: 9px; border-radius: 999px;
+  height: var(--tag); padding-inline: 8px; border-radius: 999px;
   display: inline-flex; align-items: center; gap: 5px;
   background: var(--fill); color: #c8c8c8; font-size: 13px; font-weight: 500; white-space: nowrap;
 }
@@ -207,7 +215,7 @@
 .tag.lg .ic { --ic: 18px; }
 
 /* ---- chips: controls; the selected one inverts ------------------------- */
-.chips { display: flex; gap: 9px; overflow-x: auto; scrollbar-width: none; }
+.chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 .chips::-webkit-scrollbar { display: none; }
 .chip {
   flex: none; height: var(--chip); padding-inline: 16px 18px; border-radius: 999px;
@@ -288,8 +296,34 @@
   background: linear-gradient(to top, var(--page) 38%, transparent);
 }
 
+/* ---- section heads: a title, and one quiet action on the right -------- */
+.sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.sec-head h2 { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+.sec-head a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: flex-end; font-size: 15px; color: var(--ink-3); }
+.sec-head a:hover { color: var(--ink); }
+
+/* ---- cover art: a real image, square, with an optional name on it ------ */
+.cover { position: relative; display: block; flex: none; overflow: hidden; background: var(--surface-solid); }
+.cover img { width: 100%; height: 100%; object-fit: cover; }
+.cover > b { position: absolute; z-index: 1; left: 12px; right: 12px; bottom: 12px; font-size: 15px; font-weight: 600; line-height: 1.1; letter-spacing: -0.01em; color: #fff; }
+.cover:has(> b)::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0, 0, 0, .55), transparent 55%); }
+.cover.sm { width: 56px; height: 56px; border-radius: 12px; }
+.cover.md { width: 152px; height: 152px; border-radius: 16px; }
+.cover.lg { width: 164px; height: 164px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, .45); }
+
+/* ---- list rows: picture, two lines, one round action -------------------- */
+.list { display: grid; gap: 8px; }
+.list-row { display: flex; align-items: center; gap: 12px; padding: 8px; margin-inline: -8px; border-radius: 20px; transition: background-color .18s ease-out, transform .18s var(--ease); }
+.list-row:hover { background: rgba(255, 255, 255, .04); }
+.ui-light .list-row:hover { background: rgba(0, 0, 0, .03); }
+.list-row:active { transform: scale(.98); }
+.list-row .txt { flex: 1; min-width: 0; }
+.list-row h3 { font-size: 15px; font-weight: 500; line-height: 1.3; }
+.list-row p { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
+.list-row .circle .ic { --ic: 18px; }
+
 /* ---- rows that run off the edge: the cut card is the scroll cue ------- */
-.rail { display: flex; gap: 9px; overflow-x: auto; scrollbar-width: none; padding-inline: var(--gutter); scroll-padding-inline: var(--gutter); }
+.rail { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-inline: var(--gutter); scroll-padding-inline: var(--gutter); }
 .rail::-webkit-scrollbar { display: none; }
 .rail > * { flex: none; }
 

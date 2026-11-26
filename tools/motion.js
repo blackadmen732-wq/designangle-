@@ -41,6 +41,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { mirror } = require('./cdn');
 
 let chromium;
 try { ({ chromium } = require('playwright')); } catch {
@@ -201,6 +202,7 @@ async function run(browser, view, tour, { reduce = false, frames = false, tag })
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
+  await mirror(page);   // first: routes added later take precedence
   await page.route(/supabase\.co/, (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{}' }));
   await page.goto(URL0, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts && document.fonts.ready);

@@ -149,8 +149,10 @@ b, strong { font-weight: 600; }
 .fact span { font-size: 13px; color: var(--ink-3); }
 .fact em { margin-top: 4px; font-style: normal; font-size: 13px; font-weight: 600; color: var(--ink-3); }
 .fact em.up { color: var(--good); }
-.fine { margin-top: 12px; font-size: 15px; color: var(--ink-3); }
-.note { display: flex; gap: 12px; margin-top: 12px; padding: 12px 16px; border-radius: 16px; background: rgba(255, 255, 255, .045); font-size: 15px; color: var(--ink-2); }
+/* A reading width on wide screens: past about 70 characters a line, the eye
+   loses its place. The note keeps its full-width card; only its text narrows. */
+.fine { margin-top: 12px; font-size: 15px; color: var(--ink-3); max-width: 64ch; }
+.note { display: flex; gap: 12px; margin-top: 12px; padding: 12px 16px; padding-inline-end: max(16px, 100% - 66ch); border-radius: 16px; background: rgba(255, 255, 255, .045); font-size: 15px; color: var(--ink-2); }
 .note .ic { --ic: 18px; margin-top: 1px; color: var(--gold); }
 
 /* ---- sections ---- */
@@ -158,7 +160,7 @@ b, strong { font-weight: 600; }
 .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 .sec-head h2 { font-size: 22px; font-weight: 400; letter-spacing: -0.01em; }
 .sec-head .count { min-width: 32px; height: 32px; padding: 0 8px; border-radius: 999px; display: grid; place-items: center; background: var(--fill); font-size: 15px; font-weight: 600; }
-.sec-sub { margin: -4px 0 16px; font-size: 15px; color: var(--ink-3); }
+.sec-sub { margin: -4px 0 16px; font-size: 15px; color: var(--ink-3); max-width: 64ch; }
 
 /* ---- enquiries: a row that runs off the edge on a phone ---- */
 .leads { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;

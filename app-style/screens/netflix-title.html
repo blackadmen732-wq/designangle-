@@ -17,6 +17,9 @@
   .nf-progress { position: absolute; z-index: 20; top: 55px; left: 16px; right: 16px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.22); }
   .nf-progress i { display: block; height: 100%; width: 73%; border-radius: 2px; background: #fff; }
   .nf-kicker { font-size: 15.5px; font-weight: 600; line-height: 1.3; }
+  /* The recording's #e0231b is 4.2:1 on this ground; at 15.5px text needs
+     4.5, so the label's red is lifted a touch. Fills keep #e0231b. */
+  .nf-kicker.accent { color: #e5352c; }
   .nf-desc { font-size: 15.5px; line-height: 20px; color: var(--ink-2); }
   .nf-hint { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 500; color: #989898; }
   .nf-hint .ic { --ic: 14px; }

@@ -23,8 +23,23 @@ const DEFAULT_THEME = {
   accent: '#e03a4b', tag: '#1f6b45', tint: '#ffe3dc',
   display: '"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif',
   body: '"Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif',
-  fontsUrl: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap'
+  fontsUrl: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Sans:wght@400;600&display=swap'
 };
+
+// The client's accent, darkened in its own hue until small text in it passes
+// 4.5:1 on the page (DESIGN.md: body text needs 4.5:1). Large text and fills
+// keep the accent itself.
+function lum(hex) {
+  const c = hex.replace('#', '').match(/../g).map((h) => parseInt(h, 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+function textSafe(accent, bg) {
+  let c = accent.replace('#', '').match(/../g).map((h) => parseInt(h, 16));
+  const hex = () => '#' + c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
+  for (let i = 0; i < 40 && ratio(hex(), bg) < 4.6; i++) c = c.map((v) => v * 0.97);
+  return hex();
+}
 
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -96,7 +111,7 @@ function render(site) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="${esc(t.fontsUrl)}">
 <link rel="stylesheet" href="site.css">
-<style>:root{--bg:${t.bg};--ink:${t.ink};--muted:${t.muted};--line:${t.line};--soft:${t.soft};--accent:${t.accent};--leaf:${t.tag};--tint:${t.tint};--display:${t.display};--body:${t.body}}</style>
+<style>:root{--bg:${t.bg};--ink:${t.ink};--muted:${t.muted};--line:${t.line};--soft:${t.soft};--accent:${t.accent};--accent-text:${textSafe(t.accent, t.bg)};--leaf:${t.tag};--tint:${t.tint};--display:${t.display};--body:${t.body}}</style>
 ${jsonLd(site)}
 </head>
 <body>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="design-check" content="gutter 13: the stars number sits 13pt in, measured from the original frame">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Starbucks Rewards Study</title>
 <!-- A study of the Starbucks Rewards redesign by uidesignmahsa, rebuilt from
@@ -47,6 +48,7 @@
   .sb-card .val { display: flex; align-items: center; gap: 6px; margin: 13px 0 0 3px; font-size: 22px; font-weight: 400; line-height: 1.2; }
   .sb-card .val .ic { --ic: 15px; color: #f4be6a; }
   .sb-card .what { margin: 4px 0 0 3px; font-size: 13.3px; color: #a9bab5; }
+  .sb-card .redeem::after { content: ""; position: absolute; inset: -2px 0; }   /* 40 to look at, 44 to press */
   .sb-card .redeem { position: absolute; left: 7.5px; right: 7.5px; bottom: 8.5px; height: 40px; border-radius: 999px;
     display: grid; place-items: center; background: var(--gold); color: #242100; font-size: 14px; font-weight: 600; }
   .sb .dock { left: 17px; right: 16.5px; bottom: 26.5px; gap: 12.5px; }

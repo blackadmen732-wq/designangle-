@@ -24,6 +24,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { mirror } = require('./cdn');
 
 let chromium;
 try { ({ chromium } = require('playwright')); } catch {
@@ -85,7 +86,12 @@ function audit() {
   // 2. Radial glows: decorative radial gradients in a saturated colour
   const glows = vis.filter((el) => {
     const bi = getComputedStyle(el).backgroundImage;
-    return bi.includes('radial-gradient') && stops(bi).some((c) => { const x = hsl(c); return c.a >= 0.1 && x.s > 0.35 && x.l > 0.15 && x.l < 0.85; });
+    if (!bi.includes('radial-gradient')) return false;
+    // Hard stops (a colour ending where the next begins, within 3%) draw a
+    // shape, a ring or a dot, not a glow: a glow feathers out.
+    const pos = [...bi.matchAll(/(\d+(?:\.\d+)?)%/g)].map((m) => +m[1]);
+    const hard = pos.length >= 2 && pos.slice(1).every((p, i) => Math.abs(p - pos[i]) <= 3 || p === 100 || pos[i] === 0);
+    return !hard && stops(bi).some((c) => { const x = hsl(c); return c.a >= 0.1 && x.s > 0.35 && x.l > 0.15 && x.l < 0.85; });
   });
   const blobs = vis.filter((el) => { const f = getComputedStyle(el).filter.match(/blur\(([\d.]+)px\)/); const c = rgba(getComputedStyle(el).backgroundColor); return f && +f[1] >= 24 && c && c.a > 0.2 && hsl(c).s > 0.35; });
   const nGlow = glows.length + blobs.length;
@@ -126,7 +132,8 @@ function audit() {
   add(5, 'Two CTAs max', kinds.length > 2 ? 'fail' : 'pass', `${kinds.length} different call(s) to action on the first screen${kinds.length ? ': ' + kinds.slice(0, 4).map((k) => `"${k}…"`).join(', ') : ''}`);
 
   // 6. Emoji overload
-  const EMOJI = /\p{Extended_Pictographic}/gu;
+  // Emoji as drawn by default (or forced with VS16); ©, ® and ™ are typography.
+  const EMOJI = /\p{Emoji_Presentation}|\p{Extended_Pictographic}\uFE0F/gu;
   const textNodes = []; const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   while (walk.nextNode()) { const n = walk.currentNode; if (n.parentElement && shown(n.parentElement) && n.textContent.trim()) textNodes.push(n); }
   const emojis = textNodes.flatMap((n) => (n.textContent.match(EMOJI) || []).map((e) => ({ e, el: n.parentElement })));
@@ -136,14 +143,19 @@ function audit() {
   // 7. Readable type: body copy size, line length, line height
   const paras = vis.filter((el) => { const t = ownText(el); return t.split(/\s+/).length >= 8 && !el.closest('button, a'); });
   const tooSmall = paras.filter((el) => parseFloat(getComputedStyle(el).fontSize) < (vw < 600 ? 15 : 15));
-  const tooLong = paras.filter((el) => { const cs = getComputedStyle(el); return el.getBoundingClientRect().width / (parseFloat(cs.fontSize) * 0.5) > 90; });
+  // The longest line actually set, not the box: a short line in a wide box is fine.
+  const lineWidth = (el) => { let w = 0; const rg = document.createRange(); rg.selectNodeContents(el); for (const q of rg.getClientRects()) w = Math.max(w, q.width); return w || el.getBoundingClientRect().width; };
+  const tooLong = paras.filter((el) => lineWidth(el) / (parseFloat(getComputedStyle(el).fontSize) * 0.5) > 90);
   const tooTight = paras.filter((el) => { const cs = getComputedStyle(el); const lh = cs.lineHeight === 'normal' ? 1.2 : parseFloat(cs.lineHeight) / parseFloat(cs.fontSize); return el.getBoundingClientRect().height > parseFloat(cs.fontSize) * 2.2 && lh < 1.3; });
   const readFail = tooSmall.length + tooLong.length + tooTight.length;
   add(7, 'Readable type', tooSmall.length ? 'fail' : readFail ? 'warn' : 'pass',
     `${paras.length} paragraph(s); ${tooSmall.length} under 15px, ${tooLong.length} over ~90 characters a line, ${tooTight.length} with line height under 1.3${tooSmall.length ? `, e.g. ${label(tooSmall[0])}` : ''}`);
 
   // The hero: the biggest text on the first screen.
-  const sized = vis.filter((el) => ownText(el) && firstScreen(el)).map((el) => ({ el, size: parseFloat(getComputedStyle(el).fontSize) })).sort((a, b) => b.size - a.size);
+  // A headline split into line wrappers for animation (GSAP SplitText) is
+  // still one headline: rank its heading, not its lines.
+  const unit = (el) => el.closest('h1, h2, h3, h4, [role=heading]') || el;
+  const sized = [...new Map(vis.filter((el) => ownText(el) && firstScreen(el)).map((el) => [unit(el), { el: unit(el), size: parseFloat(getComputedStyle(el).fontSize) }])).values()].sort((a, b) => b.size - a.size);
   const hero = sized[0];
   const headline = hero ? hero.el.textContent.replace(/\s+/g, ' ').trim() : '';
 
@@ -198,7 +210,7 @@ function audit() {
 
   // 12. Type hierarchy: few sizes, clearly apart, a real jump at the top
   const textEls = vis.filter((el) => ownText(el));
-  const sizes = [...new Set(textEls.map((el) => Math.round(parseFloat(getComputedStyle(el).fontSize))))].sort((a, b) => a - b);
+  const sizes = [...new Set(textEls.filter((el) => !el.closest('[aria-hidden="true"]')).map((el) => Math.round(parseFloat(getComputedStyle(el).fontSize))))].sort((a, b) => a - b);
   const bodySize = (() => { const c = {}; textEls.forEach((el) => { const s = Math.round(parseFloat(getComputedStyle(el).fontSize)); c[s] = (c[s] || 0) + ownText(el).length; }); return +Object.entries(c).sort((a, b) => b[1] - a[1])[0]?.[0] || 16; })();
   const ratio = sizes.length ? sizes[sizes.length - 1] / bodySize : 1;
   const near = sizes.filter((s, i) => i && s - sizes[i - 1] === 1).length;
@@ -214,7 +226,7 @@ function audit() {
   // both be Critical), and a control's label is not a statement, so words in
   // list rows, buttons and links are left out.
   const seen = new Map(), twice = new Set();
-  vis.filter((el) => firstScreen(el) && !el.closest('nav, li, [role=listitem], .list-row, button, a, [role=button], [role=tab]') && ownText(el).length >= 6).forEach((el) => {
+  vis.filter((el) => firstScreen(el) && !el.closest('nav, li, [role=listitem], .list-row, button, a, [role=button], [role=tab], [aria-hidden="true"]') && ownText(el).length >= 6).forEach((el) => {
     const t = ownText(el).toLowerCase(); if (seen.has(t) && !seen.get(t).contains(el) && !el.contains(seen.get(t))) twice.add(ownText(el)); else seen.set(t, el); });
   add(13, 'Visual priority', lead < 1.25 ? 'fail' : lead < 1.6 || filledFirst > 1 || twice.size ? 'warn' : 'pass',
     `the biggest text is ${lead === 9 ? 'alone' : lead.toFixed(2) + 'x the next'}${hero ? ` ("${headline.slice(0, 28)}", ${hero.size}px)` : ''}; ${filledFirst} filled button(s) on the first screen${twice.size ? `; said twice: ${[...twice].slice(0, 3).map((t) => `"${t.slice(0, 24)}"`).join(', ')}` : ''}`);
@@ -258,7 +270,8 @@ function audit() {
 
   // 18. Premium assets (judgement): real imagery, sharp enough, no emoji as art
   const imgs = vis.filter((el) => el.tagName === 'IMG');
-  const soft = imgs.filter((im) => im.naturalWidth && im.naturalWidth < im.getBoundingClientRect().width * 1.5);
+  const blurred = (im) => { const m = getComputedStyle(im).filter.match(/blur\(([\d.]+)px\)/); return m && +m[1] >= 2; };
+  const soft = imgs.filter((im) => im.naturalWidth && !blurred(im) && im.naturalWidth < im.getBoundingClientRect().width * 1.5);
   const bigEmoji = emojis.filter((x) => parseFloat(getComputedStyle(x.el).fontSize) >= 24);
   const art = imgs.filter(firstScreen).length || vis.some((el) => firstScreen(el) && el.getBoundingClientRect().height > vh * 0.25 && getComputedStyle(el).backgroundImage.includes('url('));
   add(18, 'Premium assets', bigEmoji.length ? 'fail' : soft.length ? 'warn' : 'look',
@@ -272,6 +285,9 @@ function audit() {
   // read, and every hover and focus rule in them goes uncounted.
   const browser = await chromium.launch({ args: ['--allow-file-access-from-files'] });
   const page = await browser.newPage({ viewport: VIEW, deviceScaleFactor: 1 });
+  // First, so the routes below (the panel's stand-in client) win over it:
+  // Playwright asks the most recently added route first.
+  await mirror(page);   // a blocked CDN's library comes from npm, same version
   if (file === PANEL) {
     const SAMPLE = fs.readFileSync(path.join(__dirname, 'panel-sample.js'), 'utf8');
     await page.route(/supabase-js/, (r) => r.fulfill({ contentType: 'application/javascript', body: SAMPLE }));
@@ -279,7 +295,17 @@ function audit() {
   await page.route(/supabase\.co/, (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{}' }));
   await page.goto(isUrl ? file : 'file://' + file, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts && document.fonts.ready);
-  await page.waitForTimeout(900);
+  await page.waitForTimeout(600);
+  // Judge the page at rest: data loaded, entrances finished (CSS, WAAPI, GSAP).
+  await page.waitForLoadState('networkidle').catch(() => {});
+  for (let t = Date.now(); Date.now() - t < 5000;) {
+    const busy = await page.evaluate(() =>
+      document.getAnimations().some((a) => a.playState === 'running' && a.effect && a.effect.getTiming().iterations !== Infinity) ||
+      !!(window.gsap && gsap.globalTimeline.getChildren(true, true, false).some((x) => x.isActive() && !(x.repeat && x.repeat() === -1))));
+    if (!busy) break;
+    await page.waitForTimeout(100);
+  }
+  await page.waitForTimeout(300);
   const { items } = await page.evaluate(audit);
   await browser.close();
 

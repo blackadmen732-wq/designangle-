@@ -33,6 +33,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { mirror } = require('./cdn');
 
 let chromium;
 try {
@@ -110,12 +111,26 @@ function audit({ phone }) {
   const min = phone ? 44 : 24;
   // Words keep a gutter: 20px on the kit's websites (DESIGN.md 4); 16px on
   // app screens built with app-style (.ui), the iOS margin every redesign uses.
-  const gutter = document.querySelector('.ui') ? 16 : 20;
+  // A recreation may keep a measured gutter, if it says so and why:
+  // <meta name="design-check" content="gutter 12.5: measured from the original">
+  const said = (document.querySelector('meta[name="design-check"]')?.content || '').match(/gutter\s+([\d.]+)/);
+  const gutter = said ? +said[1] : document.querySelector('.ui') ? 16 : 20;
   const contrast = new Map(), small = new Map(), fields = new Map(), tiny = new Map(), weights = new Map(), edge = new Map();
   // Moving text (a marquee) crosses the edges on purpose.
   const moving = (el) => { for (let e = el; e; e = e.parentElement) if (e.getAnimations().length) return true; return false; };
   // In a row that scrolls sideways, running off the right edge is the scroll
   // cue (pattern 06). Running into the left edge is still a missing gutter.
+  // Content a container is scrolling past (a pinned sideways section, a
+  // carousel) is cut off by that container: it is passing the edge, not
+  // sitting against it. Text flush with the screen while fully shown still fails.
+  const passing = (el, box) => {
+    for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+      if (getComputedStyle(a).overflowX === 'visible') continue;
+      const r = a.getBoundingClientRect();
+      if (box.left < r.left - .5 || box.right > r.right + .5) return true;
+    }
+    return false;
+  };
   const inScroller = (el) => {
     for (let e = el.parentElement; e && e !== document.body; e = e.parentElement) {
       const o = getComputedStyle(e).overflowX;
@@ -137,8 +152,15 @@ function audit({ phone }) {
       const box = el.getBoundingClientRect();
       const offScreen = box.right <= 0 || box.left >= innerWidth;
       const bleed = box.width >= innerWidth - 40;
-      if (!offScreen && !bleed && !el.closest('pre') && !moving(el)) {
-        const left = box.left, right = innerWidth - box.right;
+      if (!offScreen && !bleed && !el.closest('pre') && !moving(el) && !passing(el, box)) {
+        // Where the words are, not the box: centred text in a full-width box
+        // starts well inside it.
+        let l = Infinity, rr = -Infinity;
+        for (const n of el.childNodes) if (n.nodeType === 3 && n.textContent.trim()) {
+          const rg = document.createRange(); rg.selectNodeContents(n);
+          for (const q of rg.getClientRects()) { l = Math.min(l, q.left); rr = Math.max(rr, q.right); }
+        }
+        const left = l === Infinity ? box.left : l, right = innerWidth - (rr === -Infinity ? box.right : rr);
         if (left < gutter - .5) edge.set(name(el), `${Math.round(left)}px from the left edge`);
         else if (right < gutter - .5 && !inScroller(el)) edge.set(name(el), `${Math.round(right)}px from the right edge`);
       }
@@ -162,7 +184,18 @@ function audit({ phone }) {
     if (el.matches('a[href], button, input:not([type=hidden]), select, textarea, summary, [role=button]')) {
       const r = el.getBoundingClientRect();
       const inSentence = el.tagName === 'A' && cs.display === 'inline';
-      if (!inSentence && r.width > 2 && r.height > 2 && (r.width < min - 0.5 || r.height < min - 0.5)) {
+      // What counts is where a press lands: a control can look 36px tall and
+      // still catch presses over 44 (a ::before or ::after hit area, the
+      // native way to keep a small look). Probe 44px around its centre.
+      const reach = (w, h) => {
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2, hw = w / 2 - 1, hh = h / 2 - 1;
+        return [[cx, cy - hh], [cx, cy + hh], [cx - hw, cy], [cx + hw, cy]].every(([x, y]) => {
+          if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return true;
+          const hit = document.elementFromPoint(x, y); return hit && (hit === el || el.contains(hit));
+        });
+      };
+      const tooSmall = r.width < min - 0.5 || r.height < min - 0.5;
+      if (!inSentence && r.width > 2 && r.height > 2 && tooSmall && !(r.top >= 0 && r.bottom <= innerHeight && reach(Math.max(r.width, min), Math.max(r.height, min)))) {
         small.set(name(el), `${Math.round(r.width)}x${Math.round(r.height)}px`);
       }
       if (phone && el.matches('input, select, textarea') && parseFloat(cs.fontSize) < 16) {
@@ -194,8 +227,10 @@ function audit({ phone }) {
     }
     return { left, top, right, bottom, width: right - left, height: bottom - top };
   };
+  // Text marked aria-hidden is decoration (a giant wordmark set with a tight
+  // line height): its font box reaches into empty space below the letters.
   const leaves = [...document.body.querySelectorAll('*')].filter((el) =>
-    [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) && painted(el) && !floating(el)
+    [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) && painted(el) && !floating(el) && !el.closest('[aria-hidden="true"]')
   ).slice(0, 500).map((el) => ({ el, r: seen(el) })).filter(({ r }) => r.width > 2 && r.height > 2);
   const clash = [];
   for (let i = 0; i < leaves.length && clash.length < 3; i++) for (let j = i + 1; j < leaves.length; j++) {
@@ -236,8 +271,13 @@ function audit({ phone }) {
   }
   covered.forEach((c) => fails.push(`covered by a floating control  ${c}`));
   // Count the things: how many controls fight for the first screen.
+  // A list of rows is one thing to scan, not one control per row.
+  const seenLists = new Set();
   const crowd = [...document.querySelectorAll('a[href], button, input, select, textarea')].filter((el) => {
-    const r = el.getBoundingClientRect(); return r.width > 2 && r.top < innerHeight && r.bottom > 0;
+    const r = el.getBoundingClientRect(); if (!(r.width > 2 && r.top < innerHeight && r.bottom > 0)) return false;
+    const list = el.closest('ol, ul, [role=list]');
+    if (list && el.closest('li, [role=listitem]')) { if (seenLists.has(list)) return false; seenLists.add(list); }
+    return true;
   }).length;
   if (crowd > 24) warns.push(`${crowd} controls on the first screen; the design skill says count the things and cut`);
 
@@ -262,6 +302,9 @@ async function open(browser, file, opts = {}) {
   const blocked = new Set(), errors = [];
   page.on('requestfailed', (r) => { const u = r.url(); if (/^https?:/.test(u)) blocked.add(new URL(u).host); });
   page.on('pageerror', (e) => errors.push(e.message.split('\n')[0]));
+  // Where a CDN is blocked, the same library version comes from npm instead,
+  // so this checks the page visitors get, animation libraries and all.
+  await mirror(page);
   if (file === PANEL) {
     await page.route(/supabase-js/, (r) => r.fulfill({ contentType: 'application/javascript', body: SAMPLE }));
   }
@@ -269,8 +312,23 @@ async function open(browser, file, opts = {}) {
   // must never write to the real database.
   await page.route(/supabase\.co/, (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{}' }));
   await page.goto('file://' + file, { waitUntil: 'load' });
-  await page.waitForTimeout(1200);
+  await page.waitForTimeout(600);
+  await settle(page);
   return { context, page, blocked, errors };
+}
+
+// Measure the page at rest: wait (up to 5s) until nothing is animating, CSS,
+// the Web Animations API or GSAP, so an entrance mid-way is not measured.
+async function settle(page, ms = 5000) {
+  const t = Date.now();
+  while (Date.now() - t < ms) {
+    const busy = await page.evaluate(() =>
+      document.getAnimations().some((a) => a.playState === 'running' && a.effect && a.effect.getTiming().iterations !== Infinity) ||
+      !!(window.gsap && gsap.globalTimeline.getChildren(true, true, false).some((x) => x.isActive() && !(x.repeat && x.repeat() === -1))));
+    if (!busy) break;
+    await page.waitForTimeout(100);
+  }
+  await page.waitForTimeout(100);
 }
 
 // Scroll to the bottom and back, so anything that reveals on scroll has.
@@ -335,6 +393,7 @@ async function check(browser, file) {
   fails.slice(0, 15).forEach((f) => console.log(line(f)));
   if (fails.length > 15) console.log(`      ...and ${fails.length - 15} more`);
   warns.slice(0, 6).forEach((w) => console.log(line(w).replace(/^ {6}/, '      warn ')));
+  if (mirror.served && mirror.served.size) console.log(`      note: the CDN was blocked, so ${[...mirror.served].join(', ')} came from npm (same version)`);
   if (blockedHosts.size) console.log(`      note: could not load from ${[...blockedHosts].join(', ')}, so this checked the page without it`);
   console.log(`      look: ${shots.join('  ')}\n`);
   return fails.length;

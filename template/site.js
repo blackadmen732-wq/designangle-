@@ -95,6 +95,11 @@
   /* ---------- Header ---------- */
   var top = $('top');
   function onScroll() { top.classList.toggle('scrolled', window.scrollY > 8); }
+  // The header's button fills only once the hero's own has left the screen.
+  var heroBtn = document.querySelector('.hero-cta .btn');
+  if (heroBtn && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { top.classList.toggle('cta-on', !es[0].isIntersecting); }).observe(heroBtn);
+  } else top.classList.add('cta-on');
   window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
   /* ---------- Motion (GSAP + Lenis). Without them the page is complete and static. ---------- */
@@ -127,7 +132,10 @@
         .from(slides[0].firstElementChild, { scale: 1.4, duration: 1.9 }, 0)
         .from('.blob', { opacity: 0, duration: 1.2 }, .5)
         .from(['#dishInfo', '.hero-cta'], { y: 28, opacity: 0, duration: .9, stagger: .1 }, .65)
-        .from('.thumb', { scale: .6, opacity: 0, duration: .8, stagger: .12, ease: 'back.out(1.6)' }, 1);
+        // fromTo, not from: a from() reads its end value from the page, and
+        // a CSS transition on the same property once handed it 0.6, so the
+        // thumbs stayed at 60% for good. The end is explicit, and cleared.
+        .fromTo('.thumb', { scale: .6, opacity: 0 }, { scale: 1, opacity: 1, duration: .8, stagger: .12, ease: 'back.out(1.6)', clearProps: 'transform,opacity' }, 1);
       root.classList.remove('gs-wait');
 
       /* Masked heading reveals */

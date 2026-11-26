@@ -30,6 +30,7 @@
   .nf-season { position: absolute; right: 16px; top: 616px; height: 36px; padding: 0 12px 0 16px; border-radius: 999px;
     display: flex; align-items: center; gap: 6px; background: var(--fill); font-size: 15px; font-weight: 600; }
   .nf-season .ic { --ic: 16px; }
+  .nf-season::after { content: ""; position: absolute; inset: -4px 0; }   /* 36 to look at, 44 to press */
   .nf-ep { width: 157px; }
   .nf-ep .thumb { position: relative; height: 86px; border-radius: 18px; overflow: hidden; }
   .nf-ep .thumb img { width: 100%; height: 100%; object-fit: cover; }

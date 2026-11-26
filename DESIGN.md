@@ -37,7 +37,7 @@ Set them in `content.js` under `theme`:
 | `ink` | Text. Near-black, never pure `#000`. | `#1e1512` | `#101820` |
 | `muted` | Secondary text. | `#6f625c` | `#5b6672` |
 | `line` | Hairlines and borders. | `#eee7e2` | `#e4e9ef` |
-| `tag` | The small label colour (V, 24/7). Often the accent. | `#1f6b45` | `#0b63ce` |
+| `tag` | The small label colour (V, 24/7): the accent, or the ink. Never a second hue (one accent: `tools/slop.js` point 10). | `#1e1512` | `#0b63ce` |
 
 Rules:
 - **Tint the neutrals toward the accent.** A pure grey looks unconsidered. The restaurant's

@@ -78,7 +78,7 @@ function render(site) {
   ].filter(Boolean);
   const cta = site.cta || { label: 'Contact', href: '#' + contact.id };
   const beltSet = `<div class="belt-set">${site.belt.map((b) => `<span>${photo(b.img, '')}${esc(b.text)}</span>`).join('')}</div>`;
-  const thumbImgs = hero.slides.map((s) => photo(s.img, '')).join('');
+  const thumbImgs = hero.slides ? hero.slides.map((s) => photo(s.img, '')).join('') : '';
 
   return `<!doctype html>
 <html lang="${esc(site.lang || 'en')}">
@@ -89,9 +89,9 @@ function render(site) {
 <meta name="description" content="${esc(seo.description || '')}">
 <meta property="og:title" content="${esc(seo.title || site.name)}">
 <meta property="og:description" content="${esc(seo.description || '')}">
-<meta property="og:image" content="img/${esc(hero.slides[0].img)}">
+<meta property="og:image" content="img/${esc(hero.slides ? hero.slides[0].img : hero.img)}">
 <meta name="theme-color" content="${esc(t.bg)}">
-<script>document.documentElement.classList.add('gs-wait');setTimeout(function(){document.documentElement.classList.remove('gs-wait');},3000);</script>
+<script>document.documentElement.classList.add('gs-wait');setTimeout(function(){document.documentElement.classList.remove('gs-wait');},800);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="${esc(t.fontsUrl)}">
@@ -107,11 +107,26 @@ ${jsonLd(site)}
     <nav class="nav" aria-label="Main">
       ${nav.map((n) => `<a href="${esc(n.href)}">${esc(n.label)}</a>`).join('\n      ')}
     </nav>
-    <a class="btn small" href="${esc(cta.href)}"${ext(cta.href)}>${esc(cta.label)}</a>
+    <a class="btn small ghost" href="${esc(cta.href)}"${ext(cta.href)}>${esc(cta.label)}</a>
   </div>
 </header>
 
 <main>
+${hero.type === 'service' ? `
+  <section class="hero service" aria-label="${esc(hero.label || 'Featured')}">
+    <div class="wrap">
+      <div class="hero-text">
+        <p class="eyebrow">${esc(hero.eyebrow)}</p>
+        <h1 id="headline">${esc(hero.headline)} <em>${esc(hero.headlineAccent || '')}</em></h1>
+        <p class="hero-lede">${esc(hero.text || '')}</p>
+        <div class="hero-cta">
+          <a class="btn" href="${esc(hero.primary.href)}"${ext(hero.primary.href)}>${esc(hero.primary.label)} ${arrow}</a>
+          ${seo.telephone ? `<a class="tel" data-live="phone" href="tel:${esc(seo.telephone.replace(/[^\d+]/g, ''))}">${esc(seo.telephone)}</a>` : ''}
+        </div>
+      </div>
+      <div class="stage"><div class="shot">${photo(hero.img, hero.alt, { eager: true })}</div></div>
+    </div>
+  </section>` : `
   <section class="hero" aria-label="${esc(hero.label || 'Featured')}">
     <div class="wrap">
       <div class="hero-text">
@@ -130,7 +145,6 @@ ${jsonLd(site)}
         </div>
       </div>
       <div class="stage" id="stage">
-        <div class="blob"></div>
         <div class="frame" id="frame">
           ${hero.slides.map((s, i) => `<div class="slide${i === 0 ? ' on' : ''}" data-tint="${esc(s.tint || t.tint)}">${photo(s.img, s.alt, { eager: i === 0 })}</div>`).join('\n          ')}
         </div>
@@ -138,9 +152,9 @@ ${jsonLd(site)}
         <button class="thumb t1" id="thumb1" type="button">${thumbImgs}</button>
       </div>
     </div>
-  </section>
+  </section>`}
 
-  <div class="belt" aria-hidden="true"><div class="belt-track" id="belt">${beltSet.repeat(4)}</div></div>
+  <div class="belt" aria-hidden="true"><div class="belt-track" id="belt">${beltSet}</div></div>
 
   <section class="hs" id="${esc(show.id)}" aria-label="${esc(show.title)}">
     <div class="hs-track" id="hsTrack">
@@ -157,15 +171,15 @@ ${jsonLd(site)}
   <section class="sec" id="${esc(list.id)}">
     <div class="wrap">
       <div class="sec-head">
-        <p class="eyebrow" data-reveal>${esc(list.eyebrow)}</p>
+        <p class="eyebrow">${esc(list.eyebrow)}</p>
         <h2 data-split>${esc(list.title)}</h2>
-        <p data-reveal>${esc(list.text)}</p>
+        <p>${esc(list.text)}</p>
       </div>
-      <div class="tabs" role="tablist" aria-label="${esc(list.eyebrow)}" id="tabs" data-reveal>
+      <div class="tabs" role="tablist" aria-label="${esc(list.eyebrow)}" id="tabs">
         ${list.groups.map((g, i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-panel="${i}">${esc(g.name)}</button>`).join('\n        ')}
       </div>
       ${list.groups.map((g, i) => `<ul class="menu-list" role="tabpanel" data-panel="${i}"${i ? ' hidden' : ''}>
-        ${g.items.map((it, k) => `<li style="--i:${k}"><h3>${esc(it.title)}${it.tag ? `<span class="tag">${esc(it.tag)}</span>` : ''}</h3><span class="p">${esc(it.meta || '')}</span><p>${esc(it.text)}</p></li>`).join('\n        ')}
+        ${g.items.map((it) => `<li><h3>${esc(it.title)}${it.tag ? `<span class="tag">${esc(it.tag)}</span>` : ''}</h3><span class="p">${esc(it.meta || '')}</span><p>${esc(it.text)}</p></li>`).join('\n        ')}
       </ul>`).join('\n      ')}
       ${list.note ? `<p class="menu-note">${esc(list.note)}</p>` : ''}
     </div>
@@ -175,11 +189,11 @@ ${jsonLd(site)}
     <div class="wrap">
       <div class="story-pic" id="storyPic">${photo(story.img, story.alt)}</div>
       <div class="story-text">
-        <p class="eyebrow" data-reveal>${esc(story.eyebrow)}</p>
+        <p class="eyebrow">${esc(story.eyebrow)}</p>
         <h2 data-split>${esc(story.title)}</h2>
-        ${story.paragraphs.map((p) => `<p data-reveal>${esc(p)}</p>`).join('\n        ')}
-        <div class="facts" data-reveal>
-          ${story.facts.map((f) => `<div><b data-count="${esc(f.value)}" data-suffix="${esc(f.suffix || '')}">${esc(f.value)}${esc(f.suffix || '')}</b><span>${esc(f.label)}</span></div>`).join('\n          ')}
+        ${story.paragraphs.map((p) => `<p>${esc(p)}</p>`).join('\n        ')}
+        <div class="facts">
+          ${story.facts.map((f) => `<div><b>${esc(f.value)}${esc(f.suffix || '')}</b><span>${esc(f.label)}</span></div>`).join('\n          ')}
         </div>
       </div>
     </div>
@@ -196,11 +210,11 @@ ${jsonLd(site)}
   <section class="sec" id="${esc(contact.id)}">
     <div class="wrap">
       <div class="sec-head">
-        <p class="eyebrow" data-reveal>${esc(contact.eyebrow)}</p>
+        <p class="eyebrow">${esc(contact.eyebrow)}</p>
         <h2 data-split>${esc(contact.title)}</h2>
       </div>
       <div class="visit-grid">
-        <div class="info" data-reveal>
+        <div class="info">
           <div>
             <h3>${esc(contact.hoursTitle || 'Hours')}</h3>
             <table class="hours" data-live="hours">
@@ -209,7 +223,7 @@ ${jsonLd(site)}
           </div>
           ${contact.blocks.map((b) => `<div><h3>${esc(b.title)}</h3><address>${b.lines.map(contactLine).join('<br>')}</address></div>`).join('\n          ')}
         </div>
-        <form id="reqForm" novalidate data-reveal
+        <form id="reqForm" novalidate
               data-confirm="${esc(form.confirm)}" data-note="${esc(form.note || '')}"
               data-name-error="${esc(form.nameError || 'Add your name so we know who to ask for.')}"
               data-phone-error="${esc(form.phoneError || 'Add a phone number so we can confirm.')}"
@@ -303,7 +317,7 @@ function check(site, name) {
   const missing = need.filter((k) => !site[k]);
   if (missing.length) throw new Error(`sites/${name}/content.js is missing: ${missing.join(', ')}`);
   const imgs = [].concat(
-    site.hero.slides.map((s) => s.img), site.belt.map((b) => b.img),
+    (site.hero.slides ? site.hero.slides.map((s) => s.img) : [site.hero.img]), site.belt.map((b) => b.img),
     site.showcase.cards.map((c) => c.img), [site.story.img, site.band.img]);
   const gone = [...new Set(imgs)].filter((f) => !fs.existsSync(path.join(SITES, name, 'img', f)));
   if (gone.length) throw new Error(`sites/${name}/img is missing: ${gone.join(', ')}`);

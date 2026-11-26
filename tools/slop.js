@@ -7,6 +7,7 @@
  *   node tools/slop.js dist/hvac            a folder means its index.html
  *   node tools/slop.js portal/app           the owner panel, with sample data
  *   node tools/slop.js page.html --desktop  1280 x 900 instead of a phone
+ *   node tools/slop.js http://localhost:8000/  a running app, as it is
  *
  * Scores the page against the 18 points in "18 things to give to Claude to
  * unslop your website" (@julianxuofficial), reading the rendered page rather
@@ -35,9 +36,11 @@ const args = process.argv.slice(2);
 const desktop = args.includes('--desktop');
 const target = args.find((a) => !a.startsWith('--'));
 if (!target) { console.error('Usage: node tools/slop.js <page.html | folder> [--desktop]'); process.exit(2); }
-let file = path.resolve(process.cwd(), target);
-if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
-if (!fs.existsSync(file)) { console.error('Not found: ' + target); process.exit(2); }
+// A live URL works too, so a running app can be scored as it is.
+const isUrl = /^https?:\/\//.test(target);
+let file = isUrl ? target : path.resolve(process.cwd(), target);
+if (!isUrl && fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
+if (!isUrl && !fs.existsSync(file)) { console.error('Not found: ' + target); process.exit(2); }
 const PANEL = path.join(ROOT, 'portal', 'app', 'index.html');
 const VIEW = desktop ? { width: 1280, height: 900 } : { width: 393, height: 852 };
 
@@ -206,9 +209,12 @@ function audit() {
   const second = sized.find((x) => x.el !== hero?.el && !hero?.el.contains(x.el) && !x.el.contains(hero?.el) && x.el.textContent.trim() !== headline);
   const lead = hero && second ? hero.size / second.size : 9;
   const filledFirst = ctas.filter((el) => { const cs = getComputedStyle(el), c = rgba(cs.backgroundColor); return (c && c.a > 0.5) || cs.backgroundImage.includes('gradient'); }).length;
-  // Said twice: the same words in two places on the first screen, outside navigation.
+  // Said twice: the same words in two places on the first screen, outside
+  // navigation. Rows of a list repeat their labels by nature (two tickets can
+  // both be Critical), and a control's label is not a statement, so words in
+  // list rows, buttons and links are left out.
   const seen = new Map(), twice = new Set();
-  vis.filter((el) => firstScreen(el) && !el.closest('nav') && ownText(el).length >= 6).forEach((el) => {
+  vis.filter((el) => firstScreen(el) && !el.closest('nav, li, [role=listitem], .list-row, button, a, [role=button], [role=tab]') && ownText(el).length >= 6).forEach((el) => {
     const t = ownText(el).toLowerCase(); if (seen.has(t) && !seen.get(t).contains(el) && !el.contains(seen.get(t))) twice.add(ownText(el)); else seen.set(t, el); });
   add(13, 'Visual priority', lead < 1.25 ? 'fail' : lead < 1.6 || filledFirst > 1 || twice.size ? 'warn' : 'pass',
     `the biggest text is ${lead === 9 ? 'alone' : lead.toFixed(2) + 'x the next'}${hero ? ` ("${headline.slice(0, 28)}", ${hero.size}px)` : ''}; ${filledFirst} filled button(s) on the first screen${twice.size ? `; said twice: ${[...twice].slice(0, 3).map((t) => `"${t.slice(0, 24)}"`).join(', ')}` : ''}`);
@@ -271,14 +277,14 @@ function audit() {
     await page.route(/supabase-js/, (r) => r.fulfill({ contentType: 'application/javascript', body: SAMPLE }));
   }
   await page.route(/supabase\.co/, (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{}' }));
-  await page.goto('file://' + file, { waitUntil: 'load' });
+  await page.goto(isUrl ? file : 'file://' + file, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts && document.fonts.ready);
   await page.waitForTimeout(900);
   const { items } = await page.evaluate(audit);
   await browser.close();
 
   const mark = { pass: 'pass', warn: 'warn', fail: 'FAIL', look: 'look' };
-  console.log(`unslop audit  ${path.relative(ROOT, file)}  (${VIEW.width}x${VIEW.height})\n`);
+  console.log(`unslop audit  ${isUrl ? file : path.relative(ROOT, file)}  (${VIEW.width}x${VIEW.height})\n`);
   for (const it of items) console.log(`  ${mark[it.status].padEnd(4)}  ${String(it.n).padStart(2)}. ${it.name.padEnd(18)} ${it.evidence}`);
   const cost = (it) => WEIGHT[it.n] * (it.status === 'fail' ? 3 : it.status === 'warn' ? 1 : 0);
   const worst = [...items].sort((a, b) => cost(b) - cost(a))[0];

@@ -21,5 +21,10 @@ difference matters: Airbnb publishes no design system at all, so every
 sections could not be re-verified, because both screenshot tools ran out of
 quota mid-task.
 
+**motion-sources.md** (Nov 2026) — the motion rules behind the app style and
+`tools/motion.js`: Emil Kowalski's animation skills, ibelick's ui-skills,
+Vercel's interface guidelines, Apple's fluid-interfaces talk and the
+auto-animate library, each marked KEPT, CHECKED or LEFT with the reason.
+
 Both earlier reports state their own limits. Prices and library versions move, so re-check any
 figure at its source before quoting it to a client.

@@ -37,7 +37,7 @@
   --r-card-xl: 32px;        /* rating cards and host rows: nearly a capsule */
   --r-tile: 18px;
   --r-media: 18px;
-  --ease: cubic-bezier(.33, 1, .68, 1);
+  --ease: var(--ease-out);
   font-family: var(--font);
   /* The display cut at every size, as the designs were drawn (SF Pro Display
      in Figma). Inter's text cut is about 5% wider below 32pt and stops the
@@ -51,6 +51,29 @@
   font-size: 16px;
   line-height: 1.3;
 }
+/* ---- motion ------------------------------------------------------------- */
+/* One tempo. A strong ease-out for anything that enters, leaves or is
+   pressed; a spring for anything that travels across the screen. Values
+   from Emil Kowalski's animation standards (github.com/emilkowalski/skills)
+   and Apple's "Designing Fluid Interfaces": damping 1 and response .3 for
+   moves, .8 and .3 for sheets. The springs are CSS linear() curves made by
+   tools/spring.js; pair each with its duration. On :root as well as .ui,
+   because view transitions run on pseudo-elements of the root.
+   tools/motion.js (repo root) checks a screen's motion against these. */
+:root, .ui {
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --ease-in-out: cubic-bezier(.77, 0, .175, 1);
+  --t-press: 120ms;   /* a press: scale to .97 the moment it is touched */
+  --t-quick: 180ms;   /* small state: a chip, a toggle, a colour */
+  --t-enter: 280ms;   /* something arriving: a toast, a menu */
+  /* damping 1, response .3: done to the eye at 230ms */
+  --spring: linear(0, 0.005 1.1%, 0.0204 2.3%, 0.0461 3.6%, 0.0816 5%, 0.1615 7.6%, 0.3667 13.6%, 0.4635 16.6%, 0.5593 19.9%, 0.6398 23.1%, 0.7103 26.4%, 0.7704 29.8%, 0.8206 33.3%, 0.8638 37.1%, 0.9017 41.5%, 0.9322 46.4%, 0.9558 51.9%, 0.9729 58.1%, 0.9844 65%, 0.9922 73.4%, 1);
+  --t-spring: 450ms;
+  /* damping .8, response .3: overshoots 1.5%, done to the eye at 160ms */
+  --spring-sheet: linear(0, 0.0068 1.4%, 0.0254 2.8%, 0.0559 4.3%, 0.1006 6%, 0.1433 7.4%, 0.1967 9%, 0.4301 15.5%, 0.5358 18.6%, 0.6343 21.8%, 0.7176 24.9%, 0.7881 28%, 0.8464 31.1%, 0.8946 34.3%, 0.934 37.7%, 0.9647 41.3%, 0.9879 45.3%, 1.0034 49.7%, 1.0122 54.7%, 1.0147 64%, 1);
+  --t-sheet: 410ms;
+}
+
 /* Only WebKit understands this font keyword, and WebKit means an Apple
    device (Safari, or any browser on iOS): there, use the real SF Pro. */
 @supports (font: -apple-system-body) {
@@ -169,7 +192,7 @@
 .circle {
   width: var(--tap); height: var(--tap); flex: none; border-radius: 50%;
   display: grid; place-items: center; color: var(--ink); background: var(--fill-strong);
-  transition: transform .18s var(--ease), background-color .18s ease-out;
+  transition: scale var(--t-press) var(--ease-out), background-color var(--t-quick) var(--ease-out);
 }
 /* Glass only where a control floats over a photo: the top bar, or .glass.
    Blur behind every circle is one of the tells (unslop 15). */
@@ -177,7 +200,7 @@
   background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4);
 }
 .circle:hover { filter: brightness(1.15); }
-.circle:active { transform: scale(.94); }
+.circle:active { scale: .94; }
 .circle.lg { width: var(--control); height: var(--control); background: var(--fill-strong); }
 .circle.md { width: var(--control-sm); height: var(--control-sm); background: var(--fill-strong); }
 .circle.solid { background: var(--surface-solid); }
@@ -193,9 +216,9 @@
   flex: 1; min-width: 0; height: var(--control); border-radius: 999px;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   background: var(--pill); color: var(--on-pill); font-size: 17px; font-weight: 600;
-  transition: transform .18s var(--ease), filter .18s ease-out;
+  transition: scale var(--t-press) var(--ease-out), filter var(--t-quick) var(--ease-out);
 }
-.pill:active { transform: scale(.98); }
+.pill:active { scale: .97; }
 .pill .sub { font-weight: 500; color: var(--ink-on-pill-2); }
 .pill.md { height: var(--control-sm); }
 .pill.brand { background: var(--accent); color: var(--on-accent, #fff); }
@@ -221,7 +244,9 @@
   flex: none; height: var(--chip); padding-inline: 16px 18px; border-radius: 999px;
   display: inline-flex; align-items: center; gap: 9px;
   background: var(--fill); color: var(--ink); font-size: 17px; font-weight: 500; white-space: nowrap;
+  transition: scale var(--t-press) var(--ease-out), background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out);
 }
+.chip:active { scale: .96; }
 .chip[aria-pressed="true"] { background: var(--pill); color: var(--on-pill); }
 .chip .ic { --ic: 21px; }
 .chip.sm { height: 34px; font-size: 13.5px; padding-inline: 12px 16px; gap: 7px; background: var(--fill); }
@@ -247,11 +272,13 @@
   background: var(--fill); overflow-x: auto; scrollbar-width: none;
 }
 .segmented::-webkit-scrollbar { display: none; }
-.segmented a {
+.segmented > :is(a, button) {
   flex: 1 0 auto; height: 36px; padding-inline: 14px; border-radius: 999px;
   display: grid; place-items: center; font-size: 15px; font-weight: 500; color: var(--ink-3); white-space: nowrap;
+  transition: background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out);
 }
-.segmented a[aria-current] { background: #ffffff; color: #111111; }
+.segmented > :is(a[aria-current], [aria-selected="true"]) { background: #ffffff; color: #111111; }
+.ui-light .segmented > :is(a[aria-current], [aria-selected="true"]) { box-shadow: 0 1px 3px rgba(40, 40, 20, .12); }
 
 /* ---- facts in a row: the number loud, the label quiet ------------------ */
 .stats { display: flex; gap: 24px; }
@@ -278,7 +305,9 @@
 .dock-fab {
   width: 60px; height: 60px; flex: none; border-radius: 50%; display: grid; place-items: center;
   background: var(--accent); color: var(--on-accent, #fff);
+  transition: scale var(--t-press) var(--ease-out);
 }
+.dock-fab:active { scale: .94; }
 .ui-light .dock-fab { box-shadow: 0 8px 20px rgba(0, 120, 70, .25); }
 .dock-fab .ic { --ic: 28px; }
 /* A labelled bar (Starbucks): icon over a small label in each slot. */
@@ -313,10 +342,10 @@
 
 /* ---- list rows: picture, two lines, one round action -------------------- */
 .list { display: grid; gap: 8px; }
-.list-row { display: flex; align-items: center; gap: 12px; padding: 8px; margin-inline: -8px; border-radius: 20px; transition: background-color .18s ease-out, transform .18s var(--ease); }
+.list-row { display: flex; align-items: center; gap: 12px; padding: 8px; margin-inline: -8px; border-radius: 20px; transition: background-color var(--t-quick) var(--ease-out), scale var(--t-press) var(--ease-out); }
 .list-row:hover { background: rgba(255, 255, 255, .04); }
 .ui-light .list-row:hover { background: rgba(0, 0, 0, .03); }
-.list-row:active { transform: scale(.98); }
+.list-row:active { scale: .98; }
 .list-row .txt { flex: 1; min-width: 0; }
 .list-row h3 { font-size: 15px; font-weight: 500; line-height: 1.3; }
 .list-row p { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
@@ -327,6 +356,109 @@
 .rail::-webkit-scrollbar { display: none; }
 .rail > * { flex: none; }
 
+/* ---- progress: a track, and a fill that slides along it on a spring ---- */
+/* The fill slides rather than stretches, so its round end stays round.
+   Set --p from 0 to 1. */
+.meter { position: relative; height: 8px; border-radius: 999px; background: var(--fill); overflow: hidden; }
+.meter > i {
+  position: absolute; inset: 0; border-radius: inherit; background: var(--accent);
+  translate: calc((var(--p, 0) - 1) * 100%) 0;
+  transition: translate var(--t-spring) var(--spring);
+}
+
+/* ---- a sheet from the bottom, on a <dialog> ---------------------------- */
+/* <dialog class="sheet"> opened with showModal(): focus, Escape and the
+   backdrop come from the browser. It rises on the sheet spring and leaves
+   faster, on the ease-out; the backdrop fades. Drag-to-dismiss is the
+   page's job (see examples/tickets), and sets --drag while the finger is
+   down. */
+.sheet {
+  position: fixed; inset: auto 0 0 0; z-index: 50; margin: 0 auto; width: 100%; max-width: 560px;
+  max-height: calc(100dvh - 40px); overflow: auto; overscroll-behavior: contain;
+  padding: 0 var(--gutter) calc(24px + env(safe-area-inset-bottom, 0px)); border: 0; border-radius: 32px 32px 0 0;
+  background: var(--surface-solid); color: var(--ink); box-shadow: 0 -12px 40px rgba(0, 0, 0, .16);
+  translate: 0 var(--drag, 0px);
+  transition: translate var(--t-sheet) var(--spring-sheet), display var(--t-sheet) allow-discrete, overlay var(--t-sheet) allow-discrete;
+}
+.sheet:not([open]) { translate: 0 100%; transition-duration: var(--t-enter); transition-timing-function: var(--ease-out); }
+@starting-style { .sheet[open] { translate: 0 100%; } }
+.sheet::backdrop {
+  background: rgba(10, 12, 10, .36);
+  transition: opacity var(--t-enter) var(--ease-out), display var(--t-enter) allow-discrete, overlay var(--t-enter) allow-discrete;
+}
+.sheet:not([open])::backdrop { opacity: 0; }
+@starting-style { .sheet[open]::backdrop { opacity: 0; } }
+.sheet-grip { display: grid; place-items: center; height: 28px; margin-inline: calc(-1 * var(--gutter)); cursor: grab; touch-action: none; }
+.sheet-grip::before { content: ""; width: 40px; height: 5px; border-radius: 3px; background: var(--fill); }
+.ui-light .sheet-grip::before { background: #d6d6d2; }
+
+/* ---- a toast: one line of what happened, and one way back ------------- */
+.toast {
+  position: fixed; z-index: 60; left: 50%; bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100% - 32px);
+  min-height: 56px; padding: 6px 6px 6px 20px; border-radius: 999px;
+  background: var(--pill); color: var(--on-pill); box-shadow: 0 12px 32px rgba(0, 0, 0, .2);
+  font-size: 15px; font-weight: 500;
+  translate: -50% 0; opacity: 1;
+  transition: translate var(--t-enter) var(--ease-out), opacity var(--t-enter) var(--ease-out), display var(--t-enter) allow-discrete;
+}
+.toast[hidden] { display: none; translate: -50% 12px; opacity: 0; }
+@starting-style { .toast:not([hidden]) { translate: -50% 12px; opacity: 0; } }
+.toast button { height: 44px; padding-inline: 16px; border-radius: 999px; background: rgba(255, 255, 255, .16); font-weight: 600; }
+.ui-dark .toast button { background: rgba(0, 0, 0, .08); }
+
+/* ---- moving between screens: view transitions ------------------------- */
+/* Call document.startViewTransition() with data-nav on <html>:
+     push / pop  the new screen comes in from the right over the old one,
+                 which drifts a quarter left and dims; pop is the reverse
+     morph       an element named on both screens (view-transition-name)
+                 travels on its own spring between its two places; the old
+                 screen fades at once and the new one rises 24px into view
+                 110ms later, so the traveller crosses an almost empty page
+                 instead of running through the new one's text
+     morph-back  the same, back: the old screen's content fades, nothing rises
+   Text that changes size as it travels: name it vt-text-a (or vt-text-b),
+   set --vt-k (or --vt-k-b) on <html> to new font size / old font size, and
+   the glyphs grow instead of the snapshot stretching. */
+::view-transition-group(*) { animation-duration: var(--t-spring); animation-timing-function: var(--spring); }
+html[data-nav=push]::view-transition-old(root) { animation: var(--t-spring) var(--spring) both vt-out-left; }
+html[data-nav=push]::view-transition-new(root) { animation: var(--t-spring) var(--spring) both vt-in-right; box-shadow: -12px 0 32px rgba(0, 0, 0, .08); }
+html[data-nav=pop]::view-transition-old(root) { z-index: 1; animation: var(--t-spring) var(--spring) both vt-out-right; box-shadow: -12px 0 32px rgba(0, 0, 0, .08); }
+html[data-nav=pop]::view-transition-new(root) { animation: var(--t-spring) var(--spring) both vt-in-left; }
+html:is([data-nav=morph], [data-nav=morph-back])::view-transition-old(root) { animation: var(--t-quick) var(--ease-out) both vt-fade-out; }
+html[data-nav=morph]::view-transition-new(root) { animation: 300ms var(--ease-out) 110ms both vt-rise; }
+html[data-nav=morph-back]::view-transition-new(root) { animation: 240ms var(--ease-out) 110ms both vt-fade-in; }
+::view-transition-old(*):only-child, ::view-transition-new(*):only-child { animation-duration: var(--t-quick); }
+::view-transition-old(vt-text-a), ::view-transition-old(vt-text-b), ::view-transition-new(vt-text-a), ::view-transition-new(vt-text-b) {
+  width: auto; height: auto; transform-origin: 0 0;
+}
+::view-transition-old(vt-text-b), ::view-transition-new(vt-text-b) { --vt-k: var(--vt-k-b, 1); }
+::view-transition-old(vt-text-a), ::view-transition-old(vt-text-b) { animation: var(--t-spring) var(--spring) both vt-text-grow, 60ms linear both vt-fade-out; }
+::view-transition-new(vt-text-a), ::view-transition-new(vt-text-b) { animation: var(--t-spring) var(--spring) both vt-text-settle, 60ms linear both vt-fade-in; }
+@keyframes vt-in-right { from { translate: 100% 0; } }
+@keyframes vt-out-left { to { translate: -25% 0; opacity: .7; } }
+@keyframes vt-out-right { to { translate: 100% 0; } }
+@keyframes vt-in-left { from { translate: -25% 0; opacity: .7; } }
+@keyframes vt-rise { from { translate: 0 24px; opacity: 0; } }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+@keyframes vt-text-grow { to { scale: var(--vt-k, 1); } }
+@keyframes vt-text-settle { from { scale: calc(1 / var(--vt-k, 1)); } }
+
+/* Reduced motion: fewer and gentler, not none. Fades and colour changes
+   stay; anything that moves stops moving. A screen change is a quick fade. */
 @media (prefers-reduced-motion: reduce) {
-  .ui *, .ui *::before, .ui *::after { transition: none !important; animation: none !important; }
+  .ui *, .ui *::before, .ui *::after {
+    transition-property: opacity, color, background-color, border-color, outline-color !important;
+    animation: none !important; scroll-behavior: auto !important;
+  }
+  .sheet, .sheet:not([open]) { translate: none; transition: opacity var(--t-quick) ease, display var(--t-quick) allow-discrete, overlay var(--t-quick) allow-discrete; }
+  .sheet:not([open]) { opacity: 0; }
+  @starting-style { .sheet[open] { translate: none; opacity: 0; } }
+  .toast, .toast[hidden] { translate: -50% 0; }
+  @starting-style { .toast:not([hidden]) { translate: -50% 0; opacity: 0; } }
+  .meter > i { transition: none; }
+  ::view-transition-group(*) { animation: none !important; }
+  ::view-transition-old(*) { animation: var(--t-quick) ease both vt-fade-out !important; }
+  ::view-transition-new(*) { animation: var(--t-quick) ease both vt-fade-in !important; }
 }

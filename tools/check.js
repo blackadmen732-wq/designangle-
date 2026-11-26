@@ -20,6 +20,10 @@
  *     (16px on app screens built with app-style)
  *   - with scripts off, a heading or paragraph is invisible   DESIGN.md 5
  *   - a script error
+ *   - a broken image, text running into other text, words too wide for their column
+ *   - a control on the first screen under a floating action (not a dock):
+ *     a tap meant for it would press the action
+ * (and warns when more than 24 controls crowd the first screen)
  * Warns (reported, never fails):
  *   - text under 12px
  *   - more than two weights of one typeface              DESIGN.md 3
@@ -166,6 +170,76 @@ function audit({ phone }) {
       }
     }
   }
+
+  // Legacy ugliness, the kind the unslop list does not cover.
+  // Broken images: the alt text or a torn-picture icon where art should be.
+  const broken = [...document.images].filter((im) => im.complete && im.naturalWidth === 0 && im.getClientRects().length);
+  broken.slice(0, 3).forEach((im) => fails.push(`broken image  <img src="${(im.getAttribute('src') || '').slice(-40)}">${im.alt ? ` shows its alt text "${im.alt.slice(0, 40)}"` : ''}`));
+  // Text running into other text.
+  // Floating layers (a dock, a sticky bar) cover what scrolls under them on
+  // purpose, so text inside them is left out of this check.
+  // (A mockup inside a phone frame floats its dock with position: absolute and
+  // a z-index: that counts too.)
+  const floating = (el) => { for (let e = el; e; e = e.parentElement) { const cs = getComputedStyle(e), p = cs.position; if (p === 'fixed' || p === 'sticky' || (p === 'absolute' && +cs.zIndex >= 10)) return true; } return false; };
+  const painted = (el) => (el.checkVisibility ? el.checkVisibility({ contentVisibilityAuto: true, opacityProperty: true, visibilityProperty: true }) : el.getClientRects().length > 0);
+  // Only the part a person can see: a chip scrolled out of its row, or text
+  // cut off by a scrolling pane, is clipped by that ancestor.
+  const seen = (el) => {
+    let { left, top, right, bottom } = el.getBoundingClientRect();
+    for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+      const cs = getComputedStyle(a);
+      if (cs.overflowX === 'visible' && cs.overflowY === 'visible') continue;
+      const c = a.getBoundingClientRect();
+      left = Math.max(left, c.left); top = Math.max(top, c.top); right = Math.min(right, c.right); bottom = Math.min(bottom, c.bottom);
+    }
+    return { left, top, right, bottom, width: right - left, height: bottom - top };
+  };
+  const leaves = [...document.body.querySelectorAll('*')].filter((el) =>
+    [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) && painted(el) && !floating(el)
+  ).slice(0, 500).map((el) => ({ el, r: seen(el) })).filter(({ r }) => r.width > 2 && r.height > 2);
+  const clash = [];
+  for (let i = 0; i < leaves.length && clash.length < 3; i++) for (let j = i + 1; j < leaves.length; j++) {
+    const a = leaves[i], b = leaves[j];
+    if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
+    const w = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left), h = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top);
+    if (w > 3 && h > 3 && w * h > 0.2 * Math.min(a.r.width * a.r.height, b.r.width * b.r.height)) { clash.push(`${name(a.el)} and ${name(b.el)}`); break; }
+  }
+  clash.forEach((c) => fails.push(`text runs into other text  ${c}`));
+  // Words broken in the middle by a column too narrow for them.
+  // A word split across two lines: its own rectangles sit on different lines.
+  const chopped = [];
+  const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  while (tw.nextNode() && chopped.length < 5) {
+    const node = tw.currentNode, el = node.parentElement;
+    if (!el || !painted(el)) continue;
+    for (const m of node.textContent.matchAll(/[A-Za-z]{6,}/g)) {
+      const range = document.createRange(); range.setStart(node, m.index); range.setEnd(node, m.index + m[0].length);
+      const tops = [...range.getClientRects()].map((r) => Math.round(r.top));
+      if (new Set(tops).size > 1) { chopped.push(el); break; }
+    }
+  }
+  if (chopped.length) fails.push(`words too wide for their column: ${chopped.length}, e.g. ${name(chopped[0])}`);
+  // A control under a floating one: on the first screen, a tap at its centre
+  // lands on the floating button instead (a recording of the tickets example
+  // closed a ticket this way: the Discussion tab sat under "Resolve as fixed").
+  const CONTROL = 'a[href], button, input, select, textarea, [role=button], [role=tab]';
+  const covered = [];
+  for (const el of document.querySelectorAll(CONTROL)) {
+    if (covered.length >= 3 || floating(el) || !painted(el)) continue;
+    const r = el.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+    if (r.width < 2 || y < 0 || y > innerHeight || x < 0 || x > innerWidth) continue;
+    const hit = document.elementFromPoint(x, y);
+    const over = hit && !el.contains(hit) && !hit.contains(el) && hit.closest(CONTROL);
+    // A dock or tab bar is navigation: rows scroll under it on purpose, and a
+    // mis-tap only changes the view. A floating action changes things.
+    if (over && floating(over) && !over.closest('nav')) covered.push(`${name(el)} is under ${name(over)}: a tap there presses it`);
+  }
+  covered.forEach((c) => fails.push(`covered by a floating control  ${c}`));
+  // Count the things: how many controls fight for the first screen.
+  const crowd = [...document.querySelectorAll('a[href], button, input, select, textarea')].filter((el) => {
+    const r = el.getBoundingClientRect(); return r.width > 2 && r.top < innerHeight && r.bottom > 0;
+  }).length;
+  if (crowd > 24) warns.push(`${crowd} controls on the first screen; the design skill says count the things and cut`);
 
   const wide = document.documentElement.scrollWidth;
   if (wide > innerWidth + 1) fails.push(`the page scrolls sideways: ${wide}px of content in a ${innerWidth}px window`);

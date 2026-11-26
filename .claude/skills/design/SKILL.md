@@ -111,6 +111,13 @@ Rules that do not bend:
 - Spend motion on the rare moment: the load, the hero, the transition.
 - Honour `prefers-reduced-motion`, and make the page complete without it.
 
+The table is for websites, where a hero can take its time. **App screens
+are quicker:** done to the eye within 300ms, springs for what travels,
+sheets and shared-element transitions; the tokens, parts and rules are in
+the app-style skill's Motion section. `tools/motion.js` measures either: it
+presses through the page and fails layout animation, ease-in, slow motion and
+movement under reduced motion, and writes frame-by-frame filmstrips.
+
 ---
 
 ## 2b. The patterns that make an app screen look expensive
@@ -290,7 +297,7 @@ Use **400×860** for a phone and **1280×900** for desktop. Check both.
 - [ ] Body text passes 4.5:1 contrast
 - [ ] Phone width 400px: no sideways scroll, nothing clipped
 - [ ] Touch targets 44px, inputs 16px
-- [ ] One motion tempo; nothing frequent is animated
+- [ ] One motion tempo; nothing frequent is animated (`node tools/motion.js`)
 - [ ] Reduced motion: still complete and readable
 - [ ] No item from the generated-design list above
 - [ ] Real content and real images, no placeholder anything

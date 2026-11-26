@@ -40,10 +40,14 @@ Build with `node build.js`, then look at it before saying it is done:
 ```bash
 node build.js                      # every site, into dist/
 node build.js hvac                 # one site
+node tools/check.js                # every screen at both sizes: contrast, tap size, sideways scroll
 python3 tools/critique.py shot.png --kind app    # cheap design review
 ```
 
-Screenshot at **400×860** and **1280×900**. Both, every time.
+Screenshot at **400×860** and **1280×900**. Both, every time. `tools/check.js`
+takes both into `.check/` and fails on the rules that can be measured. The
+owner panel needs a login, so the check fills it with invented sample data
+(`tools/panel-sample.js`). A pass is not the end: open the screenshots.
 
 ## Layout
 
@@ -52,6 +56,7 @@ build.js              turns sites/<name>/content.js into static files
 template/             shared design, motion, tracking — change once, all sites improve
 sites/<name>/         one client: content.js plus photos
 portal/               owner panel: schema, edge functions, dashboard
+tools/check.js        measured design checks and screenshots, both sizes
 tools/critique.py     screenshot review on the user's NVIDIA credit
 docs/research/        the research the design decisions came from
 DESIGN.md             this kit's locked values

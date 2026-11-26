@@ -113,10 +113,11 @@ Rules that do not bend:
 
 ---
 
-## 2b. The eight patterns that make an app screen look expensive
+## 2b. The patterns that make an app screen look expensive
 
-`docs/app-patterns.html` is a live reference built by pulling two app redesign
-walkthroughs apart frame by frame. Open it when designing a phone screen.
+`docs/app-patterns.html` is a live reference built by pulling app redesign
+walkthroughs apart frame by frame: Netflix, Spotify, Uber Eats, Airbnb and
+Google Maps. Open it when designing a phone screen or the owner panel.
 In short:
 
 1. **Action row.** One filled pill, then translucent circles **of the same
@@ -138,6 +139,23 @@ In short:
 8. **The brand colour appears once.** Netflix red is a 3px underline on one
    tab and nothing else on the screen. That restraint is why it still reads
    as the brand.
+9. **The context is the headline.** Whatever changes everything below it
+   (the delivery address, the business name, the date range) is the biggest
+   text on the screen, with a small grey label above it. Tapping it changes it.
+10. **Facts as a row of numbers.** Three numbers the same size, small grey
+    labels underneath, hairlines between: "4.5 / rating, 2,000+ / reviews,
+    18 / min". A number reads faster than a sentence. Colour only for a
+    status, such as "Open".
+11. **The main action waits at the thumb.** The one action that matters
+    leaves the row of buttons, becomes the only filled one, and floats at the
+    bottom with a fade behind it. The page scrolls under it.
+
+**The recipe is chosen per brand, not by default.** The dark ground, the
+photo behind everything and the floating controls suit a dark brand like
+Netflix. Turned on a light brand they do damage: the Airbnb redesign goes
+dark and its one red, on its main button, disappears. Before going dark,
+ask whether the brand is dark. The kit's sites and the owner panel are light;
+they take the structure (9, 10, 11) and leave the dark ground behind.
 
 What is **not** in those screens: no animation library, no 3D, no mesh
 gradient, no glass beyond one backdrop blur. The work is choosing one bright
@@ -222,9 +240,24 @@ thing on the page memorable and let everything else be quiet.
 
 ---
 
-## 6. The critique loop
+## 6. The check, then the critique loop
 
-`tools/critique.py` sends a screenshot to a vision model on the user's own
+Run the measured checks first. They are cheap and they do not argue:
+
+```bash
+node tools/check.js              # every site, the owner panel, the docs pages
+node tools/check.js portal/app   # one screen
+```
+
+It screenshots each screen at 400 and 1280 wide into `.check/` and fails on
+anything that can be measured: text under 4.5:1 contrast, tap targets under
+44px on a phone, form fields under 16px, a page that scrolls sideways, text
+that is invisible with scripts off, script errors. The owner panel needs a
+login, so the check fills it with invented sample data from
+`tools/panel-sample.js`. A pass only means nothing measurable is wrong. Open
+the screenshots.
+
+Then the judgement half. `tools/critique.py` sends a screenshot to a vision model on the user's own
 NVIDIA credit and returns specific fixes. Use it for the mechanical half of
 review so the expensive model is spent on judgement.
 
@@ -267,3 +300,4 @@ Use **400×860** for a phone and **1280×900** for desktop. Check both.
 - [ ] Reduced motion: still complete and readable
 - [ ] No item from the generated-design list above
 - [ ] Real content and real images, no placeholder anything
+- [ ] `node tools/check.js` passes, and you have opened the screenshots

@@ -7,32 +7,45 @@
 <meta name="description" content="What your website did this month.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Instrument+Sans:wght@400;600&display=swap">
 <style>
 /* MK portal. Deliberately not the colour of any client site: this is the
-   studio's product, and an owner should never confuse it with their own. */
+   studio's product, and an owner should never confuse it with their own.
+
+   The one job of this screen: see who asked for work, and call them back.
+   So the enquiry count is the largest thing on it, the enquiries come
+   straight after the numbers, and each one ends in a Call button.
+
+   Patterns from docs/app-patterns.html: 01 the action row, 09 the context
+   as the headline, 10 facts as a row of numbers, 11 the action at the thumb. */
 :root {
   --bg: #ffffff;
-  --panel: #fbfaf8;
+  --panel: #f6f5f2;          /* a card is darker than the page, never outlined */
   --ink: #15171c;
-  --muted: #666d78;
-  --faint: #8b929c;
+  --muted: #535a65;          /* 7:1 on white */
+  --faint: #6a707a;          /* 5:1 on white: the lightest text allowed */
   --line: #e7e5e1;
-  --accent: #0f6b5c;        /* single hue: every bar and link */
+  --fill: rgba(21, 23, 28, .07);   /* round buttons: picks up whatever is behind */
+  --accent: #0f6b5c;         /* single hue: the enquiry count, the bars, links */
   --accent-soft: #e4f0ec;
   --warn: #9a5b00;
+  --bad: #b3261e;
   --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --body: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --ease: cubic-bezier(.33, 1, .68, 1);
   color-scheme: light;
 }
 * { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
   font-family: var(--body); font-size: 16px; line-height: 1.5;
   padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  -webkit-font-smoothing: antialiased;
 }
-h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.02em; line-height: 1.1; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; margin: 0; letter-spacing: -0.02em; line-height: 1.1; text-wrap: balance; }
 p { margin: 0; }
+b, strong, th { font-weight: 600; }   /* two weights per face: 400 and 600 */
 a { color: var(--accent); }
 button { font: inherit; cursor: pointer; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
@@ -42,214 +55,355 @@ button { font: inherit; cursor: pointer; }
   padding-left: max(20px, env(safe-area-inset-left, 0px));
   padding-right: max(20px, env(safe-area-inset-right, 0px));
 }
+.center { display: grid; place-items: center; min-height: 100vh; min-height: 100dvh; }
+
+/* ---- buttons: pills with no border; one filled per group ---- */
 .btn {
-  background: var(--ink); color: #fff; border: 0; border-radius: 10px;
-  padding: 12px 18px; font-weight: 600; font-size: 15px;
-  transition: background .2s, transform .2s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 0 24px; border: 0; border-radius: 999px;
+  background: var(--ink); color: #fff; font-size: 16px; font-weight: 600; text-decoration: none;
+  transition: background-color .18s ease-out, transform .18s ease-out;
 }
-.btn:hover { background: var(--accent); }
+.btn:hover { background: #2b2f38; }
 .btn:active { transform: scale(.98); }
-.btn.ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--line); }
-.btn.ghost:hover { color: var(--ink); border-color: var(--ink); background: transparent; }
-
-/* ---- sign in ---- */
-#signin { display: grid; place-items: center; min-height: 100vh; }
-.card-in { width: min(400px, 100%); display: grid; gap: 18px; }
-.card-in h1 { font-size: 30px; font-weight: 800; }
-label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; }
-input {
-  font: inherit; font-size: 16px; padding: 12px 14px; border-radius: 10px;
-  border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); width: 100%;
+.btn:disabled { opacity: .6; cursor: default; }
+.btn.ghost { background: var(--fill); color: var(--ink); }
+.btn.ghost:hover { background: rgba(21, 23, 28, .12); }
+.text-btn {
+  min-height: 44px; padding: 0 4px; border: 0; background: none;
+  color: var(--muted); font-size: 15px; font-weight: 600;
 }
-input:focus { border-color: var(--ink); }
-.err { color: #b3261e; font-size: 14px; }
+.text-btn:hover { color: var(--ink); }
 
-/* ---- shell ---- */
-header.bar { border-bottom: 1px solid var(--line); position: sticky; top: env(safe-area-inset-top, 0px); background: rgba(255,255,255,.92); backdrop-filter: blur(10px); z-index: 5; }
-header.bar .wrap { display: flex; align-items: center; gap: 16px; padding-block: 14px; flex-wrap: wrap; }
-.biz { margin-right: auto; display: grid; gap: 2px; min-width: 0; }
-.biz b { font-family: var(--display); font-size: 19px; font-weight: 800; }
-.biz span { font-size: 13px; color: var(--muted); }
-.plan { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
-        background: var(--accent-soft); color: var(--accent); padding: 5px 10px; border-radius: 99px; }
-main .wrap { padding-block: 28px 56px; display: grid; gap: 22px; }
-/* Grid and flex children refuse to shrink below their content unless told.
-   Without this a wide table drags the whole page sideways on a phone. */
-main .wrap > *, .card > *, .scroll-x { min-width: 0; max-width: 100%; }
-.sec-title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.sec-title h2 { font-size: 22px; font-weight: 800; }
-.sec-title span { font-size: 13px; color: var(--faint); }
+/* ---- forms ---- */
+label { display: grid; gap: 8px; font-size: 14px; font-weight: 600; }
+input, textarea {
+  font: inherit; font-size: 16px;   /* 16px or iPhones zoom the page on focus */
+  width: 100%; min-height: 48px; padding: 12px 14px;
+  border: 1.5px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--ink);
+}
+input:focus, textarea:focus { border-color: var(--ink); }
+textarea { min-height: 112px; resize: vertical; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 8px; justify-items: start; }
+fieldset > * { justify-self: stretch; }
+fieldset > .btn { justify-self: start; }
+legend { padding: 0; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+.stack { display: grid; gap: 24px; margin-top: 24px; max-width: 640px; }
+.sub-label { font-size: 13px; font-weight: 400; color: var(--faint); }
+.lede { color: var(--muted); font-size: 15px; }
+.fine { margin-top: 12px; font-size: 13px; color: var(--faint); }
+.err { color: var(--bad); font-size: 14px; }
+.ok { color: var(--accent); font-size: 14px; font-weight: 600; margin-right: auto; }
+.row-end { display: flex; justify-content: flex-end; align-items: center; gap: 12px; flex-wrap: wrap; }
 
-/* ---- stat tiles ---- */
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 12px; }
-.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 4px; }
-.tile .n { font-family: var(--display); font-size: 38px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
-.tile .k { font-size: 14px; font-weight: 600; }
-.tile .sub { font-size: 12.5px; color: var(--faint); }
-.tile.lead { background: var(--accent-soft); border-color: #c9e2da; }
-.tile.lead .n { color: var(--accent); }
+/* ---- sign in, and the message when the panel cannot load ---- */
+.card-in { width: min(400px, 100%); display: grid; gap: 16px; padding-block: 48px; }
+.card-in h1 { font-size: 32px; }
+.card-in .btn { width: 100%; }
 
-/* ---- chart ---- */
-.card { border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
-.chart-wrap { position: relative; margin-top: 16px; }
-svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
+/* ---- header: the business is the headline (pattern 09) ---- */
+.top { padding-top: 12px; }
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.plan {
+  font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  background: var(--accent-soft); color: var(--accent); padding: 4px 12px; border-radius: 999px;
+}
+.ctx { font-family: var(--body); font-size: 15px; font-weight: 400; letter-spacing: 0; color: var(--muted); }
+.top .ctx { margin-top: 20px; }
+.top h1 { margin-top: 4px; font-size: clamp(32px, 6vw, 52px); }
+
+/* ---- sections: separated by space and a hairline, not boxed ---- */
+main .wrap { padding-bottom: 112px; }
+.sec { padding-block: 32px; border-top: 1px solid var(--line); min-width: 0; }
+.sec.numbers { border-top: 0; padding-top: 24px; }
+.sec-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 16px; }
+.sec-title h2 { font-size: 24px; }
+.sec-title span { font-size: 14px; color: var(--faint); }
+
+/* ---- numbers: one hero, then facts in a row (pattern 10) ---- */
+.numbers .ctx { margin-bottom: 12px; }
+.numbers-row { display: grid; gap: 20px; }
+.hero-num { display: flex; align-items: flex-end; gap: 16px; min-width: 0; }
+.hero-num .n {
+  font-family: var(--display); font-size: clamp(76px, 20vw, 112px); font-weight: 800;
+  line-height: .8; letter-spacing: -0.04em; color: var(--accent); font-variant-numeric: tabular-nums;
+}
+.hero-k { display: grid; gap: 4px; min-width: 0; }
+.hero-k .k { font-family: var(--display); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+.delta { font-size: 14px; color: var(--muted); }
+.delta.up { color: var(--accent); }
+.facts {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  background: var(--panel); border-radius: 16px; padding-block: 16px;
+}
+.fact { display: grid; gap: 2px; align-content: start; padding-inline: 16px; min-width: 0; }
+.fact + .fact { border-left: 1px solid var(--line); }
+.fact b {
+  font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -0.02em;
+  line-height: 1.1; font-variant-numeric: tabular-nums;
+}
+.fact .k { font-size: 14px; line-height: 1.3; color: var(--muted); }
+.fact .delta { margin-top: 4px; font-size: 13px; font-weight: 600; }
+.note { margin-top: 16px; background: #fff8ec; border-radius: 12px; padding: 12px 16px; font-size: 14px; color: var(--warn); }
+@media (min-width: 860px) {
+  .numbers-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); align-items: center; gap: 40px; }
+  .facts { padding-block: 24px; }
+  .fact { padding-inline: 24px; }
+  .fact b { font-size: 34px; }
+}
+
+/* ---- enquiries: cards on a phone, a table on a desk ---- */
+.lead-cards { display: grid; gap: 12px; }
+.lead { background: var(--panel); border-radius: 16px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.lead-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.lead h3 { font-size: 22px; min-width: 0; overflow-wrap: anywhere; }
+.lead .place { margin-top: -4px; font-size: 15px; color: var(--muted); }
+.lead-facts { display: flex; border-block: 1px solid var(--line); padding-block: 12px; }
+.lead-facts > div { display: grid; gap: 2px; align-content: start; flex: none; padding-inline: 12px; }
+.lead-facts > div:first-child { padding-left: 0; }
+.lead-facts > div:last-child { padding-right: 0; }
+.lead-facts > div + div { border-left: 1px solid var(--line); }
+.lead-facts > .grow { flex: 1 1 0; min-width: 0; }
+.lead-facts b { font-size: 15px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.lead-facts b.bad { color: var(--bad); }
+.lead-facts span { font-size: 13px; color: var(--muted); }
+.lead .msg { font-size: 15px; color: var(--muted); }
+/* Pattern 01: one filled pill, then circles of the same height. */
+.action-row { display: flex; align-items: center; gap: 8px; }
+.call {
+  flex: 1; min-width: 0; height: 48px; padding-inline: 12px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--ink); color: #fff; font-size: 15px; font-weight: 600; text-decoration: none;
+  transition: background-color .18s ease-out, transform .18s ease-out;
+}
+.call:hover { background: #2b2f38; }
+.call:active { transform: scale(.98); }
+.call svg { flex: none; }
+.call .short { display: none; }
+.call.off { background: var(--fill); color: var(--muted); font-weight: 400; }
+@media (max-width: 380px) { .call .long { display: none; } .call .short { display: inline; } }
+.circ {
+  width: 48px; height: 48px; flex: none; border-radius: 50%;
+  display: grid; place-items: center; background: var(--fill); color: var(--ink);
+  transition: background-color .18s ease-out;
+}
+.circ:hover { background: rgba(21, 23, 28, .12); }
+.lead-table { display: none; }
+@media (min-width: 720px) { .lead-cards { display: none; } .lead-table { display: block; } }
+
+/* A table is the one thing allowed to be wider than the screen, and only
+   inside its own scroller. */
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; }
+.lead-table table { min-width: 680px; }
+th { text-align: left; font-size: 13px; color: var(--faint); padding: 0 16px 8px 0; }
+td { padding: 12px 16px 12px 0; border-top: 1px solid var(--line); font-size: 15px; vertical-align: top; }
+.when { color: var(--muted); font-size: 14px; }
+td.when { white-space: nowrap; }
+td a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+td a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.note-line { display: inline-block; max-width: 32ch; margin-top: 4px; }
+.pill {
+  display: inline-block; font-size: 13px; font-weight: 600; line-height: 1.5; white-space: nowrap;
+  padding: 2px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+}
+.pill.far { background: #fdeaea; color: var(--bad); }
+.empty { color: var(--muted); font-size: 15px; }
+
+/* ---- chart: drawn at the width it is shown, so labels stay 12px ---- */
+.chart-wrap { position: relative; }
+#chartSvg svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
 .bar { fill: var(--accent); }
-.bar-hit { fill: transparent; cursor: pointer; }
 .bar.on { fill: var(--ink); }
+.bar-hit { fill: transparent; cursor: pointer; }
 .grid-line { stroke: var(--line); stroke-width: 1; }
-.axis-txt { fill: var(--faint); font-family: var(--body); font-size: 11px; }
+.axis-txt { fill: var(--faint); font-family: var(--body); font-size: 12px; }
 .tip {
-  position: absolute; pointer-events: none; background: var(--ink); color: #fff;
-  font-size: 12.5px; padding: 7px 10px; border-radius: 8px; white-space: nowrap;
-  transform: translate(-50%, -112%); opacity: 0; transition: opacity .12s;
+  position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap;
+  background: var(--ink); color: #fff; font-size: 13px; padding: 8px 12px; border-radius: 8px;
+  transform: translate(-50%, calc(-100% - 8px)); opacity: 0; transition: opacity .12s ease-out;
 }
 .tip.on { opacity: 1; }
-.tip b { font-variant-numeric: tabular-nums; }
-
-/* ---- tables ---- */
-/* A table is the one thing allowed to be wider than the screen, and only
-   inside its own scroller. Without this the nowrap cells push the whole
-   page wider on a phone. */
-.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 14px; }
-table { width: 100%; border-collapse: collapse; min-width: 460px; }
-th { text-align: left; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); font-weight: 600; padding-bottom: 8px; }
-td { padding: 11px 0; border-top: 1px solid var(--line); font-size: 15px; vertical-align: top; }
-td.when { color: var(--muted); font-size: 13.5px; white-space: nowrap; }
-td .when a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
-td .when a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-td > a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
-td > a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-.note-line { white-space: normal; display: inline-block; max-width: 30ch; margin-top: 4px; font-style: italic; }
-.pill { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
-.pill.far { background: #fdeaea; color: #b3261e; }
-.empty { color: var(--muted); font-size: 15px; padding: 18px 0; }
-
-/* ---- notes & locked ---- */
-.note { background: #fff8ec; border: 1px solid #f0e2c8; border-radius: 12px; padding: 13px 15px; font-size: 14px; color: var(--warn); }
-.locked { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; margin-top: 14px; }
-.locked div { border: 1px dashed var(--line); border-radius: 12px; padding: 14px; font-size: 14px; color: var(--faint); }
-.locked b { display: block; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
-textarea {
-  font: inherit; font-size: 15px; width: 100%; min-height: 96px; resize: vertical;
-  border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px;
-  background: var(--bg); color: var(--ink);
+.chart-table summary {
+  min-height: 44px; display: inline-flex; align-items: center; gap: 8px; margin-top: 8px;
+  font-size: 14px; color: var(--muted);
 }
-textarea:focus { border-color: var(--ink); }
-.row-end { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
-.ok { color: var(--accent); font-size: 14px; font-weight: 500; }
-/* business details editor */
-.field-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
-.field-row input { font-size: 15px; padding: 10px 12px; }
-.icon-btn { border: 1.5px solid var(--line); background: var(--bg); color: var(--muted);
-            border-radius: 9px; width: 40px; height: 40px; font-size: 18px; line-height: 1; }
-.icon-btn:hover { border-color: #b3261e; color: #b3261e; }
-.two-up { display: grid; grid-template-columns: 1fr 180px; gap: 12px; align-items: end; }
-.sub-label { font-size: 12px; color: var(--faint); margin-top: 4px; }
-@media (max-width: 620px) { .field-row { grid-template-columns: 1fr 1fr auto; } .two-up { grid-template-columns: 1fr; } }
-@media (max-width: 560px) { .tile .n { font-size: 32px; } }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.chart-table table { max-width: 360px; }
+
+/* ---- business details ---- */
+.field-row { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) 44px; gap: 8px; align-items: center; margin-bottom: 8px; }
+.icon-btn {
+  width: 44px; height: 44px; border: 0; border-radius: 50%; display: grid; place-items: center;
+  background: var(--fill); color: var(--muted); font-size: 20px; line-height: 1;
+  transition: background-color .18s ease-out, color .18s ease-out;
+}
+.icon-btn:hover { background: #fdeaea; color: var(--bad); }
+.two-up { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 12px; align-items: end; }
+.two-up label { font-size: 13px; font-weight: 400; color: var(--muted); }
+@media (max-width: 620px) { .two-up { grid-template-columns: minmax(0, 1fr); } }
+
+/* Pattern 11: while there are unsaved changes and the form's own button is
+   off screen, the save action waits at the thumb. */
+.savebar {
+  position: fixed; z-index: 10; left: 50%; bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  width: min(560px, calc(100% - 32px)); min-height: 56px; transform: translateX(-50%);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 6px 6px 6px 20px; border-radius: 999px; background: var(--ink); color: #fff;
+  font-size: 15px; box-shadow: 0 12px 32px rgba(21, 23, 28, .28);
+  animation: rise .2s var(--ease);
+}
+.savebar .btn { min-height: 44px; padding-inline: 20px; background: #fff; color: var(--ink); }
+.savebar .btn:hover { background: #ebebeb; }
+.savebar.done .btn { display: none; }
+@keyframes rise { from { opacity: 0; transform: translate(-50%, 12px); } }
+
+/* ---- change requests and locked features ---- */
+.edits { list-style: none; margin: 24px 0 0; padding: 0; }
+.edits li { display: grid; gap: 4px; padding-block: 12px; border-top: 1px solid var(--line); }
+.edits .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 14px; color: var(--muted); }
+summary { list-style: none; cursor: pointer; }
+summary::-webkit-details-marker { display: none; }
+summary::after {
+  content: ""; flex: none; width: 8px; height: 8px; margin-inline: 4px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg); transition: transform .18s ease-out;
+}
+details[open] > summary::after { transform: translateY(2px) rotate(-135deg); }
+#lockedCard summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+#lockedCard summary h2 { font-size: 24px; }
+#lockedCard summary span { display: block; margin-top: 4px; font-size: 14px; color: var(--muted); }
+.locked {
+  list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 16px 32px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+}
+.locked li { display: grid; gap: 2px; font-size: 15px; }
+.locked span { color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
 </style>
 </head>
 <body>
 
+<noscript>
+  <div class="wrap center"><p>This panel needs JavaScript. Switch it on in your browser, then reload the page.</p></div>
+</noscript>
+
+<!-- shown only when the sign-in code cannot be downloaded, instead of a blank page -->
+<section id="boot" class="wrap center" hidden>
+  <div class="card-in">
+    <h1>The panel did not load</h1>
+    <p class="lede">Check your internet connection, then try again. If it keeps happening, tell your studio.</p>
+    <button class="btn" type="button" onclick="location.reload()">Try again</button>
+  </div>
+</section>
+
 <!-- sign in -->
-<section id="signin" class="wrap" hidden>
+<section id="signin" class="wrap center" hidden>
   <form class="card-in" id="loginForm">
     <h1>Your website panel</h1>
-    <p style="color:var(--muted);font-size:15px">Sign in to see what your website did this month.</p>
+    <p class="lede">Sign in to see what your website did this month.</p>
     <label for="em">Email<input id="em" type="email" autocomplete="username" required></label>
     <label for="pw">Password<input id="pw" type="password" autocomplete="current-password" required></label>
     <button class="btn" type="submit">Sign in</button>
     <p class="err" id="loginErr" hidden></p>
-    <p style="color:var(--faint);font-size:13px">Forgotten your password? Contact your studio and they will reset it.</p>
+    <p class="fine">Forgotten your password? Contact your studio and they will reset it.</p>
   </form>
 </section>
 
 <!-- dashboard -->
 <div id="app" hidden>
-  <header class="bar">
+  <header class="top">
     <div class="wrap">
-      <div class="biz"><b id="bizName">—</b><span id="bizSite"></span></div>
-      <span class="plan" id="planName">—</span>
-      <button class="btn ghost" id="out" type="button">Sign out</button>
+      <div class="top-row">
+        <span class="plan" id="planName">—</span>
+        <button class="text-btn" id="out" type="button">Sign out</button>
+      </div>
+      <p class="ctx" id="bizSite"></p>
+      <h1 id="bizName">—</h1>
     </div>
   </header>
 
   <main>
     <div class="wrap">
-      <div class="sec-title">
-        <h2>Last 30 days</h2>
-        <span id="range"></span>
-      </div>
-
-      <div class="tiles" id="tiles"></div>
-
-      <p class="note">
-        <b>Call taps are not completed calls.</b> This counts people who tapped your
-        phone number on the website. It cannot tell whether the call connected or
-        was answered. A tracking number would show real calls.
-      </p>
-
-      <section class="card">
-        <div class="sec-title">
-          <h2>Visitors each day</h2>
-          <span>hover a bar for the exact figure</span>
+      <section class="sec numbers" aria-labelledby="numbersTitle">
+        <h2 class="ctx" id="numbersTitle">Last 30 days · <span id="range"></span></h2>
+        <div class="numbers-row">
+          <div class="hero-num" id="heroNum"></div>
+          <div class="facts" id="facts"></div>
         </div>
-        <div class="chart-wrap" id="chartWrap"></div>
-      </section>
-
-      <section class="card">
-        <div class="sec-title"><h2>Enquiries</h2><span>from the website form</span></div>
-        <div id="leads"></div>
-      </section>
-
-      <section class="card" id="detailsCard" hidden>
-        <div class="sec-title"><h2>Your business details</h2><span>changes appear on your website within a minute</span></div>
-        <p style="color:var(--muted);font-size:14.5px;margin-top:8px">
-          Change these yourself, any time. You do not need to ask us.
+        <p class="fine" id="factsNote"></p>
+        <p class="note">
+          <b>Call taps are not completed calls.</b> This counts people who tapped your
+          phone number on the website. It cannot tell whether the call connected or
+          was answered. A tracking number would show real calls.
         </p>
-        <form id="detailsForm" style="margin-top:16px;display:grid;gap:18px">
+      </section>
+
+      <section class="sec" aria-labelledby="leadsTitle">
+        <div class="sec-title"><h2 id="leadsTitle">Enquiries</h2><span>from the website form, newest first</span></div>
+        <div id="leads"></div>
+        <p class="fine" id="leadsNote" hidden>Distances are estimates: a straight line adjusted for roads, not a planned route.</p>
+      </section>
+
+      <section class="sec" aria-labelledby="chartTitle">
+        <div class="sec-title"><h2 id="chartTitle">Visits each day</h2><span id="chartHint"></span></div>
+        <div class="chart-wrap" id="chartWrap">
+          <div id="chartSvg"></div>
+          <div class="tip" id="tip" aria-hidden="true"></div>
+        </div>
+        <details class="chart-table">
+          <summary>See the numbers as a table</summary>
+          <div class="scroll-x" id="chartRows"></div>
+        </details>
+      </section>
+
+      <section class="sec" id="detailsCard" hidden aria-labelledby="detailsTitle">
+        <div class="sec-title"><h2 id="detailsTitle">Your business details</h2><span>changes appear on your website within a minute</span></div>
+        <p class="lede">Change these yourself, any time. You do not need to ask us.</p>
+        <form id="detailsForm" class="stack">
           <label for="d-phone">Phone number
             <input id="d-phone" type="tel" placeholder="(555) 010-4470">
             <span class="sub-label">This updates the tap-to-call button everywhere on your site.</span>
           </label>
 
-          <div>
-            <span style="font-size:13px;font-weight:600">Opening hours</span>
-            <div id="hoursRows" style="margin-top:8px"></div>
+          <fieldset>
+            <legend>Opening hours</legend>
+            <div id="hoursRows"></div>
             <button class="btn ghost" type="button" id="addHour">Add a line</button>
-          </div>
+          </fieldset>
 
-          <div>
-            <span style="font-size:13px;font-weight:600">Notice banner</span>
-            <span class="sub-label" style="display:block;margin-bottom:8px">
+          <fieldset>
+            <legend>Notice banner</legend>
+            <span class="sub-label">
               For a holiday, a closure or anything urgent. It shows at the top of your
               website and disappears on its own after the date you choose.
             </span>
             <div class="two-up">
-              <input id="d-notice" type="text" placeholder="Closed Thursday for Thanksgiving">
-              <label for="d-until" style="font-size:12px;color:var(--faint)">Hide it after
-                <input id="d-until" type="date">
-              </label>
+              <input id="d-notice" type="text" aria-label="Notice text" placeholder="Closed Thursday for Thanksgiving">
+              <label for="d-until">Hide it after<input id="d-until" type="date"></label>
             </div>
             <p class="err" id="noticeErr" hidden>Choose a date for the notice to disappear, so it cannot be left up by accident.</p>
-          </div>
+          </fieldset>
 
+          <p class="err" id="detailsErr" hidden>That did not save. Check your connection and try again.</p>
           <div class="row-end">
             <span class="ok" id="detailsOk" hidden>Saved. Your website is updating.</span>
-            <button class="btn" type="submit">Save changes</button>
+            <button class="btn" type="submit" id="detailsSave">Save changes</button>
           </div>
         </form>
       </section>
 
-      <section class="card">
-        <div class="sec-title"><h2>Request a change</h2><span>anything else: text, photos, prices</span></div>
-        <p style="color:var(--muted);font-size:14.5px;margin-top:8px">
+      <section class="sec" aria-labelledby="editTitle">
+        <div class="sec-title"><h2 id="editTitle">Request a change</h2><span>anything else: text, photos, prices</span></div>
+        <p class="lede">
           Small edits are included and usually done within two business days. Anything
           needing a new page or a redesign gets a written quote first.
         </p>
-        <form id="editForm" style="margin-top:12px">
-          <textarea id="editBody" placeholder="What would you like changed?" required></textarea>
+        <form id="editForm" class="stack">
+          <textarea id="editBody" aria-label="What would you like changed?" placeholder="What would you like changed?" required></textarea>
+          <p class="err" id="editErr" hidden>That did not send. Check your connection and try again.</p>
           <div class="row-end">
             <span class="ok" id="editOk" hidden>Sent. Your studio has it.</span>
             <button class="btn" type="submit">Send request</button>
@@ -258,26 +412,33 @@ textarea:focus { border-color: var(--ink); }
         <div id="editList"></div>
       </section>
 
-      <section class="card" id="lockedCard" hidden>
-        <div class="sec-title"><h2>Not on your plan yet</h2></div>
-        <div class="locked" id="locked"></div>
+      <section class="sec" id="lockedCard" hidden>
+        <details>
+          <summary><div><h2>Not on your plan yet</h2><span id="lockedCount"></span></div></summary>
+          <ul class="locked" id="locked"></ul>
+          <p class="fine">Ask your studio about any of these.</p>
+        </details>
       </section>
     </div>
   </main>
+
+  <div class="savebar" id="saveBar" role="status" hidden>
+    <span id="saveBarText">You have unsaved changes</span>
+    <button class="btn" type="button" id="saveBarBtn">Save changes</button>
+  </div>
 </div>
 
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/+esm';
-
 // Publishable key: safe in a browser. Row-level security decides what each
 // signed-in person can read, so this key alone shows nobody anything.
 const CFG = {
   url: 'https://mhahkbssltukjhusjsjf.supabase.co',
   key: 'sb_publishable_TI48mx2rEonk2g3Ds6Bihw_R9_Dsjbo',
+  client: 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/+esm',
 };
-const db = createClient(CFG.url, CFG.key);
 const $ = (id) => document.getElementById(id);
 const DAYS = 30;
+const DAY_MS = 864e5;
 
 const FEATURES = {
   menu: ['Menu and ordering', 'Edit your menu and take orders on the site'],
@@ -290,19 +451,39 @@ const FEATURES = {
   pipeline: ['Lead follow-up', 'Chases quotes that have gone quiet'],
 };
 
-/* ---------------- sign in ---------------- */
-$('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const err = $('loginErr'); err.hidden = true;
-  const { error } = await db.auth.signInWithPassword({
-    email: $('em').value.trim(), password: $('pw').value,
-  });
-  if (error) { err.textContent = 'That email and password did not match.'; err.hidden = false; }
-});
-$('out').addEventListener('click', async () => { await db.auth.signOut(); location.reload(); });
+const ICON = {
+  phone: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4.6 2.5h3l1.5 4-2 1.3a10 10 0 0 0 5.1 5.1l1.3-2 4 1.5v3a1.6 1.6 0 0 1-1.7 1.6A15.2 15.2 0 0 1 3 4.2a1.6 1.6 0 0 1 1.6-1.7Z"/></svg>',
+  pin: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M10 18s6-5.2 6-10a6 6 0 0 0-12 0c0 4.8 6 10 6 10Z"/><circle cx="10" cy="8" r="2.2"/></svg>',
+  mail: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="m3 5.5 7 5.5 7-5.5"/></svg>',
+};
 
-db.auth.getSession().then(({ data }) => data.session ? start() : show('signin'));
-db.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') start(); });
+// Loaded on its own, so a blocked or failed download shows a message
+// instead of a blank white page.
+let db = null;
+try {
+  const { createClient } = await import(CFG.client);
+  db = createClient(CFG.url, CFG.key);
+} catch {
+  $('boot').hidden = false;
+}
+if (db) wire();
+
+function wire() {
+  $('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = $('loginErr'); err.hidden = true;
+    const { error } = await db.auth.signInWithPassword({
+      email: $('em').value.trim(), password: $('pw').value,
+    });
+    if (error) { err.textContent = 'That email and password did not match.'; err.hidden = false; }
+  });
+  $('out').addEventListener('click', async () => { await db.auth.signOut(); location.reload(); });
+  wireChart();
+  wireDetails();
+  wireEdits();
+  db.auth.getSession().then(({ data }) => (data.session ? start() : show('signin')));
+  db.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') start(); });
+}
 
 function show(which) {
   $('signin').hidden = which !== 'signin';
@@ -310,9 +491,17 @@ function show(which) {
 }
 
 /* ---------------- load ---------------- */
+let started = false;
 async function start() {
+  if (started) return;   // the session check and the auth event can both arrive
+  started = true;
   show('app');
-  const { data: accounts } = await db.from('mk_accounts').select('*, mk_plans(*)');
+  const { data: accounts, error } = await db.from('mk_accounts').select('*, mk_plans(*)');
+  if (error) {
+    $('bizName').textContent = 'Something went wrong';
+    $('bizSite').textContent = 'Your numbers could not be loaded. Refresh the page to try again.';
+    return;
+  }
   if (!accounts?.length) {
     $('bizName').textContent = 'No website yet';
     $('bizSite').textContent = 'Your studio has not linked a site to this login.';
@@ -324,184 +513,329 @@ async function start() {
 
   const { data: sites } = await db.from('mk_sites').select('*').eq('account_id', acct.id);
   const site = sites?.[0];
-  $('bizSite').textContent = site ? (site.is_live ? site.domain + ' — live' : site.domain + ' — not live yet') : 'No site linked';
+  $('bizSite').textContent = site
+    ? `Your website · ${site.domain} · ${site.is_live ? 'live' : 'not live yet'}`
+    : 'No site linked yet';
 
-  const since = new Date(Date.now() - DAYS * 864e5).toISOString();
-  const fmt = (d) => new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-  $('range').textContent = fmt(since) + ' to ' + fmt(Date.now());
+  // Whole days in UTC, because that is how mk_site_daily groups them. Every
+  // date on this page is printed in UTC too, so the bar marked Nov 26 holds
+  // Nov 26's rows. Printed in local time it read a day early in the US.
+  const days = lastDays(DAYS);
+  const since = days[0] + 'T00:00:00Z';
+  const before = new Date(Date.parse(since) - DAYS * DAY_MS).toISOString();
+  $('range').textContent = `${fmtDay(days[0])} to ${fmtDay(days[days.length - 1])}`;
 
-  const [{ data: daily }, { data: leads }, { data: edits }, { data: settings }] = await Promise.all([
-    db.from('mk_site_daily').select('*').gte('day', since).order('day'),
+  const [daily, leads, count, prevCount, edits, settings] = await Promise.all([
+    db.from('mk_site_daily').select('*').gte('day', before).order('day'),
     db.from('mk_leads').select('*').gte('created_at', since).order('created_at', { ascending: false }).limit(50),
+    // Counted by the database, not from the rows loaded: the list stops at 50.
+    db.from('mk_leads').select('id', { count: 'exact', head: true }).gte('created_at', since),
+    db.from('mk_leads').select('id', { count: 'exact', head: true }).gte('created_at', before).lt('created_at', since),
     db.from('mk_edit_requests').select('*').order('created_at', { ascending: false }).limit(10),
     site ? db.from('mk_site_settings').select('*').eq('site_id', site.id).maybeSingle() : Promise.resolve({ data: null }),
   ]);
 
-  renderTiles(daily ?? [], leads ?? []);
-  renderChart(daily ?? []);
-  renderLeads(leads ?? []);
-  renderEdits(edits ?? []);
+  const rows = daily.data ?? [];
+  const cut = Date.parse(since);
+  const cur = rows.filter((r) => Date.parse(r.day) >= cut);
+  const prev = rows.filter((r) => Date.parse(r.day) < cut);
+  const leadRows = leads.data ?? [];
+  const total = count.error || count.count == null ? leadRows.length : count.count;
+  const prevTotal = prevCount.error ? null : prevCount.count;
+
+  renderNumbers(total, prevTotal, cur, prev);
+  renderLeads(leadRows, total);
+  renderChart(days, cur);
+  renderEdits(edits.data ?? []);
   renderLocked(acct.mk_plans?.features ?? []);
   $('editForm').dataset.account = acct.id;
-  if (site) renderDetails(site, settings);
+  if (site) renderDetails(site, settings.data);
 }
 
-function sum(rows, k) { return rows.reduce((t, r) => t + (Number(r[k]) || 0), 0); }
+/* ---------------- numbers ---------------- */
+function renderNumbers(leads, prevLeads, cur, prev) {
+  $('heroNum').innerHTML =
+    `<b class="n">${fmtN(leads)}</b>
+     <span class="hero-k"><span class="k">${leads === 1 ? 'enquiry' : 'enquiries'}</span>${countChange(leads, prevLeads)}</span>`;
 
-function renderTiles(daily, leads) {
-  const tiles = [
-    ['lead', leads.length, 'Enquiries', 'people who filled in the form'],
-    ['', sum(daily, 'visitors'), 'Visitors', 'different people, counted once a day'],
-    ['', sum(daily, 'call_taps'), 'Call taps', 'tapped your phone number'],
-    ['', sum(daily, 'views'), 'Page views', 'pages opened in total'],
+  // A site that links out to a booking page reports booking clicks. For one
+  // that does not, the third number is page views.
+  const booked = sum(cur, 'book_clicks') + sum(prev, 'book_clicks') > 0;
+  const facts = [
+    ['visits', 'visitors'],
+    ['call taps', 'call_taps'],
+    booked ? ['booking clicks', 'book_clicks'] : ['page views', 'views'],
   ];
-  $('tiles').innerHTML = tiles.map(([cls, n, k, sub]) =>
-    `<div class="tile ${cls}"><span class="n">${n}</span><span class="k">${k}</span><span class="sub">${sub}</span></div>`
-  ).join('');
-}
-
-/* One series, so one hue and no legend: the heading names it.
-   Bars sit on the baseline with rounded tops and a 2px gap. */
-function renderChart(daily) {
-  const wrap = $('chartWrap');
-  const byDay = new Map(daily.map((d) => [d.day.slice(0, 10), d]));
-  const days = [];
-  for (let i = DAYS - 1; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
-    const row = byDay.get(d);
-    days.push({ date: d, visitors: Number(row?.visitors || 0) });
-  }
-  const max = Math.max(4, ...days.map((d) => d.visitors));
-  const W = 900, H = 240, padL = 34, padB = 26, padT = 10;
-  const plotW = W - padL, plotH = H - padB - padT;
-  const step = plotW / days.length, bw = Math.max(3, step - 2);
-
-  const ticks = [0, Math.round(max / 2), max];
-  const y = (v) => padT + plotH - (v / max) * plotH;
-
-  const grid = ticks.map((t) =>
-    `<line class="grid-line" x1="${padL}" x2="${W}" y1="${y(t)}" y2="${y(t)}"></line>
-     <text class="axis-txt" x="${padL - 8}" y="${y(t) + 4}" text-anchor="end">${t}</text>`).join('');
-
-  // Bars first, then the invisible hit areas on top, so a hover is never
-  // swallowed by the bar itself.
-  const bars = days.map((d, i) => {
-    const h = d.visitors === 0 ? 0 : Math.max(2, (d.visitors / max) * plotH);
-    const x = padL + i * step;
-    return `<rect class="bar" data-i="${i}" x="${x}" y="${padT + plotH - h}" width="${bw}" height="${h}" rx="${Math.min(4, bw / 2)}"></rect>`;
+  $('facts').innerHTML = facts.map(([label, key]) => {
+    const n = sum(cur, key), p = prev.length ? sum(prev, key) : null;
+    return `<div class="fact"><b>${fmtN(n)}</b><span class="k">${label}</span>${pctChange(n, p)}</div>`;
   }).join('');
-  const hits = days.map((d, i) =>
-    `<rect class="bar-hit" x="${padL + i * step}" y="${padT}" width="${bw}" height="${plotH}" data-i="${i}"></rect>`
-  ).join('');
 
-  const labelAt = (i) => padL + i * step + bw / 2;
-  const marks = [0, Math.floor(DAYS / 2), DAYS - 1].map((i) =>
-    `<text class="axis-txt" x="${labelAt(i)}" y="${H - 6}" text-anchor="middle">${
-      new Date(days[i].date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</text>`).join('');
-
-  wrap.innerHTML =
-    `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Visitors each day for the last ${DAYS} days">
-       ${grid}${bars}${hits}${marks}
-     </svg>
-     <div class="tip" id="tip"></div>
-     <details style="margin-top:12px">
-       <summary style="font-size:13.5px;color:var(--muted);cursor:pointer">See the numbers as a table</summary>
-       <div class="scroll-x"><table><thead><tr><th>Day</th><th>Visitors</th></tr></thead><tbody>${
-         days.map((d) => `<tr><td class="when">${d.date}</td><td>${d.visitors}</td></tr>`).join('')
-       }</tbody></table></div>
-     </details>`;
-
-  const tip = $('tip'), svg = wrap.querySelector('svg');
-  const clear = () => {
-    tip.classList.remove('on');
-    svg.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on'));
-  };
-  svg.addEventListener('mousemove', (e) => {
-    const hit = e.target.closest('.bar-hit');
-    if (!hit) { clear(); return; }
-    const i = +hit.dataset.i, d = days[i], r = svg.getBoundingClientRect();
-    svg.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on'));
-    svg.querySelector(`.bar[data-i="${i}"]`)?.classList.add('on');
-    tip.innerHTML = `${new Date(d.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} &middot; <b>${d.visitors}</b>`;
-    tip.style.left = (e.clientX - r.left) + 'px';
-    tip.style.top = (e.clientY - r.top) + 'px';
-    tip.classList.add('on');
-  });
-  svg.addEventListener('mouseleave', clear);
+  $('factsNote').textContent =
+    'Visits count each person once a day, so someone who comes back on three days is three visits. ' +
+    (booked ? 'Booking clicks are taps on your booking link, not finished bookings. ' : '') +
+    'Changes compare with the 30 days before.';
 }
 
-// How far the job is, as it stood when they asked. Marked as an estimate,
-// because it is a straight-line distance adjusted for roads, not a routed
-// drive time, and the owner should not plan a tight day around it.
-function distanceCell(l) {
-  if (l.road_miles == null) return '<span class="when">—</span>';
-  const far = l.in_area === false;
-  return `<span class="${far ? 'pill far' : 'pill'}">${l.road_miles} mi</span>` +
-         `<br><span class="when">about ${l.drive_minutes} min${far ? ', outside area' : ''}</span>`;
+// Enquiries are small whole numbers, so the change is said in words.
+function countChange(n, p) {
+  if (p == null) return '';
+  const d = n - p;
+  const text = d === 0 ? 'same as the 30 days before'
+    : `${fmtN(Math.abs(d))} ${d > 0 ? 'more' : 'fewer'} than the 30 days before`;
+  return `<span class="delta ${d > 0 ? 'up' : ''}">${text}</span>`;
 }
 
-// The phone number is the point of a lead, so make it tappable: an owner
-// reading this on site can ring back without copying anything out.
+// A percentage of a small number exaggerates, so below 20 it is a count.
+function pctChange(n, p) {
+  if (p == null) return '';
+  const d = n - p;
+  const sign = d > 0 ? '+' : '−';
+  const text = d === 0 ? 'same'
+    : p < 20 ? `${sign}${fmtN(Math.abs(d))}`
+    : `${sign}${Math.round((Math.abs(d) / p) * 100)}%`;
+  return `<span class="delta ${d > 0 ? 'up' : ''}">${text}</span>`;
+}
+
+/* ---------------- enquiries ---------------- */
+const phoneOf = (l) => l.phone || (l.contact && !String(l.contact).includes('@') ? l.contact : '');
+const emailOf = (l) => l.email || (l.contact && String(l.contact).includes('@') ? l.contact : '');
+const placeOf = (l) => [l.address, l.city, l.zip].filter(Boolean).join(', ');
+const mapLink = (q) => 'https://maps.google.com/?q=' + encodeURIComponent(q);
+
+function renderLeads(leads, total) {
+  if (!leads.length) {
+    $('leads').innerHTML = '<p class="empty">No enquiries yet in this period. They will appear here the moment someone uses the form.</p>';
+    $('leadsNote').hidden = true;
+    return;
+  }
+  $('leadsNote').hidden = !leads.some((l) => l.road_miles != null);
+  $('leads').innerHTML =
+    `<div class="lead-cards">${leads.map(leadCard).join('')}</div>
+     <div class="scroll-x lead-table"><table><thead><tr><th>Who</th><th>Where</th><th>Wanted</th><th>How far</th><th>When</th><th>Came in</th></tr></thead><tbody>${
+       leads.map(leadRow).join('')
+     }</tbody></table></div>` +
+    (total > leads.length ? `<p class="fine">Showing the ${leads.length} newest of ${fmtN(total)}.</p>` : '');
+}
+
+// On a phone: the name, a row of facts, what they said, and one Call button.
+function leadCard(l) {
+  const phone = phoneOf(l), email = emailOf(l), place = placeOf(l);
+  const tel = String(phone).replace(/[^0-9+]/g, '');
+  const facts = [];
+  if (l.road_miles != null) {
+    const far = l.in_area === false;
+    const sub = far ? 'outside your area' : l.drive_minutes != null ? `about ${esc(l.drive_minutes)} min` : 'estimate';
+    facts.push(`<div><b class="${far ? 'bad' : ''}">${esc(l.road_miles)} mi</b><span>${sub}</span></div>`);
+  }
+  // A word joiner each side of the dash keeps a time range such as
+  // "13:00–15:00" on one line; a phone is narrow enough to split it.
+  if (l.preferred) facts.push(`<div class="grow"><b>${esc(l.preferred).replace(/(\d{1,2}:\d{2})\s*[–-]\s*(?=\d{1,2}:\d{2})/g, '$1\u2060–\u2060')}</b><span>when they want it</span></div>`);
+  facts.push(`<div><b>${esc(ago(l.created_at))}</b><span>came in</span></div>`);
+
+  const call = tel
+    ? `<a class="call" href="tel:${esc(tel)}">${ICON.phone}<span class="long">Call ${esc(phone)}</span><span class="short">Call back</span></a>`
+    : '<span class="call off">No phone number given</span>';
+  return `<article class="lead">
+    <div class="lead-head"><h3>${esc(l.name)}</h3>${l.requested ? `<span class="pill">${esc(l.requested)}</span>` : ''}</div>
+    ${place ? `<p class="place">${esc(place)}</p>` : ''}
+    <div class="lead-facts">${facts.join('')}</div>
+    ${l.message ? `<p class="msg">${esc(l.message)}</p>` : ''}
+    <div class="action-row">
+      ${call}
+      ${place ? `<a class="circ" href="${esc(mapLink(place))}" target="_blank" rel="noopener" aria-label="Open ${esc(place)} in maps">${ICON.pin}</a>` : ''}
+      ${email ? `<a class="circ" href="mailto:${esc(email)}" aria-label="Email ${esc(email)}">${ICON.mail}</a>` : ''}
+    </div>
+  </article>`;
+}
+
+// On a desk: one row each, every column lined up for scanning.
+function leadRow(l) {
+  return `<tr>
+    <td><b>${esc(l.name)}</b>${contactLines(l)}</td>
+    <td>${placeCell(l)}</td>
+    <td>${l.requested ? '<span class="pill">' + esc(l.requested) + '</span>' : '—'}${
+      l.message ? '<br><span class="when note-line">' + esc(l.message) + '</span>' : ''}</td>
+    <td>${distanceCell(l)}</td>
+    <td class="when">${esc(l.preferred || '—')}</td>
+    <td class="when">${new Date(l.created_at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</td>
+  </tr>`;
+}
+
+// The phone number is the point of a lead, so it is tappable.
 function contactLines(l) {
-  const phone = l.phone || l.contact;
+  const phone = phoneOf(l), email = emailOf(l);
   const out = [];
   if (phone) out.push(`<a href="tel:${esc(String(phone).replace(/[^0-9+]/g, ''))}">${esc(phone)}</a>`);
-  if (l.email) out.push(`<a href="mailto:${esc(l.email)}">${esc(l.email)}</a>`);
+  if (email) out.push(`<a href="mailto:${esc(email)}">${esc(email)}</a>`);
   return out.length ? '<br><span class="when">' + out.join('<br>') + '</span>' : '';
 }
 
 // Where the job is. The address opens in whatever map app the owner uses.
 function placeCell(l) {
   if (!l.address && !l.zip) return '<span class="when">—</span>';
-  const full = [l.address, l.city, l.zip].filter(Boolean).join(', ');
   const below = [l.city, l.zip].filter(Boolean).join(' ');
   return l.address
-    ? `<a href="https://maps.google.com/?q=${encodeURIComponent(full)}" target="_blank" rel="noopener">${esc(l.address)}</a>` +
+    ? `<a href="${esc(mapLink(placeOf(l)))}" target="_blank" rel="noopener">${esc(l.address)}</a>` +
       (below ? `<br><span class="when">${esc(below)}</span>` : '')
     : `<span class="when">${esc(below)}</span>`;
 }
 
-function renderLeads(leads) {
-  if (!leads.length) {
-    $('leads').innerHTML = '<p class="empty">No enquiries yet in this period. They will appear here the moment someone uses the form.</p>';
-    return;
-  }
-  $('leads').innerHTML =
-    `<div class="scroll-x"><table><thead><tr><th>Who</th><th>Where</th><th>Wanted</th><th>How far</th><th>For</th><th>Came in</th></tr></thead><tbody>${
-      leads.map((l) => `<tr>
-        <td><b>${esc(l.name)}</b>${contactLines(l)}</td>
-        <td>${placeCell(l)}</td>
-        <td>${l.requested ? '<span class="pill">' + esc(l.requested) + '</span>' : '—'}${
-          l.message ? '<br><span class="when note-line">' + esc(l.message) + '</span>' : ''}</td>
-        <td>${distanceCell(l)}</td>
-        <td class="when">${esc(l.preferred || '—')}</td>
-        <td class="when">${new Date(l.created_at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</td>
-      </tr>`).join('')
-    }</tbody></table></div>`;
+// How far the job is, as it stood when they asked. An estimate: a straight
+// line adjusted for roads, not a routed drive time. The note under the list
+// says so, and the minutes say "about".
+function distanceCell(l) {
+  if (l.road_miles == null) return '<span class="when">—</span>';
+  const far = l.in_area === false;
+  return `<span class="${far ? 'pill far' : 'pill'}">${esc(l.road_miles)} mi</span>` +
+         `<br><span class="when">${far ? 'outside your area' : l.drive_minutes != null ? 'about ' + esc(l.drive_minutes) + ' min' : 'estimate'}</span>`;
 }
 
+function ago(iso) {
+  const min = Math.round((Date.now() - Date.parse(iso)) / 6e4);
+  if (min < 2) return 'just now';
+  if (min < 60) return `${min} min ago`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `${h}h ago`;
+  if (h < 48) return 'yesterday';
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}
+
+/* ---------------- chart ---------------- */
+let chart = null;
+
+function renderChart(days, cur) {
+  const byDay = new Map(cur.map((d) => [String(d.day).slice(0, 10), d]));
+  chart = days.map((date) => ({ date, visits: Number(byDay.get(date)?.visitors || 0) }));
+  $('chartHint').textContent = matchMedia('(hover: hover)').matches
+    ? 'hover a bar for the exact figure' : 'tap a bar for the exact figure';
+  $('chartRows').innerHTML =
+    `<table><thead><tr><th>Day</th><th>Visits</th></tr></thead><tbody>${
+      chart.map((d) => `<tr><td class="when">${fmtDay(d.date, { weekday: 'short' })}</td><td>${fmtN(d.visits)}</td></tr>`).join('')
+    }</tbody></table>`;
+  $('chartSvg').dataset.w = '';
+  drawChart();
+}
+
+// One series, so one hue and no legend: the heading names it. Drawn at the
+// width it is shown at, so the labels stay 12px on a phone instead of
+// shrinking with the whole picture. Redrawn when that width changes.
+function drawChart() {
+  if (!chart) return;
+  const box = $('chartSvg');
+  const W = Math.max(280, Math.round($('chartWrap').clientWidth));
+  if (box.dataset.w === String(W)) return;
+  box.dataset.w = String(W);
+  $('tip').classList.remove('on');
+
+  const H = W < 600 ? 180 : 240, padL = 36, padB = 28, padT = 8;
+  const plotW = W - padL, plotH = H - padB - padT;
+  const step = plotW / chart.length;
+  const bw = Math.max(3, step - (step >= 12 ? 4 : 2));
+  const max = niceMax(Math.max(0, ...chart.map((d) => d.visits)));
+  const y = (v) => padT + plotH - (v / max) * plotH;
+
+  const grid = [0, max / 2, max].map((t) =>
+    `<line class="grid-line" x1="${padL}" x2="${W}" y1="${y(t)}" y2="${y(t)}"></line>
+     <text class="axis-txt" x="${padL - 8}" y="${y(t) + 4}" text-anchor="end">${fmtN(t)}</text>`).join('');
+  const bars = chart.map((d, i) => {
+    const h = d.visits === 0 ? 0 : Math.max(2, (d.visits / max) * plotH);
+    return `<rect class="bar" data-i="${i}" x="${padL + i * step + (step - bw) / 2}" y="${padT + plotH - h}" width="${bw}" height="${h}" rx="${Math.min(3, bw / 2)}"></rect>`;
+  }).join('');
+  // Hit areas cover the whole column, so a finger does not have to land on
+  // a 7px bar. Drawn after the bars so a hover is never swallowed by one.
+  const hits = chart.map((d, i) =>
+    `<rect class="bar-hit" data-i="${i}" x="${padL + i * step}" y="${padT}" width="${step}" height="${plotH}"></rect>`).join('');
+  const last = chart.length - 1, mid = Math.floor(last / 2);
+  const marks = [[0, 'start', padL], [mid, 'middle', padL + mid * step + step / 2], [last, 'end', W]]
+    .map(([i, anchor, x]) => `<text class="axis-txt" x="${x}" y="${H - 8}" text-anchor="${anchor}">${fmtDay(chart[i].date)}</text>`).join('');
+
+  box.innerHTML =
+    `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img"
+          aria-label="Visits each day for the last ${chart.length} days. The same numbers are in the table below.">
+       ${grid}${bars}${hits}${marks}
+     </svg>`;
+}
+
+function niceMax(v) {
+  if (v <= 4) return 4;
+  for (let p = 1; ; p *= 10) {
+    for (const m of p === 1 ? [6, 8, 10] : [1.2, 1.6, 2, 3, 4, 5, 6, 8, 10]) {
+      const c = Math.round(m * p);
+      if (c >= v) return c;
+    }
+  }
+}
+
+function wireChart() {
+  const box = $('chartSvg'), tip = $('tip');
+  const clear = () => {
+    tip.classList.remove('on');
+    box.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on'));
+  };
+  const point = (e) => {
+    const hit = e.target.closest?.('.bar-hit');
+    if (!hit || !chart) { clear(); return; }
+    const i = +hit.dataset.i, d = chart[i];
+    const bar = box.querySelector(`.bar[data-i="${i}"]`);
+    box.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on'));
+    bar?.classList.add('on');
+    tip.innerHTML = `${fmtDay(d.date, { weekday: 'short' })} &middot; <b>${fmtN(d.visits)}</b> ${d.visits === 1 ? 'visit' : 'visits'}`;
+    const wrap = $('chartWrap').getBoundingClientRect(), r = hit.getBoundingClientRect();
+    const half = tip.offsetWidth / 2;
+    tip.style.left = Math.min(Math.max(r.left + r.width / 2 - wrap.left, half), wrap.width - half) + 'px';
+    tip.style.top = ((bar ?? hit).getBoundingClientRect().top - wrap.top) + 'px';
+    tip.classList.add('on');
+  };
+  box.addEventListener('pointermove', point);
+  box.addEventListener('pointerdown', point);
+  // A finger lifting is not leaving: on touch the figure stays until the next tap.
+  box.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') clear(); });
+  let t;
+  addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawChart, 120); });
+}
+
+/* ---------------- change requests and plan ---------------- */
 function renderEdits(edits) {
-  if (!edits.length) { $('editList').innerHTML = ''; return; }
-  $('editList').innerHTML =
-    `<div class="scroll-x"><table><thead><tr><th>Request</th><th>Scope</th><th>Status</th><th>Sent</th></tr></thead><tbody>${
-      edits.map((r) => `<tr>
-        <td>${esc(r.body)}</td>
-        <td><span class="pill">${r.scope === 'small' ? 'included' : 'quoted'}</span></td>
-        <td class="when">${esc(r.status)}</td>
-        <td class="when">${new Date(r.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</td>
-      </tr>`).join('')
-    }</tbody></table></div>`;
+  $('editList').innerHTML = edits.length
+    ? `<ul class="edits">${edits.map((r) => `<li>
+        <p>${esc(r.body)}</p>
+        <p class="meta"><span class="pill">${r.scope === 'small' ? 'included' : 'quoted'}</span>${esc(r.status)} · sent ${fmtDate(r.created_at)}</p>
+      </li>`).join('')}</ul>`
+    : '';
+}
+
+function wireEdits() {
+  $('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = $('editBody').value.trim(); if (!body) return;
+    $('editErr').hidden = true;
+    const { error } = await db.from('mk_edit_requests').insert({ account_id: e.target.dataset.account, body });
+    if (error) { $('editErr').hidden = false; return; }
+    $('editBody').value = '';
+    $('editOk').hidden = false;
+    setTimeout(() => { $('editOk').hidden = true; }, 4000);
+    const { data } = await db.from('mk_edit_requests').select('*').order('created_at', { ascending: false }).limit(10);
+    renderEdits(data ?? []);
+  });
 }
 
 function renderLocked(features) {
   const missing = Object.entries(FEATURES).filter(([k]) => !features.includes(k));
   if (!missing.length) return;
   $('lockedCard').hidden = false;
-  $('locked').innerHTML = missing.map(([, [name, what]]) =>
-    `<div><b>${name}</b>${what}</div>`).join('');
+  $('lockedCount').textContent = `${missing.length} more ${missing.length === 1 ? 'feature' : 'features'} on a bigger plan`;
+  $('locked').innerHTML = missing.map(([, [name, what]]) => `<li><b>${name}</b><span>${what}</span></li>`).join('');
 }
 
 /* ---------------- business details the owner edits ---------------- */
+let dirty = false, formButtonSeen = true, flashing = false;
+
+function setDirty(v) { dirty = v; syncSaveBar(); }
+function syncSaveBar() {
+  $('saveBar').hidden = !flashing && !(dirty && !formButtonSeen && !$('detailsCard').hidden);
+}
+
 function hourRow(label, value) {
   const row = document.createElement('div');
   row.className = 'field-row';
@@ -509,9 +843,9 @@ function hourRow(label, value) {
   const b = document.createElement('input'); b.type = 'text'; b.placeholder = '09:00 - 17:00'; b.value = value || '';
   a.setAttribute('aria-label', 'Day or label'); b.setAttribute('aria-label', 'Hours');
   const x = document.createElement('button');
-  x.type = 'button'; x.className = 'icon-btn'; x.textContent = '\u00d7';
+  x.type = 'button'; x.className = 'icon-btn'; x.textContent = '×';
   x.setAttribute('aria-label', 'Remove this line');
-  x.addEventListener('click', () => row.remove());
+  x.addEventListener('click', () => { row.remove(); setDirty(true); });
   row.append(a, b, x);
   return row;
 }
@@ -524,14 +858,25 @@ function renderDetails(site, settings) {
   $('d-until').value = settings?.notice_until ?? '';
   const rows = $('hoursRows');
   rows.textContent = '';
-  const hours = Array.isArray(settings?.hours) && settings.hours.length
-    ? settings.hours : [['', '']];
+  const hours = Array.isArray(settings?.hours) && settings.hours.length ? settings.hours : [['', '']];
   hours.forEach(([l, v]) => rows.appendChild(hourRow(l, v)));
+  setDirty(false);
 }
 
-$('addHour').addEventListener('click', () => $('hoursRows').appendChild(hourRow('', '')));
+function wireDetails() {
+  const form = $('detailsForm');
+  form.addEventListener('input', () => setDirty(true));
+  $('addHour').addEventListener('click', () => { $('hoursRows').appendChild(hourRow('', '')); setDirty(true); });
+  $('saveBarBtn').addEventListener('click', () => form.requestSubmit());
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => { formButtonSeen = e.isIntersecting; syncSaveBar(); })
+      .observe($('detailsSave'));
+  }
+  addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+  form.addEventListener('submit', saveDetails);
+}
 
-$('detailsForm').addEventListener('submit', async (e) => {
+async function saveDetails(e) {
   e.preventDefault();
   const siteId = e.target.dataset.site;
   const hours = [...$('hoursRows').querySelectorAll('.field-row')]
@@ -543,13 +888,13 @@ $('detailsForm').addEventListener('submit', async (e) => {
   // A banner with no end date is the one that gets left up for months. If
   // there is a notice there must be a date, and clearing the notice clears
   // the date with it.
-  const noticeErr = $('noticeErr');
   if (notice && !until) {
-    noticeErr.hidden = false;
+    $('noticeErr').hidden = false;
     $('d-until').focus();
     return;
   }
-  noticeErr.hidden = true;
+  $('noticeErr').hidden = true;
+  $('detailsErr').hidden = true;
 
   const row = {
     site_id: siteId,
@@ -558,26 +903,48 @@ $('detailsForm').addEventListener('submit', async (e) => {
     notice: notice || null,
     notice_until: notice ? until : null,
   };
+  const buttons = [$('detailsSave'), $('saveBarBtn')];
+  buttons.forEach((b) => { b.disabled = true; });
   const { error } = await db.from('mk_site_settings').upsert(row, { onConflict: 'site_id' });
-  if (error) return;
+  buttons.forEach((b) => { b.disabled = false; });
+
+  if (error) {
+    $('detailsErr').hidden = false;
+    $('saveBarText').textContent = 'That did not save. Try again.';
+    return;
+  }
+  // Saved from the floating bar: confirm there, where the owner is looking.
+  if (!$('saveBar').hidden) {
+    flashing = true;
+    $('saveBar').classList.add('done');
+    $('saveBarText').textContent = 'Saved. Your website is updating.';
+    setTimeout(() => {
+      flashing = false;
+      $('saveBar').classList.remove('done');
+      $('saveBarText').textContent = 'You have unsaved changes';
+      syncSaveBar();
+    }, 2500);
+  }
+  setDirty(false);
+  $('saveBarText').textContent = flashing ? 'Saved. Your website is updating.' : 'You have unsaved changes';
   $('detailsOk').hidden = false;
   setTimeout(() => { $('detailsOk').hidden = true; }, 4000);
-});
+}
 
-$('editForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const body = $('editBody').value.trim(); if (!body) return;
-  const { error } = await db.from('mk_edit_requests')
-    .insert({ account_id: e.target.dataset.account, body });
-  if (!error) {
-    $('editBody').value = '';
-    $('editOk').hidden = false;
-    setTimeout(() => { $('editOk').hidden = true; }, 4000);
-    const { data } = await db.from('mk_edit_requests').select('*').order('created_at', { ascending: false }).limit(10);
-    renderEdits(data ?? []);
-  }
-});
-
+/* ---------------- helpers ---------------- */
+function lastDays(n) {
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) out.push(new Date(Date.now() - i * DAY_MS).toISOString().slice(0, 10));
+  return out;
+}
+function fmtDay(d, opts = {}) {
+  return new Date(d + 'T00:00:00Z').toLocaleDateString(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC', ...opts });
+}
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}
+function fmtN(n) { return Number(n).toLocaleString(); }
+function sum(rows, k) { return rows.reduce((t, r) => t + (Number(r[k]) || 0), 0); }
 function esc(s) {
   return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }

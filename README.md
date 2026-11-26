@@ -119,6 +119,16 @@ to take something that looks bad and make it look made. It loads automatically
 in this repo, so any session starts knowing it, and it applies to app screens
 as much as web pages.
 
+`tools/check.js` looks at every screen at phone and desktop size and fails on
+the rules that can be measured: contrast, tap-target size, form fields that
+make an iPhone zoom, sideways scrolling, text that vanishes without scripts.
+It saves the screenshots in `.check/`, including the owner panel filled with
+invented sample data, so the panel can be seen without a login:
+
+```bash
+node build.js && node tools/check.js
+```
+
 `tools/critique.py` reviews a screenshot on your own NVIDIA credit, not
 Claude's:
 
@@ -133,8 +143,10 @@ motion. Argue with it.
 
 ## The owner panel
 
-Each client gets a dashboard showing what their website did: visitors, taps on
-their phone number, enquiries from the form, and a box to request changes.
+Each client gets a dashboard showing what their website did: how many
+enquiries came in (the largest number on the page), visits, taps on their phone
+number, each enquiry with a button to call them back, and a box to request
+changes. Every number is compared with the 30 days before.
 The database and collector are live; see `portal/README.md` to add a client.
 
 What the panel will not do is overstate results. A tap on a phone button is
@@ -152,7 +164,9 @@ sites/
   restaurant/            example: Pomelo Kitchen (invented)
   hvac/                  example: Northwind Heating & Air (invented)
 .claude/skills/design/  the design method, loaded automatically
-tools/critique.py      screenshot review on your NVIDIA credit
+docs/app-patterns.html   the app screen patterns, as live demos
+tools/check.js           measured design checks and screenshots, both sizes
+tools/critique.py        screenshot review on your NVIDIA credit
 portal/
   schema.sql             the portal database
   functions/collect/     the endpoint websites report to

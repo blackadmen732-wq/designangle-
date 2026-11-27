@@ -13,6 +13,7 @@
  * The tour is what to press, in order. A page can carry its own, as JSON in
  * <script type="application/json" id="motion-tour">. Each step is one of
  *   {"click": "<selector>"}  {"key": "Escape"}  {"back": true}  {"wait": 300}
+ *   {"drag": "<selector>", "to": "<selector>"}   press, move in steps, release
  * with an optional "why", and "phone": true or "desktop": true to run it at
  * one size only.
  *
@@ -184,7 +185,14 @@ function staticRules() {
 }
 
 async function act(page, step) {
-  if (step.click) await page.click(step.click, { timeout: 3000 });
+  if (step.drag) {
+    // Press, travel in small steps (so the page sees a drag, not a jump), let go.
+    const a = await page.locator(step.drag).first().boundingBox(), b = await page.locator(step.to).first().boundingBox();
+    if (!a || !b) throw new Error(`nothing to drag from ${step.drag} to ${step.to}`);
+    await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2); await page.mouse.down();
+    await page.mouse.move(b.x + b.width / 2, b.y + Math.min(b.height / 2, 40), { steps: 16 });
+    await page.mouse.up();
+  } else if (step.click) await page.click(step.click, { timeout: 3000 });
   else if (step.key) await page.keyboard.press(step.key);
   else if (step.back) await page.goBack();
   else if (step.wait) await page.waitForTimeout(step.wait);
@@ -307,9 +315,10 @@ function judge(live, reduced) {
   return { notes, tempo };
 }
 
-async function strip(browser, label, shots, outFile) {
+async function strip(browser, label, shots, outFile, view) {
   const page = await browser.newPage({ viewport: { width: 1600, height: 600 }, deviceScaleFactor: 1 });
-  const w = shots.length > 6 ? 180 : 240;
+  // Wide screens get wide frames, or a desktop filmstrip is unreadable.
+  const w = view && view.width > 600 ? 400 : shots.length > 6 ? 180 : 240;
   await page.setContent(`<body style="margin:0;padding:16px;background:#e9e8e4;font:500 13px system-ui;color:#333">
     <div style="margin:0 0 10px">${label.replace(/</g, '&lt;')}</div>
     <div style="display:flex;gap:10px;align-items:flex-start">${shots.map((s) => `<figure style="margin:0"><img style="width:${w}px;display:block;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.2)" src="data:image/png;base64,${s.png}"><figcaption style="margin-top:6px;text-align:center">${s.t === 'end' ? 'settled' : s.t + 'ms'}</figcaption></figure>`).join('')}</div></body>`);
@@ -364,7 +373,7 @@ async function strip(browser, label, shots, outFile) {
       for (const [i, r] of shot.results.entries()) {
         if (r.skipped || !r.shots || r.shots.length < 2) continue;
         const f = path.join(OUT, `${slug}-${tag}-${i + 1}.png`);
-        await strip(browser, `${i + 1}. ${r.step.why || r.step.click || r.step.key || ''}  (${tag})`, r.shots, f);
+        await strip(browser, `${i + 1}. ${r.step.why || r.step.click || r.step.key || r.step.drag || ''}  (${tag})`, r.shots, f, view);
         files.push(path.relative(process.cwd(), f));
       }
       if (files.length) console.log(`  look: ${files.join('  ')}`);

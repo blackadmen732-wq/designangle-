@@ -206,8 +206,13 @@ function audit() {
     // margin-inline: auto centres a column; what it computes to is not a choice.
     const centred = el.parentElement && Math.abs(parseFloat(cs.marginLeft) - parseFloat(cs.marginRight)) < 1 && parseFloat(cs.marginLeft) > 0 &&
       Math.abs(el.parentElement.clientWidth - el.getBoundingClientRect().width - parseFloat(cs.marginLeft) * 2 - parseFloat(getComputedStyle(el.parentElement).paddingLeft) * 2) < 2;
+    // margin: auto takes up free space (push the avatar right); its size is
+    // the layout's, not a spacing choice. The typed computed style says auto.
+    let typed = null; try { typed = el.computedStyleMap(); } catch {}
+    const auto = (p) => typed && String(typed.get(p.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()))) === 'auto';
     for (const p of ['marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'paddingTop', 'paddingBottom', 'paddingLeft', 'paddingRight', 'rowGap', 'columnGap']) {
       if (centred && (p === 'marginLeft' || p === 'marginRight')) continue;
+      if (p.startsWith('margin') && auto(p)) continue;
       const v = parseFloat(cs[p]); if (v >= 3 && v < 200 && cs[p] !== 'normal') gaps.push({ v, el, p });
     }
   }

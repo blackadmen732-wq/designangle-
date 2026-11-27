@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f6f3">
+<title>Pomelo Board</title>
+<!--
+  A redesign of Kanboard 1.2.57's board and task screens, from the same data.
+  Kanboard is a real, open-source kanban app; it was run here, photographed
+  and audited (35 and 44 usability failures), then redesigned with only what
+  this repo had, plus what the test showed it lacked. The board comes from a
+  Kanboard project seeded by source/seed.py and exported by
+  source/export.py: the studio, Sam, Priya and Jo, and the tasks are
+  invented; the client is the kit's invented restaurant, Pomelo Kitchen.
+
+  The job:       see what is moving on this client's site, and move it on.
+  The one thing: what is in progress, and what is ready to start.
+  Cut:           a colour per card (the category says what it meant), the
+                 score trophies, the "<15m <15m P0" time fields, the settings
+                 cog, the filter syntax ("status:open") as the first thing.
+  Ground:        light: daylight work.
+  Accent:        one green, spent on progress (the subtask bars) and the
+                 new-task button.
+  Motion:        hold a card and it lifts; the others make room as it moves;
+                 let go and it springs into its slot. On a phone, drop it on
+                 a column's tab to move it there. Dragging is never the only
+                 way: every card's sheet has "Move to".
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../../app-style.css">
+<link rel="stylesheet" href="../../app-icons.css">
+<style>
+  body { margin: 0; background: #f6f6f3; }
+  .kb { --page: #f6f6f3; --accent: #1f7a53; --on-accent: #fff; --ink-3: #676a66; min-height: 100dvh; }
+  .kb :focus-visible { outline-color: var(--ink); }
+  .kb-wrap { max-width: 1240px; margin-inline: auto; padding: max(48px, env(safe-area-inset-top, 0px)) var(--gutter) 120px; }
+  .kb-top { display: flex; align-items: center; gap: 12px; min-height: 56px; }
+  .kb-top .cover { border-radius: 12px; width: 44px; height: 44px; }
+  .kb-top .txt { flex: 1; min-width: 0; }
+  .kb-top b { display: block; font-size: 17px; font-weight: 600; }
+  .kb-top small { display: block; margin-top: 2px; font-size: 13px; color: var(--ink-3); }
+  .kb-top .circle { font-size: 15px; font-weight: 600; background: var(--surface); box-shadow: var(--shadow); }
+  .kb-h1 { margin-top: 32px; font-size: 36px; font-weight: 500; line-height: 40px; letter-spacing: -0.025em; }
+  .kb-h1 .dim { display: block; }
+
+  /* ---- the board: one column at a time on a phone, all of them wide ------- */
+  .kb-tabs { position: sticky; top: 0; z-index: 20; margin: 24px calc(-1 * var(--gutter)) 0; padding: 8px var(--gutter); background: color-mix(in srgb, var(--page) 92%, transparent); }
+  .kb-tabs .segmented > button { height: 44px; padding-inline: 12px; gap: 4px; display: flex; align-items: center; justify-content: center; }
+  .kb-tabs .segmented > button .n { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .kb-tabs .segmented > button.drop { background: var(--accent); color: var(--on-accent); }
+  .kb-tabs .segmented > button.drop .n { color: rgba(255, 255, 255, .8); }
+  .kb-cols { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); }
+  .kb-cols::-webkit-scrollbar { display: none; }
+  .kb-col { flex: 0 0 100%; scroll-snap-align: start; padding: 16px var(--gutter) 0; min-width: 0; }
+  .kb-col > h2 { display: none; }
+  .kb-list { display: grid; gap: 8px; min-height: 120px; align-content: start; }
+  .kb-empty { padding: 24px 0; font-size: 15px; color: var(--ink-3); }
+
+  /* A card: what it is, whose, when, how far along. */
+  .kb-card { position: relative; display: grid; gap: 8px; padding: 16px; border-radius: 20px; background: var(--surface); box-shadow: var(--shadow);
+    text-align: left; width: 100%; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+    transition: scale var(--t-press) var(--ease-out), box-shadow var(--t-quick) var(--ease-out); }
+  .kb-card:active { scale: .98; }
+  .kb-card .tags { gap: 4px; }
+  .kb-card h3 { font-size: 15px; font-weight: 500; line-height: 20px; text-wrap: pretty; }
+  .kb-meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .kb-meta span { display: inline-flex; align-items: center; gap: 4px; }
+  .kb-meta .ic { --ic: 15px; }
+  .kb-meta .soon { color: var(--ink); font-weight: 600; }   /* close: in weight, not a second hue */
+  .kb-meta .av { margin-left: auto; }
+  .kb-av { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--fill); font-size: 13px; font-weight: 600; color: var(--ink); }
+  .kb-card .meter { height: 4px; }
+  .kb-card.done h3 { color: var(--ink-3); }
+  /* Lifted: it follows the finger, a little bigger and higher. */
+  .kb-card.lifted { cursor: grabbing; scale: 1.03; box-shadow: 0 18px 40px rgba(30, 30, 20, .18); transition: scale var(--t-quick) var(--ease-out), box-shadow var(--t-quick) var(--ease-out); }
+  .kb-ph { border-radius: 20px; background: rgba(31, 122, 83, .08); box-shadow: inset 0 0 0 2px rgba(31, 122, 83, .35); }
+  .kb-dragging, .kb-dragging * { user-select: none; -webkit-user-select: none; }
+
+  /* ---- a task ------------------------------------------------------------ */
+  .kb-sheet-title { margin: 4px 0 8px; font-size: 22px; font-weight: 500; line-height: 28px; letter-spacing: -0.01em; text-wrap: pretty; }
+  .kb-sheet-meta { font-size: 13px; color: var(--ink-3); }
+  .kb-sheet .tags { margin-top: 12px; }
+  .kb-part { margin-top: 24px; }
+  .kb-part > h3 { margin-bottom: 12px; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+  .kb-desc { font-size: 15px; line-height: 22px; }
+  .kb-checks { display: grid; gap: 4px; }
+  .kb-check { display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px; cursor: pointer; }
+  .kb-check .tick:checked + span { color: var(--ink-3); text-decoration: line-through; }
+  .kb-check small { margin-left: auto; font-size: 13px; color: var(--ink-3); }
+  .kb-talk { display: grid; gap: 16px; }
+  .kb-talk p { margin-top: 4px; font-size: 15px; line-height: 22px; }
+  .kb-talk h4 { display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 600; }
+  .kb-talk h4 span { font-weight: 400; color: var(--ink-3); }
+  .kb-sheet .pill { width: 100%; margin-top: 24px; }
+  .kb-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 20px; }
+  .kb-sheet-head h2 { font-size: 20px; font-weight: 500; }
+
+  .kb .thumb-cta { position: fixed; left: auto; right: max(16px, calc(50% - 620px + 16px)); bottom: max(24px, env(safe-area-inset-bottom, 0px)); }
+  .kb .dock-fab { position: static; width: 64px; height: 64px; box-shadow: 0 10px 24px rgba(31, 122, 83, .3); }
+
+  /* ---- wide: every column at once --------------------------------------- */
+  @media (min-width: 900px) {
+    .kb-tabs { display: none; }
+    .kb-cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; overflow: visible; margin: 32px 0 0; }
+    .kb-col { padding: 0; }
+    .kb-col > h2 { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-size: 15px; font-weight: 600; }
+    .kb-col > h2 .n { font-weight: 500; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+    .kb-list { min-height: 240px; padding: 8px; margin: -8px; border-radius: 24px; transition: background-color var(--t-quick) var(--ease-out); }
+    .kb-list.over { background: rgba(31, 122, 83, .06); }
+  }
+</style>
+</head>
+<body>
+<div class="ui ui-light kb" id="app">
+  <noscript><p class="kb-wrap">This board needs JavaScript to show its tasks.</p></noscript>
+  <div class="kb-wrap">
+    <header class="kb-top">
+      <span class="cover sm"><img src="../../../sites/restaurant/img/pizza.webp" alt=""></span>
+      <span class="txt"><b id="project"></b><small id="projectLine"></small></span>
+      <button class="circle" type="button" aria-label="Signed in as Jo">J</button>
+    </header>
+    <h1 class="kb-h1" id="headline"></h1>
+    <div class="kb-tabs"><div class="segmented" id="tabs" role="tablist" aria-label="Columns"></div></div>
+    <div class="kb-cols" id="cols"></div>
+  </div>
+  <div class="thumb-cta"><button class="dock-fab" type="button" id="newBtn" aria-label="New task" aria-haspopup="dialog"><i class="ic ic-plus"></i></button></div>
+
+  <dialog class="sheet kb-sheet" id="taskSheet" aria-labelledby="taskTitle" closedby="any">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div id="taskBody"></div>
+  </dialog>
+  <dialog class="sheet kb-sheet" id="newSheet" aria-labelledby="newTitle" closedby="any">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <form id="newForm" novalidate>
+      <div class="kb-sheet-head"><h2 id="newTitle">New task</h2><button class="circle" type="button" data-close aria-label="Close"><i class="ic ic-close"></i></button></div>
+      <label class="field"><span>What needs doing?</span><textarea name="title" rows="2" required aria-describedby="titleErr"></textarea><span class="err" id="titleErr" hidden>Write a line about it.</span></label>
+      <fieldset class="field"><legend>Column</legend><div class="chip-radio" id="newCols"></div></fieldset>
+      <fieldset class="field"><legend>Owner</legend><div class="chip-radio" id="newOwners"></div></fieldset>
+      <fieldset class="field"><legend>Kind</legend><div class="chip-radio" id="newCats"></div></fieldset>
+      <button class="pill" type="submit">Add task</button>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" hidden><span></span><button type="button"></button></div>
+</div>
+
+<script type="application/json" id="motion-tour">
+[
+  { "drag": "#cols [data-id=\"3\"]", "to": "#cols [data-list=\"3\"]", "desktop": true, "why": "drag a card to another column" },
+  { "drag": "#col-1 [data-id=\"6\"]", "to": "#tabs [data-tab=\"2\"]", "phone": true, "why": "drop a card on a column's tab" },
+  { "click": "#tabs [data-tab=\"2\"]", "phone": true, "why": "a column (a tab: instant)" },
+  { "click": "#cols [data-id=\"2\"]", "why": "a task's sheet rises" },
+  { "click": "#taskBody .kb-check:has(input:not(:checked))", "why": "tick a subtask: the bar fills" },
+  { "click": "#taskBody label:has([data-move=\"4\"])", "why": "move it on" },
+  { "click": "#newBtn", "why": "a new task" },
+  { "key": "Escape", "why": "and away" }
+]
+</script>
+<script src="data.js"></script>
+<script src="../../app-motion.js"></script>
+<script>
+(() => {
+  const D = window.KB, NOW = new Date(D.exported);
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const wide = matchMedia('(min-width: 900px)');
+  const SPRING = getComputedStyle(document.documentElement).getPropertyValue('--spring').trim() || 'cubic-bezier(.23, 1, .32, 1)';
+  const COLS = D.columns.map((c) => ({ ...c, short: { 'Work in progress': 'Doing' }[c.title] || c.title }));
+  const col = (id) => COLS.find((c) => c.id === +id);
+  const T = D.tasks;
+  const DONE = COLS[COLS.length - 1].id;
+  let current = COLS[0].id;
+
+  // ---- words --------------------------------------------------------------
+  const day = (d) => Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) / 864e5);
+  function due(t) {
+    if (!t.open) return { text: 'Done', soon: false };
+    if (!t.due) return null;
+    const n = day(new Date(t.due)) - day(NOW);
+    const text = n < 0 ? `${-n} ${n === -1 ? 'day' : 'days'} late` : n === 0 ? 'Due today' : n === 1 ? 'Due tomorrow' : 'Due ' + new Date(t.due).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+    return { text, soon: n <= 1 };
+  }
+  const plural = (n, w) => `${n} ${n === 1 ? w : w + 's'}`;
+  const doneSubs = (t) => t.subtasks.filter((s) => s.status === 2).length;
+
+  // ---- render --------------------------------------------------------------
+  function cardHtml(t) {
+    const d = due(t), subs = t.subtasks.length, done = doneSubs(t);
+    return `<button class="kb-card ${t.open ? '' : 'done'}" type="button" data-id="${t.id}" aria-haspopup="dialog">
+      <span class="tags">${t.category ? `<span class="tag">${esc(t.category)}</span>` : ''}</span>
+      <h3>${esc(t.title)}</h3>
+      ${subs ? `<span class="meter" role="progressbar" aria-label="Subtasks done" aria-valuemin="0" aria-valuemax="${subs}" aria-valuenow="${done}" style="--p:${(done / subs).toFixed(3)}"><i></i></span>` : ''}
+      <span class="kb-meta">${d ? `<span class="${d.soon ? 'soon' : ''}"><i class="ic ic-${t.open ? 'clock' : 'check'}"></i>${d.text}</span>` : ''}
+        ${subs ? `<span><i class="ic ic-check"></i>${done} of ${subs}</span>` : ''}
+        ${t.comments.length ? `<span><i class="ic ic-chat"></i>${t.comments.length}</span>` : ''}
+        ${t.owner ? `<span class="av"><span class="kb-av" aria-label="${esc(t.owner)}">${esc(t.owner[0])}</span></span>` : ''}</span></button>`;
+  }
+  function render() {
+    const doing = T.filter((t) => t.column === 3).length, ready = T.filter((t) => t.column === 2).length;
+    $('#project').textContent = D.project;
+    $('#projectLine').textContent = `${plural(T.filter((t) => t.open).length, 'open task')} · ${D.people.join(', ')}`;
+    $('#headline').innerHTML = `${doing} in progress. <span class="dim">${ready} ready to start.</span>`;
+    $('#tabs').innerHTML = COLS.map((c) => `<button type="button" role="tab" data-tab="${c.id}" aria-selected="${c.id === current}" aria-controls="col-${c.id}">${c.short} <span class="n">${T.filter((t) => t.column === c.id).length}</span></button>`).join('');
+    $('#cols').innerHTML = COLS.map((c) => {
+      const ts = T.filter((t) => t.column === c.id).sort((a, b) => a.position - b.position);
+      return `<section class="kb-col" id="col-${c.id}" role="tabpanel" aria-label="${esc(c.title)}"><h2>${esc(c.title)} <span class="n">${ts.length}</span></h2>
+        <div class="kb-list" data-list="${c.id}">${ts.map(cardHtml).join('') || '<p class="kb-empty">Nothing here.</p>'}</div></section>`;
+    }).join('');
+    if (!wide.matches) $('#cols').scrollLeft = $('#cols').clientWidth * COLS.findIndex((c) => c.id === current);
+  }
+  function renumber() {
+    for (const c of COLS) $$(`[data-list="${c.id}"] .kb-card`).forEach((el, i) => { const t = T.find((x) => x.id === +el.dataset.id); t.column = c.id; t.position = i + 1; });
+  }
+  function moveTask(t, to, pos = 0) {
+    const before = { column: t.column, position: t.position, open: t.open };
+    T.filter((x) => x.column === to && x !== t).forEach((x) => { if (x.position > pos) x.position++; });
+    t.column = to; t.position = pos + 0.5; t.open = to !== DONE;
+    return () => Object.assign(t, before);
+  }
+
+  // ---- columns on a phone: swipe or tap ------------------------------------
+  const colsEl = $('#cols');
+  $('#tabs').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-tab]'); if (!b) return;
+    current = +b.dataset.tab; $$('#tabs [role=tab]').forEach((x) => x.setAttribute('aria-selected', x === b));
+    colsEl.scrollTo({ left: colsEl.clientWidth * COLS.findIndex((c) => c.id === current), behavior: 'instant' });
+  });
+  colsEl.addEventListener('scroll', () => {
+    if (wide.matches) return;
+    const i = Math.round(colsEl.scrollLeft / colsEl.clientWidth), id = COLS[i]?.id;
+    if (id && id !== current) { current = id; $$('#tabs [role=tab]').forEach((x) => x.setAttribute('aria-selected', +x.dataset.tab === id)); }
+  }, { passive: true });
+
+  // ---- drag: lift, make room, spring into place ----------------------------
+  // Touch needs a short hold, so a swipe still scrolls; a mouse starts after
+  // 4px. The others slide out of the way (FLIP, transform only); on release
+  // the card springs from where it is to its slot.
+  let drag = null, justDragged = false;
+  const still = () => AppMotion.still();
+  function flip(lists, change) {
+    const cards = lists.flatMap((l) => $$('.kb-card:not(.lifted), .kb-ph', l));
+    const first = new Map(cards.map((c) => [c, c.getBoundingClientRect()]));
+    change();
+    if (still()) return;
+    for (const c of cards) { const a = first.get(c), b = c.getBoundingClientRect(); const dx = a.left - b.left, dy = a.top - b.top;
+      if (dx || dy) c.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 200, easing: 'cubic-bezier(.23, 1, .32, 1)' }); }
+  }
+  colsEl.addEventListener('pointerdown', (e) => {
+    const card = e.target.closest('.kb-card'); if (!card || e.button > 0) return;
+    const sx = e.clientX, sy = e.clientY, touch = e.pointerType !== 'mouse';
+    const hold = touch ? setTimeout(() => begin(e), 220) : 0;
+    const onMove = (ev) => {
+      if (!drag) { const dist = Math.hypot(ev.clientX - sx, ev.clientY - sy); if (touch ? dist > 8 : false) end(); else if (!touch && dist > 4) begin(ev); return; }
+      ev.preventDefault(); follow(ev);
+    };
+    const onUp = (ev) => { end(); if (drag) drop(ev); };
+    function end() { clearTimeout(hold); removeEventListener('pointermove', onMove); removeEventListener('pointerup', onUp); removeEventListener('pointercancel', onUp); }
+    addEventListener('pointermove', onMove, { passive: false }); addEventListener('pointerup', onUp); addEventListener('pointercancel', onUp);
+    function begin(ev) {
+      if (drag) return;
+      const r = card.getBoundingClientRect(), ph = document.createElement('div');
+      ph.className = 'kb-ph'; ph.style.height = r.height + 'px'; card.after(ph);
+      drag = { card, ph, ox: ev.clientX - r.left, oy: ev.clientY - r.top, tab: null, list: ph.parentElement };
+      Object.assign(card.style, { position: 'fixed', left: 0, top: 0, width: r.width + 'px', zIndex: 70, transform: `translate(${r.left}px, ${r.top}px)` });
+      card.classList.add('lifted'); document.body.classList.add('kb-dragging');
+      try { card.setPointerCapture(ev.pointerId); } catch {}
+      follow(ev);
+    }
+  });
+  function follow(ev) {
+    const d = drag; d.card.style.transform = `translate(${ev.clientX - d.ox}px, ${ev.clientY - d.oy}px)`;
+    d.card.style.visibility = 'hidden';
+    const under = document.elementFromPoint(ev.clientX, ev.clientY);
+    d.card.style.visibility = '';
+    const tab = under && under.closest('[data-tab]');
+    $$('#tabs .drop').forEach((b) => b !== tab && b.classList.remove('drop'));
+    if (tab && +tab.dataset.tab !== +d.list.dataset.list) { tab.classList.add('drop'); d.tab = tab; return; }
+    d.tab = null;
+    const list = under && under.closest('.kb-list');
+    $$('.kb-list.over').forEach((l) => l !== list && l.classList.remove('over'));
+    if (!list) return;
+    list.classList.add('over');
+    const sibs = $$('.kb-card:not(.lifted)', list);
+    const before = sibs.find((s) => { const r = s.getBoundingClientRect(); return ev.clientY < r.top + r.height / 2; }) || null;
+    if (d.ph.parentElement === list && d.ph.nextElementSibling === before) return;
+    const from = d.ph.parentElement;
+    flip([...new Set([from, list])], () => { $('.kb-empty', list)?.remove(); list.insertBefore(d.ph, before); });
+    d.list = list;
+  }
+  function drop() {
+    const d = drag; drag = null; justDragged = true; setTimeout(() => (justDragged = false), 50);
+    document.body.classList.remove('kb-dragging'); $$('.kb-list.over').forEach((l) => l.classList.remove('over'));
+    const t = T.find((x) => x.id === +d.card.dataset.id), was = { column: t.column, position: t.position, open: t.open };
+    if (d.tab) {
+      // Dropped on a column's tab: it goes to the top of that column.
+      const to = +d.tab.dataset.tab; d.tab.classList.remove('drop');
+      d.ph.remove(); d.card.classList.remove('lifted');
+      moveTask(t, to, 0); renumberFrom(t);
+      // It shrinks into the tab it was dropped on, then the board redraws.
+      const b = d.tab.getBoundingClientRect(), r = d.card.getBoundingClientRect();
+      const tx = b.left + b.width / 2 - r.width / 2, ty = b.top + b.height / 2 - r.height / 2;
+      const done = () => { render(); AppMotion.bump($(`#tabs [data-tab="${to}"]`)); };
+      if (still()) done();
+      else d.card.animate([{ transform: d.card.style.transform, opacity: 1 }, { transform: `translate(${tx}px, ${ty}px) scale(.2)`, opacity: 0 }], { duration: 280, easing: 'cubic-bezier(.23, 1, .32, 1)', fill: 'forwards' }).finished.then(done, done);
+      AppMotion.toast($('#toast'), `Moved to ${col(to).title}`, 'Undo', () => { Object.assign(t, was); render(); });
+      return;
+    }
+    const r = d.ph.getBoundingClientRect();
+    const settle = () => { d.ph.replaceWith(d.card); d.card.removeAttribute('style'); d.card.classList.remove('lifted'); renumber(); render(); };
+    if (still()) return settle();
+    d.card.classList.remove('lifted');
+    d.card.animate([{ transform: d.card.style.transform }, { transform: `translate(${r.left}px, ${r.top}px)` }], { duration: 450, easing: SPRING }).finished.then(settle, settle);
+    if (+d.list.dataset.list !== was.column) AppMotion.toast($('#toast'), `Moved to ${col(d.list.dataset.list).title}`, 'Undo', () => { Object.assign(t, was); render(); });
+  }
+  function renumberFrom(t) { T.filter((x) => x.column === t.column).sort((a, b) => a.position - b.position).forEach((x, i) => (x.position = i + 1)); }
+
+  // ---- a task ------------------------------------------------------------
+  const taskSheet = AppMotion.sheet($('#taskSheet'));
+  let open = null;
+  function renderTask() {
+    const t = open, d = due(t), subs = t.subtasks.length, done = doneSubs(t), next = COLS.find((c) => c.id === t.column + 1);
+    $('#taskBody').innerHTML = `
+      <p class="kb-sheet-meta">#${t.id} · ${esc(col(t.column).title)}${d ? ' · ' + d.text : ''}</p>
+      <h2 class="kb-sheet-title" id="taskTitle">${esc(t.title)}</h2>
+      <div class="tags">${t.owner ? `<span class="tag"><i class="ic ic-user"></i>${esc(t.owner)}</span>` : ''}${t.category ? `<span class="tag">${esc(t.category)}</span>` : ''}</div>
+      ${t.description ? `<div class="kb-part"><h3>What it is</h3><p class="kb-desc">${esc(t.description)}</p></div>` : ''}
+      ${subs ? `<div class="kb-part"><h3>Steps · ${done} of ${subs} done</h3>
+        <span class="meter" role="progressbar" aria-label="Steps done" aria-valuemin="0" aria-valuemax="${subs}" aria-valuenow="${done}" style="--p:${(done / subs).toFixed(3)};margin-bottom:8px"><i></i></span>
+        <div class="kb-checks">${t.subtasks.map((s, i) => `<label class="kb-check"><input class="tick" type="checkbox" data-sub="${i}" ${s.status === 2 ? 'checked' : ''}><span>${esc(s.title)}</span>${s.status === 1 ? '<small>started</small>' : ''}</label>`).join('')}</div></div>` : ''}
+      ${t.comments.length ? `<div class="kb-part"><h3>Said about it</h3><div class="kb-talk">${t.comments.map((c) => `<div><h4><span class="kb-av" aria-hidden="true">${esc(c.who[0])}</span>${esc(c.who)}</h4><p>${esc(c.text)}</p></div>`).join('')}</div></div>` : ''}
+      <fieldset class="field kb-part"><legend>Move to</legend><div class="chip-radio">${COLS.map((c) => `<label><input type="radio" name="col" value="${c.id}" data-move="${c.id}" ${c.id === t.column ? 'checked' : ''}><span>${esc(c.title)}</span></label>`).join('')}</div></fieldset>
+      ${next ? `<button class="pill" type="button" data-next="${next.id}">Move to ${esc(next.title)}</button>` : ''}`;
+  }
+  colsEl.addEventListener('click', (e) => {
+    const card = e.target.closest('.kb-card'); if (!card || justDragged) return;
+    open = T.find((t) => t.id === +card.dataset.id); renderTask(); taskSheet.showModal();
+  });
+  $('#taskBody').addEventListener('change', (e) => {
+    const sub = e.target.dataset.sub;
+    if (sub != null) {
+      open.subtasks[+sub].status = e.target.checked ? 2 : 0;
+      const subs = open.subtasks.length, done = doneSubs(open), m = $('#taskBody .meter');
+      m.style.setProperty('--p', (done / subs).toFixed(3)); m.setAttribute('aria-valuenow', done);
+      $('#taskBody .kb-part h3').textContent = `Steps · ${done} of ${subs} done`;
+      render();
+    }
+    if (e.target.dataset.move) move(+e.target.dataset.move);
+  });
+  $('#taskBody').addEventListener('click', (e) => { const n = e.target.closest('[data-next]'); if (n) move(+n.dataset.next); });
+  function move(to) {
+    const t = open, was = { column: t.column, position: t.position, open: t.open };
+    if (to === t.column) return;
+    moveTask(t, to, 0); renumberFrom(t);
+    taskSheet.close(); current = to; render();
+    AppMotion.toast($('#toast'), `Moved to ${col(to).title}`, 'Undo', () => { Object.assign(t, was); render(); });
+  }
+
+  // ---- a new task ----------------------------------------------------------
+  const newSheet = AppMotion.sheet($('#newSheet'));
+  $('#newCols').innerHTML = COLS.slice(0, 3).map((c, i) => `<label><input type="radio" name="column" value="${c.id}" ${i === 1 ? 'checked' : ''}><span>${esc(c.title)}</span></label>`).join('');
+  $('#newOwners').innerHTML = D.people.map((p) => `<label><input type="radio" name="owner" value="${esc(p)}" ${p === 'Jo' ? 'checked' : ''}><span>${esc(p)}</span></label>`).join('');
+  $('#newCats').innerHTML = [...new Set(T.map((t) => t.category).filter(Boolean))].map((c, i) => `<label><input type="radio" name="category" value="${esc(c)}" ${i ? '' : 'checked'}><span>${esc(c)}</span></label>`).join('');
+  $('#newBtn').addEventListener('click', () => { $('#newForm').reset(); $('#titleErr').hidden = true; newSheet.showModal(); });
+  $('#newForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target), title = String(f.get('title')).trim();
+    if (title.length < 4) { $('#titleErr').hidden = false; e.target.title.focus(); return; }
+    const t = { id: Math.max(...T.map((x) => x.id)) + 1, title, description: '', column: +f.get('column'), position: 0, owner: f.get('owner'), category: f.get('category'), open: true, due: null, subtasks: [], comments: [] };
+    T.push(t); renumberFrom(t); newSheet.close(); current = t.column; render();
+    AppMotion.toast($('#toast'), `Added to ${col(t.column).title}`);
+  });
+
+  wide.addEventListener('change', render);
+  render();
+})();
+</script>
+</body>
+</html>

@@ -78,10 +78,13 @@ function find(arg) {
 // Runs inside the page. Returns what failed and what to warn about.
 function audit({ phone }) {
   const fails = [], warns = [];
+  // rgb()/rgba(), and color(srgb r g b / a), which is how a color-mix() comes
+  // back: its channels run 0 to 1, not 0 to 255.
   const rgb = (c) => {
-    const m = String(c).match(/[\d.]+/g);
+    const s = String(c), m = s.match(/[\d.]+/g);
     if (!m || m.length < 3) return null;
-    return { r: +m[0], g: +m[1], b: +m[2], a: m[3] === undefined ? 1 : +m[3] };
+    const k = /^color\(/.test(s) ? 255 : 1;
+    return { r: +m[0] * k, g: +m[1] * k, b: +m[2] * k, a: m[3] === undefined ? 1 : +m[3] };
   };
   const lum = ({ r, g, b }) => {
     const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
@@ -323,7 +326,7 @@ async function settle(page, ms = 5000) {
   const t = Date.now();
   while (Date.now() - t < ms) {
     const busy = await page.evaluate(() =>
-      document.getAnimations().some((a) => a.playState === 'running' && a.effect && a.effect.getTiming().iterations !== Infinity) ||
+      document.getAnimations().some((a) => a.playState === 'running' && a.timeline === document.timeline && a.effect && a.effect.getTiming().iterations !== Infinity) ||
       !!(window.gsap && gsap.globalTimeline.getChildren(true, true, false).some((x) => x.isActive() && !(x.repeat && x.repeat() === -1))));
     if (!busy) break;
     await page.waitForTimeout(100);

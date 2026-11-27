@@ -120,6 +120,7 @@ function recorder() {
     const now = performance.now();
     for (const a of document.getAnimations()) {
       if (M.seen.has(a)) continue;
+      if (a.timeline && a.timeline !== document.timeline) { M.seen.set(a, { scroll: true }); continue; }   // scroll-driven: not timed motion
       const fx = a.effect, t = fx.getTiming(), kf = (() => { try { return fx.getKeyframes(); } catch { return []; } })();
       const kEase = kf.length === 2 && kf[0].easing && kf[0].easing !== 'linear' ? kf[0].easing : null;
       const pseudo = fx.pseudoElement || '';
@@ -140,12 +141,14 @@ function recorder() {
   requestAnimationFrame(look);
   new MutationObserver((ms) => { if (M.step !== null) M.muts.push(performance.now()); }).observe(document, { subtree: true, childList: true, attributes: true, characterData: true });
   for (const type of ['pointerdown', 'keydown']) addEventListener(type, () => { if (M.step !== null && M.input === null) M.input = performance.now(); }, true);
+  // A press that scrolls (a jump to a section) answers the moment it starts moving.
+  addEventListener('scroll', () => { if (M.step !== null) M.muts.push(performance.now()); }, { capture: true, passive: true });
   M.begin = (step, freeze) => {
     for (const a of document.getAnimations()) if (!M.seen.has(a)) M.seen.set(a, { old: true });
-    Object.assign(M, { step, freeze, list: [], frames: [], muts: [], frozen: [], first: null, input: null, t0: performance.now(), url: location.href, focus: document.activeElement });
+    Object.assign(M, { step, freeze, list: [], frames: [], muts: [], frozen: [], first: null, input: null, t0: performance.now(), url: location.href, focus: document.activeElement, y: scrollY });
   };
   M.end = () => {
-    const out = { list: M.list, frames: M.frames, muts: M.muts, input: M.input, t0: M.t0, urlChanged: location.href !== M.url, focusChanged: document.activeElement !== M.focus };
+    const out = { list: M.list, frames: M.frames, muts: M.muts, input: M.input, t0: M.t0, urlChanged: location.href !== M.url, focusChanged: document.activeElement !== M.focus, scrolled: Math.abs(scrollY - M.y) > 2 };
     M.step = null;
     return out;
   };
@@ -162,7 +165,7 @@ function recorder() {
     });
   };
   M.release = () => { for (const [a] of M.frozen) { try { a.iterations === Infinity ? a.play() : a.finish(); } catch {} } M.frozen = []; M.freeze = false; };
-  M.running = () => document.getAnimations().filter((a) => a.playState === 'running' && a.effect.getTiming().iterations !== Infinity).length;
+  M.running = () => document.getAnimations().filter((a) => a.playState === 'running' && a.timeline === document.timeline && a.effect.getTiming().iterations !== Infinity).length;
 }
 
 // The stylesheet rules that are wrong before anything moves.
@@ -170,13 +173,13 @@ function staticRules() {
   const found = { all: [], hover: [], zero: [] };
   const walk = (rules, media) => {
     for (const r of rules) {
-      if (r.constructor.name === 'CSSKeyframesRule') { if (/scale\(\s*0\s*\)|scale:\s*0(\s|;|$)/.test(r.cssText)) found.zero.push('@keyframes ' + r.name); continue; }
+      if (r.constructor.name === 'CSSKeyframesRule') { if (/scale\(\s*0\s*\)|scale:\s*0\s*(;|$|!)/.test(r.cssText)) found.zero.push('@keyframes ' + r.name); continue; }
       if (r.cssRules && !r.selectorText) { walk(r.cssRules, (media || '') + (r.conditionText || r.media?.mediaText || '')); continue; }
       if (!r.style) continue;
       const tp = r.style.transitionProperty || '', tr = r.style.transition || '';
       if (/(^|,\s*)all(\s|,|$)/.test(tp) || /(^|,\s*)all\s/.test(tr)) found.all.push(r.selectorText);
       if (/:hover/.test(r.selectorText || '') && (r.style.transform || r.style.translate || r.style.scale || r.style.rotate) && !/hover:\s*hover/.test(media || '')) found.hover.push(r.selectorText);
-      if (/scale\(\s*0\s*\)|scale:\s*0(\s|;|$)/.test(r.cssText)) found.zero.push(r.selectorText || r.name);
+      if (/scale\(\s*0\s*\)|scale:\s*0\s*(;|$|!)/.test(r.cssText)) found.zero.push(r.selectorText || r.name);   // uniform 0; 'scale: 0 1' is a bar filling
       if (r.cssRules) walk(r.cssRules, media);
     }
   };
@@ -257,7 +260,7 @@ function judge(live, reduced) {
     if (r.skipped) return;
     if (r.error) { raw.push(['fail', i, `could not run: ${r.error}`]); return; }
     const anims = r.list.filter((a) => a.iterations !== Infinity);
-    const changed = r.list.length || r.muts.length || r.urlChanged || r.focusChanged;
+    const changed = r.list.length || r.muts.length || r.urlChanged || r.focusChanged || r.scrolled;   // a jump that scrolls is an answer
     const firstAt = Math.min(...[...r.list.map((a) => a.at), ...r.muts].filter((x) => x >= r.t0), Infinity);
     const latency = firstAt - (r.input ?? r.t0);
     if (!changed) raw.push(['fail', i, 'nothing visibly happened']);

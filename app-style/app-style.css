@@ -472,6 +472,35 @@
 .sum > .total { padding-top: 12px; margin-top: 4px; border-top: 1px solid var(--hair); font-size: 17px; font-weight: 600; color: var(--ink); }
 .sum > .total b { font-weight: 600; }
 
+/* ---- long-form text: a page meant to be read ------------------------- */
+/* 17px on 1.6 at no more than 64 characters a line; headings sized by
+   weight before size; code and quotes set apart without boxes inside boxes.
+   Holds any rendered HTML (a wiki page, an article). */
+.prose { font-size: 17px; line-height: 1.6; max-width: 64ch; color: var(--ink); text-wrap: pretty; overflow-wrap: break-word; }
+.prose p, .prose ul, .prose ol, .prose pre, .prose blockquote { margin: 0 0 16px; }
+.prose h2 { margin: 40px 0 12px; font-size: 22px; font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; scroll-margin-top: 96px; }
+.prose h3 { margin: 28px 0 8px; font-size: 17px; font-weight: 600; scroll-margin-top: 96px; }
+.prose > :first-child, .prose > :first-child > :first-child { margin-top: 0; }
+.prose ul, .prose ol { padding-left: 24px; }
+.prose li { margin: 8px 0; padding-left: 4px; }
+.prose li::marker { color: var(--ink-3); }
+.prose a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.prose a:hover { text-decoration-thickness: 2px; }
+.prose code { padding: 2px 6px; border-radius: 8px; background: var(--fill); font: 0.88em/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.prose pre { padding: 16px; border-radius: 16px; background: var(--fill); overflow-x: auto; font-size: 15px; line-height: 1.5; }
+.prose pre, .prose pre code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.prose pre code { padding: 0; background: none; font-size: inherit; }
+.prose blockquote { padding: 4px 0 4px 20px; box-shadow: inset 3px 0 0 var(--accent); color: var(--ink-2); }
+.prose blockquote p { margin: 0; }
+
+/* ---- how far through a page: a hairline that fills as you scroll ------ */
+/* Driven by the scroll position (a scroll timeline), not by time: it moves
+   only when the reader does. Hidden where scroll timelines are not known. */
+.read-bar { position: fixed; z-index: 40; inset: 0 0 auto 0; height: 3px; background: var(--accent); transform-origin: 0 50%; scale: 0 1; pointer-events: none;
+  animation: read-bar linear both; animation-timeline: scroll(root); }
+@keyframes read-bar { to { scale: 1 1; } }
+@supports not (animation-timeline: scroll()) { .read-bar { display: none; } }
+
 /* ---- a toast: one line of what happened, and one way back ------------- */
 .toast {
   position: fixed; z-index: 60; left: 50%; bottom: calc(108px + env(safe-area-inset-bottom, 0px));

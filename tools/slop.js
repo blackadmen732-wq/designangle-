@@ -64,7 +64,8 @@ function audit() {
   const firstScreen = (el) => { const r = el.getBoundingClientRect(); return r.top < vh && r.bottom > 0; };
   const ownText = (el) => [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
   const label = (el) => `<${el.tagName.toLowerCase()}> "${(el.getAttribute('aria-label') || el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 36)}"`;
-  const rgba = (c) => { const m = String(c).match(/[\d.]+/g); return m && m.length >= 3 ? { r: +m[0], g: +m[1], b: +m[2], a: m[3] === undefined ? 1 : +m[3] } : null; };
+  // color(srgb r g b / a), how a color-mix() comes back, runs 0 to 1.
+  const rgba = (c) => { const s = String(c), m = s.match(/[\d.]+/g), k = /^color\(/.test(s) ? 255 : 1; return m && m.length >= 3 ? { r: +m[0] * k, g: +m[1] * k, b: +m[2] * k, a: m[3] === undefined ? 1 : +m[3] } : null; };
   const hsl = ({ r, g, b }) => {
     r /= 255; g /= 255; b /= 255;
     const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
@@ -313,7 +314,7 @@ function audit() {
   await page.waitForLoadState('networkidle').catch(() => {});
   for (let t = Date.now(); Date.now() - t < 5000;) {
     const busy = await page.evaluate(() =>
-      document.getAnimations().some((a) => a.playState === 'running' && a.effect && a.effect.getTiming().iterations !== Infinity) ||
+      document.getAnimations().some((a) => a.playState === 'running' && a.timeline === document.timeline && a.effect && a.effect.getTiming().iterations !== Infinity) ||
       !!(window.gsap && gsap.globalTimeline.getChildren(true, true, false).some((x) => x.isActive() && !(x.repeat && x.repeat() === -1))));
     if (!busy) break;
     await page.waitForTimeout(100);

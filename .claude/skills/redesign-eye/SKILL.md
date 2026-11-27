@@ -126,6 +126,17 @@ beats (problem, changes as two-half sentences, main action last); the
 before-and-after sheet shows the old screen whole and the new whole; a
 walkthrough to a client follows the same order and the same timing.
 
+The reel itself is `node tools/reel.js <script.json>`: a script names the
+old and new screens (a page, a URL, or `git:<rev>:<path>` for the page as
+it was) and the beats, one sentence each, with the part each one is about.
+It photographs the screens, moves the camera her way, marks the part,
+dissolves the change in place, sets the words one at a time and writes a
+1080 x 1920 video and a contact sheet to `.check/reel/`. The Chick-fil-A
+study's `reel.json` is the example. Measured with `watch.py`, its camera
+matches hers: 1.2 times, half-second S-curves, a 300ms dissolve. It uses
+our title card, mark and captions, not hers, and has no voice: the words
+are on screen, as most people watch.
+
 ## 6. Watching her next video
 
 ```bash

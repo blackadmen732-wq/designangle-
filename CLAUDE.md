@@ -58,6 +58,7 @@ node tools/slop.js <page>          # does it look AI-made? 18 points, and the bo
 node tools/motion.js <page>        # presses through it: every animation measured, frame-exact filmstrips
 python3 tools/photos.py try <ids>  # candidate photos on a contact sheet, before fetching any
 python3 tools/critique.py shot.png --kind app    # cheap design review
+node tools/reel.js app-style/examples/chick-fil-a/reel.json   # a redesign as a reel, into .check/reel/
 ```
 
 Screenshot at **400×860** and **1280×900**. Both, every time. `tools/check.js`
@@ -84,6 +85,7 @@ tools/motion.js       the motion audit: durations, curves, layout animation, red
 tools/cdn.js          blocked CDN libraries served from npm, so the checks test the real page
 tools/photos.py       photos by Unsplash id: a contact sheet first, then fetch with credits
 tools/watch.py        a redesign video read: her words, a storyboard, the camera's moves
+tools/reel.js         a redesign told as a vertical video, her structure and timing
 tools/compare.js      a screen beside the reference frame it should match
 tools/critique.py     screenshot review on the user's NVIDIA credit
 docs/research/        the research the design decisions came from

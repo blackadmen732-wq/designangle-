@@ -254,6 +254,10 @@ missing from the method; it is in the app-redesign and app-style skills now.
   `.mono` with `.mono-kind`, `.dot-new`, `.thumb-n`, `.tile-date`,
   `.stacked` and `.pill-bar`, proved by rebuilding her last frame
   (`app-style/screens/gmail-inbox.html`, every row within 2pt).
+- `tools/reel.js` tells one of our redesigns as a reel built like hers:
+  the six beats, her camera (measured back with `watch.py`: 1.2 times,
+  half-second S-curves, a 300ms dissolve), one word at a time, a
+  countdown; our title card and mark.
 - `tools/watch.py` reads the next video: her words, a storyboard, the
   camera. `.claude/skills/redesign-eye/` is how she thinks, as a skill.
 - `tools/slop.js`: two thresholds were stricter than her own screens (the

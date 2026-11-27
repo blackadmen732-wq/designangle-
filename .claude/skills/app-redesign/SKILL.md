@@ -70,7 +70,9 @@ node tools/motion.js <page>      # moves well; give the page a motion tour
 
 Then open the screenshots and the filmstrips, then record a run-through
 (Playwright `recordVideo`, then `ffmpeg` to mp4 or gif) and watch it all the
-way through. Then put the before and after side by side, at both sizes.
+way through. Then put the before and after side by side, at both sizes,
+and cut the story as a reel (`node tools/reel.js <script.json>`, the
+`redesign-eye` skill, section 5).
 
 ## 7. Then put it beside her
 

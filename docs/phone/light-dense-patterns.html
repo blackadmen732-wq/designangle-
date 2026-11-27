@@ -1,0 +1,491 @@
+<title>Light Dense Patterns</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap">
+<style>
+/* The counterpart to docs/phone/app-patterns-dark.html.
+   That page came from two dark media apps where one thing dominates.
+   This one is for the other case: light ground, several things that matter
+   at once, somebody scanning rather than browsing.
+
+   Every number here was read out of a published package. Sources are named
+   on each pattern, and the licence of each is checked in
+   docs/research/design-system-licences.md. */
+:root {
+  --bg: #f6f6f4;
+  --surface: #ffffff;
+  --ink: #15171c;
+  --ink-2: #4b4f58;
+  --ink-3: #6a6f79;        /* 4.95:1 on --surface */
+  --line: #e2e2df;
+  --line-strong: #cfcfcb;
+  --accent: #006c4e;
+  --accent-soft: #e4f2ec;
+  --warn-bg: #fdf1dc;
+  --warn-fg: #8a5a0f;
+  --bad-bg: #fcebea;
+  --bad-fg: #a6352c;
+  /* Material 3 elevation, read from md-elevation-tokens.css.
+     Two shadows per level: one tight and dark, one wide and faint. */
+  --e1: 0 1px 2px 0 rgb(21 23 28 / .30), 0 1px 3px 1px rgb(21 23 28 / .15);
+  --e2: 0 1px 2px 0 rgb(21 23 28 / .30), 0 2px 6px 2px rgb(21 23 28 / .15);
+  --e3: 0 1px 3px 0 rgb(21 23 28 / .30), 0 4px 8px 3px rgb(21 23 28 / .15);
+  /* Material 3 shape tokens */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px;
+  /* Uber Base Web easing, with Uber's own stated intents */
+  --enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --move:  cubic-bezier(0.83, 0, 0.17, 1);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: "Geist", ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+}
+h1,h2,h3,h4 { margin: 0; line-height: 1.15; }
+p { margin: 0; }
+.wrap {
+  max-width: 1160px; margin-inline: auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+header.top { padding-block: 64px 8px; }
+header.top h1 { font-size: clamp(34px, 5.5vw, 54px); font-weight: 700; letter-spacing: -0.025em; text-wrap: balance; }
+header.top .lede { margin-top: 18px; max-width: 64ch; color: var(--ink-2); font-size: 17px; }
+.src {
+  margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px;
+}
+.src span {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+  padding: 6px 13px; font-size: 13px; color: var(--ink-2);
+}
+.src span b { color: var(--ink); font-weight: 600; }
+
+/* --- pattern blocks --- */
+.pat { padding-block: 48px; border-top: 1px solid var(--line); }
+.pat:first-of-type { border-top: 0; }
+.pat > .n {
+  font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.pat > h2 { margin-top: 10px; font-size: clamp(23px, 3vw, 30px); font-weight: 700; letter-spacing: -0.02em; }
+.pat > .why { margin-top: 14px; max-width: 70ch; color: var(--ink-2); }
+.pat > .why + .why { margin-top: 12px; }
+.cite {
+  margin-top: 14px; font-size: 15px; color: var(--ink-3);
+  border-left: 2px solid var(--line-strong); padding-left: 13px; max-width: 70ch;
+}
+.cite b { color: var(--ink-2); font-weight: 600; }
+
+.demo {
+  margin-top: 28px; display: grid; gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  align-items: start;
+}
+.demo > figure { margin: 0; }
+.demo figcaption { margin-top: 11px; font-size: 14px; color: var(--ink-3); }
+.demo figcaption b { color: var(--ink); font-weight: 600; }
+.stage { background: var(--surface); border-radius: var(--r-lg); padding: 20px; border: 1px solid var(--line); }
+.stage.plain { background: var(--bg); border-style: dashed; }
+
+pre {
+  margin: 16px 0 0; background: #15171c; color: #e9e9e6; border-radius: var(--r-md);
+  padding: 15px 17px; overflow-x: auto; font-size: 13px; line-height: 1.6;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+pre .k { color: #8ad0a8; }
+pre .c { color: #9aa0a6; }
+
+/* ---------- 1. separation on light ---------- */
+.sep-row { display: grid; gap: 12px; }
+.card-flat { background: var(--surface); border-radius: var(--r-md); padding: 15px; }
+.card-line { background: var(--surface); border-radius: var(--r-md); padding: 15px; border: 1px solid var(--line); }
+.card-lift { background: var(--surface); border-radius: var(--r-md); padding: 15px; box-shadow: var(--e1); }
+.card-flat h4, .card-line h4, .card-lift h4 { font-size: 16px; font-weight: 600; }
+.card-flat p, .card-line p, .card-lift p { font-size: 15px; color: var(--ink-3); margin-top: 3px; }
+
+/* ---------- 2. equal numbers ---------- */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { border: 1px solid var(--line); border-radius: var(--r-md); padding: 13px; background: var(--surface); }
+.stat .v { font-size: 25px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 12.5px; color: var(--ink-3); line-height: 1.35; margin-top: 2px; }
+.stat .d { font-size: 12.5px; font-weight: 600; margin-top: 5px; }
+.stat .d.up { color: var(--accent); }
+.stat .d.dn { color: var(--bad-fg); }
+
+/* ---------- 3. the dense row ---------- */
+.rows { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+.drow {
+  display: grid; grid-template-columns: 8px minmax(0,1fr) auto;
+  gap: 12px; align-items: center; padding: 11px 14px;
+  border-bottom: 1px solid var(--line); min-height: 56px;
+}
+.drow:last-child { border-bottom: 0; }
+.drow .dot { width: 8px; height: 8px; border-radius: 50%; }
+.drow .dot.g { background: var(--accent); }
+.drow .dot.a { background: var(--warn-fg); }
+.drow .dot.r { background: var(--bad-fg); }
+.drow .dot.n { background: var(--line-strong); }
+.drow .t { font-size: 15px; font-weight: 500; }
+.drow .s { font-size: 13px; color: var(--ink-3); }
+.drow .amt { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ---------- 4. status by tone pair ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 13px; font-weight: 600; border-radius: var(--r-sm); padding: 5px 11px; }
+.chip.ok { background: var(--accent-soft); color: var(--accent); }
+.chip.warn { background: var(--warn-bg); color: var(--warn-fg); }
+.chip.bad { background: var(--bad-bg); color: var(--bad-fg); }
+.chip.off { background: #ececeA; color: var(--ink-2); }
+
+/* ---------- 5. one action ---------- */
+.acts { display: flex; gap: 10px; flex-wrap: wrap; }
+.b {
+  min-height: 44px; border-radius: var(--r-md); padding-inline: 20px; border: 0;
+  font: inherit; font-weight: 600; font-size: 15px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px; position: relative;
+}
+.b.primary { background: var(--ink); color: #fff; }
+.b.quiet { background: transparent; color: var(--ink); border: 1.5px solid var(--line-strong); }
+.b.text { background: transparent; color: var(--ink-2); padding-inline: 8px; }
+
+/* ---------- 6. the sticky bar ---------- */
+.sheet-demo { position: relative; height: 230px; border-radius: var(--r-lg); overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
+.sheet-scroll { position: absolute; inset: 0 0 72px 0; overflow: hidden; padding: 16px; display: grid; gap: 10px; align-content: start; }
+.ghost { height: 13px; border-radius: 4px; background: #ececeA; }
+.ghost.w70 { width: 70% } .ghost.w90 { width: 90% } .ghost.w50 { width: 50% } .ghost.w80 { width: 80% }
+.sticky-bar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 72px;
+  background: var(--surface); border-top: 1px solid var(--line);
+  display: flex; align-items: center; gap: 12px; padding: 0 16px;
+  box-shadow: 0 -1px 2px rgb(21 23 28 / .04);
+}
+.sticky-bar .total { font-size: 13px; color: var(--ink-3); }
+.sticky-bar .total b { display: block; font-size: 18px; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.sticky-bar .b { margin-left: auto; }
+
+/* ---------- 7. spacing ladder ---------- */
+.ladder { display: grid; gap: 7px; }
+.step { display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; font-size: 13px; }
+.step code { color: var(--ink-3); font-family: ui-monospace, Menlo, monospace; }
+.step .bar { height: 15px; background: var(--accent); border-radius: 3px; opacity: .85; }
+
+footer { padding-block: 44px 80px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 15px; }
+footer b { color: var(--ink); font-weight: 600; }
+footer p + p { margin-top: 12px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <h1>The other half: light, dense, several things at once.</h1>
+    <p class="lede">
+      <code>docs/phone/app-patterns-dark.html</code> came from two dark media apps where one
+      thing dominates the screen. Most of the work a small business actually does
+      is the opposite case — a light ground, a person scanning, and five numbers
+      that all matter. These are the patterns for that, and they are where the
+      "make one thing huge and cut the rest" instruction stops being right.
+    </p>
+    <div class="src">
+      <span>read from <b>@material/web</b> tokens v0_192 · Apache-2.0</span>
+      <span><b>baseui</b> 18.2.0 · MIT</span>
+      <span><b>@carbon/layout</b> 11.63.0 · Apache-2.0</span>
+      <span><b>open-props</b> 1.7.23 · MIT</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- 1 -->
+  <section class="pat">
+    <p class="n">Pattern 01</p>
+    <h2>On a light ground, value alone stops separating things.</h2>
+    <p class="why">
+      The dark pattern set says cards separate by value and need no border and no
+      shadow: page <code>#070707</code>, card <code>#1c1c1c</code>. That works
+      because dark has room underneath — you can go darker than the card and still
+      have a surface.
+    </p>
+    <p class="why">
+      White has nowhere to go. A card on white, separated only by value, is either
+      invisible or dirty. So you get a hairline or a shadow instead, and the
+      shadow is not one shadow.
+    </p>
+    <p class="cite">
+      <b>Material 3 elevation is two shadows at every level</b>: one tight and
+      relatively dark, one wide and faint. Level 1 is
+      <code>0 1px 2px / .30</code> plus <code>0 1px 3px 1px / .15</code>. The
+      tight one puts the edge down; the wide one gives it a room to sit in. A
+      single soft shadow is the thing that reads as a template.
+    </p>
+    <div class="demo">
+      <figure>
+        <div class="stage plain"><div class="sep-row">
+          <div class="card-flat"><h4>No separation</h4><p>White on near-white. The card edge is a guess.</p></div>
+          <div class="card-flat"><h4>Second card</h4><p>Where does one end?</p></div>
+        </div></div>
+        <figcaption><b>Value only.</b> The dark-screen rule, moved to light. It stops working.</figcaption>
+      </figure>
+      <figure>
+        <div class="stage plain"><div class="sep-row">
+          <div class="card-line"><h4>Hairline</h4><p>One pixel of <code>#e2e2df</code>. Quiet and exact.</p></div>
+          <div class="card-line"><h4>Second card</h4><p>Right for a list of equals.</p></div>
+        </div></div>
+        <figcaption><b>Hairline.</b> Use when the cards are peers and none is lifted.</figcaption>
+      </figure>
+      <figure>
+        <div class="stage plain"><div class="sep-row">
+          <div class="card-lift"><h4>Two shadows</h4><p>Tight dark edge, wide faint room.</p></div>
+          <div class="card-lift"><h4>Second card</h4><p>Right when something really is above.</p></div>
+        </div></div>
+        <figcaption><b>Elevation 1.</b> Spend it on things that are genuinely lifted, not on every card.</figcaption>
+      </figure>
+    </div>
+<pre><span class="c">/* Material 3, md-sys-elevation-shadow-1 and -2 */</span>
+--e1: <span class="k">0 1px 2px 0 rgb(21 23 28 / .30), 0 1px 3px 1px rgb(21 23 28 / .15)</span>;
+--e2: <span class="k">0 1px 2px 0 rgb(21 23 28 / .30), 0 2px 6px 2px rgb(21 23 28 / .15)</span>;</pre>
+  </section>
+
+  <!-- 2 -->
+  <section class="pat">
+    <p class="n">Pattern 02</p>
+    <h2>Sometimes five numbers are all the hero.</h2>
+    <p class="why">
+      The design method says find the one thing and make it bigger than feels
+      comfortable. On a media screen that is right: there is one artwork and one
+      Play button. On an owner's morning screen it is wrong. Revenue, orders,
+      average and refunds are all the reason the screen exists, and blowing one up
+      to four times the others invents a priority nobody asked for.
+    </p>
+    <p class="why">
+      The replacement rule: when several numbers are peers, make them
+      <em>identical</em> and let the <em>change</em> carry the emphasis. Equal
+      tiles read as a set. The one that moved is the one that gets a colour.
+    </p>
+    <p class="cite">
+      Tabular figures are not optional here. <code>font-variant-numeric:
+      tabular-nums</code> makes digits the same width, so columns line up and a
+      number changing does not shuffle the layout beside it.
+    </p>
+    <div class="demo">
+      <figure>
+        <div class="stage"><div class="stats">
+          <div class="stat"><div class="v">$2,480</div><div class="l">Revenue</div><div class="d up">+12%</div></div>
+          <div class="stat"><div class="v">34</div><div class="l">Orders</div><div class="d up">+4</div></div>
+          <div class="stat"><div class="v">$73</div><div class="l">Average</div><div class="d dn">−$6</div></div>
+        </div></div>
+        <figcaption><b>Peers.</b> Same size, same weight. The arrow does the pointing, not the type scale.</figcaption>
+      </figure>
+      <figure>
+        <div class="stage"><div class="stats" style="grid-template-columns:1fr">
+          <div class="stat"><div class="v" style="font-size:40px">$2,480</div><div class="l">Revenue</div><div class="d up">+12%</div></div>
+          <div class="stat" style="opacity:.55"><div class="v" style="font-size:17px">34</div><div class="l">Orders</div></div>
+        </div></div>
+        <figcaption><b>One hero.</b> Right only when one number really is the job. Forced here, it hides the one that fell.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="pat">
+    <p class="n">Pattern 03</p>
+    <h2>The dense row: a dot, two lines, one number.</h2>
+    <p class="why">
+      Scanning is not reading. A person going down a list of thirty things is
+      matching shapes, not sentences. The shape that works is always the same:
+      a status mark on the left at a fixed column, the thing and its detail
+      stacked in the middle, and the number right-aligned.
+    </p>
+    <p class="why">
+      Two rules make it work. The middle column gets <code>minmax(0,1fr)</code>
+      so long names wrap instead of pushing the number off the edge. And the
+      detail line wraps rather than truncating — <code>Front count…</code> is not
+      information.
+    </p>
+    <p class="cite">
+      Row height of <b>56px</b> is the smallest that still clears the 44px touch
+      target with its padding intact. Below that you are choosing density over
+      being able to hit the row.
+    </p>
+    <div class="demo">
+      <figure>
+        <div class="stage plain"><div class="rows">
+          <div class="drow"><span class="dot r"></span><span><span class="t">Northwind Heating</span><br><span class="s">Invoice overdue 14 days</span></span><span class="amt">$1,240</span></div>
+          <div class="drow"><span class="dot a"></span><span><span class="t">Pomelo Kitchen</span><br><span class="s">Awaiting your approval</span></span><span class="amt">$480</span></div>
+          <div class="drow"><span class="dot g"></span><span><span class="t">Castle Street Dental</span><br><span class="s">Paid Tuesday</span></span><span class="amt">$960</span></div>
+          <div class="drow"><span class="dot n"></span><span><span class="t">A business with a very long trading name indeed</span><br><span class="s">Draft, not sent</span></span><span class="amt">$0</span></div>
+        </div></div>
+        <figcaption><b>Four states, one shape.</b> The long name wraps; the number never moves.</figcaption>
+      </figure>
+    </div>
+<pre>.drow {
+  display: <span class="k">grid</span>;
+  grid-template-columns: <span class="k">8px minmax(0,1fr) auto</span>;  <span class="c">/* 0 lets it wrap */</span>
+  min-height: <span class="k">56px</span>;  <span class="c">/* 44 target + padding */</span>
+}</pre>
+  </section>
+
+  <!-- 4 -->
+  <section class="pat">
+    <p class="n">Pattern 04</p>
+    <h2>Status is a pair of colours, never one.</h2>
+    <p class="why">
+      A status needs a background and a foreground chosen together, because the
+      pair is what has to pass contrast. Picking a nice red and putting it on a
+      light tint of itself is how you end up at 3.2:1 and never notice.
+    </p>
+    <p class="why">
+      Four states is usually all there is: good, needs attention, wrong, and
+      inactive. A fifth is almost always two of those wearing different hats.
+    </p>
+    <p class="cite">
+      Every pair below is checked with <code>node tools/contrast.js check
+      "&lt;fg&gt;" "&lt;bg&gt;"</code>, and the page is checked with
+      <code>node tools/audit.js</code>. Never ship a tone pair you have not run
+      through one of them — this is arithmetic, not judgement.
+    </p>
+    <div class="demo">
+      <figure>
+        <div class="stage"><div class="chips">
+          <span class="chip ok">Paid</span>
+          <span class="chip warn">Needs approval</span>
+          <span class="chip bad">Overdue</span>
+          <span class="chip off">Draft</span>
+        </div></div>
+        <figcaption><b>Four, and a measured ratio behind each.</b></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="pat">
+    <p class="n">Pattern 05</p>
+    <h2>One filled button survives the move to light.</h2>
+    <p class="why">
+      This is the one rule from the dark set that does not bend. Two filled
+      buttons means no primary action, on any ground. What changes is only that a
+      filled button on white has to be dark enough to be obviously a button, so
+      the ink colour does the work the accent did on dark.
+    </p>
+    <p class="cite">
+      Keep the visible height at whatever the design wants and grow the hit box
+      with a pseudo-element. <code>min-height: 44px</code> here is the simple
+      case; the shared template uses <code>::after</code> where the look has to
+      stay smaller.
+    </p>
+    <div class="demo">
+      <figure>
+        <div class="stage"><div class="acts">
+          <button class="b primary">Send invoice</button>
+          <button class="b quiet">Preview</button>
+          <button class="b text">Discard</button>
+        </div></div>
+        <figcaption><b>Filled, outlined, text.</b> Three levels, one filled.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="pat">
+    <p class="n">Pattern 06</p>
+    <h2>The bar anchors when content runs under it, floats when it does not.</h2>
+    <p class="cite" style="border-color:var(--bad-fg)">
+      <b>This pattern was wrong when first written, and the correction is the
+      useful part.</b> It originally said a bar must anchor on a light ground,
+      because a floating pill needs something to float above. Checking that
+      against the reference material disproved it: the Uber Eats redesign floats
+      its nav on a warm off-white ground, and it works. So does the Spotify one
+      on dark. The ground colour was never the variable.
+    </p>
+    <p class="why">
+      What actually decides it is whether the bar is <em>summarising</em> or
+      <em>navigating</em>.
+    </p>
+    <p class="why">
+      <b>Anchor it</b> when the bar carries a value tied to what is above it — a
+      total, a count, a selection. A total that floats is detached from the list
+      it totals. Give it a top hairline and the faintest upward shadow so it
+      reads as the bottom of the sheet.
+    </p>
+    <p class="why">
+      <b>Float it</b> when the bar only moves you between places. Then it is a
+      control panel, not part of the page, and lifting it off the edge with a
+      solid fill and a margin says so. Both redesigns that float also pull the
+      create action out as its own circle beside the pill, rather than cramming
+      it in as a fifth tab.
+    </p>
+    <div class="demo">
+      <figure>
+        <div class="sheet-demo">
+          <div class="sheet-scroll">
+            <div class="ghost w90"></div><div class="ghost w70"></div>
+            <div class="ghost w80"></div><div class="ghost w50"></div>
+            <div class="ghost w90"></div><div class="ghost w70"></div>
+          </div>
+          <div class="sticky-bar">
+            <span class="total">Total due<b>$1,240</b></span>
+            <button class="b primary">Pay now</button>
+          </div>
+        </div>
+        <figcaption><b>Anchored, correctly.</b> This bar carries a total, so it belongs to the list above it. A nav bar in the same place would float instead.</figcaption>
+      </figure>
+    </div>
+<pre>.sticky-bar {
+  border-top: <span class="k">1px solid var(--line)</span>;
+  box-shadow: <span class="k">0 -1px 2px rgb(21 23 28 / .04)</span>;  <span class="c">/* barely there */</span>
+}</pre>
+  </section>
+
+  <!-- 7 -->
+  <section class="pat">
+    <p class="n">Pattern 07</p>
+    <h2>The spacing scale three published systems agree on.</h2>
+    <p class="why">
+      Dense screens live or die on spacing, because with this many elements the
+      gaps are the only grouping you have. The scale below is the intersection of
+      what Carbon, Material 3 and Uber Base Web all ship — not a preference.
+    </p>
+    <p class="cite">
+      <b>2 · 4 · 8 · 12 · 16 · 24 · 32 · 40 · 48 · 64</b> appears in all three.
+      Material builds from an explicit <code>--md-sys-space-unit: 8px</code> with
+      quarter steps; Carbon and Uber both start their ladders at 2px. The 2 and
+      the 4 are what a dense screen needs and what a marketing page never does.
+    </p>
+    <div class="demo">
+      <figure>
+        <div class="stage"><div class="ladder">
+          <div class="step"><code>2</code><div class="bar" style="width:2px"></div></div>
+          <div class="step"><code>4</code><div class="bar" style="width:4px"></div></div>
+          <div class="step"><code>8</code><div class="bar" style="width:8px"></div></div>
+          <div class="step"><code>12</code><div class="bar" style="width:12px"></div></div>
+          <div class="step"><code>16</code><div class="bar" style="width:16px"></div></div>
+          <div class="step"><code>24</code><div class="bar" style="width:24px"></div></div>
+          <div class="step"><code>32</code><div class="bar" style="width:32px"></div></div>
+          <div class="step"><code>40</code><div class="bar" style="width:40px"></div></div>
+          <div class="step"><code>48</code><div class="bar" style="width:48px"></div></div>
+          <div class="step"><code>64</code><div class="bar" style="width:64px"></div></div>
+        </div></div>
+        <figcaption><b>The intersection.</b> Every step here is in Carbon, Material 3 and Base Web.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p><b>What carried over from the dark set, unchanged.</b> Hierarchy by value
+  before size. Exactly one filled button. The brand colour spent once. Space
+  groups things better than any border. Nothing frequent is animated.</p>
+  <p><b>What flipped.</b> No glow — a light screen does not need lighting. Cards
+  take a hairline or a two-part shadow, because value alone has nowhere to go.
+  And several numbers are allowed to be equally important, which is the rule
+  the dark set could not have found, because a media screen never has that
+  problem.</p>
+  <p><b>What was wrong here, and is now fixed.</b> This page first claimed a bar
+  must anchor on a light ground. The reference material disproves it — a light
+  marketplace redesign floats its nav and it reads correctly. The real rule is
+  about what the bar carries, not what colour sits behind it. Left uncorrected,
+  that would have been a confident, cited, wrong instruction.</p>
+  <p>Content is invented and labelled as such. Figures are illustrative.</p>
+</footer>

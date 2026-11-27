@@ -6,6 +6,18 @@
  */
 module.exports = {
   lang: 'en',
+
+  // The sections this page has, in order. One name per line. Each name is also
+  // the key its content lives under below, so 'story' renders `story:`.
+  sections: [
+    'belt',
+    'showcase',
+    'list',
+    'story',
+    'band',
+    'contact'
+  ],
+
   name: 'Northwind Heating & Air',
   short: 'Northwind',
   seo: {
@@ -147,7 +159,7 @@ module.exports = {
 
       button: 'Request this visit',
       confirm: '{choice} visit on {date}, {time}, for {name}.',
-      note: 'This is a preview site, so the request has not been sent to anyone yet.',
+      note: 'This is a demonstration site. Your details were sent to the demo panel, not to a heating company.',
       nameError: 'Add your name so we know who to ask for.',
       phoneError: 'Add a phone number so we can confirm the visit.',
       addressError: 'Add the address so we know where to come.',

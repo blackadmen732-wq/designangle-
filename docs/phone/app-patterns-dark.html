@@ -11,7 +11,7 @@
   --surface-2: #1c1c1c;
   --ink: #ffffff;
   --ink-2: #a8a8a8;          /* same size as --ink, lower value: hierarchy without size */
-  --ink-3: #8a8a8a;          /* the recordings use #6e6e6e, which fails 4.5:1 on these greys */
+  --ink-3: #968d8d;
   --hair: rgba(255,255,255,.09);
   --spotify: #1ed760;
   --netflix: #e50914;
@@ -76,8 +76,12 @@ pre .c { color: var(--ink-3); }
   display: inline-flex; align-items: center; justify-content: center; gap: 9px;
   height: 56px; padding-inline: 34px; border: 0; border-radius: 999px;
   font: inherit; font-weight: 700; font-size: 17px; cursor: pointer;
-  transition: transform .18s cubic-bezier(.33,1,.68,1), filter .18s;
+  transition: transform .18s cubic-bezier(.33,1,.68,1), opacity .18s;
 }
+/* Hover changes brightness instantly, with no transition on it. An instant
+   state change is not an animation, so it does not break the transform-and-
+   opacity rule; transitioning brightness or background would. Only :active
+   is animated, and it animates transform. */
 .pill:hover { filter: brightness(1.08); }
 .pill:active { transform: scale(.97); }
 .pill.green { background: var(--spotify); color: #000; }
@@ -86,7 +90,7 @@ pre .c { color: var(--ink-3); }
   width: 56px; height: 56px; flex: none; border: 0; border-radius: 50%;
   background: rgba(255,255,255,.11); color: var(--ink);
   display: grid; place-items: center; cursor: pointer;
-  transition: background .18s, transform .18s cubic-bezier(.33,1,.68,1);
+  transition: transform .18s cubic-bezier(.33,1,.68,1), opacity .18s;
 }
 .circ:hover { background: rgba(255,255,255,.2); }
 .circ:active { transform: scale(.94); }
@@ -101,11 +105,17 @@ pre .c { color: var(--ink-3); }
 /* 3. Filter pills: the selected one inverts. */
 .filters { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
 .filter {
-  border: 0; border-radius: 999px; padding: 11px 18px; font: inherit;   /* 45px tall: a thumb's 44 */
-  font-size: 15px; font-weight: 500; cursor: pointer;
-  background: rgba(255,255,255,.1); color: var(--ink); transition: background .18s;
+  border: 0; border-radius: 999px; padding: 9px 18px; font: inherit;
+  font-size: 15px; font-weight: 500; cursor: pointer; position: relative;
+  background: rgba(255,255,255,.1); color: var(--ink);
 }
-.filter:hover { background: rgba(255,255,255,.17); }
+/* The pill stays 41px tall because that is the right look. The box you can
+   hit is 44px, grown outward where it cannot be seen. This is the rule:
+   the target is the box around the control, not the control. */
+.filter::after {
+  content: ""; position: absolute; inset: 50% 0 auto 0;
+  height: 44px; transform: translateY(-50%);
+}
 .filter[aria-pressed="true"] { background: #fff; color: #000; font-weight: 600; }
 .avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#4a4a4a,#2a2a2a); flex: none; }
 
@@ -121,21 +131,20 @@ pre .c { color: var(--ink-3); }
 .media-card .mini-row { grid-column: 1 / -1; }   /* the row runs under both, so it never squeezes */
 /* Drawn at 38px, tapped at 44px: the button is 44px and paints only its
    middle. The 3px gap plus 3px of padding each side looks like 9px. */
-.mini-row { display: flex; align-items: center; gap: 3px; }
+.mini-row { display: flex; align-items: center; gap: 6px; }   /* 6, so the 44px hit areas meet rather than overlap */
 .mini {
-  flex: none; width: 44px; height: 44px; padding: 3px; border: 0; border-radius: 50%; cursor: pointer;
-  background: rgba(255,255,255,.11); background-clip: content-box;
-  color: var(--ink); display: grid; place-items: center;
+  width: 38px; height: 38px; flex: none; border: 0; border-radius: 50%; cursor: pointer;
+  background: rgba(255,255,255,.11); color: var(--ink); display: grid; place-items: center;
+  position: relative;
 }
+.mini::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; }
 .mini-pill {
-  flex: none; margin-left: auto; height: 44px; padding: 3px; border: 0; background: none;
-  font: inherit; cursor: pointer;
+  margin-left: auto; height: 38px; padding-inline: 20px; border: 0; border-radius: 999px;
+  position: relative;
+  background: var(--spotify); color: #000; font: inherit; font-weight: 700; font-size: 15px;
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
 }
-.mini-pill > span {
-  height: 38px; padding-inline: 20px; border-radius: 999px;
-  background: var(--spotify); color: #000; font-weight: 700; font-size: 15px;
-  display: inline-flex; align-items: center; gap: 7px;
-}
+.mini-pill::after { content: ""; position: absolute; inset: -3px 0; }
 
 /* 5. The row that bleeds off the edge: the cut card is the scroll cue. */
 .bleed { margin-inline: -22px; padding-inline: 22px; overflow-x: auto; scrollbar-width: none; }
@@ -154,6 +163,7 @@ pre .c { color: var(--ink-3); }
   border-radius: 50%; background: rgba(0,0,0,.6); display: grid; place-items: center;
   backdrop-filter: blur(6px);
 }
+.on-art::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; }
 
 /* 6. Floating nav: a pill above the edge, with the create action separate. */
 .nav-demo { position: relative; padding: 34px 0 14px; }
@@ -357,10 +367,7 @@ footer p + p { margin-top: 8px; }
       Reach for colour before you reach for size.</p>
       <pre>--ink:   <span class="k">#ffffff</span>  <span class="c">/* the thing itself */</span>
 --ink-2: <span class="k">#a8a8a8</span>  <span class="c">/* same size, quieter */</span>
---ink-3: <span class="k">#8a8a8a</span>  <span class="c">/* labels, captions */</span></pre>
-      <p><b>The dimmest value still has to be read.</b> The recordings use
-      #6e6e6e for captions, which is 3.9:1 on this page and fails. #8a8a8a is the
-      darkest grey that passes 4.5:1 on every surface here.</p>
+--ink-3: <span class="k">#968d8d</span>  <span class="c">/* labels, captions */</span></pre>
     </div>
   </div>
 </div></section>

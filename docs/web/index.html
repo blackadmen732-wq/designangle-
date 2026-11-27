@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design Angle</title>
+<meta name="description" content="A design kit that measures its own rules. Every number here came from a real run.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Sans:wght@400;600&display=swap">
+<style>
+/* ===========================================================================
+   Design Angle — front page.
+
+   Six type sizes, one 4-based spacing scale, one accent plus two signal
+   colours that only ever mark pass and fail. The mark is SVG: the rim is a
+   stroke on the shape's own path, so it follows the contour into the corners
+   instead of being a rectangle the clip cuts away.
+   =========================================================================== */
+:root{
+  --void:#060607; --ground:#0b0b0d; --raise:#141417;
+  --edge:#26262b; --edge-lit:#3a3a42;
+  --ink:#f4f3f1; --ink-2:#bbb9b4; --ink-3:#928f8a;
+  --red:#ff3a4d; --pass:#54e0a4; --fail:#ff8a86;
+
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s6:24px;
+  --s8:32px; --s12:48px; --s16:64px;
+  --r-s:12px; --r-m:16px; --r-l:24px;
+
+  --sans:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
+  --disp:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --enter:cubic-bezier(.22,1,.36,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--void);color:var(--ink);
+  font-family:var(--sans);font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2{margin:0;font-family:var(--disp);font-weight:800;letter-spacing:-.02em;line-height:1.08;text-wrap:balance}
+h3{margin:0;font-family:var(--sans);font-size:17px;font-weight:600;line-height:1.35}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:var(--r-s)}
+.wrap{max-width:1120px;margin-inline:auto;
+  padding-left:max(var(--s6),env(safe-area-inset-left,0px));
+  padding-right:max(var(--s6),env(safe-area-inset-right,0px))}
+
+.icon{display:block;width:100%;height:100%;overflow:visible}
+/* The shadow lives on a wrapper. A clip-path clips the element's own
+   box-shadow away completely, so the first version had no shadow at all. */
+.markBox{position:relative;line-height:0}
+.markBox.lg{filter:drop-shadow(0 2px 4px rgb(0 0 0/.6)) drop-shadow(0 24px 44px rgb(195 20 44/.28))}
+.markBox.sm{filter:drop-shadow(0 1px 3px rgb(0 0 0/.7))}
+
+header.top{position:relative;padding-block:var(--s12) var(--s16);
+  background:radial-gradient(70% 48% at 16% -6%,rgb(195 20 44/.17),transparent 62%),var(--void);
+  overflow:hidden}
+header.top::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgb(255 255 255/.03) 1px,transparent 1px),
+                   linear-gradient(90deg,rgb(255 255 255/.03) 1px,transparent 1px);
+  background-size:var(--s16) var(--s16);
+  mask:radial-gradient(66% 54% at 20% 8%,#000,transparent 72%)}
+.lockup{position:relative;display:flex;align-items:center;gap:var(--s3)}
+.lockup .markBox{width:44px;height:44px;flex:none}
+.lockup b{font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:-.01em}
+.lockup span{font-size:15px;color:var(--ink-3)}
+
+.heroGrid{position:relative;margin-top:var(--s12);display:grid;gap:var(--s12);
+  grid-template-columns:minmax(0,1.4fr) minmax(0,.6fr);align-items:center}
+h1{font-size:clamp(38px,6.1vw,72px);max-width:16ch}
+h1 .lit{background:linear-gradient(168deg,#ffc2c8,var(--red) 36%,#d4213a);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+@supports not (background-clip:text){h1 .lit{color:var(--red)}}
+.lede{margin-top:var(--s6);max-width:52ch;font-size:20px;line-height:1.5;color:var(--ink-2)}
+.lede b{color:var(--ink);font-weight:600}
+.cta{margin-top:var(--s8);display:flex;flex-wrap:wrap;gap:var(--s3)}
+.btn{position:relative;display:inline-flex;align-items:center;gap:var(--s2);
+  min-height:48px;padding-inline:var(--s6);border:0;border-radius:var(--r-s);
+  font:inherit;font-weight:600;font-size:17px;cursor:pointer;text-decoration:none;
+  transition:transform .16s var(--enter)}
+.btn.solid{background:var(--ink);color:var(--void)}
+.btn.line{color:var(--ink);border:1px solid var(--edge-lit)}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.99)}
+.btn .arr{transition:transform .16s var(--enter)}
+.btn:hover .arr{transform:translateX(3px)}
+.under{margin-top:var(--s4);font-size:15px;color:var(--ink-3)}
+code{font-family:var(--mono);font-size:.88em;color:var(--ink-2)}
+
+.heroArt{display:grid;justify-items:center;margin:0}
+.heroArt .markBox{width:min(244px,54vw);aspect-ratio:1}
+.heroArt figcaption{margin-top:var(--s4);font-size:15px;color:var(--ink-3);text-align:center;max-width:28ch;line-height:1.45}
+@media (max-width:920px){
+  .heroGrid{grid-template-columns:minmax(0,1fr);gap:var(--s8)}
+  .heroArt{order:2;justify-items:start}
+  .heroArt figcaption{text-align:left}
+}
+
+section{padding-block:var(--s16);border-top:1px solid var(--edge);background:var(--ground)}
+h2{font-size:clamp(27px,3.7vw,40px);max-width:20ch}
+.say{margin-top:var(--s4);max-width:54ch;color:var(--ink-2)}
+.say + .say{margin-top:var(--s3)}
+
+.grid2{margin-top:var(--s8);display:grid;gap:var(--s4);grid-template-columns:repeat(auto-fit,minmax(272px,1fr))}
+.card{background:var(--raise);border:1px solid var(--edge);border-radius:var(--r-m);padding:var(--s6)}
+.card .state{display:flex;align-items:center;gap:var(--s2);font-size:15px;font-weight:600}
+.card .pip{width:8px;height:8px;border-radius:50%;flex:none}
+.card.was .state{color:var(--fail)} .card.was .pip{background:var(--fail)}
+.card.now .state{color:var(--pass)} .card.now .pip{background:var(--pass)}
+.swatch{margin-top:var(--s4);height:88px;border-radius:var(--r-s);display:grid;place-items:center;
+  font-family:var(--disp);font-weight:700;font-size:20px;background:#fff}
+.swatch.was{color:#e03a4b} .swatch.now{color:#db2235}
+.read{margin:var(--s4) 0 0;display:grid;gap:var(--s2)}
+.read div{display:flex;justify-content:space-between;gap:var(--s4);font-size:15px}
+.read dt{color:var(--ink-3)}
+.read dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+.read .f{color:var(--fail)} .read .p{color:var(--pass)}
+
+.term{margin-top:var(--s8);border-radius:var(--r-m);overflow:hidden;border:1px solid var(--edge);background:#08080a}
+.term .bar{display:flex;align-items:center;gap:var(--s2);padding:var(--s3) var(--s4);
+  border-bottom:1px solid var(--edge);background:var(--raise);font-family:var(--mono);font-size:13px;color:var(--ink-3)}
+/* The evidence is the point, so it has to be readable rather than scrolled
+   past. At 400px a 13px mono line of 45 characters is 351px in a 350px box,
+   which cuts the ratio off exactly where it matters. Scaling down to 11.6px
+   fits it, and 11px is the floor the audit enforces for a label. */
+.term pre{margin:0;padding:var(--s4);overflow-x:auto;font-family:var(--mono);
+  font-size:clamp(11.6px,2.9vw,13px);line-height:1.7;color:var(--ink-2);
+  -webkit-overflow-scrolling:touch}
+/* On a phone the longest finding is 55 characters and needs 384px in 318px.
+   There is no font size that fits it and stays readable, so below 620px the
+   output wraps with a hanging indent, the way a real terminal does. Scrolling
+   would hide the ratio, which is the one thing on this page worth reading. */
+@media (max-width:620px){
+  .term pre{white-space:pre-wrap;overflow-wrap:anywhere;padding-left:var(--s3);
+    text-indent:-10px;padding-inline-start:26px}
+}
+.term .cmd{color:var(--ink)} .term .dim{color:#7a7873}
+.term .bad{color:var(--fail)} .term .good{color:var(--pass)} .term .num{color:#ffce73}
+.termNote{margin-top:var(--s3);font-size:15px;color:var(--ink-3);max-width:60ch}
+
+.overlay{margin-top:var(--s8);display:grid;gap:var(--s8);
+  grid-template-columns:minmax(0,236px) minmax(0,1fr);align-items:center}
+@media (max-width:760px){.overlay{grid-template-columns:minmax(0,1fr)}}
+.stack{position:relative;width:100%;max-width:216px;aspect-ratio:1;justify-self:center}
+.stack .rr{position:absolute;inset:0;border-radius:23.5%;background:rgb(255 255 255/.11)}
+.stack .se{position:absolute;inset:0}
+.legend{display:grid;gap:var(--s3)}
+.legend div{display:flex;align-items:flex-start;gap:var(--s3);font-size:15px;color:var(--ink-2);line-height:1.45}
+.legend i{width:22px;height:12px;border-radius:3px;flex:none;margin-top:5px}
+.legend .a{background:rgb(255 255 255/.18)}
+.legend .b{background:var(--red)}
+
+.layers{margin-top:var(--s8);display:grid;gap:var(--s6);grid-template-columns:repeat(auto-fit,minmax(164px,1fr))}
+.layer{display:grid;gap:var(--s3);grid-template-rows:auto auto auto 1fr;align-content:start}
+.layer .markBox{width:100%;max-width:148px;aspect-ratio:1}
+.layer .step{font-family:var(--mono);font-size:13px;color:var(--ink-3)}
+.layer p{font-size:15px;color:var(--ink-3);line-height:1.45}
+
+.rules{margin-top:var(--s8);display:grid;gap:var(--s6);grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.rule{border-top:1px solid var(--edge);padding-top:var(--s4)}
+.rule .n{font-family:var(--mono);font-size:13px;color:var(--ink-3)}
+.rule h3{margin-top:var(--s2)}
+.rule p{margin-top:var(--s2);font-size:15px;color:var(--ink-3);line-height:1.45}
+
+.split{margin-top:var(--s8);display:grid;gap:var(--s8);grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.col h3{font-family:var(--disp);font-weight:700;font-size:20px;letter-spacing:-.01em}
+.col ul{margin:var(--s4) 0 0;padding:0;list-style:none;display:grid;gap:var(--s3)}
+.col li{position:relative;padding-left:var(--s6);font-size:15px;color:var(--ink-2);line-height:1.45}
+.col li::before{content:"";position:absolute;left:0;top:.56em;width:8px;height:8px;border-radius:2px}
+.col.a li::before{background:var(--red)}
+.col.b li::before{background:var(--pass)}
+
+footer{padding-block:var(--s12) var(--s16);background:var(--void);
+  border-top:1px solid var(--edge);color:var(--ink-3);font-size:15px}
+footer .wrap{display:grid;gap:var(--s3);max-width:68ch}
+footer b{color:var(--ink-2);font-weight:600}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <defs>
+    <path id="sqP" d="M100.000,50.000L99.990,62.526L99.961,66.524L99.911,69.428L99.842,71.787L99.753,73.807L99.644,75.589L99.515,77.194L99.366,78.657L99.196,80.006L99.006,81.258L98.796,82.428L98.565,83.525L98.313,84.558L98.039,85.534L97.744,86.458L97.428,87.334L97.089,88.166L96.728,88.956L96.344,89.709L95.936,90.426L95.505,91.108L95.049,91.758L94.568,92.377L94.061,92.967L93.528,93.528L92.967,94.061L92.377,94.568L91.758,95.049L91.108,95.505L90.426,95.936L89.709,96.344L88.956,96.728L88.166,97.089L87.334,97.428L86.458,97.744L85.534,98.039L84.558,98.313L83.525,98.565L82.428,98.796L81.258,99.006L80.006,99.196L78.657,99.366L77.194,99.515L75.589,99.644L73.807,99.753L71.787,99.842L69.428,99.911L66.524,99.961L62.526,99.990L50.000,100.000L37.474,99.990L33.476,99.961L30.572,99.911L28.213,99.842L26.193,99.753L24.411,99.644L22.806,99.515L21.343,99.366L19.994,99.196L18.742,99.006L17.572,98.796L16.475,98.565L15.442,98.313L14.466,98.039L13.542,97.744L12.666,97.428L11.834,97.089L11.044,96.728L10.291,96.344L9.574,95.936L8.892,95.505L8.242,95.049L7.623,94.568L7.033,94.061L6.472,93.528L5.939,92.967L5.432,92.377L4.951,91.758L4.495,91.108L4.064,90.426L3.656,89.709L3.272,88.956L2.911,88.166L2.572,87.334L2.256,86.458L1.961,85.534L1.687,84.558L1.435,83.525L1.204,82.428L0.994,81.258L0.804,80.006L0.634,78.657L0.485,77.194L0.356,75.589L0.247,73.807L0.158,71.787L0.089,69.428L0.039,66.524L0.010,62.526L0.000,50.000L0.010,37.474L0.039,33.476L0.089,30.572L0.158,28.213L0.247,26.193L0.356,24.411L0.485,22.806L0.634,21.343L0.804,19.994L0.994,18.742L1.204,17.572L1.435,16.475L1.687,15.442L1.961,14.466L2.256,13.542L2.572,12.666L2.911,11.834L3.272,11.044L3.656,10.291L4.064,9.574L4.495,8.892L4.951,8.242L5.432,7.623L5.939,7.033L6.472,6.472L7.033,5.939L7.623,5.432L8.242,4.951L8.892,4.495L9.574,4.064L10.291,3.656L11.044,3.272L11.834,2.911L12.666,2.572L13.542,2.256L14.466,1.961L15.442,1.687L16.475,1.435L17.572,1.204L18.742,0.994L19.994,0.804L21.343,0.634L22.806,0.485L24.411,0.356L26.193,0.247L28.213,0.158L30.572,0.089L33.476,0.039L37.474,0.010L50.000,0.000L62.526,0.010L66.524,0.039L69.428,0.089L71.787,0.158L73.807,0.247L75.589,0.356L77.194,0.485L78.657,0.634L80.006,0.804L81.258,0.994L82.428,1.204L83.525,1.435L84.558,1.687L85.534,1.961L86.458,2.256L87.334,2.572L88.166,2.911L88.956,3.272L89.709,3.656L90.426,4.064L91.108,4.495L91.758,4.951L92.377,5.432L92.967,5.939L93.528,6.472L94.061,7.033L94.568,7.623L95.049,8.242L95.505,8.892L95.936,9.574L96.344,10.291L96.728,11.044L97.089,11.834L97.428,12.666L97.744,13.542L98.039,14.466L98.313,15.442L98.565,16.475L98.796,17.572L99.006,18.742L99.196,19.994L99.366,21.343L99.515,22.806L99.644,24.411L99.753,26.193L99.842,28.213L99.911,30.572L99.961,33.476L99.990,37.474L100.000,50.000Z"/>
+    <clipPath id="sqClip"><path d="M100.000,50.000L99.990,62.526L99.961,66.524L99.911,69.428L99.842,71.787L99.753,73.807L99.644,75.589L99.515,77.194L99.366,78.657L99.196,80.006L99.006,81.258L98.796,82.428L98.565,83.525L98.313,84.558L98.039,85.534L97.744,86.458L97.428,87.334L97.089,88.166L96.728,88.956L96.344,89.709L95.936,90.426L95.505,91.108L95.049,91.758L94.568,92.377L94.061,92.967L93.528,93.528L92.967,94.061L92.377,94.568L91.758,95.049L91.108,95.505L90.426,95.936L89.709,96.344L88.956,96.728L88.166,97.089L87.334,97.428L86.458,97.744L85.534,98.039L84.558,98.313L83.525,98.565L82.428,98.796L81.258,99.006L80.006,99.196L78.657,99.366L77.194,99.515L75.589,99.644L73.807,99.753L71.787,99.842L69.428,99.911L66.524,99.961L62.526,99.990L50.000,100.000L37.474,99.990L33.476,99.961L30.572,99.911L28.213,99.842L26.193,99.753L24.411,99.644L22.806,99.515L21.343,99.366L19.994,99.196L18.742,99.006L17.572,98.796L16.475,98.565L15.442,98.313L14.466,98.039L13.542,97.744L12.666,97.428L11.834,97.089L11.044,96.728L10.291,96.344L9.574,95.936L8.892,95.505L8.242,95.049L7.623,94.568L7.033,94.061L6.472,93.528L5.939,92.967L5.432,92.377L4.951,91.758L4.495,91.108L4.064,90.426L3.656,89.709L3.272,88.956L2.911,88.166L2.572,87.334L2.256,86.458L1.961,85.534L1.687,84.558L1.435,83.525L1.204,82.428L0.994,81.258L0.804,80.006L0.634,78.657L0.485,77.194L0.356,75.589L0.247,73.807L0.158,71.787L0.089,69.428L0.039,66.524L0.010,62.526L0.000,50.000L0.010,37.474L0.039,33.476L0.089,30.572L0.158,28.213L0.247,26.193L0.356,24.411L0.485,22.806L0.634,21.343L0.804,19.994L0.994,18.742L1.204,17.572L1.435,16.475L1.687,15.442L1.961,14.466L2.256,13.542L2.572,12.666L2.911,11.834L3.272,11.044L3.656,10.291L4.064,9.574L4.495,8.892L4.951,8.242L5.432,7.623L5.939,7.033L6.472,6.472L7.033,5.939L7.623,5.432L8.242,4.951L8.892,4.495L9.574,4.064L10.291,3.656L11.044,3.272L11.834,2.911L12.666,2.572L13.542,2.256L14.466,1.961L15.442,1.687L16.475,1.435L17.572,1.204L18.742,0.994L19.994,0.804L21.343,0.634L22.806,0.485L24.411,0.356L26.193,0.247L28.213,0.158L30.572,0.089L33.476,0.039L37.474,0.010L50.000,0.000L62.526,0.010L66.524,0.039L69.428,0.089L71.787,0.158L73.807,0.247L75.589,0.356L77.194,0.485L78.657,0.634L80.006,0.804L81.258,0.994L82.428,1.204L83.525,1.435L84.558,1.687L85.534,1.961L86.458,2.256L87.334,2.572L88.166,2.911L88.956,3.272L89.709,3.656L90.426,4.064L91.108,4.495L91.758,4.951L92.377,5.432L92.967,5.939L93.528,6.472L94.061,7.033L94.568,7.623L95.049,8.242L95.505,8.892L95.936,9.574L96.344,10.291L96.728,11.044L97.089,11.834L97.428,12.666L97.744,13.542L98.039,14.466L98.313,15.442L98.565,16.475L98.796,17.572L99.006,18.742L99.196,19.994L99.366,21.343L99.515,22.806L99.644,24.411L99.753,26.193L99.842,28.213L99.911,30.572L99.961,33.476L99.990,37.474L100.000,50.000Z"/></clipPath>
+    <radialGradient id="body" cx="0.16" cy="0.04" r="1.22">
+      <stop offset="0" stop-color="#ff5c6d"/><stop offset="0.30" stop-color="#c3142c"/>
+      <stop offset="0.62" stop-color="#6a0a18"/><stop offset="1" stop-color="#43101a"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.78"/>
+      <stop offset="0.20" stop-color="#fff" stop-opacity="0.24"/>
+      <stop offset="0.52" stop-color="#fff" stop-opacity="0.04"/>
+      <stop offset="0.80" stop-color="#fff" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0.30"/>
+    </linearGradient>
+    <radialGradient id="spec" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.58"/>
+      <stop offset="0.40" stop-color="#fff" stop-opacity="0.20"/>
+      <stop offset="0.76" stop-color="#fff" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glyphLit" x1="0.2" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ffd9dd"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <div class="lockup">
+      <div class="markBox sm" role="img" aria-label="Design Angle">
+  <svg class="icon" viewBox="0 0 100 100">
+    <use href="#sqP" fill="url(#body)"/>
+    <g clip-path="url(#sqClip)"><ellipse cx="50" cy="99" rx="58" ry="34" fill="url(#spec)"/></g>
+    <use href="#sqP" fill="none" stroke="url(#rim)" stroke-width="1.4"/>
+    <g transform="translate(50 50) scale(1.9) translate(-12 -12)">
+      <path d="M3 21 L12 3 L21 21" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 .6)"/>
+      <path d="M7.4 15.6 H16.6" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="2.5" stroke-linecap="round" transform="translate(0 .6)"/>
+      <path d="M3 21 L12 3 L21 21" fill="none" stroke="url(#glyphLit)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.4 15.6 H16.6" fill="none" stroke="#ffe3e6" stroke-width="2.5" stroke-linecap="round" opacity=".62"/>
+    </g>
+  </svg>
+</div>
+      <b>Design Angle</b><span>the kit</span>
+    </div>
+
+    <div class="heroGrid">
+      <div>
+        <h1>Design rules are decoration <span class="lit">until something measures them.</span></h1>
+        <p class="lede">
+          Every kit says body text needs 4.5&nbsp;to&nbsp;1. This one opens the page
+          in a real browser and reads the colour actually painted behind the text.
+          <b>It caught its own demo site shipping at 4.31.</b>
+        </p>
+        <div class="cta">
+          <a class="btn solid" href="#proof">What it caught <span class="arr" aria-hidden="true">&rarr;</span></a>
+          <a class="btn line" href="#craft">How the mark is built</a>
+        </div>
+        <p class="under"><code>node tools/audit.js &lt;page&gt; --width 400</code></p>
+      </div>
+
+      <figure class="heroArt">
+        <div class="markBox lg" role="img" aria-label="The Design Angle mark">
+  <svg class="icon" viewBox="0 0 100 100">
+    <use href="#sqP" fill="url(#body)"/>
+    <g clip-path="url(#sqClip)"><ellipse cx="50" cy="99" rx="58" ry="34" fill="url(#spec)"/></g>
+    <use href="#sqP" fill="none" stroke="url(#rim)" stroke-width="1.4"/>
+    <g transform="translate(50 50) scale(1.9) translate(-12 -12)">
+      <path d="M3 21 L12 3 L21 21" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 .6)"/>
+      <path d="M7.4 15.6 H16.6" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="2.5" stroke-linecap="round" transform="translate(0 .6)"/>
+      <path d="M3 21 L12 3 L21 21" fill="none" stroke="url(#glyphLit)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.4 15.6 H16.6" fill="none" stroke="#ffe3e6" stroke-width="2.5" stroke-linecap="round" opacity=".62"/>
+    </g>
+  </svg>
+</div>
+        <figcaption>No image file. A superellipse, a stroked rim, one arc.</figcaption>
+      </figure>
+    </div>
+  </div>
+</header>
+
+<section id="proof">
+  <div class="wrap">
+    <h2>The accent had been shipping at 4.31 to 1.</h2>
+    <p class="say">
+      <code>#e03a4b</code> was the brand colour on the kit's own restaurant demo,
+      used for the eyebrow label and the form's error text. It fails the 4.5 to 1
+      rule the kit itself sets, and it had been failing since the demo was built,
+      because nothing was checking.
+    </p>
+
+    <div class="grid2">
+      <div class="card was">
+        <div class="state"><span class="pip"></span>Was shipping</div>
+        <div class="swatch was">Wood-fire kitchen</div>
+        <dl class="read">
+          <div><dt>On white</dt><dd class="f">4.31 : 1</dd></div>
+          <div><dt>On the soft tint</dt><dd class="f">3.99 : 1</dd></div>
+          <div><dt>Needs</dt><dd>4.50 : 1</dd></div>
+        </dl>
+      </div>
+      <div class="card now">
+        <div class="state"><span class="pip"></span>After</div>
+        <div class="swatch now">Wood-fire kitchen</div>
+        <dl class="read">
+          <div><dt>On white</dt><dd class="p">4.89 : 1</dd></div>
+          <div><dt>On the soft tint</dt><dd class="p">4.53 : 1</dd></div>
+          <div><dt>Hue shift</dt><dd>0.02&deg;</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="term">
+      <div class="bar">designangle &mdash; audit</div>
+<pre><span class="cmd">$ audit.js dist/restaurant/index.html -w 400</span>
+
+  contrast <span class="dim">(2)</span>
+    .eyebrow  <span class="bad">#e03a4b on #ffffff is 4.31:1, needs 4.5:1</span>
+      "Wood-fire kitchen &amp; citrus bar"
+      -&gt; use <span class="num">#df3143</span> (4.51:1)
+    .opt  <span class="bad">#9aa0a6 on #ffffff is 2.64:1, needs 4.5:1</span>
+      "optional"
+      -&gt; use <span class="num">#70777f</span> (4.53:1)
+
+  font-size <span class="dim">(1)</span>
+    .menu-note  14px, floor for body copy is 15px
+
+  touch-target <span class="dim">(8)</span>
+    .sel  <span class="bad">119x21px, needs 44px in both directions</span>
+      "(555) 010-2140"
+      -&gt; grow the box, keep the look
+<span class="dim">    … 7 more</span>
+
+<span class="dim">  11 to fix.</span>
+
+<span class="cmd">$ contrast.js darken #e03a4b #fff4f1 4.5</span>
+was  #e03a4b  3.99:1
+now  <span class="num">#db2235</span>  4.53:1  (target 4.5)
+
+<span class="cmd">$ audit.js dist/restaurant/index.html -w 400</span>
+
+  <span class="good">nothing measurable is wrong.</span></pre>
+    </div>
+    <p class="termNote">
+      Elided where marked with an ellipsis, and the <code>node tools/</code>
+      prefix is dropped from the prompt to fit a phone. The first run reports
+      <code>#df3143</code>, which clears
+      white but not the soft tint behind the locate button &mdash; the second command
+      is what produced <code>#db2235</code>. <code>contrast.js</code> takes one
+      background at a time, so a colour used on two grounds takes two runs.
+    </p>
+
+    <p class="say" style="margin-top:var(--s8)">
+      The second finding is the expensive one. The phone number on a trades site is
+      a <b>21 pixel tall tap target</b> &mdash; the most valuable thing on the page,
+      at half the height a thumb needs.
+    </p>
+  </div>
+</section>
+
+<section id="craft">
+  <div class="wrap">
+    <h2>An icon is light on a shape, not a rounded square.</h2>
+    <p class="say">
+      The shape people recognise from a home screen is a <b>superellipse</b>.
+      Its curvature never stops changing, so the straight edge eases into the
+      corner rather than meeting an arc at a seam. No <code>border-radius</code>
+      does that. This one is <code>|x|&#8309; + |y|&#8309; = 1</code>, sampled at 200
+      points, emitted as an SVG path, and it deviates from the true curve by at
+      most 0.00005.
+    </p>
+
+    <div class="overlay">
+      <div class="stack">
+        <div class="rr"></div>
+        <div class="se">
+          <svg class="icon" viewBox="0 0 100 100" aria-hidden="true">
+            <use href="#sqP" fill="none" stroke="var(--red)" stroke-width="1.2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="legend">
+        <div><i class="a"></i><span><b>border-radius: 23.5%</b> &mdash; four arcs joined to four straight edges.</span></div>
+        <div><i class="b"></i><span><b>The superellipse</b> &mdash; wider at the shoulder, tighter at the apex of the corner.</span></div>
+        <div><span>Overlaid, because side by side at this size the two look the same. The gap at the shoulder is the whole difference, and it is what reads as "drawn by someone" without being nameable.</span></div>
+      </div>
+    </div>
+
+    <div class="layers">
+      <div class="layer">
+        <div class="markBox sm" aria-hidden="true">
+  <svg class="icon" viewBox="0 0 100 100">
+    <use href="#sqP" fill="#2b2b31"/>
+  </svg>
+</div>
+        <div class="step">01</div>
+        <h3>The shape</h3>
+        <p>Flat fill. Nothing here says which way is up.</p>
+      </div>
+      <div class="layer">
+        <div class="markBox sm" aria-hidden="true">
+  <svg class="icon" viewBox="0 0 100 100">
+    <use href="#sqP" fill="#8e1024"/>
+    <use href="#sqP" fill="none" stroke="url(#rim)" stroke-width="1.4"/>
+  </svg>
+</div>
+        <div class="step">02</div>
+        <h3>Rim</h3>
+        <p>A stroke on the path itself, so it follows the contour into the corners. Bright where the light lands, with a weaker bounce returning on the far edge.</p>
+      </div>
+      <div class="layer">
+        <div class="markBox sm" aria-hidden="true">
+  <svg class="icon" viewBox="0 0 100 100">
+    <use href="#sqP" fill="url(#body)"/>
+    <g clip-path="url(#sqClip)"><ellipse cx="50" cy="99" rx="58" ry="34" fill="url(#spec)"/></g>
+    <use href="#sqP" fill="none" stroke="url(#rim)" stroke-width="1.4"/>
+  </svg>
+</div>
+        <div class="step">03</div>
+        <h3>Body and arc</h3>
+        <p>A radial gradient offset toward the light, and one wide ellipse rising from below, clipped by the shape. One arc, not two.</p>
+      </div>
+      <div class="layer">
+        <div class="markBox lg" aria-hidden="true">
+  <svg class="icon" viewBox="0 0 100 100">
+    <use href="#sqP" fill="url(#body)"/>
+    <g clip-path="url(#sqClip)"><ellipse cx="50" cy="99" rx="58" ry="34" fill="url(#spec)"/></g>
+    <use href="#sqP" fill="none" stroke="url(#rim)" stroke-width="1.4"/>
+    <g transform="translate(50 50) scale(1.9) translate(-12 -12)">
+      <path d="M3 21 L12 3 L21 21" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 .6)"/>
+      <path d="M7.4 15.6 H16.6" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="2.5" stroke-linecap="round" transform="translate(0 .6)"/>
+      <path d="M3 21 L12 3 L21 21" fill="none" stroke="url(#glyphLit)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7.4 15.6 H16.6" fill="none" stroke="#ffe3e6" stroke-width="2.5" stroke-linecap="round" opacity=".62"/>
+    </g>
+  </svg>
+</div>
+        <div class="step">04</div>
+        <h3>Lit glyph</h3>
+        <p>The glyph takes the same light and drops a shadow onto the plate, so it sits on the surface instead of being painted on it.</p>
+      </div>
+    </div>
+
+    <p class="say" style="margin-top:var(--s8)">
+      Three of those were wrong in the first version. The rim was a rectangular
+      mask the clip cut away, leaving 67 pixels of bare corner on a 302 pixel
+      mark. The specular arc was positioned so far below the box that it painted
+      three levels of grey into the bottom two pixels and nothing else. And the
+      shadow did not exist at all, because <code>clip-path</code> clips an
+      element's own <code>box-shadow</code>. The shadow is on a wrapper now.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The half of review that is arithmetic.</h2>
+    <p class="say">
+      A vision model cannot divide. Asking one whether 4.31 clears 4.5 spends it
+      on a job a calculator does better, and it will sometimes say yes.
+    </p>
+
+    <div class="rules">
+      <div class="rule"><div class="n">01</div><h3>Contrast against the real background</h3>
+        <p>Not the declared colour. The one actually painted, flattened through every translucent layer above it.</p></div>
+      <div class="rule"><div class="n">02</div><h3>Gradient text, by its worst stop</h3>
+        <p>Clipped background text computes to transparent. The stops are pulled from the computed value and the darkest is graded.</p></div>
+      <div class="rule"><div class="n">03</div><h3>The box, not the icon</h3>
+        <p>44px, counting a hit area grown by a pseudo-element. The drawn size stays what it was drawn.</p></div>
+      <div class="rule"><div class="n">04</div><h3>Transitions that re-run layout</h3>
+        <p>Width, height, top, gap. Paint-only properties are allowed, briefly: the rule's reason is dropped frames, not colour.</p></div>
+      <div class="rule"><div class="n">05</div><h3>Inputs below 16px</h3>
+        <p>iOS zooms on focus and the layout jumps under a thumb already moving toward the field.</p></div>
+      <div class="rule"><div class="n">06</div><h3>Its own blind spots</h3>
+        <p>Where a stylesheet cannot be read, it says so rather than reporting a pass. A checker that blames the page for what it failed to see is worse than none.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="split">
+  <div class="wrap">
+    <h2>What is true on a phone is not true on a page.</h2>
+    <p class="say">
+      Most kits carry one list and hope. These are kept apart, and each rule says
+      why it does not cross over.
+    </p>
+
+    <div class="split">
+      <div class="col a">
+        <h3>Phone</h3>
+        <ul>
+          <li>44px targets, because a finger pad is far wider than a pointer and lands less precisely</li>
+          <li>Actions in the bottom third, where the thumb already rests</li>
+          <li>Inputs at 16px or iOS zooms on focus</li>
+          <li>Safe-area insets for the notch and the home indicator</li>
+          <li>Full-bleed media with inset text, which is most of what reads as native</li>
+        </ul>
+      </div>
+      <div class="col b">
+        <h3>Web</h3>
+        <ul>
+          <li>Hover states, which do not exist on a touch screen</li>
+          <li>Line-length caps, because the device is not the constraint</li>
+          <li>Breakpoints, because a page is every width and an app screen is one</li>
+          <li>Scroll-linked motion, which fights a phone's own scrolling</li>
+          <li>A fold people scroll past by habit</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="say" style="margin-top:var(--s8)">
+      The split is <b>sparse against dense</b>, not dark against light. That was
+      wrong when it was first written here, and a reference redesign disproved it:
+      a dark map screen can carry more at once than a white dashboard.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span><b>Every number on this page is reproducible.</b> The terminal output is
+    real, elided where marked with an ellipsis. Run the two commands against
+    <code>git archive 0b27c51</code> to get the same lines.</span>
+    <span>Pomelo Kitchen and Northwind are invented demo businesses, labelled as
+    such in every file. No client site is quoted here.</span>
+    <span><b>Design Angle</b> &mdash; proprietary. Measured 24 November 2026.</span>
+  </div>
+</footer>
+</html>

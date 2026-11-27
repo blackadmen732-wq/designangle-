@@ -8,6 +8,34 @@
  * Output goes to dist/<name>/ as plain static files (index.html, site.css, site.js, img/).
  * No dependencies. All page content is written into the HTML, so it is readable by
  * search engines and complete even if the animation scripts fail to load.
+ *
+ * SECTIONS
+ * --------
+ * Which sections a site has, and the order they appear in, is a flat list in
+ * content.js:
+ *
+ *   sections: [
+ *     'belt',
+ *     'showcase',
+ *     'list',
+ *     'story',
+ *     'band',
+ *     'contact'
+ *   ],
+ *
+ * One name per line, no nesting, no options. Each name is also the key its
+ * content lives under, so 'story' renders site.story and nothing else.
+ *
+ * This exists because the kit used to emit the same four-part argument for
+ * every business — show your work, list your prices, tell your story, take a
+ * booking — which is right for a restaurant and wrong for a law firm. The hero
+ * layouts varied; the argument did not.
+ *
+ * Everything below is checked before a single file is written, because the
+ * failure mode this replaces is worse than the one it introduces: one generic
+ * page is recoverable, five quietly broken ones are not. A typo, a missing
+ * block, a duplicate or a dropped contact form stops the build and names the
+ * file, the line's content and the fix.
  */
 'use strict';
 const fs = require('fs');
@@ -20,10 +48,10 @@ const DIST = path.join(ROOT, 'dist');
 
 const DEFAULT_THEME = {
   bg: '#ffffff', ink: '#1e1512', muted: '#6f625c', line: '#eee7e2', soft: '#fff4f1',
-  accent: '#e03a4b', tag: '#1f6b45', tint: '#ffe3dc',
+  accent: '#db2235', tag: '#1f6b45', tint: '#ffe3dc',
   display: '"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif',
   body: '"Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif',
-  fontsUrl: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Instrument+Sans:wght@400;600&display=swap'
+  fontsUrl: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap'
 };
 
 // The client's accent, darkened in its own hue until small text in it passes
@@ -80,53 +108,57 @@ function jsonLd(site) {
   return `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
 }
 
-function render(site) {
-  const t = Object.assign({}, DEFAULT_THEME, site.theme || {});
-  const seo = site.seo || {};
-  const hero = site.hero, show = site.showcase, list = site.list, story = site.story, band = site.band, contact = site.contact;
-  const form = contact.form;
-  const nav = [
-    show && { label: show.navLabel || show.eyebrow, href: '#' + show.id },
-    list && { label: list.navLabel || list.eyebrow, href: '#' + list.id },
-    story && { label: story.navLabel || story.eyebrow, href: '#' + story.id },
-    contact && { label: contact.navLabel || contact.eyebrow, href: '#' + contact.id }
-  ].filter(Boolean);
-  const cta = site.cta || { label: 'Contact', href: '#' + contact.id };
-  const beltSet = `<div class="belt-set">${site.belt.map((b) => `<span>${photo(b.img, '')}${esc(b.text)}</span>`).join('')}</div>`;
+/* ===========================================================================
+   Sections
+   ---------------------------------------------------------------------------
+   One function per section. Each takes the whole site plus the resolved theme
+   and returns its own markup. Nothing here reaches for a section that is not
+   its own, so removing one from the list cannot break another.
+   =========================================================================== */
+
+function heroSection(site, t) {
+  const hero = site.hero, seo = site.seo || {};
   const thumbImgs = hero.slides.map((s) => photo(s.img, '')).join('');
 
-  return `<!doctype html>
-<html lang="${esc(site.lang || 'en')}">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${esc(seo.title || site.name)}</title>
-<meta name="description" content="${esc(seo.description || '')}">
-<meta property="og:title" content="${esc(seo.title || site.name)}">
-<meta property="og:description" content="${esc(seo.description || '')}">
-<meta property="og:image" content="img/${esc(hero.slides[0].img)}">
-<meta name="theme-color" content="${esc(t.bg)}">
-<script>document.documentElement.classList.add('gs-wait');setTimeout(function(){document.documentElement.classList.remove('gs-wait');},3000);</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="${esc(t.fontsUrl)}">
-<link rel="stylesheet" href="site.css">
-<style>:root{--bg:${t.bg};--ink:${t.ink};--muted:${t.muted};--line:${t.line};--soft:${t.soft};--accent:${t.accent};--accent-text:${textSafe(t.accent, t.bg)};--leaf:${t.tag};--tint:${t.tint};--display:${t.display};--body:${t.body}}</style>
-${jsonLd(site)}
-</head>
-<body>
-<div class="notice-bar" id="noticeBar" hidden><div class="wrap"><span></span></div></div>
-<header class="top" id="top">
-  <div class="wrap">
-    <a class="logo" href="#top"><i></i>${esc(site.short || site.name)}</a>
-    <nav class="nav" aria-label="Main">
-      ${nav.map((n) => `<a href="${esc(n.href)}">${esc(n.label)}</a>`).join('\n      ')}
-    </nav>
-    <a class="btn small" href="${esc(cta.href)}"${ext(cta.href)}>${esc(cta.label)}</a>
-  </div>
-</header>
+  if (site.layout === 'atelier') return `
+  <section class="hero hero-atelier" aria-label="${esc(hero.label || 'Featured')}">
+    <div class="shot">
+      <div class="shot-img">${photo(hero.slides[0].img, hero.slides[0].alt, { eager: true })}</div>
+      <div class="hero-scrim" aria-hidden="true"></div>
+    </div>
+    <div class="wrap">
+      <div class="atelier-text">
+        <p class="eyebrow">${esc(hero.eyebrow)}</p>
+        <h1 id="headline">${esc(hero.headline)} <em>${esc(hero.headlineAccent || '')}</em></h1>
+        ${hero.lead ? `<p class="atelier-lead">${esc(hero.lead)}</p>` : ''}
+        <div class="hero-cta">
+          <a class="btn" href="${esc(hero.primary.href)}"${ext(hero.primary.href)}>${esc(hero.primary.label)} ${arrow}</a>
+          ${seo.telephone ? `<a class="hero-tel" href="tel:${esc(String(seo.telephone).replace(/[^0-9+]/g, ''))}">${esc(seo.telephone)}</a>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="hero-foot" aria-hidden="true"><span>${esc(hero.footNote || '')}</span><i></i></div>
+  </section>`;
 
-<main>
+  if (site.layout === 'still') return `
+  <section class="hero hero-still" aria-label="${esc(hero.label || 'Featured')}">
+    <div class="wrap">
+      <div class="still-text">
+        <p class="eyebrow">${esc(hero.eyebrow)}</p>
+        <h1 id="headline">${esc(hero.headline)} <em>${esc(hero.headlineAccent || '')}</em></h1>
+        ${hero.lead ? `<p class="still-lead">${esc(hero.lead)}</p>` : ''}
+        <div class="hero-cta">
+          <a class="btn" href="${esc(hero.primary.href)}"${ext(hero.primary.href)}>${esc(hero.primary.label)} ${arrow}</a>
+        </div>
+      </div>
+      <figure class="still-shot">
+        ${photo(hero.slides[0].img, hero.slides[0].alt, { eager: true })}
+        ${hero.slides[0].text ? `<figcaption>${esc(hero.slides[0].text)}</figcaption>` : ''}
+      </figure>
+    </div>
+  </section>`;
+
+  return `
   <section class="hero" aria-label="${esc(hero.label || 'Featured')}">
     <div class="wrap">
       <div class="hero-text">
@@ -153,10 +185,32 @@ ${jsonLd(site)}
         <button class="thumb t1" id="thumb1" type="button">${thumbImgs}</button>
       </div>
     </div>
-  </section>
+  </section>`;
+}
 
-  <div class="belt" aria-hidden="true"><div class="belt-track" id="belt">${beltSet.repeat(4)}</div></div>
+function beltSection(site) {
+  const beltSet = `<div class="belt-set">${site.belt.map((b) => `<span>${photo(b.img, '')}${esc(b.text)}</span>`).join('')}</div>`;
+  return `
+  <div class="belt" aria-hidden="true"><div class="belt-track" id="belt">${beltSet.repeat(4)}</div></div>`;
+}
 
+function showcaseSection(site) {
+  const show = site.showcase;
+  if (site.layout === 'atelier') return `
+  <section class="sec gallery" id="${esc(show.id)}" aria-label="${esc(show.title)}">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-reveal>${esc(show.eyebrow)}</p>
+        <h2 data-split>${esc(show.title)}</h2>
+        <p data-reveal>${esc(show.text)}</p>
+      </div>
+      <div class="plates">
+        ${show.cards.map((c, i) => `<figure class="plate plate-${i % 5}"><div class="plate-pic">${photo(c.img, c.alt)}</div><figcaption><h3>${esc(c.title)}</h3>${c.meta ? `<span class="p">${esc(c.meta)}</span>` : ''}<p>${esc(c.text)}</p></figcaption></figure>`).join('\n        ')}
+      </div>
+    </div>
+  </section>`;
+
+  return `
   <section class="hs" id="${esc(show.id)}" aria-label="${esc(show.title)}">
     <div class="hs-track" id="hsTrack">
       <div class="hs-intro">
@@ -167,8 +221,12 @@ ${jsonLd(site)}
       ${show.cards.map((c) => `<article class="card"><div class="pic">${photo(c.img, c.alt)}</div><div class="row"><h3>${esc(c.title)}</h3>${c.meta ? `<span class="p">${esc(c.meta)}</span>` : ''}</div><p>${esc(c.text)}</p></article>`).join('\n      ')}
     </div>
     <div class="hs-bar" aria-hidden="true"><i id="hsBar"></i></div>
-  </section>
+  </section>`;
+}
 
+function listSection(site) {
+  const list = site.list;
+  return `
   <section class="sec" id="${esc(list.id)}">
     <div class="wrap">
       <div class="sec-head">
@@ -179,13 +237,17 @@ ${jsonLd(site)}
       <div class="tabs" role="tablist" aria-label="${esc(list.eyebrow)}" id="tabs" data-reveal>
         ${list.groups.map((g, i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-panel="${i}">${esc(g.name)}</button>`).join('\n        ')}
       </div>
-      ${list.groups.map((g, i) => `<ul class="menu-list" role="tabpanel" data-panel="${i}"${i ? ' hidden' : ''}>
+      ${list.groups.map((g, i) => `<ul class="menu-list${site.layout === 'atelier' ? ' ledger' : ''}" role="tabpanel" data-panel="${i}"${i ? ' hidden' : ''}>
         ${g.items.map((it, k) => `<li style="--i:${k}"><h3>${esc(it.title)}${it.tag ? `<span class="tag">${esc(it.tag)}</span>` : ''}</h3><span class="p">${esc(it.meta || '')}</span><p>${esc(it.text)}</p></li>`).join('\n        ')}
       </ul>`).join('\n      ')}
       ${list.note ? `<p class="menu-note">${esc(list.note)}</p>` : ''}
     </div>
-  </section>
+  </section>`;
+}
 
+function storySection(site) {
+  const story = site.story;
+  return `
   <section class="sec story" id="${esc(story.id)}">
     <div class="wrap">
       <div class="story-pic" id="storyPic">${photo(story.img, story.alt)}</div>
@@ -198,16 +260,24 @@ ${jsonLd(site)}
         </div>
       </div>
     </div>
-  </section>
+  </section>`;
+}
 
+function bandSection(site) {
+  const band = site.band;
+  return `
   <section class="band" aria-label="${esc(band.title)}">
     ${photo(band.img, band.alt, { id: 'bandImg' })}
     <div class="wrap">
       <h2 data-split>${esc(band.title)}</h2>
       ${band.link ? `<a href="${esc(band.link.href)}"${ext(band.link.href)}>${esc(band.link.label)}</a>` : ''}
     </div>
-  </section>
+  </section>`;
+}
 
+function contactSection(site) {
+  const contact = site.contact, form = contact.form;
+  return `
   <section class="sec" id="${esc(contact.id)}">
     <div class="wrap">
       <div class="sec-head">
@@ -229,7 +299,10 @@ ${jsonLd(site)}
               data-name-error="${esc(form.nameError || 'Add your name so we know who to ask for.')}"
               data-phone-error="${esc(form.phoneError || 'Add a phone number so we can confirm.')}"
               data-address-error="${esc(form.addressError || 'Add the address so we know where to come.')}"
-              data-date-error="${esc(form.dateError || 'Pick a date.')}">
+              data-date-error="${esc(form.dateError || 'Pick a date.')}"
+              data-sending="${esc(form.sending || 'Sending your request…')}"
+              data-failed="${esc(form.failed || 'That did not send. Please call us instead — we do not have your request.')}"
+              data-callfallback="${esc(form.callFallback || (site.seo && site.seo.telephone) || '')}">
           <h3>${esc(form.title)}</h3>
 
           <fieldset class="group">
@@ -290,7 +363,161 @@ ${jsonLd(site)}
         </form>
       </div>
     </div>
-  </section>
+  </section>`;
+}
+
+/* The registry. A section's name here is the key its content lives under in
+   content.js, and the two must stay identical: that one-to-one rule is what
+   makes the list readable without documentation. */
+const SECTIONS = {
+  belt: beltSection,
+  showcase: showcaseSection,
+  list: listSection,
+  story: storySection,
+  band: bandSection,
+  contact: contactSection
+};
+
+const SECTION_NAMES = Object.keys(SECTIONS);
+
+/* What a site gets when it names no sections: what every site had before the
+   list existed, so an older content.js builds unchanged. */
+const DEFAULT_SECTIONS = ['belt', 'showcase', 'list', 'story', 'band', 'contact'];
+
+/* contact carries the enquiry form. A site without it has no way to take a
+   lead, which is the one thing every site in this kit is for. */
+const REQUIRED_SECTIONS = ['contact'];
+
+/* Levenshtein, small and plain, only ever run on a failing build. A typo in a
+   section name should cost one line of output, not twenty minutes. */
+function nearest(word, options) {
+  let best = null, bestD = Infinity;
+  for (const opt of options) {
+    const d = [];
+    for (let i = 0; i <= word.length; i++) d[i] = [i];
+    for (let j = 0; j <= opt.length; j++) d[0][j] = j;
+    for (let i = 1; i <= word.length; i++)
+      for (let j = 1; j <= opt.length; j++)
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1,
+          d[i - 1][j - 1] + (word[i - 1] === opt[j - 1] ? 0 : 1));
+    if (d[word.length][opt.length] < bestD) { bestD = d[word.length][opt.length]; best = opt; }
+  }
+  return bestD <= 3 ? best : null;
+}
+
+/*
+ * Turn content.js's `sections` into a checked list, or stop the build.
+ *
+ * Every message names the file, quotes the offending value, and says what to
+ * do about it. The point of this function is that a wrong edit — by a person
+ * or by an agent — fails here rather than shipping a page with its prices
+ * missing and nobody looking.
+ */
+function resolveSections(site, name) {
+  const where = `sites/${name}/content.js`;
+
+  if (site.sections === undefined) return DEFAULT_SECTIONS.slice();
+
+  if (!Array.isArray(site.sections))
+    throw new Error(`${where}: \`sections\` must be an array of names, one per line.\n`
+      + `  Got ${typeof site.sections}. Valid names: ${SECTION_NAMES.join(', ')}`);
+
+  if (!site.sections.length)
+    throw new Error(`${where}: \`sections\` is empty, so the page would be a header and a footer.\n`
+      + `  Either list some of: ${SECTION_NAMES.join(', ')}\n`
+      + `  Or remove \`sections\` entirely to get the default set.`);
+
+  const seen = new Set();
+  for (const s of site.sections) {
+    if (typeof s !== 'string')
+      throw new Error(`${where}: \`sections\` must hold plain names, not ${typeof s}.\n`
+        + `  Write one name per line, e.g. 'story' — no objects, no options.`);
+
+    if (!SECTIONS[s]) {
+      const guess = nearest(s, SECTION_NAMES);
+      throw new Error(`${where}: \`sections\` lists "${s}", which is not a section.\n`
+        + `  Valid names: ${SECTION_NAMES.join(', ')}`
+        + (guess ? `\n  Did you mean "${guess}"?` : ''));
+    }
+
+    if (seen.has(s))
+      throw new Error(`${where}: \`sections\` lists "${s}" twice.\n`
+        + `  Each section can appear once. Remove the duplicate.`);
+    seen.add(s);
+
+    if (!site[s])
+      throw new Error(`${where}: \`sections\` lists "${s}", but the file has no \`${s}:\` block.\n`
+        + `  Either add a \`${s}:\` block, or remove "${s}" from \`sections\`.`);
+  }
+
+  for (const req of REQUIRED_SECTIONS)
+    if (!seen.has(req))
+      throw new Error(`${where}: \`sections\` must include "${req}".\n`
+        + `  The ${req} section carries the enquiry form. Without it the site\n`
+        + `  cannot take a lead, which is the one job every site here has.`);
+
+  /* Content that exists but is not listed renders nowhere. That is a legitimate
+     thing to do — keeping a price list around while it is switched off — so it
+     is said out loud rather than treated as an error. */
+  const unused = SECTION_NAMES.filter((s) => site[s] && !seen.has(s));
+  if (unused.length)
+    console.warn(`  note: sites/${name} has ${unused.map((s) => `\`${s}\``).join(', ')} `
+      + `written but not in \`sections\`, so ${unused.length > 1 ? 'they do' : 'it does'} not render.`);
+
+  return site.sections.slice();
+}
+
+function render(site, sections) {
+  const t = Object.assign({}, DEFAULT_THEME, site.theme || {});
+  const seo = site.seo || {};
+  const hero = site.hero, contact = site.contact;
+
+  /* The nav follows the section list, in its order. A section earns a nav link
+     by having an id — belt and band are scenery and have none — so adding a
+     section to the list adds its link, and removing it removes the link too. */
+  const nav = sections
+    .map((s) => site[s])
+    .filter((b) => b && b.id)
+    .map((b) => ({ label: b.navLabel || b.eyebrow, href: '#' + b.id }));
+
+  const cta = site.cta || { label: 'Contact', href: '#' + contact.id };
+  const body = sections.map((s) => SECTIONS[s](site, t)).join('\n');
+
+  return `<!doctype html>
+<html lang="${esc(site.lang || 'en')}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>${esc(seo.title || site.name)}</title>
+<meta name="description" content="${esc(seo.description || '')}">
+<meta property="og:title" content="${esc(seo.title || site.name)}">
+<meta property="og:description" content="${esc(seo.description || '')}">
+<meta property="og:image" content="img/${esc(hero.slides[0].img)}">
+<meta name="theme-color" content="${esc(t.bg)}">
+<script>document.documentElement.classList.add('gs-wait');setTimeout(function(){document.documentElement.classList.remove('gs-wait');},3000);</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="${esc(t.fontsUrl)}">
+<link rel="stylesheet" href="site.css">
+<style>:root{--bg:${t.bg};--ink:${t.ink};--muted:${t.muted};--line:${t.line};--soft:${t.soft};--accent:${t.accent};--accent-text:${textSafe(t.accent, t.bg)};--leaf:${t.tag};--tint:${t.tint};--display:${t.display};--body:${t.body}}</style>
+${jsonLd(site)}
+</head>
+<body class="layout-${esc(site.layout || 'studio')}">
+${site.preview ? `<div class="preview-bar"><div class="wrap"><b>Preview</b><span>${esc(site.preview)}</span></div></div>` : ''}
+<div class="notice-bar" id="noticeBar" hidden><div class="wrap"><span></span></div></div>
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="logo" href="#top"><i></i>${esc(site.short || site.name)}</a>
+    <nav class="nav" aria-label="Main">
+      ${nav.map((n) => `<a href="${esc(n.href)}">${esc(n.label)}</a>`).join('\n      ')}
+    </nav>
+    <a class="btn small" href="${esc(cta.href)}"${ext(cta.href)}>${esc(cta.label)}</a>
+  </div>
+</header>
+
+<main>
+${heroSection(site, t)}
+${body}
 </main>
 
 <footer>
@@ -313,13 +540,19 @@ ${site.track ? `<script>window.DA_TRACK={endpoint:"${esc(site.track.endpoint)}",
 `;
 }
 
-function check(site, name) {
-  const need = ['name', 'hero', 'belt', 'showcase', 'list', 'story', 'band', 'contact', 'footer'];
+/* Only the sections actually in use are checked, so a site that has no belt is
+   not asked for belt photographs. */
+function check(site, name, sections) {
+  const need = ['name', 'hero', 'contact', 'footer'];
   const missing = need.filter((k) => !site[k]);
   if (missing.length) throw new Error(`sites/${name}/content.js is missing: ${missing.join(', ')}`);
-  const imgs = [].concat(
-    site.hero.slides.map((s) => s.img), site.belt.map((b) => b.img),
-    site.showcase.cards.map((c) => c.img), [site.story.img, site.band.img]);
+
+  const imgs = site.hero.slides.map((s) => s.img);
+  if (sections.includes('belt')) imgs.push(...site.belt.map((b) => b.img));
+  if (sections.includes('showcase')) imgs.push(...site.showcase.cards.map((c) => c.img));
+  if (sections.includes('story')) imgs.push(site.story.img);
+  if (sections.includes('band')) imgs.push(site.band.img);
+
   const gone = [...new Set(imgs)].filter((f) => !fs.existsSync(path.join(SITES, name, 'img', f)));
   if (gone.length) throw new Error(`sites/${name}/img is missing: ${gone.join(', ')}`);
 }
@@ -329,11 +562,12 @@ function build(name) {
   if (!fs.existsSync(file)) throw new Error(`No such site: sites/${name}/content.js`);
   delete require.cache[require.resolve(file)];
   const site = require(file);
-  check(site, name);
+  const sections = resolveSections(site, name);
+  check(site, name, sections);
   const out = path.join(DIST, name);
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
-  fs.writeFileSync(path.join(out, 'index.html'), render(site));
+  fs.writeFileSync(path.join(out, 'index.html'), render(site, sections));
   for (const f of ['site.css', 'site.js']) fs.copyFileSync(path.join(TEMPLATE, f), path.join(out, f));
   if (site.track) fs.copyFileSync(path.join(TEMPLATE, 'track.js'), path.join(out, 'track.js'));
   fs.cpSync(path.join(SITES, name, 'img'), path.join(out, 'img'), { recursive: true });
@@ -342,9 +576,16 @@ function build(name) {
   // own business rather than a stock gradient.
   const first = site.hero.slides[0].img;
   if (path.extname(first) === '.webp') fs.copyFileSync(path.join(SITES, name, 'img', first), path.join(out, 'og.webp'));
-  console.log(`Built dist/${name}/  (${site.name})`);
+  console.log(`Built dist/${name}/  (${site.name})  ${sections.join(' → ')}`);
 }
 
-const wanted = process.argv.slice(2);
-const names = wanted.length ? wanted : fs.readdirSync(SITES).filter((n) => fs.existsSync(path.join(SITES, n, 'content.js')));
-try { names.forEach(build); } catch (e) { console.error('Build failed: ' + e.message); process.exit(1); }
+/* Only run as a command. Requiring this file gives you the pieces instead, so
+   the section rules can be tested without writing sites to disk — see
+   tools/test-sections.js. */
+if (require.main === module) {
+  const wanted = process.argv.slice(2);
+  const names = wanted.length ? wanted : fs.readdirSync(SITES).filter((n) => fs.existsSync(path.join(SITES, n, 'content.js')));
+  try { names.forEach(build); } catch (e) { console.error('\nBuild failed.\n  ' + e.message + '\n'); process.exit(1); }
+}
+
+module.exports = { resolveSections, SECTION_NAMES, DEFAULT_SECTIONS, REQUIRED_SECTIONS, build, render };

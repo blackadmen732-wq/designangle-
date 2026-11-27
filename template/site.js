@@ -17,7 +17,13 @@
 
   /* ---------- Hero slider ---------- */
   var stage = $('stage'), frame = $('frame'), dots = $('dots');
-  var slides = all('.slide', frame), infos = all('#dishInfo > div'), thumbs = [$('thumb1'), $('thumb2')];
+  /* Layouts other than the default ship no slider. Every lookup below must
+     survive that: before this guard, `thumbs.forEach` threw on a null element
+     and took the whole motion layer down with it — no Lenis, no reveals, no
+     counters — on every page that is not a carousel. */
+  var slides = all('.slide', frame), infos = all('#dishInfo > div');
+  var thumbs = [$('thumb1'), $('thumb2')].filter(Boolean);
+  var hasSlider = !!(stage && frame && dots && slides.length);
   var n = slides.length, active = 0, timer = null, DUR = 5200, paused = true, dotBtns = [];
   var names = infos.map(function (b) { return b.querySelector('h2').textContent; });
 
@@ -65,22 +71,26 @@
     timer = setTimeout(function () { go(active + 1, 1); }, DUR);
   }
   function go(i, dir) { var prev = active; active = (i + n) % n; if (prev === active) return; render(prev, dir || 1); }
-  $('next').addEventListener('click', function () { go(active + 1, 1); });
-  $('prev').addEventListener('click', function () { go(active - 1, -1); });
-  var hero = document.querySelector('.hero'), hovering = false;
+  var hovering = false;
   function hold(v) { paused = v; if (v) { clearTimeout(timer); dotBtns[active].classList.remove('run'); } else { schedule(); } }
-  hero.addEventListener('mouseenter', function () { hovering = true; hold(true); });
-  hero.addEventListener('mouseleave', function () { hovering = false; hold(false); });
-  hero.addEventListener('focusin', function () { hold(true); });
-  hero.addEventListener('focusout', function () { if (!hovering) hold(false); });
-  document.addEventListener('visibilitychange', schedule);
-  var sx = null;
-  stage.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
-  stage.addEventListener('touchend', function (e) {
-    if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; sx = null;
-    if (Math.abs(dx) > 40) go(active + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
-  }, { passive: true });
-  render(-1, 1);
+
+  if (hasSlider) {
+    $('next').addEventListener('click', function () { go(active + 1, 1); });
+    $('prev').addEventListener('click', function () { go(active - 1, -1); });
+    var hero = document.querySelector('.hero');
+    hero.addEventListener('mouseenter', function () { hovering = true; hold(true); });
+    hero.addEventListener('mouseleave', function () { hovering = false; hold(false); });
+    hero.addEventListener('focusin', function () { hold(true); });
+    hero.addEventListener('focusout', function () { if (!hovering) hold(false); });
+    document.addEventListener('visibilitychange', schedule);
+    var sx = null;
+    stage.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    stage.addEventListener('touchend', function (e) {
+      if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; sx = null;
+      if (Math.abs(dx) > 40) go(active + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+    }, { passive: true });
+    render(-1, 1);
+  }
 
   /* ---------- Tabs ---------- */
   var tabBtns = all('#tabs button'), panels = all('.menu-list');
@@ -127,15 +137,29 @@
       var tl = G.timeline({ defaults: { ease: EASE }, onComplete: startAuto });
       var lines = SPLIT ? SPLIT.create('#headline', { type: 'lines', mask: 'lines' }).lines : ['#headline'];
       tl.from('.hero .eyebrow', { y: 18, opacity: 0, duration: .8 }, 0)
-        .from(lines, { yPercent: 110, duration: 1.1, stagger: .09 }, .05)
-        .from(frame, { clipPath: 'inset(100% 0% 0% 0%)', duration: 1.4, ease: 'expo.inOut' }, 0)
-        .from(slides[0].firstElementChild, { scale: 1.4, duration: 1.9 }, 0)
-        .from('.blob', { opacity: 0, duration: 1.2 }, .5)
-        .from(['#dishInfo', '.hero-cta'], { y: 28, opacity: 0, duration: .9, stagger: .1 }, .65)
-        // fromTo, not from: a from() reads its end value from the page, and
-        // a CSS transition on the same property once handed it 0.6, so the
-        // thumbs stayed at 60% for good. The end is explicit, and cleared.
-        .fromTo('.thumb', { scale: .6, opacity: 0 }, { scale: 1, opacity: 1, duration: .8, stagger: .12, ease: 'back.out(1.6)', clearProps: 'transform,opacity' }, 1);
+        .from(lines, { yPercent: 110, duration: 1.1, stagger: .09 }, .05);
+
+      if (hasSlider) {
+        tl.from(frame, { clipPath: 'inset(100% 0% 0% 0%)', duration: 1.4, ease: 'expo.inOut' }, 0)
+          .from(slides[0].firstElementChild, { scale: 1.4, duration: 1.9 }, 0)
+          .from('.blob', { opacity: 0, duration: 1.2 }, .5)
+          .from(['#dishInfo', '.hero-cta'], { y: 28, opacity: 0, duration: .9, stagger: .1 }, .65)
+          // fromTo, not from: a from() reads its end value from the page, and
+          // a CSS transition on the same property once handed it 0.6, so the
+          // thumbs stayed at 60% for good. The end is explicit, and cleared.
+          .fromTo('.thumb', { scale: .6, opacity: 0 }, { scale: 1, opacity: 1, duration: .8, stagger: .12, ease: 'back.out(1.6)', clearProps: 'transform,opacity' }, 1);
+      } else if (document.body.classList.contains('layout-atelier')) {
+        /* The photograph is the page. It settles out of an over-scale rather
+           than wiping in, so the first thing that moves is the picture itself. */
+        tl.from('.shot-img', { scale: 1.16, duration: 2.2, ease: 'expo.out' }, 0)
+          .from('.hero-scrim', { opacity: 0, duration: 1.4 }, 0)
+          .from('.hero-cta > *', { y: 24, opacity: 0, duration: .9, stagger: .08 }, .75)
+          .from('.hero-foot', { opacity: 0, duration: .9 }, .95);
+      } else {
+        tl.from('.still-shot', { clipPath: 'inset(100% 0% 0% 0%)', duration: 1.4, ease: 'expo.inOut' }, .1)
+          .from('.still-shot img', { scale: 1.25, duration: 1.9 }, .1)
+          .from(['.still-lead', '.hero-cta'], { y: 24, opacity: 0, duration: .9, stagger: .1 }, .6);
+      }
       root.classList.remove('gs-wait');
 
       /* Masked heading reveals */
@@ -157,9 +181,10 @@
     ST.create({ onUpdate: function (self) { boost = Math.min(Math.abs(self.getVelocity()) / 350, 5); } });
     if (beltAnim) G.ticker.add(function () { boost *= .93; beltAnim.playbackRate = 1 + boost; });
 
-    /* Signature moment: pinned horizontal showcase on wide screens */
+    /* Signature moment: pinned horizontal showcase on wide screens.
+       Only the default layout has one — the others show their work another way. */
     var mm = G.matchMedia();
-    mm.add('(min-width: 861px)', function () {
+    if (track) mm.add('(min-width: 861px)', function () {
       var sec = track.parentNode; sec.classList.add('is-pinned');
       var dist = function () { return Math.max(0, track.scrollWidth - window.innerWidth); };
       var tween = G.to(track, {
@@ -171,6 +196,58 @@
         G.fromTo(c.querySelector('img'), { xPercent: -7 }, { xPercent: 7, ease: 'none', scrollTrigger: { trigger: c, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true } });
       });
       return function () { sec.classList.remove('is-pinned'); G.set(track, { clearProps: 'all' }); };
+    });
+
+    /* Atelier hero: the photograph drifts slower than the page it sits behind,
+       and the text block lifts away a little faster. Both are transforms, so
+       neither costs a layout. */
+    if (document.querySelector('.hero-atelier')) {
+      G.to('.shot-img', {
+        yPercent: 14, ease: 'none',
+        scrollTrigger: { trigger: '.hero-atelier', start: 'top top', end: 'bottom top', scrub: true }
+      });
+      G.to('.atelier-text', {
+        yPercent: -22, opacity: .25, ease: 'none',
+        scrollTrigger: { trigger: '.hero-atelier', start: 'top top', end: 'bottom top', scrub: true }
+      });
+    }
+
+    /* Gallery: each figure uncovers upward while its photograph settles out of
+       an over-scale, so the picture arrives already in motion. */
+    all('.plate').forEach(function (p, i) {
+      var im = p.querySelector('img');
+      var tl = G.timeline({ scrollTrigger: { trigger: p, start: 'top 85%', once: true } });
+      tl.from(p, { clipPath: 'inset(100% 0% 0% 0%)', duration: 1.25, ease: 'expo.inOut' }, 0);
+      if (im) tl.from(im, { scale: 1.28, duration: 1.7, ease: EASE }, 0);
+      if (im) G.fromTo(im, { yPercent: -7 }, { yPercent: 7, ease: 'none',
+        scrollTrigger: { trigger: p, start: 'top bottom', end: 'bottom top', scrub: true } });
+    });
+
+    /* Price rows: the line rises and the rule draws in under it.
+       One tween, not two. Two `from()`s on the same element read the element's
+       current state as their end value, so the second one captured the
+       opacity:0 the first had just set — and the whole price list stayed
+       invisible. */
+    /* One trigger per list, not one per row. Two earlier shapes both failed:
+       tweening the --rule custom property directly left every row stuck at its
+       from-state, and giving each row its own ScrollTrigger put triggers on
+       rows inside [hidden] tab panels, which blew up ScrollTrigger's refresh
+       and took the rest of the motion layer with it. */
+    all('.ledger').forEach(function (listEl) {
+      var rows = all('li', listEl);
+      if (!rows.length) return;
+      G.from(rows, {
+        y: 18, opacity: 0, duration: .8, stagger: .06, ease: EASE,
+        scrollTrigger: { trigger: listEl, start: 'top 88%', once: true }
+      });
+      rows.forEach(function (li, i) {
+        var o = { v: 0 };
+        G.to(o, {
+          v: 1, duration: .9, delay: i * .06, ease: EASE,
+          scrollTrigger: { trigger: listEl, start: 'top 88%', once: true },
+          onUpdate: function () { li.style.setProperty('--rule', o.v); }
+        });
+      });
     });
 
     /* Story photo: clip reveal + slow parallax */
@@ -319,8 +396,10 @@
      make a lead usable: who you are, how to reach you, where the work is,
      and what you need. A name with no phone number is not a lead.
 
-     It only shows a confirmation; connect it to a real service before launch. */
+     The confirmation is only shown once the collector has accepted the lead.
+     If it has not, the person is told so and given the phone number. */
   var form = $('reqForm'), msg = $('bk-msg'), date = $('bk-date');
+  var submitBtn = form.querySelector('button[type="submit"], button:not([type])');
   var now = new Date(), iso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   date.min = iso; if (!date.value) date.value = iso;
 
@@ -348,36 +427,114 @@
     }
 
     var nice = new Date(date.value + 'T12:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
-    var text = form.dataset.confirm
-      .replace('{choice}', val('bk-choice')).replace('{date}', nice)
-      .replace('{time}', val('bk-time')).replace('{name}', name);
-    msg.className = 'msg';
-    var b = document.createElement('b'); b.textContent = text; msg.appendChild(b);
-    if (form.dataset.note) msg.appendChild(document.createTextNode(' ' + form.dataset.note));
-
-    // Send the enquiry to the owner's panel. Unlike the anonymous counts in
-    // track.js this carries the person's own details, so it is only ever sent
-    // because they filled the form in and pressed the button.
     var cfg = window.DA_TRACK;
-    if (cfg && cfg.endpoint && cfg.siteId) {
-      try {
-        fetch(cfg.endpoint, {
-          method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-          body: JSON.stringify({
-            siteId: cfg.siteId, kind: 'lead',
-            name: name, phone: phone, email: val('bk-email'),
-            address: addr, city: val('bk-city'), zip: val('bk-zip'),
-            requested: val('bk-choice'),
-            preferred: nice + ', ' + val('bk-time'),
-            message: val('bk-notes'),
-            // The owner should see how far the job is without looking it up.
-            distance: area ? {
-              miles: area.road_miles, minutes: area.drive_minutes,
-              in_area: area.status === 'in_area', estimate: true
-            } : null
-          })
-        }).catch(function () {});
-      } catch (e) { /* the confirmation above still stands */ }
+    var canSend = !!(cfg && cfg.endpoint && cfg.siteId);
+
+    /* ---------------------------------------------------------------------
+       Never tell someone their request is in when it is not.
+
+       This used to paint the confirmation first and then fire the POST with
+       an empty .catch(). If the network was down, the browser was offline, a
+       blocker ate the request, or the site simply had no endpoint configured,
+       the visitor read "thanks, see you Tuesday" and the owner never heard.
+       On a trades site that is a lost job and a customer who believes they
+       booked one.
+
+       Now: the confirmation waits for the server to accept it. If it does not,
+       the person is told plainly and given the phone number, because a visitor
+       who calls is still a customer and a visitor who walks away is not.
+       --------------------------------------------------------------------- */
+
+    function confirmed() {
+      var text = form.dataset.confirm
+        .replace('{choice}', val('bk-choice')).replace('{date}', nice)
+        .replace('{time}', val('bk-time')).replace('{name}', name);
+      msg.className = 'msg';
+      msg.textContent = '';
+      var b = document.createElement('b'); b.textContent = text; msg.appendChild(b);
+      if (form.dataset.note) msg.appendChild(document.createTextNode(' ' + form.dataset.note));
+      if (submitBtn) submitBtn.disabled = false;
+      form.reset();
+    }
+
+    function failed() {
+      msg.className = 'msg err';
+      msg.textContent = form.dataset.failed || 'That did not send. Please call us instead.';
+      var tel = form.dataset.callfallback;
+      if (tel) {
+        msg.appendChild(document.createTextNode(' '));
+        var a = document.createElement('a');
+        a.href = 'tel:' + tel.replace(/[^0-9+]/g, '');
+        a.className = 'sel';
+        a.setAttribute('data-live', 'phone');
+        a.textContent = tel;
+        msg.appendChild(a);
+      }
+      if (submitBtn) submitBtn.disabled = false;   // they must be able to try again
+    }
+
+    if (!canSend) {
+      /* No collector wired up. There are two reasons for that and they need
+         different answers.
+
+         A DEMO says so in its own note — form.dataset.note — because it is a
+         layout being shown to a prospect, and ending every demo in a red
+         error makes the kit look broken at exactly the wrong moment.
+
+         A LIVE SITE with no endpoint is a miswiring, and the visitor must be
+         told plainly and given the phone number rather than thanked for a
+         message nobody received. */
+      var demoNote = form.dataset.note || '';
+      if (/demonstration|preview|example/i.test(demoNote)) {
+        confirmed();
+      } else {
+        failed();
+      }
+      return;
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+    msg.className = 'msg';
+    msg.textContent = form.dataset.sending || 'Sending your request…';
+
+    var payload = {
+      siteId: cfg.siteId, kind: 'lead',
+      name: name, phone: phone, email: val('bk-email'),
+      address: addr, city: val('bk-city'), zip: val('bk-zip'),
+      requested: val('bk-choice'),
+      preferred: nice + ', ' + val('bk-time'),
+      message: val('bk-notes'),
+      // The owner should see how far the job is without looking it up.
+      distance: area ? {
+        miles: area.road_miles, minutes: area.drive_minutes,
+        in_area: area.status === 'in_area', estimate: true
+      } : null
+    };
+
+    // A request that never resolves is the same as a failure to the person
+    // waiting, so give it a deadline and tell them either way.
+    var settled = false;
+    var deadline = setTimeout(function () {
+      if (!settled) { settled = true; failed(); }
+    }, 12000);
+
+    try {
+      fetch(cfg.endpoint, {
+        method: 'POST', keepalive: true,
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify(payload)
+      }).then(function (r) {
+        if (settled) return;
+        settled = true; clearTimeout(deadline);
+        if (r && r.ok) confirmed(); else failed();
+      }).catch(function () {
+        if (settled) return;
+        settled = true; clearTimeout(deadline);
+        failed();
+      });
+    } catch (e) {
+      settled = true; clearTimeout(deadline);
+      failed();
     }
   });
 })();

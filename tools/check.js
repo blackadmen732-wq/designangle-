@@ -52,6 +52,42 @@ const SIZES = [
 const SAMPLE = fs.readFileSync(path.join(__dirname, 'panel-sample.js'), 'utf8');
 const PANEL = path.join(ROOT, 'portal', 'app', 'index.html');
 
+// The pixels behind text that sits over a photograph: the glyphs (and any
+// children beside them) are made transparent, the box photographed, and the
+// worst pixel in it is the ground. Worst, not average: the palest letter has
+// to clear the brightest thing behind it. tools/audit.js does the same.
+async function readPhotoText(page, list) {
+  const PNG = require('./png');
+  const out = [], toLum = (r, g, b) => [r, g, b].map((v) => v / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+  for (const t of list || []) {
+    if (t.rect.width < 2 || t.rect.height < 2) continue;
+    const sel = `[data-ck-photo="${t.mark}"]`;
+    try {
+      await page.$eval(sel, (e) => { e.dataset.ckColour = e.style.color || ''; e.style.color = 'transparent'; e.style.textShadow = 'none';
+        for (const c of e.children) { c.dataset.ckVis = c.style.visibility || ''; c.style.visibility = 'hidden'; } });
+      const shot = await page.screenshot({ clip: t.rect });
+      await page.$eval(sel, (e) => { e.style.color = e.dataset.ckColour; e.style.textShadow = '';
+        for (const c of e.children) c.style.visibility = c.dataset.ckVis || ''; });
+      const px = PNG.pixels(PNG.decode(shot));
+      const m = t.color.match(/[\d.]+/g).map(Number);
+      const ink = toLum(m[0], m[1], m[2]);
+      // Nearly the worst: the bottom 3% of the ground is set aside, so one
+      // stray pixel of smoothing cannot fail a line, while a bright patch
+      // behind a few letters still does.
+      const ratios = [];
+      const step = Math.max(1, Math.floor(px.length / 4000));
+      for (let i = 0; i < px.length; i += step) {
+        const g = toLum(px[i][0], px[i][1], px[i][2]), [hi, lo] = [ink, g].sort((x, y) => y - x);
+        ratios.push((hi + 0.05) / (lo + 0.05));
+      }
+      ratios.sort((x, y) => x - y);
+      const worst = ratios.length ? ratios[Math.floor(ratios.length * 0.03)] : Infinity;
+      if (worst < t.need - 0.01) out.push(`contrast ${worst.toFixed(2)}:1 over a photo (read from the pixels), needs ${t.need}:1  ${t.name}`);
+    } catch (e) { /* a box that moved or left the page: nothing to read */ }
+  }
+  return out;
+}
+
 function pages(args) {
   if (args.length) return args.map(find);
   const list = [];
@@ -64,7 +100,14 @@ function pages(args) {
   } else {
     console.log('No dist/ yet. Run  node build.js  first to check the sites.\n');
   }
-  list.push(PANEL, path.join(ROOT, 'docs', 'app-patterns.html'));
+  list.push(PANEL);
+  // The docs pages, wherever they sit under docs/ (they are split by platform).
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)).forEach((e) => {
+    const p = path.join(d, e.name);
+    if (e.isDirectory() && e.name !== 'research') walk(p);
+    else if (e.name.endsWith('.html')) list.push(p);
+  });
+  walk(path.join(ROOT, 'docs'));
   return list;
 }
 
@@ -119,6 +162,28 @@ function audit({ phone }) {
   const said = (document.querySelector('meta[name="design-check"]')?.content || '').match(/gutter\s+([\d.]+)/);
   const gutter = said ? +said[1] : document.querySelector('.ui') ? 16 : 20;
   const contrast = new Map(), small = new Map(), fields = new Map(), tiny = new Map(), weights = new Map(), edge = new Map();
+  const photo = [];
+  // Is a picture (an image, a video, a canvas, a background image or
+  // gradient) painted under this text, before any solid ground? Only on the
+  // screen: elementsFromPoint sees what the screen sees.
+  const overPicture = (el) => {
+    const r = el.getBoundingClientRect();
+    if (!r.width || !r.height || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return false;
+    const stack = document.elementsFromPoint(Math.min(innerWidth - 1, Math.max(0, r.left + r.width / 2)), Math.min(innerHeight - 1, Math.max(0, r.top + r.height / 2)));
+    const at = stack.indexOf(el);
+    if (at < 0) return false;
+    for (let k = at; k < stack.length; k++) {
+      const n = stack[k], ns = getComputedStyle(n);
+      if (k > at && /^(IMG|VIDEO|CANVAS)$/.test(n.tagName)) return true;
+      // Gradient-filled text paints its letters with its own background
+      // (background-clip: text): that is the ink, not what lies behind it.
+      const glyphs = ns.backgroundClip === 'text' || ns.webkitBackgroundClip === 'text';
+      if (ns.backgroundImage && ns.backgroundImage !== 'none' && !glyphs) return true;
+      const c = rgb(ns.backgroundColor);
+      if (c && c.a > 0.92) return false;
+    }
+    return false;
+  };
   // Moving text (a marquee) crosses the edges on purpose.
   const moving = (el) => { for (let e = el; e; e = e.parentElement) if (e.getAnimations().length) return true; return false; };
   // In a row that scrolls sideways, running off the right edge is the scroll
@@ -138,6 +203,10 @@ function audit({ phone }) {
     for (let e = el.parentElement; e && e !== document.body; e = e.parentElement) {
       const o = getComputedStyle(e).overflowX;
       if ((o === 'auto' || o === 'scroll') && e.scrollWidth > e.clientWidth + 1) return true;
+      // A row built wider than the screen that the page slides sideways as
+      // it scrolls (a pinned horizontal track): where its words sit at rest
+      // is a moment in a movement, not a gutter.
+      if (e.getBoundingClientRect().width > innerWidth + 1) return true;
     }
     return false;
   };
@@ -173,7 +242,28 @@ function audit({ phone }) {
         weights.get(family).add(weight);
         let fg = rgb(cs.color);
         const bg = behind(el);
-        if (fg && bg) {
+        // Text over a photograph or a gradient: the colour walk would find the
+        // page behind the picture and report a number that describes nothing
+        // on the screen. Set it aside; its pixels are read after this pass.
+        const pic = overPicture(el);
+        // Gradient-filled letters have no single colour to compare: their ink
+        // is the gradient. Not measured here (tools/audit.js reads them).
+        const glyphPaint = cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text';
+        if (glyphPaint) {
+          // nothing measurable here
+        } else if (fg && pic) {
+          // Where the letters are, not the element's box: a pill's rounded
+          // corners show the photograph, but no letter sits on them.
+          let L = Infinity, T = Infinity, R = -Infinity, B = -Infinity;
+          for (const n of el.childNodes) if (n.nodeType === 3 && n.textContent.trim()) {
+            const rg = document.createRange(); rg.selectNodeContents(n);
+            for (const q of rg.getClientRects()) { L = Math.min(L, q.left); T = Math.min(T, q.top); R = Math.max(R, q.right); B = Math.max(B, q.bottom); }
+          }
+          const mark = String(photo.length);
+          el.setAttribute('data-ck-photo', mark);
+          if (L < R && T < B) photo.push({ mark, color: cs.color, need: (size >= 24 || (size >= 18.66 && weight >= 700)) ? 3 : 4.5, name: name(el),
+            rect: { x: Math.max(0, L), y: Math.max(0, T), width: Math.min(innerWidth, R) - Math.max(0, L), height: Math.min(innerHeight, B) - Math.max(0, T) } });
+        } else if (fg && bg) {
           if (fg.a < 1) fg = { r: fg.r * fg.a + bg.r * (1 - fg.a), g: fg.g * fg.a + bg.g * (1 - fg.a), b: fg.b * fg.a + bg.b * (1 - fg.a) };
           const [hi, lo] = [lum(fg), lum(bg)].sort((a, b) => b - a);
           const ratio = (hi + 0.05) / (lo + 0.05);
@@ -246,15 +336,30 @@ function audit({ phone }) {
   };
   // Text marked aria-hidden is decoration (a giant wordmark set with a tight
   // line height): its font box reaches into empty space below the letters.
+  // An inline element that wraps is two boxes, one per line; its outer box
+  // also covers the gap between them and everything beside it there. A code
+  // word that wrapped onto the next line was reported as running into the
+  // one before it on its first line. Lines are compared, not outer boxes.
+  const pieces = (el) => {
+    const v = seen(el);
+    if (getComputedStyle(el).display !== 'inline') return [v];
+    return [...el.getClientRects()].map((q) => {
+      const left = Math.max(q.left, v.left), top = Math.max(q.top, v.top), right = Math.min(q.right, v.right), bottom = Math.min(q.bottom, v.bottom);
+      return { left, top, right, bottom, width: right - left, height: bottom - top };
+    });
+  };
   const leaves = [...document.body.querySelectorAll('*')].filter((el) =>
     [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) && painted(el) && !floating(el) && !el.closest('[aria-hidden="true"]')
-  ).slice(0, 500).map((el) => ({ el, r: seen(el) })).filter(({ r }) => r.width > 2 && r.height > 2);
+  ).slice(0, 500).map((el) => ({ el, rs: pieces(el).filter((r) => r.width > 2 && r.height > 2) })).filter(({ rs }) => rs.length);
   const clash = [];
+  const hits = (p, q) => {
+    const w = Math.min(p.right, q.right) - Math.max(p.left, q.left), h = Math.min(p.bottom, q.bottom) - Math.max(p.top, q.top);
+    return w > 3 && h > 3 && w * h > 0.2 * Math.min(p.width * p.height, q.width * q.height);
+  };
   for (let i = 0; i < leaves.length && clash.length < 3; i++) for (let j = i + 1; j < leaves.length; j++) {
     const a = leaves[i], b = leaves[j];
     if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
-    const w = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left), h = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top);
-    if (w > 3 && h > 3 && w * h > 0.2 * Math.min(a.r.width * a.r.height, b.r.width * b.r.height)) { clash.push(`${name(a.el)} and ${name(b.el)}`); break; }
+    if (a.rs.some((p) => b.rs.some((q) => hits(p, q)))) { clash.push(`${name(a.el)} and ${name(b.el)}`); break; }
   }
   clash.forEach((c) => fails.push(`text runs into other text  ${c}`));
   // Words broken in the middle by a column too narrow for them.
@@ -310,7 +415,7 @@ function audit({ phone }) {
     const allowed = document.querySelector('.ui') ? 4 : 2;
     if (set.size > allowed) warns.push(`${set.size} weights of ${family} (${[...set].sort((a, b) => a - b).join(', ')}); ${allowed === 2 ? 'DESIGN.md allows two' : 'app-style uses four at most'}`);
   }
-  return { fails, warns };
+  return { fails, warns, photo };
 }
 
 async function open(browser, file, opts = {}) {
@@ -356,8 +461,14 @@ async function scrollThrough(page) {
     await page.waitForTimeout(50);
   }
   await page.waitForTimeout(600);
+  // Back to the top the way it came down. A smooth-scroll library (Lenis, on
+  // the sites) keeps its own position and puts the page back where it was
+  // after a plain scrollTo(0, 0), so every check below once ran with the
+  // page scrolled to the bottom.
+  for (let y = 0; y < height; y += 1500) await page.mouse.wheel(0, -1500);
+  await page.waitForTimeout(1400);
   await page.evaluate(() => scrollTo(0, 0));
-  await page.waitForTimeout(600);
+  await page.waitForTimeout(300);
 }
 
 async function check(browser, file) {
@@ -379,6 +490,7 @@ async function check(browser, file) {
     await page.screenshot({ path: shot, fullPage: true });
     shots.push(path.relative(ROOT, shot));
     const r = await page.evaluate(audit, { phone: size.name === 'phone' });
+    for (const t of await readPhotoText(page, r.photo)) r.fails.push(t);
     r.fails.forEach((m) => note('fail', size.name, m));
     r.warns.forEach((m) => note('warn', size.name, m));
     errors.forEach((m) => note('fail', size.name, `script error: ${m}`));

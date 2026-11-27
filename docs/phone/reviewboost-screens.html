@@ -1,0 +1,346 @@
+<title>ReviewBoost Phone Screens</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+/* Layout: ReviewBoost's own system, applied to four phone screens.
+   Light, dense and utility — the opposite of the dark media screens the
+   pattern work came from, and the case where "one big thing" breaks. */
+:root {
+  --bg: #FCFCFB;          /* warm white, not #fff */
+  --surface: #FFFFFF;
+  --ink: #1A1A19;         /* near-black with a hue */
+  --ink-2: #4A4A47;
+  --ink-3: #6B6B67;       /* 4.9:1 on --bg, so it passes at small sizes */
+  --line: #E2E2E1;
+  --green: #00754A;       /* the brand, used for "good" and almost nothing else */
+  --green-soft: #E3F5EC;
+  --good: #00A86B;
+  --warn-bg: #FBF1E2;
+  --warn-fg: #996315;  /* ReviewBoost ships #9A6415; on #FBF1E2 that is 4.46:1, just under. */
+  --bad-bg: #FBEAEA;
+  --bad-fg: #B33A3A;
+  --sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --serif: "Instrument Serif", Georgia, serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { margin: 0; line-height: 1.1; }
+p { margin: 0; }
+.wrap {
+  max-width: 1240px; margin-inline: auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+header.top { padding-block: 64px 40px; }
+header.top h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(38px, 6vw, 64px); letter-spacing: -0.01em; }
+header.top h1 em { font-style: italic; color: var(--green); }
+header.top p { color: var(--ink-2); max-width: 60ch; margin-top: 18px; font-size: 17px; }
+
+.note {
+  margin-top: 26px; background: var(--warn-bg); border-radius: 14px;
+  padding: 16px 18px; font-size: 15px; line-height: 1.5; max-width: 72ch;
+}
+.note b { color: var(--warn-fg); }
+
+.screens { display: flex; gap: 28px; overflow-x: auto; padding-block: 24px 48px; scrollbar-width: thin; }
+.col { flex: none; width: 310px; display: flex; flex-direction: column; gap: 14px; }
+.col > h2 { font-size: 17px; font-weight: 600; }
+.col > .cap { font-size: 15px; color: var(--ink-3); line-height: 1.45; }
+
+/* ---- the phone ---- */
+.phone {
+  width: 310px; height: 648px; border-radius: 42px; background: var(--surface);
+  border: 1px solid var(--line); overflow: hidden; display: flex; flex-direction: column;
+  box-shadow: 0 1px 2px rgba(26,26,25,.04), 0 12px 32px -12px rgba(26,26,25,.12);
+}
+.status {
+  flex: none; height: 44px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 22px 0 26px; font-size: 13px; font-weight: 600;
+}
+.status .dots { display: flex; gap: 4px; align-items: center; }
+.status .dots i { width: 3px; height: 9px; background: var(--ink); border-radius: 1px; display: block; }
+.status .dots i:nth-child(1) { height: 5px } .status .dots i:nth-child(2) { height: 7px }
+.screen { flex: 1; overflow-y: auto; padding: 4px 18px 18px; display: flex; flex-direction: column; gap: 16px; scrollbar-width: none; }
+.screen::-webkit-scrollbar { display: none; }
+.homebar { flex: none; height: 26px; display: grid; place-items: center; }
+.homebar i { width: 112px; height: 4px; border-radius: 4px; background: #D8D8D6; display: block; }
+
+/* ---- the parts ---- */
+.where { display: block; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+.biz { font-size: 23px; font-weight: 600; letter-spacing: -0.015em; }
+
+.state {
+  border-radius: 14px; padding: 13px 15px; display: flex; gap: 10px; align-items: flex-start;
+  font-size: 14.5px; line-height: 1.45;
+}
+.state i { flex: none; width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; }
+.state.needs { background: var(--warn-bg); }
+.state.needs i { background: var(--warn-fg); }
+.state.ok { background: var(--green-soft); }
+.state.ok i { background: var(--good); }
+.state b { font-weight: 600; }
+
+/* One filled black button per screen. Everything else is outlined or text. */
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; border-radius: 13px; border: 0; width: 100%;
+  background: var(--ink); color: var(--bg); font: inherit; font-weight: 600; font-size: 16px;
+  cursor: pointer; transition: background .15s;
+}
+.btn:hover { background: #000; }
+.btn.quiet { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+.btn.quiet:hover { background: transparent; border-color: var(--ink); }
+
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile {
+  border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px;
+  display: flex; flex-direction: column; gap: 2px; background: var(--surface);
+}
+.tile .n { font-size: 27px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.tile .k { font-size: 12.5px; color: var(--ink-3); line-height: 1.35; }
+.tile.wide { grid-column: 1 / -1; }
+
+.rows { display: flex; flex-direction: column; }
+.row {
+  display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 11px;
+  align-items: start; padding: 13px 0; border-bottom: 1px solid var(--line);
+  text-align: left; background: none; border-left: 0; border-right: 0; border-top: 0;
+  font: inherit; color: inherit; cursor: pointer; width: 100%;
+}
+.row:last-child { border-bottom: 0; }
+.unread { width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-top: 8px; flex: none; }
+.unread.off { background: transparent; }
+.stars { font-size: 14px; letter-spacing: 1px; color: var(--ink); }
+.stars .dim { color: var(--ink-3); }
+/* The glyphs are decorative: the rating is named on the row instead, so a
+   screen reader says "two stars" rather than reading ten star characters.
+   Darkening the empty ones to pass contrast would destroy the one thing
+   they do, which is look empty. */
+/* The Tag name wraps instead of truncating — the review called this out. */
+.row > span:nth-child(2) { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.row .stars { display: block; }
+.row .tag { display: block; font-size: 13px; color: var(--ink-3); line-height: 1.4; }
+.row .when { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; margin-top: 2px; }
+
+.qr {
+  width: 100%; aspect-ratio: 1; border-radius: 18px; border: 1px solid var(--line);
+  background:
+    repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 16px),
+    repeating-linear-gradient(0deg, var(--ink) 0 8px, transparent 8px 16px);
+  background-blend-mode: multiply; opacity: .88;
+}
+.sheet { border: 1px solid var(--line); border-radius: 16px; padding: 15px; display: flex; flex-direction: column; gap: 9px; }
+.sheet h3 { font-size: 15.5px; font-weight: 600; }
+.sheet p { font-size: 15px; color: var(--ink-2); line-height: 1.5; }
+
+.tabs {
+  flex: none; display: flex; border-top: 1px solid var(--line); padding: 7px 8px 2px;
+}
+.tabs button {
+  flex: 1; min-height: 48px; border: 0; background: none; font: inherit; cursor: pointer;
+  display: grid; justify-items: center; gap: 3px; font-size: 11px; color: var(--ink-3); border-radius: 11px;
+}
+.tabs button[aria-current="page"] { color: var(--ink); font-weight: 600; }
+.badge {
+  position: absolute; transform: translate(11px, -4px); background: var(--warn-fg); color: #fff;
+  font-size: 10px; font-weight: 700; min-width: 16px; height: 16px; border-radius: 99px;
+  display: grid; place-items: center; padding: 0 4px;
+}
+.tabs span.ico { position: relative; }
+
+footer { padding-block: 32px 72px; color: var(--ink-3); font-size: 15px; }
+footer b { color: var(--ink); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <h1>ReviewBoost, on a <em>phone.</em></h1>
+    <p>
+      Four screens in ReviewBoost's own system: warm white, Geist over Instrument
+      Serif, black for the single action, green only for "good". Built to the
+      rule the design review already set — <b>where you are, what is happening,
+      then one black button for what is next.</b>
+    </p>
+    <p class="note">
+      <b>Why these screens and not another Netflix.</b> The pattern work so far came
+      from two dark media apps where one action dominates. This is light, dense and
+      a utility: several numbers matter at once, and the owner is scanning, not
+      browsing. It is the case where "make one thing huge and cut the rest" stops
+      being the right instruction — so it is the honest test of the method.
+    </p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="screens">
+
+    <!-- 1 ............................................................. -->
+    <div class="col">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="screen">
+          <div>
+            <span class="where">Mario's Pizza</span>
+            <p class="biz">Good morning</p>
+          </div>
+          <div class="state needs"><i></i><div><b>Needs you</b> · 6 new ratings, 2 of them 3 stars or fewer.</div></div>
+          <button class="btn">Read feedback</button>
+          <div class="tiles">
+            <div class="tile"><span class="n">4.6</span><span class="k">average, last 30 days</span></div>
+            <div class="tile"><span class="n">38</span><span class="k">ratings this month</span></div>
+            <div class="tile wide"><span class="n">+14</span><span class="k">sent to Google this week</span></div>
+          </div>
+          <div class="sheet">
+            <h3>Both Tags are working</h3>
+            <p>Front counter and Takeaway are live. Nothing needs setting up.</p>
+          </div>
+        </div>
+        <nav class="tabs">
+          <button aria-current="page"><span class="ico">●</span>Home</button>
+          <button><span class="ico">◆<span class="badge">6</span></span>Feedback</button>
+          <button><span class="ico">▦</span>Tags</button>
+          <button><span class="ico">○</span>Account</button>
+        </nav>
+        <div class="homebar"><i></i></div>
+      </div>
+      <h2>Home</h2>
+      <p class="cap">Status before numbers. One black button, and it names the next action rather than the section.</p>
+    </div>
+
+    <!-- 2 ............................................................. -->
+    <div class="col">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="screen">
+          <div>
+            <span class="where">Feedback</span>
+            <p class="biz">Needs you</p>
+          </div>
+          <div class="state needs"><i></i><div>2 ratings of 3 stars or fewer. These never went to Google.</div></div>
+          <div class="rows">
+            <button class="row">
+              <span class="unread"></span>
+              <span>
+                <span class="stars" role="img" aria-label="5 out of 5 stars" aria-hidden="false">★★<span class="dim">☆☆☆</span></span>
+                <span class="tag">Front counter · Tuesday lunch</span>
+              </span>
+              <span class="when">3:07 PM</span>
+            </button>
+            <button class="row">
+              <span class="unread"></span>
+              <span>
+                <span class="stars" role="img" aria-label="5 out of 5 stars" aria-hidden="false">★★★<span class="dim">☆☆</span></span>
+                <span class="tag">Takeaway window · evening rush</span>
+              </span>
+              <span class="when">1:22 PM</span>
+            </button>
+            <button class="row">
+              <span class="unread off"></span>
+              <span>
+                <span class="stars" role="img" aria-label="5 out of 5 stars" aria-hidden="false">★★★★★</span>
+                <span class="tag">Front counter</span></span>
+              <span class="when">Yesterday</span>
+            </button>
+            <button class="row">
+              <span class="unread off"></span>
+              <span>
+                <span class="stars" role="img" aria-label="5 out of 5 stars" aria-hidden="false">★★★★<span class="dim">☆</span></span>
+                <span class="tag">Takeaway window</span>
+              </span>
+              <span class="when">Yesterday</span>
+            </button>
+          </div>
+        </div>
+        <nav class="tabs">
+          <button><span class="ico">●</span>Home</button>
+          <button aria-current="page"><span class="ico">◆<span class="badge">2</span></span>Feedback</button>
+          <button><span class="ico">▦</span>Tags</button>
+          <button><span class="ico">○</span>Account</button>
+        </nav>
+        <div class="homebar"><i></i></div>
+      </div>
+      <h2>Feedback</h2>
+      <p class="cap">The Tag name wraps to a second line instead of cutting to "Front…" — the exact fault the review logged.</p>
+    </div>
+
+    <!-- 3 ............................................................. -->
+    <div class="col">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="screen">
+          <div>
+            <span class="where">Feedback · Tuesday, 3:07 PM</span>
+            <p class="biz">Two stars</p>
+          </div>
+          <div class="state needs"><i></i><div>Front counter. This did not go to Google.</div></div>
+          <div class="sheet">
+            <h3>What they said</h3>
+            <p>"Waited twenty minutes for a takeaway order that was already sitting on the counter."</p>
+          </div>
+          <div class="sheet">
+            <h3>Only you can see this</h3>
+            <p>Notes stay private, and the customer stays anonymous. Nothing you write here is sent to them.</p>
+          </div>
+          <button class="btn">Mark as sorted</button>
+          <button class="btn quiet">Add a private note</button>
+        </div>
+        <nav class="tabs">
+          <button><span class="ico">●</span>Home</button>
+          <button aria-current="page"><span class="ico">◆</span>Feedback</button>
+          <button><span class="ico">▦</span>Tags</button>
+          <button><span class="ico">○</span>Account</button>
+        </nav>
+        <div class="homebar"><i></i></div>
+      </div>
+      <h2>One rating</h2>
+      <p class="cap">The rating leads; the note boxes no longer outweigh it. One filled button, one outlined.</p>
+    </div>
+
+    <!-- 4 ............................................................. -->
+    <div class="col">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="screen">
+          <div>
+            <span class="where">Tags</span>
+            <p class="biz">Front counter</p>
+          </div>
+          <div class="state ok"><i></i><div><b>Working</b> · QR and tap are both live.</div></div>
+          <div class="qr" role="img" aria-label="QR code for the Front counter Tag"></div>
+          <button class="btn">Print this code</button>
+          <button class="btn quiet">Set up tap</button>
+          <div class="sheet">
+            <h3>23 ratings from this Tag</h3>
+            <p>Last one about an hour ago. Average 4.4 over the past month.</p>
+          </div>
+        </div>
+        <nav class="tabs">
+          <button><span class="ico">●</span>Home</button>
+          <button><span class="ico">◆</span>Feedback</button>
+          <button aria-current="page"><span class="ico">▦</span>Tags</button>
+          <button><span class="ico">○</span>Account</button>
+        </nav>
+        <div class="homebar"><i></i></div>
+      </div>
+      <h2>One Tag</h2>
+      <p class="cap">Status, then the code at full width, then the two things an owner actually does with it.</p>
+    </div>
+
+  </div>
+</main>
+
+<footer class="wrap">
+  <p><b>What changed from the dark pattern set.</b> No glow, because a light screen
+  does not need lighting. Cards carry a hairline border, because on warm white a
+  value difference alone is not enough separation. The tab bar is anchored, not
+  floating — it sits on a wall of white with nothing to float above. Hierarchy is
+  still value before size, and there is still one filled button per screen.</p>
+  <p style="margin-top:14px">Content is Mario's Pizza, the worked example from the
+  design review. Figures are illustrative.</p>
+</footer>

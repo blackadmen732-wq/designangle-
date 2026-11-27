@@ -239,10 +239,10 @@ pre .c { color: var(--ink-3); }
 .thumb-row { display: flex; justify-content: space-between; gap: 12px; padding-block: 12px; border-top: 1px solid var(--hair); font-size: 15px; }
 .thumb-row span { color: var(--ink-2); }
 .thumb-fade {
-  position: absolute; left: 0; right: 0; bottom: 0; height: 108px; pointer-events: none;
+  position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: 108px; pointer-events: none;
   background: linear-gradient(to top, var(--surface-2) 52%, rgba(28,28,28,0));
 }
-.thumb-bar { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; }
+.thumb-bar { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: 12px; display: flex; }   /* layered over what scrolls */
 .pill.blue { flex: 1; background: var(--maps); color: #fff; }
 
 

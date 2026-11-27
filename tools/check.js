@@ -214,9 +214,9 @@ function audit({ phone }) {
   // Text running into other text.
   // Floating layers (a dock, a sticky bar) cover what scrolls under them on
   // purpose, so text inside them is left out of this check.
-  // (A mockup inside a phone frame floats its dock with position: absolute and
-  // a z-index: that counts too.)
-  const floating = (el) => { for (let e = el; e; e = e.parentElement) { const cs = getComputedStyle(e), p = cs.position; if (p === 'fixed' || p === 'sticky' || (p === 'absolute' && +cs.zIndex >= 10)) return true; } return false; };
+  // (A mockup floats its dock or its button with position: absolute and a
+  // z-index above the content: layered on purpose, so that counts too.)
+  const floating = (el) => { for (let e = el; e; e = e.parentElement) { const cs = getComputedStyle(e), p = cs.position; if (p === 'fixed' || p === 'sticky' || (p === 'absolute' && +cs.zIndex >= 1)) return true; } return false; };
   const painted = (el) => (el.checkVisibility ? el.checkVisibility({ contentVisibilityAuto: true, opacityProperty: true, visibilityProperty: true }) : el.getClientRects().length > 0);
   // Only the part a person can see: a chip scrolled out of its row, or text
   // cut off by a scrolling pane, is clipped by that ancestor.

@@ -58,10 +58,11 @@ app-style skill or `tools/motion.js`; **CHECKED** is measured by
   0.11px per millisecond, not only past a distance (Kowalski's gestures).
 - **CHECKED. Presses answer within 100ms**; the audit warns above 100 and
   fails above 300 (Apple: respond on touch-down).
-- **LEFT. Kowalski's install-and-greet behaviour.** His skills start by
-  announcing themselves; the rules are what was wanted, so they were
-  distilled here rather than installed whole. They can be installed with
-  `npx skills add emilkowalski/skills` if wanted.
+- **KEPT, as skills.** `animate` and `review-animations` are in
+  `.claude/skills/`, from commit 64eb3de with his MIT licence, adapted: the
+  greeting removed, and a section pointing at this repo's tokens, parts and
+  `tools/motion.js`. His other skills are not copied; the rest can be
+  installed with `npx skills add emilkowalski/skills`.
 - **LEFT. LottieFiles' skill:** it is for authored animation (Lottie files,
   explainers, Disney principles), not interface motion.
 - **LEFT. A motion library (Motion, GSAP) for the app style.** CSS, the Web

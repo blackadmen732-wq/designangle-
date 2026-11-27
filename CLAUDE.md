@@ -15,6 +15,10 @@ For any app screen, the owner panel included, also read
 redesign recordings, the parts in `app-style/`, the motion system, and the
 unslop and motion audits.
 
+To redesign an existing app or screen, follow `.claude/skills/app-redesign/`:
+the order of work and the traps four redesigns hit. For motion, the
+`animate` and `review-animations` skills (Emil Kowalski's, adapted).
+
 `DESIGN.md` holds the kit's own locked-in values (the exact tokens every
 client site uses). The skill is the method; DESIGN.md is this kit's instance
 of it. Where they overlap, DESIGN.md wins for the kit's sites.
@@ -48,13 +52,16 @@ node build.js hvac                 # one site
 node tools/check.js                # every screen at both sizes: contrast, tap size, sideways scroll
 node tools/slop.js <page>          # does it look AI-made? 18 points, and the bottleneck to fix first
 node tools/motion.js <page>        # presses through it: every animation measured, frame-exact filmstrips
+python3 tools/photos.py try <ids>  # candidate photos on a contact sheet, before fetching any
 python3 tools/critique.py shot.png --kind app    # cheap design review
 ```
 
 Screenshot at **400×860** and **1280×900**. Both, every time. `tools/check.js`
 takes both into `.check/` and fails on the rules that can be measured. The
 owner panel needs a login, so the check fills it with invented sample data
-(`tools/panel-sample.js`). A pass is not the end: open the screenshots, and
+(`tools/panel-sample.js`). Where cdnjs or jsDelivr are blocked, the checks
+load the same GSAP and Lenis versions from npm (`tools/cdn.js`), so they
+test the page visitors get. A pass is not the end: open the screenshots, and
 for anything that moves, the filmstrips in `.check/motion/`. A recording is
 worth watching too: the tickets example's recording caught a tab hidden
 under a floating button that every audit had passed (check.js now fails it).
@@ -70,6 +77,8 @@ app-style/            the app style: CSS system, icons, recreations, an example 
 tools/check.js        measured design checks and screenshots, both sizes
 tools/slop.js         the unslop audit: 18 points, a score, the bottleneck
 tools/motion.js       the motion audit: durations, curves, layout animation, reduced motion
+tools/cdn.js          blocked CDN libraries served from npm, so the checks test the real page
+tools/photos.py       photos by Unsplash id: a contact sheet first, then fetch with credits
 tools/compare.js      a screen beside the reference frame it should match
 tools/critique.py     screenshot review on the user's NVIDIA credit
 docs/research/        the research the design decisions came from

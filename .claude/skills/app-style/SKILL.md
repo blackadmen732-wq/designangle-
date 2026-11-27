@@ -19,6 +19,14 @@ applied in, and the checks that prove it worked.
 | `app-style/screens/` | Seven recreations of the redesigns (Netflix x2, Uber Eats, Maps, Airbnb, Starbucks, sign-in). Studies: read them to see the style used. |
 | `app-style/examples/podcast/` | Earshot, an original app designed with this skill as its test, and `ai-default.html`, the deliberately bad version both audits are proved on. Start from Earshot's structure, not from a recreation. |
 | `app-style/examples/tickets/` | A redesign of a real, ugly app (Trac 1.6) from its own data, light ground, phone and split desktop, with motion. The second test; start here for anything that moves. `img/before-after.webp` is the before and after. |
+| `app-style/examples/kanboard/` | Kanboard redesigned from its own data: a board, one column at a time on a phone, drag that springs into place. |
+| `app-style/examples/dokuwiki/` | DokuWiki redesigned from its own pages: long-form reading, a reading bar, an editor that says who holds the lock. |
+| `app-style/examples/chick-fil-a/` | An unofficial Chick-fil-A study (not affiliated): ordering, a bag that items fly into, rewards in one number. Built where the real app could not be photographed. |
+| `app-style/app-motion.js` | The motion CSS cannot do alone: `sheet()` (flick to close), `toast()`, `flyTo()`, `bump()`. Reduced-motion aware. |
+| `tools/photos.py` | Photos for a screen: a contact sheet of candidate Unsplash ids to look at, then fetch with credits. |
+| `tools/cdn.js` | Where a CDN is blocked, the checks load the same library version from npm, so they test the page visitors get. |
+| `.claude/skills/app-redesign/` | The order of work for redesigning an existing app, and the traps four redesigns hit. |
+| `.claude/skills/animate/`, `review-animations/` | Emil Kowalski's animation skills (MIT), adapted to this repo's tokens and checks. |
 | `app-style/tools/spring.js` | Prints a spring as a CSS `linear()` curve and the duration to pair it with. |
 | `app-style/vendor/auto-animate.js` | auto-animate 0.10.2 (MIT), for lists whose rows come and go. Never with its own keyframes: see Motion. |
 | `tools/slop.js` | The unslop audit: 18 points, a score, and the one bottleneck to fix first. |
@@ -49,6 +57,9 @@ applied in, and the checks that prove it worked.
      (filters; the selected one inverts), `.segmented`, `.tabs-line`
    - `.dock` with `.dock-bar` and `.dock-fab`, or `.thumb-cta` for one
      floating action
+   - forms and choices: `.field`, `.seg-radio`, `.chip-radio`, `.choices`
+     and `.choice`, `.switch`, `.tick`, `.stepper`; and `.badge`, `.sum`
+   - reading: `.prose` for any long text, `.read-bar` for how far through
    If a part is missing, build it in the page, then move it into
    `app-style.css` once it works, so the next screen has it.
 5. **Type**: 13, 15, 17, 20-22, 29, 36-48, and 132 for one number. Six sizes
@@ -199,6 +210,16 @@ random from 24). What got in the way, and what changed:
 - The advisor could not run: Fable 5.2 needs usage credits, and the
   fallback hit the account's usage limit. The checks above do not depend
   on it.
+
+The third test redesigned three more, with only what the repo had: a
+Chick-fil-A study (the real app could not be photographed here), Kanboard
+and DokuWiki (both run, photographed and audited). Each passes all three
+audits at both sizes. What they lacked went into the system (the parts
+above, `app-motion.js`, fifteen icons, a photo tool), and what they taught
+is the app-redesign skill. The checks themselves were wrong in places and
+were fixed: they now test pages with their CDN libraries, wait for a page
+to settle, and stop counting pickers, list rows, centring margins,
+decorative text and blurred images against a screen.
 
 The second test redesigned a real app instead of inventing one: Trac 1.6, an
 open-source issue tracker, picked as the ugliest app that would run here,

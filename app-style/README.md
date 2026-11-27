@@ -13,6 +13,10 @@ app-icons.css         78 icons as CSS masks; edit tools/make-icons.py, not this
 screens/              seven recreations that line up with their reference frames
 examples/podcast/     Earshot: an original app built with the system as its test
 examples/tickets/     Trac 1.6 redesigned from its own data, with motion: the second test
+examples/kanboard/    Kanboard redesigned from its own data: a board, drag that springs
+examples/dokuwiki/    DokuWiki redesigned from its own pages: reading, editing, locks
+examples/chick-fil-a/ an unofficial Chick-fil-A study (not affiliated), Unsplash stand-ins
+app-motion.js         sheet(), toast(), flyTo(), bump(): the motion CSS cannot do alone
 vendor/               auto-animate 0.10.2 (MIT) as a classic script
 tools/                make-icons.py, inline-icons.py, spring.js (a spring as a CSS curve)
 ```
@@ -33,6 +37,12 @@ node tools/compare.js app-style/screens/maps-place.html .refs/maps.png   # only 
 | `examples/podcast/ai-default.html` (deliberately bad) | 18 | | 0: slow, ease-in, animates height and left, moves under reduced motion |
 | Trac 1.6 as it ships (the tickets "before", live) | 77 and 83 | 53 and 38 failures | nothing moves |
 | `examples/tickets/` (Trac redesigned) | 100, both sizes | pass; 60 ticket screens at five phone sizes | 100, both sizes |
+| Kanboard 1.2.57 as it ships (live) | | 35 and 44 failures on a phone | nothing moves |
+| `examples/kanboard/` (Kanboard redesigned) | 100, both sizes | pass | 100, both sizes |
+| DokuWiki as it ships (live) | | 11, 9 and 10 failures on a phone | nothing moves |
+| `examples/dokuwiki/` (DokuWiki redesigned) | 100, both sizes | pass, reading pages too | 100, both sizes |
+| `examples/chick-fil-a/` (study; the real app could not be photographed) | 100, both sizes | pass | 100, both sizes |
+| `dist/hvac`, `dist/restaurant` (the kit's client sites) | 100 phone, 98 desktop (one photo too small for 2x) | pass, with GSAP and Lenis loaded | |
 | `examples/podcast/index.html` (Earshot) | 100 | pass | |
 | `portal/app` (owner panel) | 100 | pass | |
 | `screens/` (recreations) | 74 to 92 | the originals' own tap sizes | |

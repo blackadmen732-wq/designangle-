@@ -9,8 +9,8 @@ The how-to is the skill: `.claude/skills/app-style/SKILL.md`.
 
 ```
 app-style.css         tokens (motion included), two grounds (.ui-dark, .ui-light), the parts
-app-icons.css         85 icons as CSS masks; edit tools/make-icons.py, not this
-screens/              seven recreations that line up with their reference frames
+app-icons.css         91 icons as CSS masks; edit tools/make-icons.py, not this
+screens/              eight recreations that line up with their reference frames
 examples/podcast/     Earshot: an original app built with the system as its test
 examples/tickets/     Trac 1.6 redesigned from its own data, with motion: the second test
 examples/kanboard/    Kanboard redesigned from its own data: a board, drag that springs
@@ -45,7 +45,7 @@ node tools/compare.js app-style/screens/maps-place.html .refs/maps.png   # only 
 | `dist/hvac`, `dist/restaurant` (the kit's client sites) | 100 phone, 98 desktop (one photo too small for 2x) | pass, with GSAP and Lenis loaded | |
 | `examples/podcast/index.html` (Earshot) | 100 | pass | |
 | `portal/app` (owner panel) | 100 | pass | |
-| `screens/` (recreations) | 80 to 92 | the originals' own tap sizes | |
+| `screens/` (recreations) | 64 to 92 (Gmail has no headline: her list starts at the search) | pass | |
 
 Trac scores well on unslop because it does not look AI-made; it looks old,
 and that is what the usability check fails it on.
@@ -54,4 +54,4 @@ The recreations keep the originals' own spacing, so they score lower on the
 grid: they are measurements, not new work. New work should score 100 and
 then be looked at, because the audit cannot see everything. And it should be
 put beside her nearest screen: the first Chick-fil-A study scored 100 on all
-three and still was not her style (`docs/research/her-five-redesigns.md`).
+three and still was not her style (`docs/research/her-redesigns.md`).

@@ -369,6 +369,50 @@
 .list-row p { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
 .list-row .circle .ic { --ic: 18px; }
 
+/* ---- what a row is, before it is opened (her Gmail) ------------------
+   A long list sits on flat white panels (.list-panel) over a cool grey,
+   grouped by what people scan for (.group-label: "This evening", and
+   .group-split above the next group). Each sender is a letter
+   in a colour circle (.mono, colour in --av) with a badge for the kind
+   of thing (.mono-kind: a photo, an order, a warning). What the row holds shows
+   at its end: photos as a thumbnail with a count (.thumb-n), a date as a
+   tile (.tile-date). Unread is ink with a dot (.dot-new); read is grey.
+   Low-value rows leave the list for one card with others stacked behind
+   it (.stacked). Measured on the last frame of her Gmail video. */
+.list-panel { background: var(--surface-solid); border-radius: var(--r-card) var(--r-card) 0 0; padding: 12px 16px 0; }
+.group-split { border-top: 1px solid var(--hair); }
+.group-label { padding: 8px 4px 4px; font-size: 15px; color: var(--ink-3); }
+.mono { position: relative; flex: none; width: 45px; height: 45px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--av, var(--fill-strong)); color: #fff; font-size: 20px; font-weight: 500; }
+.mono .ic { --ic: 22px; }
+.mono-kind { position: absolute; right: -4px; bottom: -4px; width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--surface-solid); color: var(--kind, var(--ink-3)); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
+.mono-kind .ic { --ic: 12px; }
+.dot-new { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--dot, #e5402e); }
+.thumb-n { position: relative; flex: none; width: 50px; height: 50px; }
+.thumb-n img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+.thumb-n b { position: absolute; right: -4px; bottom: -4px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface-solid); font-size: 11px; font-weight: 600; box-shadow: 0 0 0 2px var(--surface-solid); }
+.tile-date { flex: none; width: 52px; height: 52px; border-radius: 12px; display: grid; place-content: center; text-align: center;
+  background: var(--tile, #e8f0fe); color: var(--tile-ink, #1a62d6); line-height: 1; }
+.tile-date small { font-size: 12px; font-weight: 500; }
+.tile-date b { margin-top: 3px; font-size: 22px; font-weight: 500; }
+.stacked { position: relative; isolation: isolate; }
+.stacked::before, .stacked::after { content: ""; position: absolute; z-index: -1; left: 18px; right: 18px; top: -9px; height: 24px;
+  border-radius: var(--r-card) var(--r-card) 0 0; background: var(--surface-solid); opacity: .7; }
+.stacked::after { left: 36px; right: 36px; top: -17px; opacity: .45; }
+
+/* A floating pill of circles in place of a tab bar (her Gmail): smaller
+   than a dock, so more of the list shows; the current one dark. */
+.pill-bar { display: inline-flex; gap: 6px; padding: 5px; border-radius: 999px;
+  background: rgba(160, 162, 166, .55); -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4); }
+.pill-bar a { position: relative; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: rgba(120, 122, 126, .75); color: #fff;
+  transition: scale var(--t-press) var(--ease-out); }
+.pill-bar a:active { scale: .94; }
+.pill-bar a[aria-current] { background: #262626; }
+.pill-bar .ic { --ic: 21px; }
+.pill-bar .badge { position: absolute; top: -6px; right: -8px; }
+
 /* ---- rows that run off the edge: the cut card is the scroll cue ------- */
 .rail { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-inline: var(--gutter); scroll-padding-inline: var(--gutter); }
 .rail::-webkit-scrollbar { display: none; }

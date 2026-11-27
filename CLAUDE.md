@@ -16,8 +16,12 @@ redesign recordings, the parts in `app-style/`, the motion system, and the
 unslop and motion audits.
 
 To redesign an existing app or screen, follow `.claude/skills/app-redesign/`:
-the order of work and the traps four redesigns hit. For motion, the
-`animate` and `review-animations` skills (Emil Kowalski's, adapted).
+the order of work and the traps four redesigns hit. Before it, read
+`.claude/skills/redesign-eye/`: how the reference designer sees a screen,
+words each change (what changed, then what you get), and tells the story
+(read from six of her videos, `docs/research/her-redesigns.md`). For
+motion, the `animate` and `review-animations` skills (Emil Kowalski's,
+adapted).
 
 `DESIGN.md` holds the kit's own locked-in values (the exact tokens every
 client site uses). The skill is the method; DESIGN.md is this kit's instance
@@ -79,6 +83,7 @@ tools/slop.js         the unslop audit: 18 points, a score, the bottleneck
 tools/motion.js       the motion audit: durations, curves, layout animation, reduced motion
 tools/cdn.js          blocked CDN libraries served from npm, so the checks test the real page
 tools/photos.py       photos by Unsplash id: a contact sheet first, then fetch with credits
+tools/watch.py        a redesign video read: her words, a storyboard, the camera's moves
 tools/compare.js      a screen beside the reference frame it should match
 tools/critique.py     screenshot review on the user's NVIDIA credit
 docs/research/        the research the design decisions came from

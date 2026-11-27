@@ -15,8 +15,8 @@ applied in, and the checks that prove it worked.
 | Path | What it is |
 |---|---|
 | `app-style/app-style.css` | The system: tokens, two grounds, the components. Every value measured from the recordings, in iOS points. |
-| `app-style/app-icons.css` | 85 icons drawn as CSS masks (`<i class="ic ic-play-fill">`). Generated: edit `app-style/tools/make-icons.py`. |
-| `app-style/screens/` | Seven recreations of the redesigns (Netflix x2, Uber Eats, Maps, Airbnb, Starbucks, sign-in). Studies: read them to see the style used. |
+| `app-style/app-icons.css` | 91 icons drawn as CSS masks (`<i class="ic ic-play-fill">`). Generated: edit `app-style/tools/make-icons.py`. |
+| `app-style/screens/` | Eight recreations of the redesigns (Netflix x2, Uber Eats, Maps, Airbnb, Starbucks, Gmail, sign-in). Studies: read them to see the style used. |
 | `app-style/examples/podcast/` | Earshot, an original app designed with this skill as its test, and `ai-default.html`, the deliberately bad version both audits are proved on. Start from Earshot's structure, not from a recreation. |
 | `app-style/examples/tickets/` | A redesign of a real, ugly app (Trac 1.6) from its own data, light ground, phone and split desktop, with motion. The second test; start here for anything that moves. `img/before-after.webp` is the before and after. |
 | `app-style/examples/kanboard/` | Kanboard redesigned from its own data: a board, one column at a time on a phone, drag that springs into place. |
@@ -71,6 +71,12 @@ applied in, and the checks that prove it worked.
    - forms and choices: `.field`, `.seg-radio`, `.chip-radio`, `.choices`
      and `.choice`, `.switch`, `.tick`, `.stepper`; and `.badge`, `.sum`
    - reading: `.prose` for any long text, `.read-bar` for how far through
+   - a long list (her Gmail): `.list-panel` on a cool grey, `.group-label`
+     and `.group-split` (group by what people scan for), `.mono` and
+     `.mono-kind` (a letter in a colour circle, with a badge for the kind),
+     `.dot-new`, `.thumb-n` and `.tile-date` (what a row holds, at its end),
+     `.stacked` (low-value rows in one card), `.pill-bar` (circles in a
+     floating pill, in place of a tab bar)
    If a part is missing, build it in the page, then move it into
    `app-style.css` once it works, so the next screen has it.
 5. **Type**, as she sets it: 13 labels, 15 body, 17 names on cards, 22
@@ -98,7 +104,7 @@ applied in, and the checks that prove it worked.
    the ground colour, the title's size and weight, the gaps between blocks,
    how facts are shown. The audits measure AI tells, usability and motion,
    not likeness: the first Chick-fil-A study scored 100 on all three and
-   still did not look like her work. `docs/research/her-five-redesigns.md`
+   still did not look like her work. `docs/research/her-redesigns.md`
    has every step of her five videos and the twelve moves they share.
 
 ## Motion
@@ -242,7 +248,7 @@ headline where she sets 29, 40pt gaps where she leaves 16, categories in
 photos where she draws icons, sentences where she shows numbers. Each came
 from a rule in this skill or the system that had drifted from her frames,
 or was never measured. Her five videos were read step by step, narration
-and all (`docs/research/her-five-redesigns.md`), the rules above were put
+and all (`docs/research/her-redesigns.md`), the rules above were put
 back to her numbers, and the study rebuilt. Step 10 above is how the next
 screen avoids it.
 

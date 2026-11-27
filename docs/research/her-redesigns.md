@@ -1,10 +1,13 @@
-# Her five redesigns, step by step
+# Her redesigns, step by step
 
-November 2026. Five screen recordings by uidesignmahsa, each a 37 to 50
+November 2026. Six screen recordings by uidesignmahsa, each a 36 to 58
 second redesign of one screen of a well-known app: Google Maps, Airbnb,
-Uber Eats, Starbucks and Netflix. The app style (`app-style/`) was measured
-from these frames earlier; this is the other half, what she says she
-changed and why, so the reasons are kept along with the numbers.
+Uber Eats, Starbucks, Netflix and Gmail. The app style (`app-style/`) was
+measured from these frames earlier; this is the other half, what she says
+she changed and why, how she moves the camera and shows each change, and
+how the video itself is built, so the reasons and the method are kept along
+with the numbers. `.claude/skills/redesign-eye/` turns it into a way of
+working.
 
 ## How it was read
 
@@ -12,7 +15,9 @@ Her narration is in the videos as one word at a time, in a white pill at the
 right edge of the phone (and, during the intro, in white over her face).
 Audio models could not be fetched here, so the words were read off the
 frames: every frame at 10 per second, the caption region only, read with
-RapidOCR, kept where the word sits on a white pill, repeats merged. The
+RapidOCR, kept where the word sits on a white pill, repeats merged.
+`tools/watch.py` does all of this for the next video: the words, a
+storyboard, and the camera's moves. The
 intro was read the same way from its own region. Then each sentence was
 paired with three frames (as it starts, midway, as it ends) to see what
 changes while she says it. The storyboards and frames are her work and stay
@@ -92,9 +97,82 @@ heads.
 | 0:39 | "The tabs stay simple, and the episodes became [a] row you can swipe, with downloads and how far you got." | Episodes as a row of cards with a progress bar and a download icon each. |
 | 0:45 | "Before and after. Which app next?" | |
 
+## Gmail: the inbox (light, a grey ground with white panels)
+
+| Time | What she says | What changes on screen |
+|---|---|---|
+| 0:00 | "Let's redesign the Gmail inbox. This is it right now." | Her face under the title, "redesigning" in a bold sans over "Gmail" in an italic serif, the app's icon above. At 2.8s the inbox dissolves in over her face in 300ms. |
+| 0:04 | "Promotions sit right between your real emails." | The camera moves in on the list. A selection box marks the Promotions row, second in the list, between Sam and Square. |
+| 0:06 | "Every row looks the same, and the tab bar takes the whole strip at the bottom." | A cut, a slow push, then the camera moves to the bottom: a full-width bar of three icons, Compose floating over the last row. |
+| 0:11 | "Let's fix it, step by step." | The camera pulls back to the whole screen. |
+| 0:13 | "The search bar turns into soft glass, with your account right next to it." | One white bar with a shadow (menu, field and avatar inside it) becomes three parts: a grey circle with the menu, a soft grey pill field, the account as a blue circle beside it. Her action row, at the top. |
+| 0:17 | "Promotions move out of the list into their own stacked card. They never push your real mail down, and you still see how many are new." | The row leaves the list and becomes a white card at the top, with the edge of a second card showing behind it; the tag in a pale green circle; "4 new" as a pale green pill. |
+| 0:25 | "Emails are grouped by time, this evening and afternoon: you can catch up in a second, without any filter." | The list moves onto one white panel with rounded top corners; "This evening" and "Afternoon" in grey head each group. The star on every row is gone; a red dot before the time marks unread; read mail is grey. |
+| 0:31 | "Each sender gets a small icon for photos, orders or security: you know what it's about at a glance." | Every avatar becomes a letter in a colour circle (the Pinterest logo too), with a small white badge at its lower right: a picture, a parcel, a shield, a megaphone. |
+| 0:37 | "When someone sends photos, you see them right in the list, not just a file name." | The attachment chip (a file name) gives way to a photo thumbnail at the end of the row, with the count (3) on its corner. |
+| 0:42 | "When an order is on the way, a tiny calendar shows the delivery date." | "Expected by Tue, Jan 14" under the row becomes a pale blue tile at the end of it: Tue over 14. |
+| 0:46 | "And [the] tab bar becomes [a] small floating glass [pill]: [it] takes less space, you see more emails every time you open it." | The full-width bar becomes a dark glass pill of three circles at the lower left (mail with 99+, chat, video); Compose becomes a red circle with a pencil at the lower right; the list runs on under both. |
+| 0:53 | "Before and after. Which app next?" | The old inbox whole, then the new one, a cat reacting in a corner; "which app next?" with "next?" in the italic serif. |
+
+Measured on the last frame, in points: the ground a cool light grey
+(#f2f3f6) with flat white panels and cards on it, no shadow, radius about
+24, 8pt from the screen's edges; avatars 48 with a 20 badge; rows about 70
+tall; type 17 (the sender, heavier when unread), 15 (subject, preview, group
+labels), 13 (the time). Her light ground has two forms, then: shadowed
+cards on near-white for a page of cards (Uber Eats), flat white panels on a
+cool grey for a long list (Gmail).
+
+## How she moves, measured
+
+Her videos are edited, so the motion is the camera and the changes, not an
+app running. Measured on the Gmail video, 30 frames a second, by following
+the screen's box and how much of it changes from frame to frame
+(`python3 tools/watch.py motion <video>`):
+
+- **The camera holds still while she names the screen,** at the start and
+  at the end, and moves in on each part as she talks about it: to about
+  1.2 times, in 600ms (17 to 20 frames), on an S-curve (10% of the way at
+  200ms, 90% at about 500ms). Then it holds, 3.5 to 6 seconds, while she
+  speaks. Between two framings it sometimes cuts instead of moving; while
+  holding, it sometimes pushes in slowly.
+- **A selection box comes first.** A thin blue box (the design tool's own)
+  and her cursor mark the part before it changes, so the eye is there
+  already.
+- **Each change is a dissolve in place,** 250 to 300ms (8 or 9 frames): the
+  old part fades as the new one appears where it was. Nothing slides. A
+  part that is only added (the "This evening" label) fades in.
+- **One word at a time,** in a white pill at the right edge of the phone,
+  never over what is being changed: 3 to 4 words a second, bold black sans.
+  The last line sets "next?" in the italic serif of the title.
+- **A countdown** at the top right, from the video's length to 0:00.
+
+In the apps themselves, the motion she designs has a job each time: the
+page slides over the trailer and blurs it (Netflix); the photo opens the
+page edge to edge (Maps, Airbnb); the chrome floats so the content runs
+under it (Gmail, Uber Eats).
+
+## How the video is built
+
+The same six beats in every one, 36 to 58 seconds in all:
+
+1. **The hook (0 to 3s).** Her face, "redesigning" over the app's name, its
+   icon. An app everyone uses, so everyone already has an opinion.
+2. **The problem (3 to 10s).** "This is it right now," and one or two pains
+   in the words a user would use: "Promotions sit right between your real
+   emails." The camera on each.
+3. **The promise.** "Let's fix it, step by step."
+4. **The changes,** four to seven, one every 4 to 6 seconds, from the top of
+   the screen down, the main action last. Each sentence says what changed,
+   then what you get: "you know what it's about at a glance".
+5. **The payoff.** "Before": the old screen whole. "And after": the new
+   one whole. A reaction (the cat) for a laugh.
+6. **The ask.** "Which app next?" The comments choose the next video: it is
+   a series, and the audience is in it.
+
 ## Her playbook
 
-The same moves run through all five. Each is in at least two videos.
+The same moves run through all six. Each is in at least two videos, except
+where marked.
 
 1. **What you came for is the headline.** The place (Maps, Airbnb), where
    the order is going (Uber Eats), the balance (Starbucks), the show
@@ -122,6 +200,22 @@ The same moves run through all five. Each is in at least two videos.
 11. **Cut what does not help the choice:** "Saved to Menlo Park", the
     ranking note, the printed offers, the long list.
 12. **Motion with a job:** the page slides over the media and blurs it.
+13. **Keep the noise out of the way of the real thing:** promotions leave
+    the inbox for one stacked card that still shows how many are new
+    (Gmail); "Saved to Menlo Park" goes (Airbnb).
+14. **Group by what people scan for:** by time, "This evening",
+    "Afternoon", so catching up needs no filter (Gmail).
+15. **Show what it is before it is opened:** a badge on each sender for the
+    kind of mail; photos as a thumbnail with a count; a delivery date as a
+    calendar tile (Gmail); prices on the card (Maps, Uber Eats).
+16. **One bar becomes circle, pill, circle:** the search bar splits into a
+    menu circle, a soft pill field and the account circle (Gmail), the same
+    shape as her action rows.
+17. **Shrink the chrome so the content grows:** the tab bar becomes a
+    floating pill and Compose a circle (Gmail); the dock floats (Uber
+    Eats).
+18. **Calm what repeats:** no star on every row, logos made letters in
+    colour circles, read mail grey and unread in ink with a dot (Gmail).
 
 ## The Chick-fil-A study against her
 
@@ -154,7 +248,14 @@ missing from the method; it is in the app-redesign and app-style skills now.
 - `app-style.css`: section heads at 22pt and 400 with a `.go` arrow circle;
   `--space-block` (16) and `--space-sec` (28) with `.sec`; a blurred
   backdrop behind every sheet, and a lighter dim on light.
-- `app-icons.css`: sandwich, drumstick, fries, salad and drink.
+- `app-icons.css`: sandwich, drumstick, fries, salad and drink; then, for
+  Gmail, image, shield, megaphone, video, person and a filled tag.
+- Her Gmail moves, as parts: `.list-panel`, `.group-label`, `.group-split`,
+  `.mono` with `.mono-kind`, `.dot-new`, `.thumb-n`, `.tile-date`,
+  `.stacked` and `.pill-bar`, proved by rebuilding her last frame
+  (`app-style/screens/gmail-inbox.html`, every row within 2pt).
+- `tools/watch.py` reads the next video: her words, a storyboard, the
+  camera. `.claude/skills/redesign-eye/` is how she thinks, as a skill.
 - `tools/slop.js`: two thresholds were stricter than her own screens (the
   title 1.6 times the section heads, 2.2 times the body). Her Uber Eats
   title is 1.35 and 1.9. Calibrated to her; the deliberately bad page still

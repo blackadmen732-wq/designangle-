@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="design-check" content="gutter 8: the cards sit 8pt from the screen's edges, measured from the original frame">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gmail Inbox Study</title>
+<!-- A study of the Gmail inbox redesign by uidesignmahsa, rebuilt from the
+     last frame of her video to prove the system reproduces it, and to give
+     the system her list parts (.list-panel, .group-label, .group-split,
+     .mono, .mono-kind, .dot-new, .thumb-n, .tile-date, .stacked, .pill-bar). Names and mail are
+     hers, from the video; brand names belong to their owners; the photo is
+     the kit's own free-licence stock. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../app-style.css">
+<link rel="stylesheet" href="../app-icons.css">
+<style>
+  body { margin: 0; }
+  /* Her colours, except four darkened just enough for white letters to reach
+     4.5:1: Square #2b9751, Pinterest #f6171d, Vercel #dc5183, the badge #e5402e. */
+  .gm { --page: #f2f3f6; --ink: #1f1f1f; --ink-3: #686b6d; --hair: #f0f0f0; }
+  /* The top is frosted: a grey that clears into the page behind the search. */
+  .gm-glass { position: absolute; inset: 0 0 auto 0; height: 236px; background: linear-gradient(to bottom, #b6b7ba 0, #c2c3c6 70px, #d6d7da 130px, #e8e9ec 180px, #f2f3f6 236px); }
+  .gm-top { position: absolute; left: 11px; right: 11px; top: 58px; display: flex; align-items: center; gap: 4px; }
+  .gm-top .circle { width: 45px; height: 45px; background: rgba(255, 255, 255, .18); color: #3b3d40; }
+  .gm-search { flex: 1; height: 45px; border-radius: 999px; display: flex; align-items: center; padding-left: 16.5px; background: rgba(255, 255, 255, .18); font-size: 17px; color: #6b6d70; }
+  .gm-me { flex: none; margin-left: 7px; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: #0e57ba; color: #fff; font-size: 20px; box-shadow: 0 0 0 4px rgba(255, 255, 255, .3); }
+  .gm-promo { position: absolute; left: 8px; right: 8px; top: 142.5px; height: 67.5px; border-radius: 24px; background: rgba(255, 255, 255, .5); display: flex; align-items: center; gap: 12.5px; padding: 0 15px 0 14.5px; }
+  .gm-promo.stacked::before, .gm-promo.stacked::after { background: rgba(255, 255, 255, .32); opacity: 1; }
+  .gm-promo .tag-c { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #dce8e0; color: #0b6b35; }
+  .gm-promo .tag-c .ic { --ic: 20px; }
+  .gm-promo b { display: block; font-size: 16px; font-weight: 600; }
+  .gm-promo .txt span { display: block; margin-top: 2px; font-size: 14.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gm-promo .txt { flex: 1; min-width: 0; }
+  .gm-new { flex: none; height: 24px; padding: 0 10.5px; border-radius: 999px; display: grid; place-items: center; background: #e1ebe3; color: #1d6b38; font-size: 14.5px; font-weight: 600; }
+  .gm-list { position: absolute; left: 8px; right: 8px; top: 220px; bottom: 0; overflow: hidden; padding: 10px 0 0; }
+  .gm-list .group-label { padding: 0 0 0 20.5px; height: 24px; line-height: 24px; font-size: 14.5px; }
+  .gm-row { display: flex; align-items: center; gap: 12.5px; height: 84px; padding: 0 15px 0 15.5px; }
+  .gm-row .txt { flex: 1; min-width: 0; }
+  .gm-row .line { display: flex; align-items: center; gap: 8px; }
+  .gm-row .from { flex: 1; min-width: 0; font-size: 16px; font-weight: 600; }
+  .gm-row time { font-size: 14px; font-variant-numeric: tabular-nums; }
+  .gm-row .subj, .gm-row .prev { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gm-row .subj { margin-top: 3px; font-size: 15.5px; }
+  .gm-row .prev { margin-top: 2px; font-size: 14.5px; color: var(--ink-3); }
+  .gm-row.read .from { font-weight: 400; }
+  .gm-row.read :is(.from, time, .subj) { color: var(--ink-3); }
+  .gm-split { margin: 2px 0 0; padding-top: 9px; }
+  .gm-bar { position: absolute; z-index: 25; left: 25px; top: 765px; }
+  .gm-bar .badge { top: -7px; right: -11px; min-width: 30px; height: 18px; padding-inline: 5px; background: #d43b2a; color: #fff; font-size: 11px; box-shadow: none; }
+  .gm-compose { position: absolute; z-index: 25; left: 317.5px; top: 768.5px; width: 47.5px; height: 47.5px; border-radius: 50%; display: grid; place-items: center; background: #d63923; color: #fff; box-shadow: 0 0 0 4px rgba(255, 255, 255, .35), 0 8px 20px rgba(200, 40, 20, .25); }
+  .gm-compose .ic { --ic: 22px; }
+</style>
+</head>
+<body>
+<div class="ui ui-light ui-phone gm">
+  <div class="gm-glass"></div>
+  <div class="ui-status"><span>9:41</span><span class="ui-status-icons"><i class="ic ic-signal"></i><i class="ic ic-wifi"></i><i class="ic ic-battery"></i></span></div>
+  <div class="ui-island"></div>
+
+  <div class="gm-top">
+    <button class="circle" aria-label="Filters"><i class="ic ic-sliders"></i></button>
+    <label class="gm-search">Search in mail</label>
+    <button class="gm-me" aria-label="Your account">A</button>
+  </div>
+
+  <a class="gm-promo stacked" aria-label="Promotions, 4 new">
+    <span class="tag-c"><i class="ic ic-tag-fill"></i></span>
+    <span class="txt"><b>Promotions</b><span>MasterClass: Congrats on finishing...</span></span>
+    <span class="gm-new">4 new</span>
+  </a>
+
+  <div class="gm-list list-panel">
+    <p class="group-label">This evening</p>
+    <div class="gm-row">
+      <span class="mono" style="--av:#017140">S<span class="mono-kind"><i class="ic ic-image"></i></span></span>
+      <div class="txt"><div class="line"><span class="from">Sam</span><span class="dot-new"></span><time>6:11 PM</time></div>
+        <p class="subj">Photos from my trip!</p><p class="prev">Hey Alex, I hope you're doing well...</p></div>
+      <span class="thumb-n"><img src="../../sites/hvac/img/house.webp" alt=""><b>3</b></span>
+    </div>
+    <div class="gm-row read">
+      <span class="mono" style="--av:#258447">S</span>
+      <div class="txt"><div class="line"><span class="from">Square</span><time>5:43 PM</time></div>
+        <p class="subj">Your Square account has been deactivated</p><p class="prev">Your Square account has been deactivated d...</p></div>
+    </div>
+    <div class="gm-row">
+      <span class="mono" style="--av:#e3e7ea; color:#5f6368"><i class="ic ic-person"></i><span class="mono-kind" style="--kind:#1a62d6"><i class="ic ic-cube"></i></span></span>
+      <div class="txt"><div class="line"><span class="from">Under Armour</span><span class="dot-new"></span><time>1:23 PM</time></div>
+        <p class="subj">Order confirmation for UA</p><p class="prev">Thanks for your order. We will let y...</p></div>
+      <span class="tile-date"><small>Tue</small><b>14</b></span>
+    </div>
+    <div class="gm-split group-split"><p class="group-label">Afternoon</p></div>
+    <div class="gm-row">
+      <span class="mono" style="--av:#e7151b">P<span class="mono-kind" style="--kind:#d93a24"><i class="ic ic-shield"></i></span></span>
+      <div class="txt"><div class="line"><span class="from">Pinterest</span><span class="dot-new"></span><time>10:47 AM</time></div>
+        <p class="subj">Pinterest account security alert: New de...</p><p class="prev">A new device logged in to your Pinterest acc...</p></div>
+    </div>
+    <div class="gm-row">
+      <span class="mono" style="--av:#c54875">V<span class="mono-kind"><i class="ic ic-megaphone"></i></span></span>
+      <div class="txt"><div class="line"><span class="from">Vercel</span><span class="dot-new"></span><time>9:53 AM</time></div>
+        <p class="subj">Vercel December Product Update</p><p class="prev">Reduced prices, Observability and One click...</p></div>
+    </div>
+    <div class="gm-row">
+      <span class="mono" style="--av:#8740d2">G</span>
+      <div class="txt"><div class="line"><span class="from">Google One</span><span class="dot-new"></span><time>9:01 AM</time></div>
+        <p class="subj">Get more out of your storage with Googl...</p><p class="prev">Make the most of this month with your Google...</p></div>
+    </div>
+  </div>
+
+  <nav class="pill-bar gm-bar" aria-label="Main">
+    <a aria-current="page" aria-label="Mail, 99+ unread"><i class="ic ic-mail"></i><span class="badge">99+</span></a>
+    <a aria-label="Chat"><i class="ic ic-chat"></i></a>
+    <a aria-label="Meet"><i class="ic ic-video"></i></a>
+  </nav>
+  <button class="gm-compose" aria-label="Compose"><i class="ic ic-pencil"></i></button>
+  <div class="ui-home-bar"></div>
+</div>
+</body>
+</html>

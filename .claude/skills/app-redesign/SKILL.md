@@ -36,7 +36,10 @@ a client fact.
 
 At the top of the page: the job, the one thing, what was cut, the ground,
 the accent, what each reported problem becomes, and the motion. Tickets,
-Chick-fil-A, Kanboard and DokuWiki each start with one.
+Chick-fil-A, Kanboard and DokuWiki each start with one. Find the problems
+with the questions in the `redesign-eye` skill, and word each answer as
+she does: what changed, then what you get ("you can choose without opening
+each one"); if the second half will not come, the change is decoration.
 
 ## 4. Build only from the system, and grow the system
 
@@ -77,7 +80,7 @@ same ground (`app-style/screens/`), at the same size, and compare four
 things: the ground colour, the title's size and weight, the gaps between
 blocks, and how facts are shown (numbers over labels, or sentences). The
 first Chick-fil-A study scored 100 on all three audits and missed all four.
-`docs/research/her-five-redesigns.md` has what she changes in each of her
+`docs/research/her-redesigns.md` has what she changes in each of her
 five videos, and why, in her words.
 
 ## The traps the four tests hit

@@ -15,7 +15,7 @@ applied in, and the checks that prove it worked.
 | Path | What it is |
 |---|---|
 | `app-style/app-style.css` | The system: tokens, two grounds, the components. Every value measured from the recordings, in iOS points. |
-| `app-style/app-icons.css` | 71 icons drawn as CSS masks (`<i class="ic ic-play-fill">`). Generated: edit `app-style/tools/make-icons.py`. |
+| `app-style/app-icons.css` | 85 icons drawn as CSS masks (`<i class="ic ic-play-fill">`). Generated: edit `app-style/tools/make-icons.py`. |
 | `app-style/screens/` | Seven recreations of the redesigns (Netflix x2, Uber Eats, Maps, Airbnb, Starbucks, sign-in). Studies: read them to see the style used. |
 | `app-style/examples/podcast/` | Earshot, an original app designed with this skill as its test, and `ai-default.html`, the deliberately bad version both audits are proved on. Start from Earshot's structure, not from a recreation. |
 | `app-style/examples/tickets/` | A redesign of a real, ugly app (Trac 1.6) from its own data, light ground, phone and split desktop, with motion. The second test; start here for anything that moves. `img/before-after.webp` is the before and after. |
@@ -43,18 +43,29 @@ applied in, and the checks that prove it worked.
 2. **Choose the ground by the product.** Dark (`.ui-dark`) when people use
    it at night or the content carries the colour: media, maps, rewards,
    anything photographic. Light (`.ui-light`) for shopping, food delivery,
-   documents, daylight work. Never by habit.
+   documents, daylight work. Never by habit. The two are composed
+   differently: on dark the photo opens the page edge to edge; on light
+   (her Uber Eats) the page stays white, `#f8f8f5` with white cards, and
+   the photos live inside the cards. Do not warm the light ground: the
+   first Chick-fil-A study did, and read as beige.
 3. **One accent, spent on what is live or primary.** The progress, the
    current tab, the main circle. The main button is a white pill on dark and
    a dark pill on light, not the accent. Never purple or indigo.
 4. **Compose from the parts**, in this order of importance:
-   - the hero: `.hero` (photo, graded and faded) or blurred real artwork
-     behind the top; one huge thing (`.t-mega` for a number, 36-48pt for a
-     title)
+   - the headline: what the person came for (the place, the balance, the
+     address, the show), at `.t-title` (29pt, 400); 44-48pt only over a
+     full-screen photo on dark; `.t-mega` when the number is the point.
+     On dark, `.hero` (photo, graded and faded) or blurred real artwork
+     behind the top
    - `.actions` with one `.pill` and `.circle.lg` beside it, same height
-   - `.sec-head`, `.list` and `.list-row`, `.cover.sm/.md/.lg`, `.rail`
-   - `.card`, `.stats`, `.tags`/`.tag` (information), `.chips`/`.chip`
-     (filters; the selected one inverts), `.segmented`, `.tabs-line`
+   - `.sec-head` (22pt at 400, two tones, `.go` arrow circle), `.list` and
+     `.list-row`, `.cover.sm/.md/.lg`, `.rail`
+   - `.card`, `.stats` (facts as numbers over small labels, side by side:
+     she never writes a sentence where a number will do), `.tags`/`.tag`
+     (information), `.chips`/`.chip` (filters; the selected one inverts),
+     `.segmented`, `.tabs-line`
+   - categories as line icons in white squares, never as pictures (her
+     Uber Eats: "clean icons you can scan in one look")
    - `.dock` with `.dock-bar` and `.dock-fab`, or `.thumb-cta` for one
      floating action
    - forms and choices: `.field`, `.seg-radio`, `.chip-radio`, `.choices`
@@ -62,11 +73,18 @@ applied in, and the checks that prove it worked.
    - reading: `.prose` for any long text, `.read-bar` for how far through
    If a part is missing, build it in the page, then move it into
    `app-style.css` once it works, so the next screen has it.
-5. **Type**: 13, 15, 17, 20-22, 29, 36-48, and 132 for one number. Six sizes
-   at most on a screen. 400 and 500 for anything large, 600 for buttons and
-   short labels, 200 only for the one huge number. Headings in two tones:
-   the same size and weight, the second half in `.dim`.
-6. **Spacing on the 4pt grid. Three radii** from 12, 16, 20, 24, plus round.
+5. **Type**, as she sets it: 13 labels, 15 body, 17 names on cards, 22
+   section heads, 29 the screen's title; 44-48 only over a full-screen
+   photo on dark; 131 for one number. Five or six sizes on a screen. 400
+   for anything large (500 only for 17pt names), 600 for buttons and short
+   labels, 200 only for the one huge number. Headings in two tones: the
+   same size and weight, the second half in `.dim`.
+6. **Spacing on the 4pt grid, and tight:** blocks `--space-block` (16pt)
+   apart, a new section `--space-sec` (28pt) below the last, a section head
+   16pt above what it heads: measured on her light screen. The white
+   between blocks separates them, not distance; website spacing (96pt
+   sections) does not belong in an app. **Three radii** from 12, 16, 20,
+   24, plus round.
 7. **Real imagery.** The product's own photos or artwork. On dark, graded to
    about 70% brightness; on light, lifted a little (`brightness(1.1)`) so it
    fades into the page. Behind a hero, a blurred copy of the real image,
@@ -75,6 +93,13 @@ applied in, and the checks that prove it worked.
    itself (tickets example, ticket 10).
 8. **Motion last, and only where it has a job.** Below.
 9. **Check, then look, then watch.** Below.
+10. **Then put it beside her nearest screen,** the recreation in
+   `app-style/screens/` on the same ground, at the same size, and compare
+   the ground colour, the title's size and weight, the gaps between blocks,
+   how facts are shown. The audits measure AI tells, usability and motion,
+   not likeness: the first Chick-fil-A study scored 100 on all three and
+   still did not look like her work. `docs/research/her-five-redesigns.md`
+   has every step of her five videos and the twelve moves they share.
 
 ## Motion
 
@@ -211,6 +236,16 @@ random from 24). What got in the way, and what changed:
   fallback hit the account's usage limit. The checks above do not depend
   on it.
 
+The fourth test was a person looking. The Chick-fil-A study passed all
+three audits and was still not her style: beige where she is white, a 36pt
+headline where she sets 29, 40pt gaps where she leaves 16, categories in
+photos where she draws icons, sentences where she shows numbers. Each came
+from a rule in this skill or the system that had drifted from her frames,
+or was never measured. Her five videos were read step by step, narration
+and all (`docs/research/her-five-redesigns.md`), the rules above were put
+back to her numbers, and the study rebuilt. Step 10 above is how the next
+screen avoids it.
+
 The third test redesigned three more, with only what the repo had: a
 Chick-fil-A study (the real app could not be photographed here), Kanboard
 and DokuWiki (both run, photographed and audited). Each passes all three
@@ -234,8 +269,9 @@ was missing, and what was found or built:
 - **The library found for lists broke the rules** (height, ease-in). Kept,
   with our keyframes.
 - **The light ground had never carried an original screen.** It works with
-  a warm off-white page, a photo lifted to fade into it, and white cards
-  with a soft shadow; the accent becomes urgency, so focus is drawn in ink.
+  her near-white page (`#f8f8f5`, not warmer), white cards with a soft
+  shadow, and the photos inside the cards; the accent becomes urgency, so
+  focus is drawn in ink.
 - **Only phone layouts.** The tickets example is a split view from 1024px:
   list and ticket side by side, one headline leading (the unslop audit
   failed two equal 36px headings).

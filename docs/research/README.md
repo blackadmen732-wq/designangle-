@@ -26,5 +26,11 @@ quota mid-task.
 Vercel's interface guidelines, Apple's fluid-interfaces talk and the
 auto-animate library, each marked KEPT, CHECKED or LEFT with the reason.
 
+**her-five-redesigns.md** (Nov 2026) — every step of uidesignmahsa's five
+redesign videos (Google Maps, Airbnb, Uber Eats, Starbucks, Netflix): her
+narration, read off the frames, beside what changes on screen; the twelve
+moves they share; and the first Chick-fil-A study measured against them,
+with what it missed and why.
+
 Both earlier reports state their own limits. Prices and library versions move, so re-check any
 figure at its source before quoting it to a client.

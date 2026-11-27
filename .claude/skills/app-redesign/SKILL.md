@@ -69,6 +69,17 @@ Then open the screenshots and the filmstrips, then record a run-through
 (Playwright `recordVideo`, then `ffmpeg` to mp4 or gif) and watch it all the
 way through. Then put the before and after side by side, at both sizes.
 
+## 7. Then put it beside her
+
+The audits measure AI tells, usability and motion. None of them measures
+likeness. Put the screen beside the recreation of her nearest screen on the
+same ground (`app-style/screens/`), at the same size, and compare four
+things: the ground colour, the title's size and weight, the gaps between
+blocks, and how facts are shown (numbers over labels, or sentences). The
+first Chick-fil-A study scored 100 on all three audits and missed all four.
+`docs/research/her-five-redesigns.md` has what she changes in each of her
+five videos, and why, in her words.
+
 ## The traps the four tests hit
 
 Each of these passed some check first; most are now caught by one.
@@ -93,3 +104,14 @@ Each of these passed some check first; most are now caught by one.
 - **Scroll-snap ignores padding** unless told `scroll-padding`.
 - **Escaping twice** turns "client's" into "client&#039;s".
 - **A red that means "late" is a second hue.** Say it in weight.
+- **A rule that drifted from her frames.** "A warm off-white page", "36-48pt
+  for a title" and a 20pt bold section head were all in the skill or the
+  system, and none was hers: her light page is `#f8f8f5`, her titles 29pt
+  at 400, her section heads 22pt at 400. Check a rule against the
+  recreations before building on it.
+- **Website habits in an app.** Sections 40pt apart and a photo across the
+  top of a light screen come from the kit's sites. Her light screen keeps
+  blocks 16pt apart and the food inside the cards.
+- **A picture where she draws an icon.** Categories in photo circles are
+  the very thing she replaced in Uber Eats. If the icon is missing, draw it
+  in `make-icons.py`.

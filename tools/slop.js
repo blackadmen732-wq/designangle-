@@ -228,7 +228,10 @@ function audit() {
   const bodySize = (() => { const c = {}; textEls.forEach((el) => { const s = Math.round(parseFloat(getComputedStyle(el).fontSize)); c[s] = (c[s] || 0) + ownText(el).length; }); return +Object.entries(c).sort((a, b) => b[1] - a[1])[0]?.[0] || 16; })();
   const ratio = sizes.length ? sizes[sizes.length - 1] / bodySize : 1;
   const near = sizes.filter((s, i) => i && s - sizes[i - 1] === 1).length;
-  add(12, 'Type hierarchy', sizes.length > 9 || ratio < 1.6 ? 'fail' : sizes.length > 7 || ratio < 2.2 || near > 2 ? 'warn' : 'pass',
+  // Calibrated on the reference: her Uber Eats title is 1.9x the body, and
+  // 1.35x the section heads (13). The first thresholds (2.2 and 1.6) were
+  // guesses that marked her own screens down.
+  add(12, 'Type hierarchy', sizes.length > 9 || ratio < 1.6 ? 'fail' : sizes.length > 7 || ratio < 1.9 || near > 2 ? 'warn' : 'pass',
     `${sizes.length} sizes (${sizes.join(', ')}); largest is ${ratio.toFixed(1)}x the body (${bodySize}px)${near ? `; ${near} pair(s) only 1px apart` : ''}`);
 
   // 13. Visual priority: one thing clearly first on the first screen
@@ -242,7 +245,7 @@ function audit() {
   const seen = new Map(), twice = new Set();
   vis.filter((el) => firstScreen(el) && !el.closest('nav, li, [role=listitem], .list-row, button, a, [role=button], [role=tab], [aria-hidden="true"]') && ownText(el).length >= 6).forEach((el) => {
     const t = ownText(el).toLowerCase(); if (seen.has(t) && !seen.get(t).contains(el) && !el.contains(seen.get(t))) twice.add(ownText(el)); else seen.set(t, el); });
-  add(13, 'Visual priority', lead < 1.25 ? 'fail' : lead < 1.6 || filledFirst > 1 || twice.size ? 'warn' : 'pass',
+  add(13, 'Visual priority', lead < 1.2 ? 'fail' : lead < 1.3 || filledFirst > 1 || twice.size ? 'warn' : 'pass',
     `the biggest text is ${lead === 9 ? 'alone' : lead.toFixed(2) + 'x the next'}${hero ? ` ("${headline.slice(0, 28)}", ${hero.size}px)` : ''}; ${filledFirst} filled button(s) on the first screen${twice.size ? `; said twice: ${[...twice].slice(0, 3).map((t) => `"${t.slice(0, 24)}"`).join(', ')}` : ''}`);
 
   // 14. Corner radius: a few radii, used consistently; inner smaller than outer

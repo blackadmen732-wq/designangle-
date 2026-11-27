@@ -37,6 +37,8 @@
   --r-card-xl: 32px;        /* rating cards and host rows: nearly a capsule */
   --r-tile: 18px;
   --r-media: 18px;
+  --space-block: 16px;      /* between blocks in a section */
+  --space-sec: 28px;        /* above a section head */
   --ease: var(--ease-out);
   font-family: var(--font);
   /* The display cut at every size, as the designs were drawn (SF Pro Display
@@ -330,11 +332,22 @@
   background: linear-gradient(to top, var(--page) 38%, transparent);
 }
 
-/* ---- section heads: a title, and one quiet action on the right -------- */
+/* ---- section heads: a title, and one quiet way in on the right --------
+   Measured: "Featured on Uber Eats" and Starbucks' "Rewards menu" are 21.5pt
+   at 400, the second half grey, 16pt above what they head; the way in is a
+   36pt circle with an arrow (.go), not a "See all" link. */
 .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
-.sec-head h2 { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+.sec-head h2 { font-size: 22px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; }
 .sec-head a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: flex-end; font-size: 15px; color: var(--ink-3); }
 .sec-head a:hover { color: var(--ink); }
+.sec-head .go { position: relative; flex: none; width: 36px; height: 36px; min-width: 0; min-height: 0; border-radius: 50%;
+  display: grid; place-items: center; background: var(--fill); color: var(--ink); }
+.sec-head .go::after { content: ""; position: absolute; inset: -4px; }
+.sec-head .go .ic { --ic: 19px; }
+/* The rhythm, measured on her light screens: blocks 16pt apart, a new
+   section 28pt below the last (26 to 30.5 in the frames). Tight: the white
+   between blocks is what separates them, not distance. */
+.sec { margin-top: var(--space-sec); }
 
 /* ---- cover art: a real image, square, with an optional name on it ------ */
 .cover { position: relative; display: block; flex: none; overflow: hidden; background: var(--surface-solid); }
@@ -387,10 +400,14 @@
 }
 .sheet:not([open]) { translate: 0 100%; transition-duration: var(--t-enter); transition-timing-function: var(--ease-out); }
 @starting-style { .sheet[open] { translate: 0 100%; } }
+/* What is behind a sheet blurs, as in the Netflix redesign ("the page slides
+   over the trailer and blurs it in the back"); on light, a lighter dim, so
+   a white page does not turn grey. */
 .sheet::backdrop {
-  background: rgba(10, 12, 10, .36);
+  background: rgba(10, 12, 10, .36); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   transition: opacity var(--t-enter) var(--ease-out), display var(--t-enter) allow-discrete, overlay var(--t-enter) allow-discrete;
 }
+.ui-light .sheet::backdrop { background: rgba(12, 14, 11, .2); }
 .sheet:not([open])::backdrop { opacity: 0; }
 @starting-style { .sheet[open]::backdrop { opacity: 0; } }
 .sheet-grip { display: grid; place-items: center; height: 28px; margin-inline: calc(-1 * var(--gutter)); cursor: grab; touch-action: none; }

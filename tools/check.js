@@ -190,15 +190,29 @@ function audit({ phone }) {
       // What counts is where a press lands: a control can look 36px tall and
       // still catch presses over 44 (a ::before or ::after hit area, the
       // native way to keep a small look). Probe 44px around its centre.
-      const reach = (w, h) => {
-        const cx = r.left + r.width / 2, cy = r.top + r.height / 2, hw = w / 2 - 1, hh = h / 2 - 1;
+      const reach = (w, h, rr = r) => {
+        const cx = rr.left + rr.width / 2, cy = rr.top + rr.height / 2, hw = w / 2 - 1, hh = h / 2 - 1;
         return [[cx, cy - hh], [cx, cy + hh], [cx - hw, cy], [cx + hw, cy]].every(([x, y]) => {
           if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return true;
           const hit = document.elementFromPoint(x, y); return hit && (hit === el || el.contains(hit));
         });
       };
       const tooSmall = r.width < min - 0.5 || r.height < min - 0.5;
-      if (!inSentence && r.width > 2 && r.height > 2 && tooSmall && !(r.top >= 0 && r.bottom <= innerHeight && reach(Math.max(r.width, min), Math.max(r.height, min)))) {
+      // A control below the fold, or under a floating dock as the page
+      // loads, cannot be probed where it is: bring it to the middle of the
+      // screen, probe, and put every scroll back as it was.
+      const reachCentred = (w, h) => {
+        if (r.top >= 0 && r.bottom <= innerHeight && reach(w, h)) return true;
+        const kept = []; for (let a = el.parentElement; a; a = a.parentElement) kept.push([a, a.scrollLeft, a.scrollTop]);
+        const sx = scrollX, sy = scrollY;
+        el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' });
+        const r2 = el.getBoundingClientRect();
+        const ok = r2.top >= 0 && r2.bottom <= innerHeight && reach(w, h, r2);
+        for (const [a, x, y] of kept) { a.scrollLeft = x; a.scrollTop = y; }
+        scrollTo({ left: sx, top: sy, behavior: 'instant' });
+        return ok;
+      };
+      if (!inSentence && r.width > 2 && r.height > 2 && tooSmall && !reachCentred(Math.max(r.width, min), Math.max(r.height, min))) {
         small.set(name(el), `${Math.round(r.width)}x${Math.round(r.height)}px`);
       }
       if (phone && el.matches('input, select, textarea') && parseFloat(cs.fontSize) < 16) {

@@ -34,7 +34,7 @@ short questions, each with a suggested answer); do not guess. Why:
 | A phone app screen | `.claude/skills/app-style/SKILL.md` | `app-style/styles/` when the brief wants a tool, not a brand |
 | Redesigning an existing app or screen | `.claude/skills/app-redesign/SKILL.md` | `.claude/skills/redesign-eye/SKILL.md`, to brief and present it her way |
 | The owner panel, the database, the edge functions | `portal/CLAUDE.md` | the app-style skill, for the panel's screens |
-| Motion | `.claude/skills/animate/SKILL.md` | `.claude/skills/review-animations/SKILL.md`, to critique it |
+| Motion | `app-style/recipes/README.md` for tested interaction recipes (expand, menu, sheet, modal, steps, cart, undo, reflow, states); `.claude/skills/animate/SKILL.md` | `.claude/skills/review-animations/SKILL.md`, to critique it |
 | Any other screen | `.claude/skills/design/SKILL.md` | |
 
 The design skill is the method under all of them: the order of work, the type,

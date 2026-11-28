@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platform" content="desktop">
+<title>Recipe: Bottom sheet, drag to dismiss</title>
+<link rel="stylesheet" href="../recipes.css"></head>
+<body><main>
+<h1>Bottom sheet, drag to dismiss</h1><p class="why">The sheet rises from the bottom edge. A flick or a drag past a third of its height closes it; dragging up resists.</p>
+<button class="primary" id="open">Filter</button>
+<dialog class="sheet" id="sheet"><div class="sheet-grip" style="height:24px;cursor:grab"><div style="width:40px;height:5px;border-radius:3px;background:#d6d3d1;margin:0 auto"></div></div>
+<h2>Filter</h2><p>Price, size and colour would go here.</p><button data-close>Done</button></dialog>
+<style>dialog.sheet{margin:auto auto 0;width:100%;max-width:520px;border-radius:18px 18px 0 0;transform:translateY(var(--drag,0px));transition:transform var(--t-sheet) var(--spring-sheet)}
+dialog.sheet[open]{animation:sheet-in var(--t-sheet) var(--spring-sheet)}@keyframes sheet-in{from{transform:translateY(100%)}}
+@media (prefers-reduced-motion: reduce){dialog.sheet[open]{animation:none}}</style>
+</main>
+<script type="application/json" id="motion-tour">[{"click": "#open", "why": "rises from the bottom"}, {"click": "#sheet [data-close]", "why": "closes"}]</script>
+<script src="../../app-motion.js"></script>
+<script src="../../interactions.js"></script>
+<script>var s=AppMotion.sheet(document.getElementById('sheet'));document.getElementById('open').onclick=function(){s.showModal();};</script>
+</body></html>

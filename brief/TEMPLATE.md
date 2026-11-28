@@ -17,6 +17,27 @@ each, at the top of the screen's file.
 complete brief is the person's answer already; more questions only slow
 them down.
 
+**Understand the product before any layout.** What made the best-rated
+screens in the benchmarks win (rules/BENCHMARKS.md), as principles, not
+looks:
+
+- **Start from the job.** Ask what the person does on this screen, in
+  what order, under what pressure. A mechanic scans bikes by status; a
+  studio owner reads the week; a producer gets back into a track. Build
+  the screen around that job, not around a dashboard.
+- **Show the real objects.** Use the thing the business deals in: a
+  waveform, a bike card with its tag, a class on its day. A generic table
+  or stat card is a last resort.
+- **Group by task, not by data type.** Put what needs action now first
+  (waiting on parts, the full class, the overdue invoice), and what is
+  merely informative after.
+- **Art direction comes from what is sold.** Choose colour, type, imagery
+  and material from the business and its customers: warm paper and a serif
+  can suit a studio; dark and luminous can suit a music tool. Use their own
+  photos where they show what the business is.
+- **One action leads.** The thing the person came to do is the one
+  primary button, next to what it acts on.
+
 ---
 
 ## 1. What it is *(needed)*

@@ -85,7 +85,7 @@
       { transform: 'translate(0, 0) scale(1)', opacity: 1 },
       { transform: 'translate(' + dx * 0.55 + 'px, ' + (dy * 0.45 - lift) + 'px) scale(' + (1 + end) / 2 + ')', opacity: 1, offset: 0.5 },
       { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + end + ')', opacity: 0.6 }
-    ], { duration: 420, easing: EASE_OUT });
+    ], { duration: 420 * (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ia-k')) || 1), easing: EASE_OUT });   // --ia-k: the motion personality, interactions.js
     return anim.finished.then(function () { ghost.remove(); bump(to); }, function () { ghost.remove(); });
   }
 

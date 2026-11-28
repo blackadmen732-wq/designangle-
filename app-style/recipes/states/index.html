@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platform" content="desktop">
+<title>Recipe: Loading, success, error, empty</title>
+<link rel="stylesheet" href="../recipes.css"></head>
+<body><main>
+<h1>Loading, success, error, empty</h1><p class="why">Each state says what is happening and what to do next; screen readers hear the change.</p>
+<div class="chips"><button id="b-load">Load</button><button id="b-err">Fail</button><button id="b-empty">Empty</button></div>
+<div class="state" id="box" data-state="ready">
+<div class="s-ready">Your orders appear here.</div>
+<div class="s-loading"><div class="skel" style="width:60%"></div><div class="skel"></div><div class="skel" style="width:80%"></div></div>
+<div class="s-success">3 orders loaded.</div>
+<div class="s-error">Could not load your orders. <button id="retry">Try again</button></div>
+<div class="s-empty">No orders yet. When someone buys, it shows here.</div></div>
+</main>
+<script type="application/json" id="motion-tour">[{"click": "#b-load", "why": "loading: placeholders, then the result"}]</script>
+<script src="../../app-motion.js"></script>
+<script src="../../interactions.js"></script>
+<script>var box=document.getElementById('box');function load(fail){Interact.state(box,'loading','Loading orders');setTimeout(function(){Interact.state(box,fail?'error':'success',fail?'Could not load your orders':'3 orders loaded');},600);}document.getElementById('b-load').onclick=function(){load(false);};document.getElementById('b-err').onclick=function(){load(true);};document.getElementById('retry').onclick=function(){load(false);};document.getElementById('b-empty').onclick=function(){Interact.state(box,'empty','No orders yet');};</script>
+</body></html>

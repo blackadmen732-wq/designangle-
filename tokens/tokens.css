@@ -78,4 +78,21 @@
   /* damping .8, response .3: overshoots 1.5%, done to the eye at 160ms */
   --spring-sheet: linear(0, 0.0068 1.4%, 0.0254 2.8%, 0.0559 4.3%, 0.1006 6%, 0.1433 7.4%, 0.1967 9%, 0.4301 15.5%, 0.5358 18.6%, 0.6343 21.8%, 0.7176 24.9%, 0.7881 28%, 0.8464 31.1%, 0.8946 34.3%, 0.934 37.7%, 0.9647 41.3%, 0.9879 45.3%, 1.0034 49.7%, 1.0122 54.7%, 1.0147 64%, 1);
   --t-sheet: 410ms;
+
+  /* What each kind of change takes, from the interaction recipes
+     (app-style/recipes). Productive motion (tools, work screens) sits at
+     the short end on --ease-out; expressive motion (a product opening, a
+     first arrival) at the long end, on --spring. Under reduced motion every
+     one of them becomes an instant change or a short fade; the state still
+     changes. */
+  --ease-productive: var(--ease-out);
+  --ease-expressive: var(--spring);
+  --t-button: 100ms;        /* press feedback: 80 to 120 */
+  --t-tooltip: 120ms;       /* 100 to 150 */
+  --t-dropdown: 180ms;      /* opens from its trigger: 150 to 200 */
+  --t-toast: 200ms;         /* 150 to 250 */
+  --t-modal: 250ms;         /* 200 to 300 */
+  --t-page: 280ms;          /* a step or a view: 200 to 350 */
+  --t-expand: 360ms;        /* a product opening into its detail: 250 to 450 */
+  --t-reveal: 500ms;        /* a rare, first-time reveal: 400 to 600 */
 }

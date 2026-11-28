@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platform" content="desktop">
+<title>Recipe: Product opens into its detail</title>
+<link rel="stylesheet" href="../recipes.css"></head>
+<body><main>
+<h1>Product opens into its detail</h1><p class="why">The photo grows from the card into the detail and shrinks back on return, so the person sees where it came from. Focus moves to the heading; Escape or Back returns focus and scroll to the card.</p>
+<a class="card" id="card" href="#cake"><img src="../../../sites/restaurant/img/cake.webp" alt=""><b>Olive oil cake</b><br><span>$9</span></a>
+<section class="detail" id="detail" hidden aria-label="Olive oil cake">
+  <button data-close>Back</button>
+  <img src="../../../sites/restaurant/img/cake.webp" alt="">
+  <h2>Olive oil cake</h2><p>With citrus and crème fraîche. $9.</p>
+</section>
+</main>
+<script type="application/json" id="motion-tour">[{"click": "#card", "why": "opens: the photo grows from the card"}, {"click": "#detail [data-close]", "why": "returns to where it was"}]</script>
+<script src="../../app-motion.js"></script>
+<script src="../../interactions.js"></script>
+<script>Interact.expand(document.getElementById('card'), document.getElementById('detail'));</script>
+</body></html>

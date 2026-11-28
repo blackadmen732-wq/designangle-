@@ -11,7 +11,8 @@
     "match": "node tools/match.js",
     "sheet": "node tools/sheet.js",
     "decide": "node tools/decide.js",
-    "regress": "node tools/regress.js"
+    "regress": "node tools/regress.js",
+    "recipes": "node tools/recipes-test.js"
   },
   "devDependencies": {
     "playwright": "1.63.0"

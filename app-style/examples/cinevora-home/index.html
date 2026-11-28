@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050506">
+<title>CINEVORA · Home</title>
+<!--
+  CINEVORA's home, built from the dark glass style as its second test
+  (app-style/desktop). The reference is Mark's own screen, kept out of git
+  in .refs/cinevora-home.png; tools/match.js scores this page against it.
+
+  The job:       a creator lands here between sessions and starts or
+                 reopens work in one click.
+  The one thing: the four doors: Create, Studio, Render, Library.
+  Cut:           nothing. A new account's home is mostly empty states, and
+                 each one says what will appear and offers the next step.
+  Ground:        dark glass. The light runs behind the welcome and out of
+                 the corners; the panels are glass over it.
+  Accent:        none. One white button (Create Project), one green dot for
+                 who is online.
+  Motion:        the sidebar slides in from the left, the side panels from
+                 the right, the rest rises in order; tiles lift and glow on
+                 hover and their arrow moves; the streaks drift.
+-->
+<link rel="stylesheet" href="../../desktop/dark-glass.css">
+</head>
+<body class="dg">
+<div class="dg-art" id="art"></div>
+
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="CINEVORA home"><span id="mark-sm"></span><span class="brand-name caps">CINEVORA</span></a>
+    <span class="vrule" aria-hidden="true"></span>
+    <label class="search">
+      <svg class="i"><use href="#i-search"/></svg>
+      <input type="search" placeholder="Search projects, assets, friends..." aria-label="Search">
+      <span class="kbd">Ctrl + K</span>
+    </label>
+    <div class="tools">
+      <button class="iconbtn" aria-label="Notifications"><svg class="i"><use href="#i-bell"/></svg></button>
+      <button class="iconbtn" aria-label="Friends"><svg class="i"><use href="#i-users"/></svg></button>
+      <div class="me">
+        <span class="avatar" aria-hidden="true">J</span>
+        <span><b>JahfMarc</b><small>Online</small></span>
+        <button class="iconbtn" aria-label="Account menu" style="width:44px;height:44px;margin-left:var(--space-6)"><svg class="i"><use href="#i-chev-down"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <aside class="sidebar" data-enter="side-l">
+    <nav class="nav" aria-label="Main">
+      <a href="#" aria-current="page"><svg class="i"><use href="#i-home"/></svg>Home</a>
+      <a href="#"><svg class="i"><use href="#i-plus"/></svg>Create</a>
+      <a href="#"><svg class="i"><use href="#i-layers"/></svg>Studio</a>
+      <a href="#"><svg class="i"><use href="#i-film"/></svg>Projects</a>
+      <a href="#"><svg class="i"><use href="#i-folder"/></svg>Library</a>
+      <a href="#"><svg class="i"><use href="#i-users"/></svg>Friends</a>
+      <a href="#"><svg class="i"><use href="#i-settings"/></svg>Settings</a>
+    </nav>
+    <div class="glass flat promo">
+      <h3><svg class="i"><use href="#i-diamond"/></svg>CINEVORA Pro</h3>
+      <p>Upgrade for full features</p>
+      <button class="btn-glass solid">Upgrade</button>
+    </div>
+  </aside>
+
+  <div class="work">
+    <main class="stage">
+      <div class="hero" data-enter>
+        <span id="mark-lg"></span>
+        <div><h1>Welcome to CINEVORA</h1><p>Create, animate, edit, and bring your ideas to life.</p></div>
+      </div>
+
+      <div class="tiles">
+        <a class="tile" href="#" data-enter><svg class="i i-lg"><use href="#i-plus"/></svg><b>Create</b><span>Start a new project</span><svg class="i go"><use href="#i-chev-right"/></svg></a>
+        <a class="tile" href="#" data-enter><svg class="i i-lg"><use href="#i-layers"/></svg><b>Studio</b><span>Edit and build your scene</span><svg class="i go"><use href="#i-chev-right"/></svg></a>
+        <a class="tile" href="#" data-enter><svg class="i i-lg"><use href="#i-cube"/></svg><b>Render</b><span>Export in high quality</span><svg class="i go"><use href="#i-chev-right"/></svg></a>
+        <a class="tile" href="#" data-enter><svg class="i i-lg"><use href="#i-folder"/></svg><b>Library</b><span>Assets, sounds, models</span><svg class="i go"><use href="#i-chev-right"/></svg></a>
+      </div>
+
+      <div class="section-head" data-enter>
+        <svg class="i"><use href="#i-clock"/></svg><h2>Recent Projects</h2>
+        <a class="more" href="#">View All <svg class="i i-sm"><use href="#i-chev-right"/></svg></a>
+        <div class="seg" role="group" aria-label="View">
+          <button aria-pressed="true" aria-label="Grid"><svg class="i"><use href="#i-grid"/></svg></button>
+          <button aria-pressed="false" aria-label="List"><svg class="i"><use href="#i-list"/></svg></button>
+        </div>
+      </div>
+      <div class="empty" data-enter>
+        <svg class="i i-lg"><use href="#i-folder"/></svg>
+        <b>No projects yet</b>
+        <p>Create your first project to get started.</p>
+        <button class="btn-white inline"><svg class="i"><use href="#i-plus"/></svg>Create Project</button>
+      </div>
+
+      <div class="section-head" data-enter>
+        <svg class="i"><use href="#i-bolt"/></svg><h2>Quick Tools</h2>
+      </div>
+      <div class="tools-row" data-enter>
+        <button class="btn-glass"><svg class="i"><use href="#i-plus"/></svg>New Project</button>
+        <button class="btn-glass"><svg class="i"><use href="#i-import"/></svg>Import</button>
+        <button class="btn-glass"><svg class="i"><use href="#i-record"/></svg>Record</button>
+        <button class="btn-glass"><svg class="i"><use href="#i-sparkle"/></svg>AI Assist</button>
+        <button class="btn-glass"><svg class="i"><use href="#i-users"/></svg>Team Studio</button>
+      </div>
+    </main>
+
+    <aside class="side" data-enter="side-r">
+      <section class="glass flat panel">
+        <h3><span class="dot-live"></span>Friends Online (0)</h3>
+        <div class="empty">
+          <svg class="i i-lg"><use href="#i-users"/></svg>
+          <b>No friends online</b>
+          <p>Add friends to see who’s online and collaborate together.</p>
+          <button class="btn-glass solid" style="height:46px"><svg class="i"><use href="#i-user-plus"/></svg>Add Friends</button>
+        </div>
+      </section>
+      <section class="glass flat panel">
+        <h3><svg class="i"><use href="#i-activity"/></svg>Activity</h3>
+        <div class="empty loose">
+          <svg class="i i-lg"><use href="#i-clock"/></svg>
+          <b>No activity yet</b>
+          <p>Your recent actions and updates will appear here.</p>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script src="../../desktop/icons.js"></script>
+<script src="../../desktop/art.js"></script>
+<script>
+  document.getElementById('mark-sm').innerHTML = DG.mark(52, { glow: false });
+  document.getElementById('mark-lg').innerHTML = DG.mark(96);
+
+  DG.streaks(document.getElementById('art'), [
+    /* the light behind the welcome: rises from the tiles to the top edge */
+    { d: 'M880 238 C 1020 190, 1180 120, 1340 80', from: [880, 238], to: [1340, 80], hot: .62, width: 2.6, glow: 40,
+      sheet: 'M640 240 C 820 236, 1020 170, 1340 80 L 1340 130 C 1120 190, 960 236, 880 238 Z', sheetFrom: [640, 240], sheetTo: [1340, 90], sheetOpacity: .16, drift: [10, -5, .3], dur: 30 },
+    { d: 'M760 236 C 900 200, 1040 150, 1180 96', from: [760, 236], to: [1180, 96], hot: .5, width: 1, glow: 14, opacity: .45, drift: [8, -4, .3], dur: 24 },
+    /* a sheet curling out of the sidebar's lower edge */
+    { d: 'M-20 720 C 80 690, 180 640, 252 560', from: [-20, 720], to: [252, 560], hot: .7, width: 2, glow: 30,
+      sheet: 'M-20 720 C 80 690, 180 640, 252 560 L 252 700 C 160 720, 60 730, -20 740 Z', sheetFrom: [0, 740], sheetTo: [252, 600], sheetOpacity: .22, drift: [6, -4, .3], dur: 34 },
+    /* the bottom right corner */
+    { d: 'M1290 950 C 1420 900, 1540 860, 1700 820', from: [1290, 950], to: [1700, 820], hot: .55, width: 2.2, glow: 34, drift: [-8, 4, -.3], dur: 28 },
+    { d: 'M1500 950 C 1570 920, 1630 900, 1700 885', from: [1500, 950], to: [1700, 885], hot: .5, width: 1, glow: 12, opacity: .5, drift: [-5, 3, -.2], dur: 32 }
+  ]);
+
+  document.querySelectorAll('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.seg button').forEach(function (o) { o.setAttribute('aria-pressed', o === b); });
+    });
+  });
+
+  DG.enter();
+</script>
+</body>
+</html>

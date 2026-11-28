@@ -1,7 +1,13 @@
 # Design Angle
 
-Websites, phone app screens, and the owner panel behind a client's website,
-all from one design system. Read this page, then only what your job needs.
+Websites, phone app screens, desktop app screens, and the owner panel behind
+a client's website, all from one design system. Read this page, then only
+what your job needs.
+
+**Before designing anything, get a brief.** Fill `brief/TEMPLATE.md` from
+what you were told. If a line marked *needed* is empty, ask (at most five
+short questions, each with a suggested answer); do not guess. Why:
+`docs/WHY-AI-DESIGN-IS-GENERIC.md`.
 
 ## Start here
 
@@ -9,6 +15,7 @@ all from one design system. Read this page, then only what your job needs.
 |---|---|---|
 | A client's website | `sites/CLAUDE.md` | `DESIGN.md`, the locked values |
 | A web page that is not a business: a product, a portfolio, docs | `sites/CLAUDE.md`, the part on `kind` | `DESIGN.md` |
+| A desktop app screen: an editor, a studio, a launcher, a dashboard | `app-style/desktop/README.md` | the design skill |
 | A phone app screen | `.claude/skills/app-style/SKILL.md` | `app-style/styles/` when the brief wants a tool, not a brand |
 | Redesigning an existing app or screen | `.claude/skills/app-redesign/SKILL.md` | `.claude/skills/redesign-eye/SKILL.md`, to brief and present it her way |
 | The owner panel, the database, the edge functions | `portal/CLAUDE.md` | the app-style skill, for the panel's screens |
@@ -55,6 +62,7 @@ node tools/check.js [page]               # 400x860 and 1280x900: contrast, tap s
 node tools/audit.js <page> --width 400   # one page in depth: contrast against the painted ground, with the fix
 node tools/slop.js <page>                # does it look AI-made? 18 points, and the bottleneck to fix first
 node tools/motion.js <page>              # every animation measured; filmstrips in .check/motion/
+node tools/match.js <page> <ref.png>     # against a reference: side by side and a score out of 100
 ```
 
 Never ask a model whether a ratio passes. Do open the screenshots, and for

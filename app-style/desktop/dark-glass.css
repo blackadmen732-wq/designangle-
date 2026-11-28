@@ -400,6 +400,16 @@
 .figure.stacked { flex-direction: column; align-items: center; text-align: center; padding-top: var(--space-10); }
 .figure.stacked .label { justify-content: center; }
 .figure.stacked .act { margin: var(--space-6) 0 0; align-items: center; }
+/* split: the picture fills the stage's right half, top to the list; the
+   figure and facts keep the left half */
+.stage.split > .scene { width: 50%; height: 430px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 35%); mask-image: linear-gradient(90deg, transparent, #000 35%); }
+.stage.split > .scene img { opacity: .7; }
+.stage.split .figure { max-width: 56%; flex-wrap: wrap; }
+.stage.split .figure .act { margin-left: 0; flex-basis: 100%; align-items: flex-start; }
+.stage.split .facts { max-width: 56%; grid-template-columns: repeat(3, auto); }
+.stage.split .facts div { padding-right: var(--space-6); }
+.stage.split .facts div + div { padding-left: var(--space-6); }
+.facts b, .facts span { white-space: nowrap; }
 /* a busy day: denser rows when the list is long (decide.js says when) */
 .ledger.dense td { height: 48px; }
 

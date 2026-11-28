@@ -129,9 +129,9 @@ const C = {
   number: [
     { id: 'side', say: 'figure on the left, its button on the right of it, facts strip, list, side panels (tally-home as it is)',
       hier: 8, ident: 5 + (colour ? 1 : 0), use: 8, fit: !hasPic && !shortFig ? 2 : 0 },
-    { id: 'stacked', say: 'the figure alone and centred (`.figure.stacked`), button under it, the picture behind it, then facts and list',
+    { id: 'stacked', say: 'the figure alone and centred (`<section class="figure stacked">`), button under it, the picture behind it in a `.scene`, then facts and list',
       hier: 9, ident: hasPic ? 9 : 6, use: 7, fit: (hasPic ? 2 : 0) + (shortFig ? 1 : 0) },
-    { id: 'split', say: 'figure, button and facts in the left half; the right half of the stage is the picture, full height, the list under both',
+    { id: 'split', say: 'figure, button and facts in the left half; the picture fills the right half (`<main class="stage split">` with a `.scene`), the list under both',
       hier: 7, ident: hasPic ? 10 : 3, use: 7, fit: hasPic ? 1 : -3 },
     { id: 'list-first', say: 'a short figure strip at the top, the list leads and is dense (`.ledger.dense`, ten rows), side panels for what is urgent',
       hier: 6, ident: 5, use: 9, fit: longList ? 3 : -1 },

@@ -43,6 +43,7 @@ const figure = ((oneThing.match(/\$?\d[\d,.]*\s?%?/) || [])[0] || '').trim().rep
 let pattern, why;
 if (/sign[ -]?in|log[ -]?in|sign[ -]?up|splash|password/.test(all)) { pattern = 'auth'; why = 'the job is getting in'; }
 else if (/browse|watch|gallery|catalog|films?|series|shop front|products? to|collection/.test(all)) { pattern = 'media'; why = 'the job is choosing among pictures'; }
+else if (/ways in|doors|launcher|get (back )?in(to)? (a |your )?(project|work)|start (one|a new|work)|open (a |your )?recent|recent projects/.test(all)) { pattern = 'doors'; why = 'the job is getting somewhere: ways in, and recent work'; }
 else if (figure) { pattern = 'number'; why = `"the one thing" is a figure (${figure.trim()})`; }
 else if (/launcher|studio|start (a|work)|open (a|recent)|doors|create/.test(all)) { pattern = 'doors'; why = 'the job is getting somewhere'; }
 else { pattern = 'number'; why = 'no rule matched; "number" is the default for a home screen. Say so in the file'; }

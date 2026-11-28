@@ -1,4 +1,8 @@
-# Desktop: dark glass
+# Desktop: dark glass (a preset, not the default)
+
+Use this only when the brief asks for a dark, cinematic or glass look, or
+gives a reference like it. On briefs that did not, it scored about two
+points lower than building without it (`rules/bench-2026-11-28.md`).
 
 Desktop app screens on a near-black ground: a creative tool, an editor, a
 launcher, a studio. The first two screens built with it are Mark's Cinema

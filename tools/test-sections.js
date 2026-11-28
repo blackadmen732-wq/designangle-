@@ -17,11 +17,11 @@
 const { resolveSections, SECTION_NAMES, DEFAULT_SECTIONS } = require('../build.js');
 
 /* A site with every section present, so the only thing under test is the list. */
-function site(sections) {
+function site(sections, extra) {
   const s = {};
   for (const n of SECTION_NAMES) s[n] = { id: n };
   if (sections !== undefined) s.sections = sections;
-  return s;
+  return Object.assign(s, extra || {});
 }
 
 let failed = 0, ran = 0;
@@ -31,7 +31,8 @@ let failed = 0, ran = 0;
 function rejects(label, sections, ...wants) {
   ran++;
   let msg = null;
-  try { resolveSections(site(sections), 'testsite'); }
+  const extra = wants.length && typeof wants[0] === 'object' ? wants.shift() : null;
+  try { resolveSections(site(sections, extra), 'testsite'); }
   catch (e) { msg = e.message; }
 
   if (msg === null) {
@@ -48,10 +49,10 @@ function rejects(label, sections, ...wants) {
 }
 
 /* The list is fine: resolveSections must return exactly `expect`. */
-function accepts(label, sections, expect) {
+function accepts(label, sections, expect, extra) {
   ran++;
   try {
-    const got = resolveSections(site(sections), 'testsite');
+    const got = resolveSections(site(sections, extra), 'testsite');
     if (got.join(',') !== expect.join(',')) {
       console.log(`  FAIL  ${label}\n        got [${got}], expected [${expect}]`);
       failed++; return;
@@ -110,6 +111,32 @@ accepts('order is respected, not normalised',
 
 accepts('every section at once',
   SECTION_NAMES.slice(), SECTION_NAMES.slice());
+
+console.log('\nkinds: a business needs its form, anything else does not\n');
+
+accepts('a product page builds without a contact form',
+  ['showcase', 'story', 'band'], ['showcase', 'story', 'band'], { kind: 'product' });
+
+for (const kind of ['portfolio', 'docs', 'page'])
+  accepts(`so does kind: '${kind}'`, ['story'], ['story'], { kind });
+
+/* No list on a product page: the sections it has blocks for, never a demand
+   for a contact block it was never meant to have. */
+(function productWithoutList() {
+  ran++;
+  const s = { kind: 'product', showcase: { id: 'a' }, story: { id: 'b' } };
+  let got = null, msg = null;
+  try { got = resolveSections(s, 'testsite'); } catch (e) { msg = e.message; }
+  const ok = got && got.join(',') === 'showcase,story';
+  console.log(`  ${ok ? 'ok   ' : 'FAIL '} a product page with no list gets only the sections it has`);
+  if (!ok) { failed++; console.log(`        got: ${got ? '[' + got + ']' : msg.split('\n')[0]}`); }
+})();
+
+rejects('a business still cannot drop its form, even when it says so',
+  ['showcase', 'story'], { kind: 'business' }, 'must include "contact"', "kind: 'product'");
+
+rejects('a misspelled kind is caught and named',
+  ['story'], { kind: 'prodct' }, 'not a kind', 'Did you mean "product"');
 
 console.log(`\n${ran - failed}/${ran} checks passed.`
   + (failed ? `  ${failed} FAILED\n` : '  A wrong section list cannot reach a built page.\n'));

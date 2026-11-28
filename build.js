@@ -384,9 +384,25 @@ const SECTION_NAMES = Object.keys(SECTIONS);
    list existed, so an older content.js builds unchanged. */
 const DEFAULT_SECTIONS = ['belt', 'showcase', 'list', 'story', 'band', 'contact'];
 
-/* contact carries the enquiry form. A site without it has no way to take a
-   lead, which is the one thing every site in this kit is for. */
-const REQUIRED_SECTIONS = ['contact'];
+/* What a site is for, set as `kind` in content.js. A business takes
+   enquiries, so its page must carry the contact section and its form: a
+   business site that has lost its form cannot take a lead, and that stops
+   the build. Anything else (a product, a portfolio, a docs page, a plain
+   page) needs no form and builds without one. No `kind` means business, so
+   every older content.js builds exactly as before. */
+const KINDS = ['business', 'product', 'portfolio', 'docs', 'page'];
+const REQUIRED_BY_KIND = { business: ['contact'] };
+const REQUIRED_SECTIONS = REQUIRED_BY_KIND.business;
+
+function kindOf(site, where) {
+  const k = site.kind === undefined ? 'business' : site.kind;
+  if (!KINDS.includes(k)) {
+    const guess = nearest(String(k), KINDS);
+    throw new Error(`${where}: \`kind\` is "${k}", which is not a kind.\n`
+      + `  Kinds: ${KINDS.join(', ')}` + (guess ? `\n  Did you mean "${guess}"?` : ''));
+  }
+  return k;
+}
 
 /* Levenshtein, small and plain, only ever run on a failing build. A typo in a
    section name should cost one line of output, not twenty minutes. */
@@ -416,7 +432,17 @@ function nearest(word, options) {
 function resolveSections(site, name) {
   const where = `sites/${name}/content.js`;
 
-  if (site.sections === undefined) return DEFAULT_SECTIONS.slice();
+  if (site.sections === undefined) {
+    if (kindOf(site, where) === 'business') return DEFAULT_SECTIONS.slice();
+    /* Not a business, and no list: every section the file has a block for,
+       in the usual order, so a product page is not asked for a form. */
+    const have = DEFAULT_SECTIONS.filter((s) => site[s]);
+    if (!have.length)
+      throw new Error(`${where}: there is no \`sections\` list and no section blocks,\n`
+        + `  so the page would be a header and a footer.\n`
+        + `  Add some of: ${SECTION_NAMES.join(', ')}`);
+    return have;
+  }
 
   if (!Array.isArray(site.sections))
     throw new Error(`${where}: \`sections\` must be an array of names, one per line.\n`
@@ -450,11 +476,13 @@ function resolveSections(site, name) {
         + `  Either add a \`${s}:\` block, or remove "${s}" from \`sections\`.`);
   }
 
-  for (const req of REQUIRED_SECTIONS)
+  for (const req of REQUIRED_BY_KIND[kindOf(site, where)] || [])
     if (!seen.has(req))
       throw new Error(`${where}: \`sections\` must include "${req}".\n`
-        + `  The ${req} section carries the enquiry form. Without it the site\n`
-        + `  cannot take a lead, which is the one job every site here has.`);
+        + `  The ${req} section carries the enquiry form. Without it this business\n`
+        + `  site cannot take a lead, which is the one job a business site has.\n`
+        + `  (A page that is not a business sets \`kind: 'product'\`, 'portfolio',\n`
+        + `  'docs' or 'page', and needs no form.)`);
 
   /* Content that exists but is not listed renders nowhere. That is a legitimate
      thing to do — keeping a price list around while it is switched off — so it
@@ -480,7 +508,9 @@ function render(site, sections) {
     .filter((b) => b && b.id)
     .map((b) => ({ label: b.navLabel || b.eyebrow, href: '#' + b.id }));
 
-  const cta = site.cta || { label: 'Contact', href: '#' + contact.id };
+  // The header's button: the site's own, else the contact section if there
+  // is one, else none (a page with nowhere to send people has no button).
+  const cta = site.cta || (contact && contact.id ? { label: 'Contact', href: '#' + contact.id } : null);
   const body = sections.map((s) => SECTIONS[s](site, t)).join('\n');
 
   return `<!doctype html>
@@ -511,7 +541,7 @@ ${site.preview ? `<div class="preview-bar"><div class="wrap"><b>Preview</b><span
     <nav class="nav" aria-label="Main">
       ${nav.map((n) => `<a href="${esc(n.href)}">${esc(n.label)}</a>`).join('\n      ')}
     </nav>
-    <a class="btn small" href="${esc(cta.href)}"${ext(cta.href)}>${esc(cta.label)}</a>
+    ${cta ? `<a class="btn small" href="${esc(cta.href)}"${ext(cta.href)}>${esc(cta.label)}</a>` : ''}
   </div>
 </header>
 
@@ -543,7 +573,7 @@ ${site.track ? `<script>window.DA_TRACK={endpoint:"${esc(site.track.endpoint)}",
 /* Only the sections actually in use are checked, so a site that has no belt is
    not asked for belt photographs. */
 function check(site, name, sections) {
-  const need = ['name', 'hero', 'contact', 'footer'];
+  const need = ['name', 'hero', 'footer'].concat(kindOf(site, `sites/${name}/content.js`) === 'business' ? ['contact'] : []);
   const missing = need.filter((k) => !site[k]);
   if (missing.length) throw new Error(`sites/${name}/content.js is missing: ${missing.join(', ')}`);
 
@@ -588,4 +618,4 @@ if (require.main === module) {
   try { names.forEach(build); } catch (e) { console.error('\nBuild failed.\n  ' + e.message + '\n'); process.exit(1); }
 }
 
-module.exports = { resolveSections, SECTION_NAMES, DEFAULT_SECTIONS, REQUIRED_SECTIONS, build, render };
+module.exports = { resolveSections, SECTION_NAMES, DEFAULT_SECTIONS, REQUIRED_SECTIONS, KINDS, REQUIRED_BY_KIND, build, render };

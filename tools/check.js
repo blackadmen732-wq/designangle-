@@ -63,10 +63,16 @@ async function readPhotoText(page, list) {
     if (t.rect.width < 2 || t.rect.height < 2) continue;
     const sel = `[data-ck-photo="${t.mark}"]`;
     try {
-      await page.$eval(sel, (e) => { e.dataset.ckColour = e.style.color || ''; e.style.color = 'transparent'; e.style.textShadow = 'none';
-        for (const c of e.children) { c.dataset.ckVis = c.style.visibility || ''; c.style.visibility = 'hidden'; } });
+      // The colour as it is now, not as it was when the page was first read:
+      // probing tap targets scrolls the page, and a header that changes once
+      // the hero's button has gone may have changed by now.
+      // Transitions off first: a button that eases its colour was photographed
+      // with its letters still fading, and measured against its own white.
+      const now = await page.$eval(sel, (e) => { const c = getComputedStyle(e).color; e.dataset.ckTr = e.style.transition || ''; e.style.transition = 'none'; e.dataset.ckColour = e.style.color || ''; e.style.color = 'transparent'; e.style.textShadow = 'none';
+        for (const k of e.children) { k.dataset.ckVis = k.style.visibility || ''; k.style.visibility = 'hidden'; } return c; });
+      if (now) t.color = now;
       const shot = await page.screenshot({ clip: t.rect });
-      await page.$eval(sel, (e) => { e.style.color = e.dataset.ckColour; e.style.textShadow = '';
+      await page.$eval(sel, (e) => { e.style.color = e.dataset.ckColour; e.style.textShadow = ''; e.style.transition = e.dataset.ckTr || '';
         for (const c of e.children) c.style.visibility = c.dataset.ckVis || ''; });
       const px = PNG.pixels(PNG.decode(shot));
       const m = t.color.match(/[\d.]+/g).map(Number);

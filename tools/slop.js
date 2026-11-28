@@ -225,7 +225,9 @@ function audit() {
   // 12. Type hierarchy: few sizes, clearly apart, a real jump at the top
   const textEls = vis.filter((el) => ownText(el));
   const sizes = [...new Set(textEls.filter((el) => !el.closest('[aria-hidden="true"]')).map((el) => Math.round(parseFloat(getComputedStyle(el).fontSize))))].sort((a, b) => a - b);
-  const bodySize = (() => { const c = {}; textEls.forEach((el) => { const s = Math.round(parseFloat(getComputedStyle(el).fontSize)); c[s] = (c[s] || 0) + ownText(el).length; }); return +Object.entries(c).sort((a, b) => b[1] - a[1])[0]?.[0] || 16; })();
+  // The body is the size most of the reading is in. Text hidden from readers
+  // (a marquee repeats its words four times to loop) is not reading.
+  const bodySize = (() => { const c = {}; textEls.filter((el) => !el.closest('[aria-hidden="true"]')).forEach((el) => { const s = Math.round(parseFloat(getComputedStyle(el).fontSize)); c[s] = (c[s] || 0) + ownText(el).length; }); return +Object.entries(c).sort((a, b) => b[1] - a[1])[0]?.[0] || 16; })();
   const ratio = sizes.length ? sizes[sizes.length - 1] / bodySize : 1;
   const near = sizes.filter((s, i) => i && s - sizes[i - 1] === 1).length;
   // Calibrated on the reference: her Uber Eats title is 1.9x the body, and

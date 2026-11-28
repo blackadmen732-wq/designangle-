@@ -1,0 +1,104 @@
+{
+ "hero-fade.webp": {
+  "source": "https://images.unsplash.com/photo-1622286342621-4bd786c2447c",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-27",
+  "size": [
+   2000,
+   1119
+  ],
+  "note": "Cropped to the top 84%: the counter at the bottom carried another shop's name."
+ },
+ "clipper-fade.webp": {
+  "source": "https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-27",
+  "size": [
+   1400,
+   933
+  ]
+ },
+ "curls.webp": {
+  "source": "https://images.unsplash.com/photo-1567894340315-735d7c361db0",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-27",
+  "size": [
+   1400,
+   1862
+  ]
+ },
+ "razor.webp": {
+  "source": "https://images.unsplash.com/photo-1596728325488-58c87691e9af",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-27",
+  "size": [
+   1148,
+   931
+  ],
+  "note": "Cropped from the left: the cape carried lettering."
+ },
+ "beard-bw.webp": {
+  "source": "https://images.unsplash.com/photo-1517832606299-7ae9b720a186",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-27",
+  "size": [
+   1400,
+   2108
+  ]
+ },
+ "chair.webp": {
+  "source": "https://images.unsplash.com/photo-1512690459411-b9245aed614b",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-27",
+  "size": [
+   1400,
+   802
+  ],
+  "note": "Cropped from the bottom: the footrest carried a maker's plate."
+ },
+ "shop.webp": {
+  "source": "https://images.unsplash.com/photo-1585747860715-2ba37e788b70",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-27",
+  "size": [
+   1400,
+   930
+  ]
+ },
+ "nails-work.webp": {
+  "source": "https://images.unsplash.com/photo-1632345031435-8727f6897d53",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-27",
+  "size": [
+   1400,
+   933
+  ]
+ },
+ "nails-art.webp": {
+  "source": "https://images.unsplash.com/photo-1604654894610-df63bc536371",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-27",
+  "size": [
+   1400,
+   2100
+  ]
+ },
+ "nails-red.webp": {
+  "source": "https://images.unsplash.com/photo-1519014816548-bf5fe059798b",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-27",
+  "size": [
+   1400,
+   933
+  ]
+ },
+ "nails-pastel.webp": {
+  "source": "https://images.unsplash.com/photo-1607779097040-26e80aa78e66",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-27",
+  "size": [
+   1400,
+   1400
+  ]
+ }
+}

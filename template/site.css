@@ -315,15 +315,7 @@ footer .wrap { padding-block: 24px; display: flex; flex-wrap: wrap; gap: 8px 24p
 
 /* Phone and email in the contact block are real links, so taps can be counted. */
 .info address a.sel { color: var(--ink); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--line); }
-/* Each contact link on a 44px row of its own. On consecutive lines their tap
-   areas overlapped, so a thumb between the email and the phone number could
-   land on either. */
-.info address a.sel { display: flex; align-items: center; width: fit-content; min-height: 44px; padding-block: 0; border-bottom: 0; }
-.info address a.sel > * { pointer-events: none; }
-.info address a.sel { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; }
-.info address a.sel:hover { text-decoration-color: var(--accent); }
-.info address a.sel + br { display: none; }
-.info address a.sel::after { content: none; }
+
 .info address a.sel:hover { border-bottom-color: var(--accent); color: var(--accent); }
 
 /* Closure or holiday notice, set by the owner in their panel. Hidden until
@@ -395,6 +387,15 @@ a.sel[href^="mailto:"]::after,
   content: ""; position: absolute;
   inset: 50% 0 auto 0; height: 44px; transform: translateY(-50%);
 }
+/* In the contact block each link gets a 44px row of its own instead. On
+   consecutive lines their tap areas overlapped, so a thumb between the email
+   and the phone number could land on either. (After the rule above, and more
+   specific, or it puts the links back inline and they run together.) */
+.info address a.sel[href] { display: flex; align-items: center; width: fit-content; min-height: 44px; padding-block: 0; border-bottom: 0;
+  text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; }
+.info address a.sel[href]:hover { text-decoration-color: var(--accent); }
+.info address a.sel[href] + br { display: none; }
+.info address a.sel[href]::after { content: none; }
 
 /* Carousel dots: 26x22 visually, 44 tall to the thumb. */
 .dots button { position: relative; }
@@ -588,11 +589,15 @@ main a:not(.btn):not(.sel):not(.logo)::after {
 }
 /* The accent is a wine on paper; at 8:1 it is unreadable on a photograph.
    The second line changes weight and colour instead of hue. */
-.atelier-text h1 em { font-style: normal; color: #e7cdd6; font-weight: 300; }
-.atelier-lead { color: #ede3e4; font-size: clamp(17px, 1.7vw, 21px); line-height: 1.5; max-width: 34ch; }
+/* The second line in a light tint of the site's own accent, so each client keeps its colour on the photograph (the salon's wine gives the pink it always had). */
+.atelier-text h1 em { font-style: normal; color: color-mix(in srgb, var(--accent) 22%, #fff); font-weight: 300; }
+/* Fixed steps of the kit's scale, not a clamp: a clamp lands on 18, 19 and 21
+   on the way, and a page grows to nine sizes a pixel apart. */
+.atelier-lead { color: rgba(255, 255, 255, .9); font-size: 17px; line-height: 1.5; max-width: 34ch; }
+@media (min-width: 1024px) { .atelier-lead { font-size: 20px; } }
 
 .hero-atelier .hero-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
-.hero-atelier .btn { background: #fff; color: #231a1e; }
+.hero-atelier .btn { background: #fff; color: var(--ink); }
 .hero-tel {
   position: relative; color: #fff; font-weight: 600; font-size: 17px;
   text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.42); padding-bottom: 2px;
@@ -613,8 +618,9 @@ main a:not(.btn):not(.sel):not(.logo)::after {
 .plate-pic { overflow: clip; border-radius: 3px; }
 .plate-pic img { width: 100%; display: block; object-fit: cover; will-change: transform; }
 .plate figcaption { display: grid; gap: 8px; max-width: 46ch; }
-.plate h3 { font-size: clamp(21px, 2.4vw, 28px); letter-spacing: -0.02em; }
-.plate .p { color: var(--accent); font-weight: 650; font-size: 15px; }
+.plate h3 { font-size: 20px; letter-spacing: -0.02em; }
+@media (min-width: 1024px) { .plate h3 { font-size: 24px; } }
+.plate .p { color: var(--accent); font-weight: 600; font-size: 15px; }
 .plate figcaption p { color: var(--muted); line-height: 1.55; }
 
 @media (min-width: 861px) {
@@ -653,9 +659,9 @@ main a:not(.btn):not(.sel):not(.logo)::after {
   content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
   background: var(--line); transform: scaleX(var(--rule)); transform-origin: left;
 }
-.ledger li h3 { font-size: clamp(18px, 2vw, 22px); font-weight: 650; letter-spacing: -0.015em; }
-.ledger li .p { font-size: clamp(18px, 2vw, 22px); font-weight: 650; color: var(--accent); font-variant-numeric: tabular-nums; }
-.ledger li p { grid-column: 1 / -1; color: var(--muted); font-size: 16px; line-height: 1.5; max-width: 58ch; }
+.ledger li h3 { font-size: 20px; font-weight: 700; letter-spacing: -0.015em; }
+.ledger li .p { font-size: 20px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+.ledger li p { grid-column: 1 / -1; color: var(--muted); font-size: 15px; line-height: 1.5; max-width: 58ch; }
 
 /* The atelier page breathes more than the default and never uses the arch. */
 /* The bar floats over the photograph until the page moves, then becomes the
@@ -672,8 +678,11 @@ main a:not(.btn):not(.sel):not(.logo)::after {
 .layout-atelier .top:not(.scrolled) .logo,
 .layout-atelier .top:not(.scrolled) .nav a { color: #fff; }
 .layout-atelier .top:not(.scrolled) .logo i { background: #fff; }
-.layout-atelier .top:not(.scrolled) .top .btn,
-.layout-atelier .top:not(.scrolled) .btn { background: #fff; color: #231a1e; }
+/* Over the photograph the header's button is a white outline while the
+   hero's own white button is in view, and fills once that has gone: one
+   filled button on the screen at a time, as on the other layouts. */
+.layout-atelier .top:not(.scrolled) .btn { background: transparent; color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .75); }
+.layout-atelier .top.cta-on:not(.scrolled) .btn { background: #fff; color: var(--ink); box-shadow: none; }
 .layout-atelier .top.scrolled {
   background: color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);

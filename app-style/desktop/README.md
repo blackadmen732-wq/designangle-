@@ -74,6 +74,22 @@ and data (`.brand-word`, `.stat-label`, `.stat-num`, `.delta`, `.stats`,
 
 Icon names are listed at the top of `icons.js`.
 
+## Screens with numbers
+
+Found by a blind review of the same screen built by Haiku, Sonnet and Opus:
+
+- **The action sits with the number.** The one white button goes right
+  under or beside the big figure, never alone at the far edge.
+- **Show what the number is made of.** Under the figure, say what is
+  urgent (overdue in the warning tone) and split the total: a bar, or two
+  smaller figures.
+- **Every panel adds something new.** A side panel that repeats the table
+  is clutter; use it for who owes what, or a trend.
+- **Never cut a row in half.** Fit the rows to 900 tall, or end the list
+  with "View all".
+- **Three stat cards in a row read as a template.** Prefer one strip of
+  figures divided by thin lines, inside the hero.
+
 ## Motion
 
 - **Arrival:** each `[data-enter]` element rises 12px and fades in, 60ms

@@ -282,7 +282,8 @@
 .work { position: relative; display: grid; grid-template-columns: 1fr 310px; gap: 28px; padding: 0 17px 0 0; min-height: 0; }
 /* Only the top-left corner shows an edge: the work area opens out of the
    sidebar and runs to the side panels. */
-.stage { position: relative; border-radius: 32px 0 0 0; border: 1px solid var(--line); border-width: 1px 0 0 1px; background: linear-gradient(160deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, 0) 45%); padding: var(--space-6) 2px 0 var(--space-6); overflow: hidden; }
+.stage { position: relative; border-radius: 32px 0 0 0; border: 1px solid var(--line); border-width: 1px 0 0 1px; background: linear-gradient(160deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, 0) 45%); padding: var(--space-6) 2px 0 var(--space-6); overflow: hidden auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .18) transparent; }
+/* the stage scrolls when its content runs past the window, never clips it */
 .stage > *:not(.dg-art) { position: relative; z-index: 1; }
 .side { display: flex; flex-direction: column; gap: var(--space-6); padding-top: var(--space-8); }
 
@@ -356,7 +357,8 @@
 .initials { width: 36px; height: 36px; flex: none; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .1); font: 600 14px/1 var(--ui-font); }
 
 /* Status: a dot and a word, never colour alone. Three tones only. */
-.status { display: inline-flex; align-items: center; gap: var(--space-2); height: 28px; padding: 0 var(--space-3); border-radius: var(--radius-pill); font-size: 14px; font-weight: 600; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .1); }
+/* a pill sized to its word, also inside a table's grid cell */
+.status { justify-self: start; width: max-content; display: inline-flex; align-items: center; gap: var(--space-2); height: 28px; padding: 0 var(--space-3); border-radius: var(--radius-pill); font-size: 14px; font-weight: 600; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .1); }
 .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 .status.good { color: #5fe08a; }
 .status.wait { color: #d8d8de; }

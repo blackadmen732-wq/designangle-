@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platform" content="desktop">
+<title>Recipe: Bottom sheet, drag to dismiss</title>
+<link rel="stylesheet" href="../recipes.css"></head>
+<body><main>
+<h1>Bottom sheet, drag to dismiss</h1><p class="why">The sheet rises from the bottom edge and stops at half or full height. Drag or flick it down to close; Done stays at the top, in reach, and Escape closes it too. The browser's own scrolling moves it, so it follows the finger with native momentum. Built on pure-web-bottom-sheet.</p>
+<button class="primary" id="open">Filter</button>
+<bottom-sheet-dialog-manager>
+  <dialog id="sheet" aria-labelledby="sheet-title">
+    <bottom-sheet swipe-to-dismiss tabindex="0">
+      <div slot="snap" style="--snap: 100%"></div>
+      <div slot="snap" style="--snap: 55%" class="initial"></div>
+      <div slot="header" class="sheet-head"><h2 id="sheet-title">Filter</h2><button data-close>Done</button></div>
+      <p>Price, size and colour would go here.</p>
+      <ul class="sheet-list"><li>Under $20</li><li>$20 to $50</li><li>Over $50</li><li>Small</li><li>Medium</li><li>Large</li><li>Red</li><li>Blue</li><li>Green</li></ul>
+    </bottom-sheet>
+  </dialog>
+</bottom-sheet-dialog-manager>
+<style>
+  bottom-sheet { --sheet-background: #fff; --sheet-border-radius: 18px; max-width: 520px; margin-inline: auto; }
+  bottom-sheet p, bottom-sheet .sheet-list { margin-inline: 20px; }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 20px 4px; } .sheet-head h2 { margin: 0; }
+  /* the library slides the dialog in even under reduced motion; this keeps it still */
+  @media (prefers-reduced-motion: reduce) { bottom-sheet-dialog-manager dialog { transition: none; } }
+  .sheet-list { list-style: none; padding: 0; } .sheet-list li { padding: 12px 0; border-bottom: 1px solid #e7e5e4; }
+</style>
+</main>
+<script type="application/json" id="motion-tour">[{"click": "#open", "why": "rises from the bottom"}, {"click": "#sheet [data-close]", "why": "closes"}]</script>
+<script src="../../vendor/pure-web-bottom-sheet.js"></script>
+<script>
+  var d = document.getElementById('sheet');
+  document.getElementById('open').onclick = function () { d.showModal(); };
+  d.querySelector('[data-close]').onclick = function () { d.close(); };
+  d.addEventListener('close', function () { document.getElementById('open').focus(); });
+</script>
+</body></html>

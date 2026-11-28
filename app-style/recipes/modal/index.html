@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platform" content="desktop">
+<title>Recipe: Modal</title>
+<link rel="stylesheet" href="../recipes.css"></head>
+<body><main>
+<h1>Modal</h1><p class="why">A small scale and fade on a dimmed page. Escape or the backdrop closes it with the same motion reversed; focus returns to the button.</p>
+<button class="primary" id="open">Delete project</button>
+<dialog id="dlg"><h2>Delete this project?</h2><p>It can be restored for 30 days.</p><button data-close>Cancel</button> <button class="primary" data-close>Delete</button></dialog>
+</main>
+<script type="application/json" id="motion-tour">[{"click": "#open", "why": "scales up a touch and fades in"}, {"key": "Escape", "why": "closes, animated"}]</script>
+<script src="../../app-motion.js"></script>
+<script src="../../interactions.js"></script>
+<script>Interact.modal(document.getElementById('dlg'), document.getElementById('open'));</script>
+</body></html>

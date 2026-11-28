@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050506">
+<meta name="platform" content="desktop">
+<title>Cinema · Log in</title>
+<!--
+  Cinema's sign-in, built from the dark glass style as its first test
+  (app-style/desktop). The reference is Mark's own screen, kept out of git
+  in .refs/cinema-login.png; tools/match.js scores this page against it.
+
+  The job:       someone opening the app signs in and gets to work.
+  The one thing: the card. Everything above it is the name; everything
+                 around it is light.
+  Cut:           nothing the reference has. It is already lean.
+  Ground:        dark glass, #050506. A creative tool used for hours in a
+                 dim room; the art is the only colour.
+  Accent:        none. The white Log In button is the one solid thing, and
+                 the link is the one colour.
+  Motion:        the mark, the name, the tagline and the card rise in one
+                 after another; the streaks drift and a glint runs along
+                 them; fields glow on focus; the button's arrow moves on
+                 hover; social buttons lift. All still under reduced motion.
+  Art:           the mark and the wordmark are Mark's own, cut out of the
+                 reference with tools/trace-logo.py (../cinema-art). The
+                 streaks are drawn in code (desktop/art.js), with a glow
+                 and a slow sweep of light behind the card for the glass
+                 to frost.
+-->
+<link rel="stylesheet" href="../../desktop/dark-glass.css">
+</head>
+<body class="dg">
+<div class="dg-art" id="art"></div>
+
+<header class="winbar">
+  <a class="brand" href="#" aria-label="Cinema"><img src="../cinema-art/mark.svg" width="44" height="34" alt=""><span class="brand-name">Cinema</span></a>
+  <span class="vrule" aria-hidden="true"></span>
+  <div class="wincontrols">
+    <button aria-label="Minimise"><svg class="i"><use href="#i-minus"/></svg></button>
+    <button aria-label="Maximise"><svg class="i"><use href="#i-square"/></svg></button>
+    <button class="close" aria-label="Close"><svg class="i"><use href="#i-close"/></svg></button>
+  </div>
+</header>
+
+<main class="signin">
+  <img id="mark-lg" data-enter src="../cinema-art/mark-cut.webp" width="262" height="200" alt="" style="position:relative;left:10px;top:12px">
+  <h1 class="wordmark-img" data-enter><img src="../cinema-art/wordmark-cut.webp" width="352" height="68" alt="Cinema"></h1>
+  <p class="tagline" data-enter>CREATE<i>·</i>EDIT<i>·</i>ANIMATE<i>·</i>RENDER</p>
+
+  <form class="glass rim card-signin" data-enter onsubmit="event.preventDefault()">
+    <label class="field">
+      <svg class="i"><use href="#i-user"/></svg>
+      <input type="text" name="user" autocomplete="username" placeholder="Email or Username" aria-label="Email or Username">
+    </label>
+    <label class="field">
+      <svg class="i"><use href="#i-lock"/></svg>
+      <input type="password" name="password" autocomplete="current-password" placeholder="Password" aria-label="Password" id="pw">
+      <button type="button" class="reveal" aria-label="Show password" id="reveal"><svg class="i"><use href="#i-eye"/></svg></button>
+    </label>
+    <div class="row">
+      <label class="check"><input type="checkbox" name="remember"> Remember me</label>
+      <a class="link" href="#">Forgot password?</a>
+    </div>
+    <button class="btn-white" type="submit">Log In <svg class="i end"><use href="#i-arrow-right"/></svg></button>
+    <div class="or">or</div>
+    <div class="socials">
+      <button type="button" class="social" aria-label="Continue with Google"><svg class="i"><use href="#i-google"/></svg></button>
+      <button type="button" class="social" aria-label="Continue with Discord"><svg class="i"><use href="#i-discord"/></svg></button>
+      <button type="button" class="social" aria-label="Continue with GitHub"><svg class="i"><use href="#i-github"/></svg></button>
+    </div>
+    <p class="signup">Don’t have an account? <a href="#">Sign Up</a></p>
+  </form>
+</main>
+
+<script src="../../desktop/icons.js"></script>
+<script src="../../desktop/art.js"></script>
+<script>
+
+  /* Light, placed where the reference has it: a sheet of glass sweeping up
+     out of the left edge with a hot rim, and a second rising from the
+     bottom right. Coordinates are the reference's own pixels. */
+  DG.streaks(document.getElementById('art'), [
+    { d: 'M-40 420 C 150 300, 330 170, 540 -20', from: [-40, 420], to: [540, -20], hot: .78, width: 3, glow: 40,
+      sheet: 'M-40 420 C 150 300, 330 170, 540 -20 L 300 -20 C 180 60, 60 120, -40 150 Z', sheetFrom: [0, 300], sheetTo: [420, 0], sheetOpacity: .16, drift: [10, -6, .4], dur: 32 },
+    { d: 'M330 270 C 400 190, 460 120, 600 40', from: [330, 270], to: [600, 40], hot: .35, width: 1.4, glow: 18, opacity: .7, drift: [8, -10, .5], dur: 26 },
+    { d: 'M840 960 C 1130 830, 1440 700, 1700 360', from: [840, 960], to: [1700, 360], hot: .55, width: 2.6, glow: 44,
+      sheet: 'M840 960 C 1130 830, 1440 700, 1700 360 L 1700 720 C 1500 800, 1300 880, 1150 960 Z', sheetFrom: [1100, 960], sheetTo: [1700, 500], sheetOpacity: .22, drift: [-12, 6, -.4], dur: 30 },
+    { d: 'M1140 810 C 1340 700, 1500 640, 1700 570', from: [1140, 810], to: [1700, 570], hot: .45, width: 1.2, glow: 16, opacity: .55, drift: [-8, 5, -.3], dur: 24 },
+    { d: 'M1500 941 C 1580 860, 1640 820, 1700 790', from: [1500, 941], to: [1700, 790], hot: .5, width: 1, glow: 12, opacity: .45, drift: [-6, 4, -.2], dur: 34 }
+  ]);
+
+  /* light behind the card, so its glass has something to frost */
+  var art = document.getElementById('art');
+  DG.sweep(art, { strength: .05, seconds: 16 });
+
+  var pw = document.getElementById('pw'), reveal = document.getElementById('reveal');
+  reveal.addEventListener('click', function () {
+    var show = pw.type === 'password';
+    pw.type = show ? 'text' : 'password';
+    reveal.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  });
+
+  DG.enter();
+</script>
+</body>
+</html>

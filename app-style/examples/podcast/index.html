@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0c0b">
+<title>Earshot Podcast App</title>
+<!--
+  Earshot: the home screen of a podcast app, designed from nothing with the
+  design skill and app-style, as a test of both. The app was picked at
+  random from 24; the shows, episodes and people are invented. Photos are the
+  kit's free-licence stock, used as cover art.
+
+  The job:      someone opens it to pick up the episode they paused, or to
+                find the next one worth their walk.
+  The one thing: the paused episode. Its cover, its title, how much is left,
+                and Resume.
+  Cut:          categories, charts, banners, promotions. Home holds two
+                things under the hero: what is up next, and what is new from
+                shows they follow.
+  Ground:       dark. People listen at night and the covers carry the colour.
+  Accent:       one, tangerine, spent on what is playing: the played part of
+                the waveform and the search circle. Resume is a white pill.
+  Grid:         4pt. Radii: 20 for the big cover, 16 for cards, 12 for small
+                covers, round for pills and circles.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../../app-style.css">
+<link rel="stylesheet" href="../../app-icons.css">
+<style>
+  body { margin: 0; background: #0e0c0b; }
+  .ea { --page: #0e0c0b; --ink-2: #c9c3bf; --ink-3: #948d88; --accent: #ff7a45; --on-accent: #1a0d06;
+    min-height: 100vh; position: relative; overflow-x: hidden; }
+  .ea-wrap { position: relative; z-index: 1; max-width: 520px; margin-inline: auto; padding: 0 16px 160px; }
+
+  /* The paused episode's own cover, blurred behind the top of the page:
+     real artwork, not a CSS glow. */
+  .ea-backdrop { position: absolute; z-index: 0; inset: 0 0 auto 0; height: 600px; overflow: hidden; pointer-events: none; }
+  .ea-backdrop img { width: 100%; height: 100%; object-fit: cover; filter: blur(28px) brightness(.62) saturate(1.25); transform: scale(1.2); }
+  .ea-backdrop::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(14, 12, 11, .2), rgba(14, 12, 11, .6) 56%, #0e0c0b 96%); }
+
+  .ea-top { display: flex; align-items: center; justify-content: space-between; height: 56px; margin-top: max(48px, env(safe-area-inset-top, 0px)); }
+  .ea-mark { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+  .ea-me { font-size: 15px; font-weight: 600; }
+
+  .ea-when { margin-top: 16px; font-size: 13px; color: var(--ink-2); }
+  .ea-hero { display: flex; gap: 16px; align-items: flex-end; margin-top: 12px; }
+  .ea-show { display: grid; gap: 4px; padding-bottom: 4px; font-size: 13px; color: var(--ink-3); }
+  .ea-show b { font-size: 15px; font-weight: 500; color: var(--ink); }
+
+  .ea-title { margin-top: 24px; font-size: 36px; font-weight: 500; line-height: 40px; letter-spacing: -0.025em; text-wrap: balance; }
+  .ea-desc { margin-top: 12px; font-size: 15px; line-height: 1.45; color: var(--ink-2); }
+
+  /* The waveform is the progress bar: played in the accent, the rest quiet.
+     Tap or drag along it to move. */
+  .wave { position: relative; display: flex; align-items: center; gap: 2px; height: 48px; margin-top: 24px; cursor: pointer; touch-action: none; }
+  .wave i { flex: 1; min-width: 0; border-radius: 2px; background: rgba(255, 255, 255, .22); transition: background-color .12s ease-out; }
+  .wave i.on { background: var(--accent); }
+  .wave:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 8px; }
+  .ea-times { display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  .ea-actions { margin-top: 20px; }
+  .ea-actions .pill { font-size: 15px; gap: 8px; }
+  .ea-actions .pill .ic { --ic: 20px; }
+  .ea-actions .circle.lg { font-size: 15px; font-weight: 600; }
+
+  .sec { margin-top: 48px; }
+
+  .list-row[aria-current] h3 { color: var(--accent); }
+
+  .new .card-ep { width: 152px; }
+  .card-ep h3 { margin-top: 12px; font-size: 15px; font-weight: 500; line-height: 1.3; }
+  .card-ep p { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
+  .new { margin-inline: -16px; }
+
+  .ea .dock { left: 16px; right: 16px; bottom: max(16px, env(safe-area-inset-bottom, 0px)); position: fixed; max-width: 488px; margin-inline: auto; }
+  .ea .dock-bar { height: 64px; padding: 4px; background: rgba(30, 26, 24, .82); box-shadow: 0 12px 32px rgba(0, 0, 0, .4); }
+  .ea .dock-bar a { height: 56px; border-radius: 999px; gap: 4px; font-size: 13px; font-weight: 500; color: var(--ink-3); }
+  .ea .dock-bar a[aria-current] { flex: 1; padding: 0; display: grid; place-items: center; align-content: center; background: rgba(255, 255, 255, .1); color: var(--ink); font-size: 13px; }
+  .ea .dock-bar a:hover { color: var(--ink); }
+  .ea .dock-fab { width: 64px; height: 64px; box-shadow: 0 12px 28px rgba(255, 122, 69, .28); }
+</style>
+</head>
+<body>
+<div class="ui ui-dark ea">
+  <div class="ea-backdrop" aria-hidden="true"><img src="../../../sites/hvac/img/house.webp" alt=""></div>
+
+  <div class="ea-wrap">
+    <header class="ea-top">
+      <span class="ea-mark">Earshot</span>
+      <button class="circle glass ea-me" aria-label="Your account, Jo Marsh">JM</button>
+    </header>
+
+    <main>
+      <p class="ea-when">Paused 2 hours ago</p>
+      <div class="ea-hero">
+        <div class="cover lg"><img src="../../../sites/hvac/img/house.webp" alt=""></div>
+        <p class="ea-show"><b>Load Bearing</b>Episode 41<br>49 min</p>
+      </div>
+      <h1 class="ea-title">The house that cools itself</h1>
+      <p class="ea-desc">An architect in Seville on thick walls, deep eaves, and why her family has never needed air conditioning.</p>
+
+      <div class="wave" id="wave" role="slider" tabindex="0" aria-label="Position in the episode" aria-valuemin="0" aria-valuemax="2956" aria-valuenow="1864" aria-valuetext="31 minutes 4 seconds"></div>
+      <div class="ea-times"><span id="at">31:04</span><span id="left">18:12 left</span></div>
+
+      <div class="actions ea-actions">
+        <button class="pill" id="play" aria-pressed="false"><i class="ic ic-play-fill"></i><span>Resume</span></button>
+        <button class="circle lg" id="back" aria-label="Back 15 seconds">−15</button>
+        <button class="circle lg" id="fwd" aria-label="Forward 30 seconds">+30</button>
+      </div>
+
+      <section class="sec" aria-labelledby="upNext">
+        <div class="sec-head"><h2 id="upNext">Up next</h2><a href="#">Edit</a></div>
+        <div class="list">
+          <a class="list-row" href="#"><span class="cover sm"><img src="../../../sites/hvac/img/repair.webp" alt=""></span>
+            <span class="txt"><h3>Why your kitchen fan is so loud</h3><p>Fix It Properly · 38 min</p></span>
+            <span class="circle" aria-hidden="true"><i class="ic ic-play-fill"></i></span></a>
+          <a class="list-row" href="#"><span class="cover sm"><img src="../../../sites/restaurant/img/table.webp" alt=""></span>
+            <span class="txt"><h3>Ninety covers on a Tuesday</h3><p>The Long Table · 52 min</p></span>
+            <span class="circle" aria-hidden="true"><i class="ic ic-play-fill"></i></span></a>
+          <a class="list-row" href="#"><span class="cover sm"><img src="../../../sites/hvac/img/plans.webp" alt=""></span>
+            <span class="txt"><h3>Read a floor plan in five minutes</h3><p>Plans &amp; Permits · 24 min</p></span>
+            <span class="circle" aria-hidden="true"><i class="ic ic-play-fill"></i></span></a>
+        </div>
+      </section>
+
+      <section class="sec" aria-labelledby="newEps">
+        <div class="sec-head"><h2 id="newEps">New from your shows</h2><a href="#">All</a></div>
+        <div class="rail new">
+          <a class="card-ep" href="#"><span class="cover md"><img src="../../../sites/hvac/img/room-light.webp" alt=""><b>Slow Rooms</b></span><h3>A sofa you can sleep on</h3><p>Today · 41 min</p></a>
+          <a class="card-ep" href="#"><span class="cover md"><img src="../../../sites/restaurant/img/steak.webp" alt=""><b>Service</b></span><h3>The night the walk-in failed</h3><p>Yesterday · 33 min</p></a>
+          <a class="card-ep" href="#"><span class="cover md"><img src="../../../sites/restaurant/img/salad.webp" alt=""><b>The Long Table</b></span><h3>What a line cook eats</h3><p>Mon · 47 min</p></a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="dock" aria-label="Main">
+    <div class="dock-bar">
+      <a href="#" aria-current="page"><i class="ic ic-headphones"></i>Listen</a>
+      <a href="#"><i class="ic ic-grid"></i>Shows</a>
+      <a href="#"><i class="ic ic-library"></i>Library</a>
+    </div>
+    <a class="dock-fab" href="#" aria-label="Search podcasts"><i class="ic ic-search"></i></a>
+  </nav>
+</div>
+
+<script>
+// The waveform: bar heights from a fixed pattern so the shape is the same
+// every time, played bars in the accent, and the times follow a tap or drag.
+(() => {
+  const total = 2956;
+  let at = 1864, playing = false, timer = null;
+  const wave = document.getElementById('wave');
+  const bars = Array.from({ length: 56 }, (_, i) => {
+    const h = 0.28 + 0.5 * Math.abs(Math.sin(i * 0.61) * Math.cos(i * 0.23)) + 0.22 * ((i * 37) % 11) / 10;
+    const b = document.createElement('i'); b.style.height = Math.round(Math.min(1, h) * 48) + 'px'; wave.appendChild(b); return b;
+  });
+  const clock = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  const draw = () => {
+    const played = Math.round((at / total) * bars.length);
+    bars.forEach((b, i) => b.classList.toggle('on', i < played));
+    document.getElementById('at').textContent = clock(at);
+    document.getElementById('left').textContent = `${clock(total - at)} left`;
+    wave.setAttribute('aria-valuenow', Math.round(at));
+    wave.setAttribute('aria-valuetext', `${Math.floor(at / 60)} minutes ${Math.floor(at % 60)} seconds`);
+  };
+  const seek = (x) => { const r = wave.getBoundingClientRect(); at = Math.max(0, Math.min(total, ((x - r.left) / r.width) * total)); draw(); };
+  wave.addEventListener('pointerdown', (e) => { wave.setPointerCapture(e.pointerId); seek(e.clientX); });
+  wave.addEventListener('pointermove', (e) => { if (e.buttons) seek(e.clientX); });
+  wave.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') { at = Math.min(total, at + 30); draw(); } if (e.key === 'ArrowLeft') { at = Math.max(0, at - 15); draw(); } });
+  document.getElementById('back').onclick = () => { at = Math.max(0, at - 15); draw(); };
+  document.getElementById('fwd').onclick = () => { at = Math.min(total, at + 30); draw(); };
+  const play = document.getElementById('play');
+  play.onclick = () => {
+    playing = !playing;
+    play.setAttribute('aria-pressed', String(playing));
+    play.innerHTML = playing ? '<i class="ic ic-pause"></i><span>Pause</span>' : '<i class="ic ic-play-fill"></i><span>Resume</span>';
+    clearInterval(timer);
+    if (playing) timer = setInterval(() => { at = Math.min(total, at + 1); draw(); }, 1000);
+  };
+  draw();
+})();
+</script>
+</body>
+</html>

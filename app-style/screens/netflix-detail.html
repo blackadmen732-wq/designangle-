@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Netflix Detail Study</title>
+<!-- A study of the Netflix redesign by uidesignmahsa (the state after the
+     trailer starts), rebuilt from measured frames. Not for shipping. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../app-style.css">
+<link rel="stylesheet" href="../app-icons.css">
+<style>
+  body { margin: 0; }
+  /* The glow: the trailer's own colour, blurred behind the top of the page. */
+  .nf-glow { position: absolute; inset: 0 0 auto 0; height: 560px; pointer-events: none;
+    background: radial-gradient(90% 60% at 34% 22%, rgba(122, 88, 66, .55), rgba(60, 44, 34, .25) 45%, transparent 75%); }
+  .nf-poster { position: absolute; left: 16.5px; top: 117.5px; width: 104.5px; height: 136.5px; border-radius: 14px; overflow: hidden; }
+  .nf-poster img { width: 100%; height: 100%; object-fit: cover; }
+  .nf-poster i { position: absolute; left: 8px; right: 8px; bottom: 9px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.3); }
+  .nf-poster i::before { content: ""; display: block; width: 68%; height: 100%; border-radius: 2px; background: #fff; }
+  .nf-live { display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 500; color: var(--ink-3); }
+  .nf-live .ic { --ic: 14px; color: var(--accent); }
+  .nf-card { position: absolute; left: 16px; right: 16px; top: 347px; height: 190px; padding: 19px 20px 0; border-radius: 22px; }
+  .nf-card p { font-size: 15.5px; line-height: 21.4px; color: #d5d1d1; }
+  .nf-credits { display: grid; grid-template-columns: 183px 1fr; margin-top: 13px; }
+  .nf-credits span { display: block; font-size: 13.5px; color: var(--ink-3); }
+  .nf-credits b { display: block; max-width: 150px; margin-top: 3px; font-size: 15.5px; font-weight: 600; line-height: 18px; color: #f0f0f0; }
+  .nf-season { position: absolute; right: 16px; top: 616px; height: 36px; padding: 0 12px 0 16px; border-radius: 999px;
+    display: flex; align-items: center; gap: 6px; background: var(--fill); font-size: 15px; font-weight: 600; }
+  .nf-season .ic { --ic: 16px; }
+  .nf-season::after { content: ""; position: absolute; inset: -4px 0; }   /* 36 to look at, 44 to press */
+  .nf-ep { width: 157px; }
+  .nf-ep .thumb { position: relative; height: 86px; border-radius: 18px; overflow: hidden; }
+  .nf-ep .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .nf-ep .thumb .dl { position: absolute; top: 9px; right: 9px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(30,30,30,.55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .nf-ep .thumb .dl .ic { --ic: 18px; }
+  .nf-ep .bar { position: absolute; left: 10px; right: 10px; bottom: 9px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.35); }
+  .nf-ep .bar::before { content: ""; display: block; width: 36%; height: 100%; border-radius: 2px; background: var(--accent); }
+  .nf-ep h3 { margin-top: 6px; font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .nf-ep p { margin-top: 1px; font-size: 14px; color: #8f8f8f; }
+</style>
+</head>
+<body>
+<div class="ui ui-dark ui-phone" style="--accent:#e0231b">
+  <div class="nf-glow"></div>
+  <div class="ui-status"><span>9:41</span><span class="ui-status-icons"><i class="ic ic-signal"></i><i class="ic ic-battery"></i></span></div>
+  <div class="ui-island"></div>
+  <div class="topbar">
+    <button class="circle" aria-label="Close"><i class="ic ic-close"></i></button>
+    <button class="circle" aria-label="Share"><i class="ic ic-send"></i></button>
+  </div>
+
+  <div class="nf-poster"><img src="../../sites/hvac/img/repair.webp" alt=""><i></i></div>
+  <p class="nf-live" style="position:absolute; left:138px; top:139px"><i class="ic ic-bars"></i>Trailer playing</p>
+  <h1 class="t-display" style="position:absolute; left:138px; top:160.5px; font-size:28.5px; line-height:1.1">Black Mirror</h1>
+  <div class="tags" style="position:absolute; left:138px; top:208px">
+    <span class="tag">TV MA</span><span class="tag">HD</span><span class="tag"><i class="ic ic-cc"></i>Subtitles</span>
+  </div>
+
+  <div class="actions" style="position:absolute; left:16px; right:16px; top:271px; gap:9px">
+    <button class="pill md"><i class="ic ic-play" style="--ic:21px"></i>Play</button>
+    <button class="circle md" aria-label="Download"><i class="ic ic-download"></i></button>
+    <button class="circle md" aria-label="Add to my list"><i class="ic ic-plus"></i></button>
+  </div>
+
+  <div class="card nf-card">
+    <p>Hailed as “shockingly good and often disturbing” by Vulture, this collection of dystopian tales won back to back Emmys for Outstanding TV Movie.</p>
+    <div class="nf-credits">
+      <div><span>Starring</span><b>Awkwafina, Peter Capaldi</b></div>
+      <div><span>Created by</span><b>Charlie Brooker</b></div>
+    </div>
+  </div>
+
+  <nav class="tabs-line" style="position:absolute; left:16px; right:16px; top:562px">
+    <a aria-current="page">Episodes</a><a>More Like This</a><a>Trailers &amp; More</a>
+  </nav>
+
+  <h2 class="t-title-2" style="position:absolute; left:20px; top:619px; font-size:21px; font-weight:500">Episodes</h2>
+  <button class="nf-season">Season 7<i class="ic ic-chev-down"></i></button>
+
+  <div class="rail" style="position:absolute; left:0; right:0; top:666px; gap:9px">
+    <article class="nf-ep"><div class="thumb"><img src="../../sites/hvac/img/plans.webp" alt=""><span class="dl"><i class="ic ic-download"></i></span><i class="bar"></i></div><h3>Common People</h3><p>Episode 1, 57m</p></article>
+    <article class="nf-ep"><div class="thumb"><img src="../../sites/hvac/img/desk.webp" alt=""><span class="dl"><i class="ic ic-download"></i></span></div><h3>Bête Noire</h3><p>Episode 2, 50m</p></article>
+    <article class="nf-ep"><div class="thumb"><img src="../../sites/hvac/img/house.webp" alt=""></div><h3>Hotel Reverie</h3><p>Episode 3, 1h 17m</p></article>
+  </div>
+
+  <div class="ui-home-bar"></div>
+</div>
+<!-- Below the phone, outside the measured screen: what this page is. -->
+<p style="box-sizing:border-box; width:393px; margin:0; padding:12px 16px 20px; font:13px/1.45 system-ui, sans-serif; color:#5d605c; background:#fff">A rebuild of a redesign concept by uidesignmahsa, measured from her video to test this kit's app style. It is not a real screen from Netflix, and not affiliated with Netflix.</p>
+</body>
+</html>

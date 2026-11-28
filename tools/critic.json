@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "note": "The independent visual critic's weights. Starting values, not settled: calibrate against human picks (Mark's choices between two versions) and bump the version when they change. Used by tools/decide.js to rank layout candidates and by the critic prompt in tools/critic.md.",
+  "weights": {
+    "composition": 25,
+    "identity": 20,
+    "type": 15,
+    "spacing": 15,
+    "usability": 15,
+    "material": 10
+  }
+}

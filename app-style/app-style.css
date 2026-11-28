@@ -1,0 +1,645 @@
+/* =========================================================================
+   App style: the look of the app redesigns, as a system.
+
+   Measured frame by frame from six screen recordings: the Netflix, Uber
+   Eats, Google Maps, Airbnb and Starbucks redesigns by uidesignmahsa, and
+   the sign-in redesign by nuhushaik. Every number here was read off those
+   frames, cropped to the phone screen and scaled to iOS points. With the
+   viewport at 393 wide (an iPhone 15 or 16), 1 CSS px is 1 pt.
+
+   Two grounds, one vocabulary:
+     .ui-dark    the cinema ground: Netflix, Maps, Airbnb, Starbucks, sign-in
+     .ui-light   the market ground: Uber Eats
+   Each screen sets one --accent and spends it once or twice.
+
+   What makes it this style and not a template:
+     - headings in two tones: the same size and weight, the second half grey
+     - big type in regular or light weights, never bold; one huge thin number
+     - one white pill at 56pt with circles of the same height beside it
+     - 44pt translucent circles floating over a full-bleed photo
+     - the photo fades into the page; cards are lighter than the page, no borders
+     - the main action floats at the bottom, at the thumb
+   ========================================================================= */
+
+/* The shared scales and motion: one file for the websites and the apps. */
+@import url("../tokens/tokens.css");
+
+.ui {
+  /* Inter, with its display optical size, everywhere; SF Pro on Apple devices
+     (below), which is what the redesigns were drawn in. Never put
+     -apple-system first unconditionally: Chromium reads it as "system UI"
+     on every platform and gives Segoe or Roboto instead of Inter. */
+  --font: Inter, system-ui, sans-serif;
+  /* --gutter, --tap and --control come from tokens/tokens.css. */
+  --control-sm: 52px;
+  --chip: var(--space-10);
+  --tag: var(--space-6);
+  --r-card: var(--radius-xl);
+  --r-card-xl: var(--radius-2xl);
+  --r-tile: var(--radius-l);
+  --r-media: var(--radius-l);
+  --space-block: var(--space-4);   /* between blocks in a section */
+  --space-sec: var(--space-7);     /* above a section head */
+  --ease: var(--ease-out);
+  /* The colour roles every system gives (tokens/tokens.css). */
+  --ground: var(--page);
+  --ink-quiet: var(--ink-3);
+  --line: var(--hair);
+  font-family: var(--font);
+  /* The display cut at every size, as the designs were drawn (SF Pro Display
+     in Figma). Inter's text cut is about 5% wider below 32pt and stops the
+     widths matching. */
+  font-optical-sizing: none;
+  font-variation-settings: "opsz" 32;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--ink);
+  background: var(--page);
+  font-size: 16px;
+  line-height: 1.3;
+}
+/* ---- motion ------------------------------------------------------------- */
+/* One tempo, set in tokens/tokens.css: --ease-out for anything that enters,
+   leaves or is pressed, --spring for anything that travels, --spring-sheet
+   for sheets, each with its --t- duration. They sit on :root there, which
+   is also where view transitions read them. */
+
+/* Only WebKit understands this font keyword, and WebKit means an Apple
+   device (Safari, or any browser on iOS): there, use the real SF Pro. */
+@supports (font: -apple-system-body) {
+  .ui { --font: -apple-system, BlinkMacSystemFont, Inter, sans-serif; }
+}
+.ui *, .ui *::before, .ui *::after { box-sizing: border-box; }
+.ui :where(h1, h2, h3, h4, p, ul, ol, figure) { margin: 0; padding: 0; }
+.ui :where(button) { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+.ui :where(a) { color: inherit; text-decoration: none; }
+.ui :where(img) { display: block; max-width: 100%; }
+/* Keyboard focus: always visible, in the screen's accent. */
+.ui :focus-visible { outline: 3px solid var(--accent, var(--ink)); outline-offset: 2px; border-radius: 12px; }
+.ui :is(a, button, [role=button], summary) { cursor: pointer; }
+
+/* ---- grounds ----------------------------------------------------------- */
+.ui-dark {
+  --page: #090909;
+  --ink: #ffffff;
+  --ink-2: #c6c4c4;          /* body copy */
+  --ink-3: #959595;          /* labels, inactive tabs, the quiet half of a two-tone title */
+  --ink-on-pill-2: #707070;  /* secondary words inside a white pill (the recording's #838383 fails 4.5:1) */
+  --surface: rgba(255, 255, 255, .07);        /* cards: lighter than the page, never outlined */
+  --surface-solid: #1c1c1c;
+  --fill: rgba(255, 255, 255, .10);           /* tags, segmented tracks */
+  --fill-strong: rgba(255, 255, 255, .15);    /* circles */
+  --glass: rgba(40, 40, 40, .55);             /* circles over a photo */
+  --hair: rgba(255, 255, 255, .08);
+  --pill: #ffffff;
+  --on-pill: #060606;
+  --home-bar: #ffffff;
+  color-scheme: dark;
+}
+.ui-light {
+  --page: #f8f8f5;
+  --ink: #0c0e0b;
+  --ink-2: #686a67;          /* the quiet half of a two-tone title */
+  --ink-3: #6b6d6a;          /* labels; the recording's #888a87 fails 4.5:1 */
+  --ink-on-pill-2: #a9aba8;   /* in the dark pill: 7.9:1 (the old #6b6d6a was 3.5) */
+  --surface: #ffffff;
+  --surface-solid: #ffffff;
+  --fill: #ebebe8;
+  --fill-strong: #efefec;
+  --glass: rgba(255, 255, 255, .78);
+  --hair: rgba(12, 14, 11, .07);
+  --pill: #131715;           /* selected chip, active tab in the bar */
+  --on-pill: #ffffff;
+  --shadow: 0 8px 24px rgba(40, 40, 20, .07), 0 1px 3px rgba(40, 40, 20, .06);
+  --home-bar: #0c0e0b;
+  color-scheme: light;
+}
+
+/* ---- the phone frame, for mockups and references only ----------------- */
+.ui-phone {
+  position: relative; width: 393px; height: 852px; overflow: hidden;
+  background: var(--page);
+}
+.ui-status {
+  position: absolute; z-index: 30; top: 0; left: 0; right: 0; height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 27px 0 25px; pointer-events: none;
+  font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--status, var(--ink));
+}
+.ui-status .ic-signal { --ic: 19px; }
+.ui-status .ic-wifi { --ic: 19px; margin-left: 3px; }
+.ui-status .ic-battery { --ic: 28px; margin-left: 3px; }
+.ui-status-icons { display: flex; align-items: center; }
+.ui-island {
+  position: absolute; z-index: 31; top: 11px; left: 50%; width: 97px; height: 30px;
+  transform: translateX(-50%); border-radius: 20px; background: #000;
+}
+.ui-home-bar {
+  position: absolute; z-index: 31; bottom: 8px; left: 50%; width: 134px; height: 5px;
+  transform: translateX(-50%); border-radius: 3px; background: var(--home-bar);
+}
+
+/* ---- the look, as values a style can swap ------------------------------
+   Her look is the default, and it is written as the fallback inside each
+   var() below, so a screen that names no style is exactly hers. A file in
+   styles/ sets these on .ui.style-<name> and the same parts and markup take
+   another look (styles/plain.css is the first; styles/README.md says what a
+   style may change). The names, with her values:
+     --fs-mega 132px   --w-mega 200      one huge thin number
+     --fs-display 44px --w-display 500
+     --fs-title 29px   --fs-title-2 22px --w-title 400   large type, regular weight
+     --w-head 500      --track-title -0.01em
+     --two-tone        the quiet half of a heading: --ink-3 (#9a9590 in a dark title)
+     --r-control 999px pills, chips, tags, tracks, toasts and the dock are capsules
+     --r-field 16px    text fields and choice rows
+     --blur            the glass behind a control over a photo
+   Corners of cards and tiles are --r-card, --r-card-xl, --r-tile, --r-media
+   on .ui; a style re-sets those directly. */
+
+/* ---- type -------------------------------------------------------------- */
+/* Sizes are the ones measured, rounded to the half point. Weights stay at
+   400 or 500 for anything large: bold is for buttons and short labels. */
+.t-mega    { font-size: var(--fs-mega, 132px); font-weight: var(--w-mega, 200); line-height: .9; letter-spacing: -0.03em; }
+.t-display { font-size: var(--fs-display, 44px); font-weight: var(--w-display, 500); line-height: 1.05; letter-spacing: -0.02em; }
+.t-title   { font-size: var(--fs-title, 29px); font-weight: var(--w-title, 400); line-height: 1.14; letter-spacing: var(--track-title, -0.01em); }
+.t-title-2 { font-size: var(--fs-title-2, 22px); font-weight: var(--w-title, 400); line-height: 1.2; letter-spacing: var(--track-title, -0.01em); }
+.t-head    { font-size: 17px; font-weight: var(--w-head, 500); line-height: 1.3; }
+.t-body    { font-size: 15.5px; font-weight: 400; line-height: 1.38; }
+.t-sub     { font-size: 13px; font-weight: 400; line-height: 1.35; color: var(--ink-3); }
+.t-micro   { font-size: 11.5px; font-weight: 500; line-height: 1.2; }
+/* Two tones: the same size and weight, the second half in grey. */
+.dim { color: var(--two-tone, var(--ink-3)); }
+.ui-dark .t-title .dim, .ui-dark .t-title-2 .dim, .ui-dark .t-display .dim { color: var(--two-tone, #9a9590); }
+.accent { color: var(--accent); }
+
+/* ---- layout ------------------------------------------------------------ */
+.pad { padding-inline: var(--gutter); }
+.row { display: flex; align-items: center; }
+.between { justify-content: space-between; }
+.grow { flex: 1; min-width: 0; }
+
+/* ---- the photo that runs behind everything ---------------------------- */
+.hero { position: relative; overflow: hidden; }
+.hero > img, .hero > .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* On the dark ground every photo is graded down, so white type and glass
+   circles hold over it. The recordings sit at about 70% brightness. */
+.ui-dark .hero > img { filter: brightness(.7) saturate(.92); }
+/* The fade is the readability: from the page colour at the bottom to
+   nothing, so text sits on solid ground without a box behind it. */
+.hero::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, var(--page) 0%, color-mix(in srgb, var(--page) 70%, transparent) 26%, transparent 58%);
+}
+.hero.fade-top::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--page) 85%, transparent) 0%, transparent 22%);
+}
+
+/* ---- circles: 44 at the top over a photo, 56 beside the main pill ------ */
+.circle {
+  width: var(--tap); height: var(--tap); flex: none; border-radius: 50%;
+  display: grid; place-items: center; color: var(--ink); background: var(--fill-strong);
+  transition: scale var(--t-press) var(--ease-out), background-color var(--t-quick) var(--ease-out);
+}
+/* Glass only where a control floats over a photo: the top bar, or .glass.
+   Blur behind every circle is one of the tells (unslop 15). */
+.topbar .circle, .circle.glass {
+  background: var(--glass); -webkit-backdrop-filter: var(--blur, blur(16px) saturate(1.4)); backdrop-filter: var(--blur, blur(16px) saturate(1.4));
+}
+.circle:hover { filter: brightness(1.15); }
+.circle:active { scale: .94; }
+.circle.lg { width: var(--control); height: var(--control); background: var(--fill-strong); }
+.circle.md { width: var(--control-sm); height: var(--control-sm); background: var(--fill-strong); }
+.circle.solid { background: var(--surface-solid); }
+.topbar {
+  position: absolute; z-index: 20; left: var(--gutter); right: var(--gutter); top: 57px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.topbar .end { display: flex; gap: 8px; }
+
+/* ---- the action row: one filled pill, circles of the same height ------- */
+.actions { display: flex; align-items: center; gap: 8px; }
+.pill {
+  flex: 1; min-width: 0; height: var(--control); border-radius: var(--r-control, 999px);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--pill); color: var(--on-pill); font-size: 17px; font-weight: 600;
+  transition: scale var(--t-press) var(--ease-out), filter var(--t-quick) var(--ease-out);
+}
+.pill:active { scale: .97; }
+.pill .sub { font-weight: 500; color: var(--ink-on-pill-2); }
+.pill.md { height: var(--control-sm); }
+.pill.brand { background: var(--accent); color: var(--on-accent, #fff); }
+.pill.dark { background: #262626; color: #fff; }
+.pill.light { background: #ffffff; color: #111111; }
+.pill.light .sub { color: #6b6d6a; }
+
+/* ---- tags: information, not controls, so they never look pressable ---- */
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  height: var(--tag); padding-inline: 8px; border-radius: var(--r-control, 999px);
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--fill); color: #c8c8c8; font-size: 13px; font-weight: 500; white-space: nowrap;
+}
+.ui-light .tag { color: var(--ink); }
+.tag .ic { --ic: 15px; }
+.tag.lg { height: 32px; padding-inline: 12px; font-size: 15px; gap: 7px; }
+.tag.lg .ic { --ic: 18px; }
+
+/* ---- chips: controls; the selected one inverts ------------------------- */
+.chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-block: 8px; margin-block: -8px; }
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  position: relative; flex: none; height: var(--chip); padding-inline: 16px 18px; border-radius: var(--r-control, 999px);
+  display: inline-flex; align-items: center; gap: 9px;
+  background: var(--fill); color: var(--ink); font-size: 17px; font-weight: 500; white-space: nowrap;
+  transition: scale var(--t-press) var(--ease-out), background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out);
+}
+.chip:active { scale: .96; }
+/* A chip looks 40 (or 34) tall and catches presses over 44: the measured look
+   stays, the thumb gets Apple's minimum. The row's padding makes the room. */
+.chip::after { content: ""; position: absolute; inset: calc((var(--chip) - 44px) / 2) 0; }
+.chip.sm::after { inset: -5px 0; }
+.chip[aria-pressed="true"] { background: var(--pill); color: var(--on-pill); }
+.chip .ic { --ic: 21px; }
+.chip.sm { height: 34px; font-size: 13.5px; padding-inline: 12px 16px; gap: 7px; background: var(--fill); }
+.chip.sm .ic { --ic: 18px; }
+
+/* ---- cards ------------------------------------------------------------- */
+.card { border-radius: var(--r-card); background: var(--surface); }
+.ui-light .card { box-shadow: var(--shadow); }
+.card.xl { border-radius: var(--r-card-xl); }
+
+/* ---- tabs with one short underline in the accent (Netflix) ------------- */
+.tabs-line { position: relative; display: flex; gap: 24px; border-bottom: 1px solid var(--hair); padding-bottom: 12px; }
+.tabs-line a { font-size: 16px; font-weight: 500; color: var(--ink-3); white-space: nowrap; }
+.tabs-line a[aria-current] { color: var(--ink); position: relative; }
+.tabs-line a[aria-current]::after {
+  content: ""; position: absolute; left: -2px; bottom: -14px; width: 21px; height: 3px;
+  border-radius: 2px; background: var(--accent);
+}
+
+/* ---- segmented: a track with one white pill (Starbucks, Maps) --------- */
+.segmented {
+  display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: var(--r-control, 999px);
+  background: var(--fill); overflow-x: auto; scrollbar-width: none;
+}
+.segmented::-webkit-scrollbar { display: none; }
+.segmented > :is(a, button) {
+  position: relative; flex: 1 0 auto; height: 36px; padding-inline: 14px; border-radius: calc(var(--r-control, 999px) - 4px);
+  display: grid; place-items: center; font-size: 15px; font-weight: 500; color: var(--ink-3); white-space: nowrap;
+  transition: background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out);
+}
+/* A segment looks 36 tall and catches presses over 44: the track's 4pt
+   padding is the room, as with chips. */
+.segmented > :is(a, button)::after { content: ""; position: absolute; inset: -4px 0; }
+/* On the light track the label grey is darker than --ink-3: #6b6d6a on
+   #ebebe8 is 4.37:1, this is 5.08:1. The selected segment stays ink. */
+.ui-light .segmented > :is(a, button) { color: #616360; }
+.segmented > :is(a[aria-current], [aria-selected="true"]) { background: #ffffff; color: #111111; }
+.ui-light .segmented > :is(a[aria-current], [aria-selected="true"]) { box-shadow: 0 1px 3px rgba(40, 40, 20, .12); }
+
+/* ---- facts in a row: the number loud, the label quiet ------------------ */
+.stats { display: flex; gap: 24px; }
+.stats b { display: block; font-size: 17.5px; font-weight: var(--w-title, 400); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.stats span { display: block; font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+
+/* ---- the floating bar: a pill, an active item, and a separate circle --- */
+.dock {
+  position: absolute; z-index: 25; left: 12px; right: 12px; bottom: 27px;
+  display: flex; align-items: center; gap: 16px;
+}
+.dock-bar {
+  flex: 1; height: 60px; border-radius: var(--r-control, 999px); padding: 6px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--glass); -webkit-backdrop-filter: var(--blur, blur(20px) saturate(1.4)); backdrop-filter: var(--blur, blur(20px) saturate(1.4));
+}
+.ui-light .dock-bar { box-shadow: var(--shadow); }
+.dock-bar a { flex: 1; display: grid; place-items: center; color: var(--ink-3); }
+.dock-bar a[aria-current] {
+  flex: none; height: 47px; padding-inline: 16px 20px; border-radius: calc(var(--r-control, 999px) - 6px);
+  display: flex; gap: 8px; align-items: center; background: var(--pill); color: var(--on-pill);
+  font-size: 16px; font-weight: 500;
+}
+.dock-fab {
+  width: 60px; height: 60px; flex: none; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: var(--on-accent, #fff);
+  transition: scale var(--t-press) var(--ease-out);
+}
+.dock-fab:active { scale: .94; }
+.ui-light .dock-fab { box-shadow: 0 8px 20px rgba(0, 120, 70, .25); }
+.dock-fab .ic { --ic: 28px; }
+/* A labelled bar (Starbucks): icon over a small label in each slot. */
+.dock-bar.labelled { height: 63px; padding: 0 12px; }
+.dock-bar.labelled a { gap: 3px; font-size: 12px; }
+.dock-bar.labelled a .ic { --ic: 22px; }
+
+/* ---- the main action waiting at the thumb (Maps, Airbnb) -------------- */
+.thumb-cta {
+  position: absolute; z-index: 25; left: var(--gutter); right: var(--gutter); bottom: 30px;
+  display: flex; gap: 8px; align-items: center;
+}
+.thumb-fade {
+  position: absolute; z-index: 24; left: 0; right: 0; bottom: 0; height: 150px; pointer-events: none;
+  background: linear-gradient(to top, var(--page) 38%, transparent);
+}
+
+/* ---- section heads: a title, and one quiet way in on the right --------
+   Measured: "Featured on Uber Eats" and Starbucks' "Rewards menu" are 21.5pt
+   at 400, the second half grey, 16pt above what they head; the way in is a
+   36pt circle with an arrow (.go), not a "See all" link. */
+.sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.sec-head h2 { font-size: var(--fs-title-2, 22px); font-weight: var(--w-title, 400); line-height: 1.2; letter-spacing: var(--track-title, -0.01em); }
+.sec-head a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: flex-end; font-size: 15px; color: var(--ink-3); }
+.sec-head a:hover { color: var(--ink); }
+.sec-head .go { position: relative; flex: none; width: 36px; height: 36px; min-width: 0; min-height: 0; border-radius: 50%;
+  display: grid; place-items: center; background: var(--fill); color: var(--ink); }
+.sec-head .go::after { content: ""; position: absolute; inset: -4px; }
+.sec-head .go .ic { --ic: 19px; }
+/* The rhythm, measured on her light screens: blocks 16pt apart, a new
+   section 28pt below the last (26 to 30.5 in the frames). Tight: the white
+   between blocks is what separates them, not distance. */
+.sec { margin-top: var(--space-sec); }
+
+/* ---- cover art: a real image, square, with an optional name on it ------ */
+.cover { position: relative; display: block; flex: none; overflow: hidden; background: var(--surface-solid); }
+.cover img { width: 100%; height: 100%; object-fit: cover; }
+.cover > b { position: absolute; z-index: 1; left: 12px; right: 12px; bottom: 12px; font-size: 15px; font-weight: 600; line-height: 1.1; letter-spacing: -0.01em; color: #fff; }
+.cover:has(> b)::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0, 0, 0, .55), transparent 55%); }
+.cover.sm { width: 56px; height: 56px; border-radius: 12px; }
+.cover.md { width: 152px; height: 152px; border-radius: 16px; }
+.cover.lg { width: 164px; height: 164px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, .45); }
+
+/* ---- list rows: picture, two lines, one round action -------------------- */
+.list { display: grid; gap: 8px; }
+.list-row { display: flex; align-items: center; gap: 12px; padding: 8px; margin-inline: -8px; border-radius: 20px; transition: background-color var(--t-quick) var(--ease-out), scale var(--t-press) var(--ease-out); }
+.list-row:hover { background: rgba(255, 255, 255, .04); }
+.ui-light .list-row:hover { background: rgba(0, 0, 0, .03); }
+.list-row:active { scale: .98; }
+.list-row .txt { flex: 1; min-width: 0; }
+.list-row h3 { font-size: 15px; font-weight: var(--w-head, 500); line-height: 1.3; }
+.list-row p { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
+.list-row .circle .ic { --ic: 18px; }
+
+/* ---- what a row is, before it is opened (her Gmail) ------------------
+   A long list sits on flat white panels (.list-panel) over a cool grey,
+   grouped by what people scan for (.group-label: "This evening", and
+   .group-split above the next group). Each sender is a letter
+   in a colour circle (.mono, colour in --av) with a badge for the kind
+   of thing (.mono-kind: a photo, an order, a warning). What the row holds shows
+   at its end: photos as a thumbnail with a count (.thumb-n), a date as a
+   tile (.tile-date). Unread is ink with a dot (.dot-new); read is grey.
+   Low-value rows leave the list for one card with others stacked behind
+   it (.stacked). Measured on the last frame of her Gmail video. */
+.list-panel { background: var(--surface-solid); border-radius: var(--r-card) var(--r-card) 0 0; padding: 12px 16px 0; }
+.group-split { border-top: 1px solid var(--hair); }
+.group-label { padding: 8px 4px 4px; font-size: 15px; color: var(--ink-3); }
+.mono { position: relative; flex: none; width: 45px; height: 45px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--av, var(--fill-strong)); color: #fff; font-size: 20px; font-weight: 500; }
+.mono .ic { --ic: 22px; }
+.mono-kind { position: absolute; right: -4px; bottom: -4px; width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--surface-solid); color: var(--kind, var(--ink-3)); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
+.mono-kind .ic { --ic: 12px; }
+.dot-new { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--dot, #e5402e); }
+.thumb-n { position: relative; flex: none; width: 50px; height: 50px; }
+.thumb-n img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+.thumb-n b { position: absolute; right: -4px; bottom: -4px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; display: grid; place-items: center;
+  background: var(--ink); color: var(--surface-solid); font-size: 11px; font-weight: 600; box-shadow: 0 0 0 2px var(--surface-solid); }
+.tile-date { flex: none; width: 52px; height: 52px; border-radius: 12px; display: grid; place-content: center; text-align: center;
+  background: var(--tile, #e8f0fe); color: var(--tile-ink, #1a62d6); line-height: 1; }
+.tile-date small { font-size: 12px; font-weight: 500; }
+.tile-date b { margin-top: 3px; font-size: 22px; font-weight: 500; }
+.stacked { position: relative; isolation: isolate; }
+.stacked::before, .stacked::after { content: ""; position: absolute; z-index: -1; left: 18px; right: 18px; top: -9px; height: 24px;
+  border-radius: var(--r-card) var(--r-card) 0 0; background: var(--surface-solid); opacity: .7; }
+.stacked::after { left: 36px; right: 36px; top: -17px; opacity: .45; }
+
+/* A floating pill of circles in place of a tab bar (her Gmail): smaller
+   than a dock, so more of the list shows; the current one dark. */
+.pill-bar { display: inline-flex; gap: 6px; padding: 5px; border-radius: 999px;
+  background: rgba(160, 162, 166, .55); -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4); }
+.pill-bar a { position: relative; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: rgba(120, 122, 126, .75); color: #fff;
+  transition: scale var(--t-press) var(--ease-out); }
+.pill-bar a:active { scale: .94; }
+.pill-bar a[aria-current] { background: #262626; }
+.pill-bar .ic { --ic: 21px; }
+.pill-bar .badge { position: absolute; top: -6px; right: -8px; }
+
+/* ---- rows that run off the edge: the cut card is the scroll cue ------- */
+.rail { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-inline: var(--gutter); scroll-padding-inline: var(--gutter); }
+.rail::-webkit-scrollbar { display: none; }
+.rail > * { flex: none; }
+
+/* ---- progress: a track, and a fill that slides along it on a spring ---- */
+/* The fill slides rather than stretches, so its round end stays round.
+   Set --p from 0 to 1. */
+.meter { position: relative; height: 8px; border-radius: 999px; background: var(--fill); overflow: hidden; }
+.meter > i {
+  position: absolute; inset: 0; border-radius: inherit; background: var(--accent);
+  translate: calc((var(--p, 0) - 1) * 100%) 0;
+  transition: translate var(--t-spring) var(--spring);
+}
+
+/* ---- a sheet from the bottom, on a <dialog> ---------------------------- */
+/* <dialog class="sheet"> opened with showModal(): focus, Escape and the
+   backdrop come from the browser. It rises on the sheet spring and leaves
+   faster, on the ease-out; the backdrop fades. Drag-to-dismiss is the
+   page's job (see examples/tickets), and sets --drag while the finger is
+   down. */
+.sheet {
+  position: fixed; inset: auto 0 0 0; z-index: 50; margin: 0 auto; width: 100%; max-width: 560px;
+  max-height: calc(100dvh - 40px); overflow: auto; overscroll-behavior: contain;
+  padding: 0 var(--gutter) calc(24px + env(safe-area-inset-bottom, 0px)); border: 0; border-radius: 32px 32px 0 0;
+  background: var(--surface-solid); color: var(--ink); box-shadow: 0 -12px 40px rgba(0, 0, 0, .16);
+  translate: 0 var(--drag, 0px);
+  transition: translate var(--t-sheet) var(--spring-sheet), display var(--t-sheet) allow-discrete, overlay var(--t-sheet) allow-discrete;
+}
+.sheet:not([open]) { translate: 0 100%; transition-duration: var(--t-enter); transition-timing-function: var(--ease-out); }
+@starting-style { .sheet[open] { translate: 0 100%; } }
+/* What is behind a sheet blurs, as in the Netflix redesign ("the page slides
+   over the trailer and blurs it in the back"); on light, a lighter dim, so
+   a white page does not turn grey. */
+.sheet::backdrop {
+  background: rgba(10, 12, 10, .36); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  transition: opacity var(--t-enter) var(--ease-out), display var(--t-enter) allow-discrete, overlay var(--t-enter) allow-discrete;
+}
+.ui-light .sheet::backdrop { background: rgba(12, 14, 11, .2); }
+.sheet:not([open])::backdrop { opacity: 0; }
+@starting-style { .sheet[open]::backdrop { opacity: 0; } }
+.sheet-grip { display: grid; place-items: center; height: 28px; margin-inline: calc(-1 * var(--gutter)); cursor: grab; touch-action: none; }
+.sheet-grip::before { content: ""; width: 40px; height: 5px; border-radius: 3px; background: var(--fill); }
+.ui-light .sheet-grip::before { background: #d6d6d2; }
+
+/* ---- fields: labelled, 16px or more (no zoom on iPhone), 52 tall -------- */
+.field { display: grid; gap: 8px; margin: 0 0 20px; padding: 0; border: 0; min-width: 0; }
+.field > span, .field > legend { padding: 0; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+.field legend { margin-bottom: 8px; }
+.field .err { font-size: 13px; font-weight: 500; color: var(--accent); }
+.ui :is(textarea, select, input[type="text"], input[type="email"], input[type="tel"], input[type="search"]) {
+  width: 100%; min-height: 52px; padding: 14px 16px; border: 0; border-radius: var(--r-field, 16px);
+  background: var(--fill); color: var(--ink); font: inherit; font-size: 16px; line-height: 24px; resize: vertical;
+}
+.ui select { appearance: none; padding-right: 44px; background: var(--fill) url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath d="m6 9 6 6 6-6" fill="none" stroke="%23888" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/%3E%3C/svg%3E') no-repeat right 14px center / 20px; }
+.ui :is(textarea, select, input):focus-visible { outline: 2px solid var(--ink); outline-offset: 0; }
+
+/* Radio choices that look like the controls around them: a segmented track,
+   or chips. Real <input type=radio>, so the keyboard and screen readers get a
+   radio group. */
+.seg-radio { display: flex; gap: 4px; padding: 4px; border-radius: var(--r-control, 999px); background: var(--fill); }
+.seg-radio label, .chip-radio label { position: relative; flex: 1 0 auto; }
+.chip-radio label { flex: none; }
+.seg-radio input, .chip-radio input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.seg-radio span { display: grid; place-items: center; height: 44px; padding-inline: 12px; border-radius: calc(var(--r-control, 999px) - 4px); font-size: 15px; font-weight: 500; color: var(--ink-3); transition: background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out); }
+.seg-radio input:checked + span { background: #ffffff; color: #111111; box-shadow: 0 1px 3px rgba(40, 40, 20, .12); }
+.chip-radio { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-radio span { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding-inline: 16px; border-radius: var(--r-control, 999px); background: var(--fill); font-size: 15px; font-weight: 500; transition: background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out); }
+.chip-radio input:checked + span { background: var(--pill); color: var(--on-pill); }
+:is(.seg-radio, .chip-radio) label:active span { scale: .97; }
+:is(.seg-radio, .chip-radio) input:focus-visible + span { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* Choices with more to say (payment, pickup): a row each, the chosen one
+   ringed. A real radio, so it is one group. */
+.choices { display: grid; gap: 8px; }
+.choice { position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 16px 8px 12px; border-radius: var(--r-field, 16px); background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--hair); cursor: pointer; transition: box-shadow var(--t-quick) var(--ease-out); }
+.ui-light .choice { box-shadow: inset 0 0 0 1.5px #e4e4e0; }
+.choice input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.choice .txt { flex: 1; min-width: 0; font-size: 15px; font-weight: 500; }
+.choice small { display: block; margin-top: 2px; font-size: 13px; font-weight: 400; color: var(--ink-3); }
+.choice .ic:first-of-type { --ic: 24px; }
+.choice:has(input:checked) { box-shadow: inset 0 0 0 2px var(--ink); }
+.choice:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 2px; }
+.choice::after { content: ""; width: 22px; height: 22px; flex: none; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--ink-3); transition: box-shadow var(--t-quick) var(--ease-out); }
+.choice:has(input:checked)::after { box-shadow: inset 0 0 0 7px var(--ink); }
+
+/* ---- a switch: a checkbox that reads as on and off --------------------- */
+.switch { appearance: none; position: relative; flex: none; width: 52px; height: 32px; margin: 0; border-radius: 999px; background: var(--fill); cursor: pointer; transition: background-color var(--t-quick) var(--ease-out); }
+.ui-light .switch { background: #dcdcd8; }
+.switch::before { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .18); transition: translate var(--t-spring) var(--spring); }
+.switch:checked { background: var(--ink); }
+.switch:checked::before { translate: 20px 0; }
+.switch::after { content: ""; position: absolute; inset: -6px -2px; }   /* 32 to look at, 44 to press */
+
+/* ---- a tick box: a checkbox that fills in the accent ------------------ */
+.tick { appearance: none; flex: none; width: 24px; height: 24px; margin: 0; border-radius: 8px; box-shadow: inset 0 0 0 1.5px var(--ink-3); cursor: pointer;
+  background: transparent no-repeat center / 16px; transition: background-color var(--t-quick) var(--ease-out), box-shadow var(--t-quick) var(--ease-out); }
+.tick:checked { background-color: var(--accent); box-shadow: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+
+/* ---- a stepper: one less, the count, one more ------------------------- */
+.stepper { display: inline-flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px; background: var(--fill); }
+.stepper button { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-solid); color: var(--ink); position: relative; transition: scale var(--t-press) var(--ease-out); }
+.ui-light .stepper button { box-shadow: 0 1px 2px rgba(40, 40, 20, .12); }
+.stepper button::after { content: ""; position: absolute; inset: -4px; }   /* 36 to look at, 44 to press */
+.stepper button:active { scale: .92; }
+.stepper button .ic { --ic: 18px; }
+.stepper output { min-width: 28px; text-align: center; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---- a count on a control (the bag) ----------------------------------- */
+.badge { position: absolute; top: -4px; right: -4px; min-width: 24px; height: 24px; padding-inline: 4px; border-radius: 999px; display: grid; place-items: center; background: var(--ink); color: var(--page); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; box-shadow: 0 0 0 2px var(--page); }
+.badge:empty { display: none; }
+
+/* ---- what it costs: rows with the figure right-aligned ---------------- */
+.sum { display: grid; gap: 8px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.sum > div { display: flex; justify-content: space-between; gap: 16px; color: var(--ink-3); }
+.sum > div b { font-weight: 500; color: var(--ink); }
+.sum > .total { padding-top: 12px; margin-top: 4px; border-top: 1px solid var(--hair); font-size: 17px; font-weight: 600; color: var(--ink); }
+.sum > .total b { font-weight: 600; }
+
+/* ---- long-form text: a page meant to be read ------------------------- */
+/* 17px on 1.6 at no more than 64 characters a line; headings sized by
+   weight before size; code and quotes set apart without boxes inside boxes.
+   Holds any rendered HTML (a wiki page, an article). */
+.prose { font-size: 17px; line-height: 1.6; max-width: 64ch; color: var(--ink); text-wrap: pretty; overflow-wrap: break-word; }
+.prose p, .prose ul, .prose ol, .prose pre, .prose blockquote { margin: 0 0 16px; }
+.prose h2 { margin: 40px 0 12px; font-size: 22px; font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; scroll-margin-top: 96px; }
+.prose h3 { margin: 28px 0 8px; font-size: 17px; font-weight: 600; scroll-margin-top: 96px; }
+.prose > :first-child, .prose > :first-child > :first-child { margin-top: 0; }
+.prose ul, .prose ol { padding-left: 24px; }
+.prose li { margin: 8px 0; padding-left: 4px; }
+.prose li::marker { color: var(--ink-3); }
+.prose a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.prose a:hover { text-decoration-thickness: 2px; }
+.prose code { padding: 2px 6px; border-radius: 8px; background: var(--fill); font: 0.88em/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.prose pre { padding: 16px; border-radius: 16px; background: var(--fill); overflow-x: auto; font-size: 15px; line-height: 1.5; }
+.prose pre, .prose pre code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.prose pre code { padding: 0; background: none; font-size: inherit; }
+.prose blockquote { padding: 4px 0 4px 20px; box-shadow: inset 3px 0 0 var(--accent); color: var(--ink-2); }
+.prose blockquote p { margin: 0; }
+
+/* ---- how far through a page: a hairline that fills as you scroll ------ */
+/* Driven by the scroll position (a scroll timeline), not by time: it moves
+   only when the reader does. Hidden where scroll timelines are not known. */
+.read-bar { position: fixed; z-index: 40; inset: 0 0 auto 0; height: 3px; background: var(--accent); transform-origin: 0 50%; scale: 0 1; pointer-events: none;
+  animation: read-bar linear both; animation-timeline: scroll(root); }
+@keyframes read-bar { to { scale: 1 1; } }
+@supports not (animation-timeline: scroll()) { .read-bar { display: none; } }
+
+/* ---- a toast: one line of what happened, and one way back ------------- */
+.toast {
+  position: fixed; z-index: 60; left: 50%; bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100% - 32px);
+  min-height: 56px; padding: 6px 6px 6px 20px; border-radius: var(--r-control, 999px);
+  background: var(--pill); color: var(--on-pill); box-shadow: 0 12px 32px rgba(0, 0, 0, .2);
+  font-size: 15px; font-weight: 500;
+  translate: -50% 0; opacity: 1;
+  transition: translate var(--t-enter) var(--ease-out), opacity var(--t-enter) var(--ease-out), display var(--t-enter) allow-discrete;
+}
+.toast[hidden] { display: none; translate: -50% 12px; opacity: 0; }
+@starting-style { .toast:not([hidden]) { translate: -50% 12px; opacity: 0; } }
+.toast button { height: 44px; padding-inline: 16px; border-radius: calc(var(--r-control, 999px) - 6px); background: rgba(255, 255, 255, .16); font-weight: 600; }
+.ui-dark .toast button { background: rgba(0, 0, 0, .08); }
+
+/* ---- moving between screens: view transitions ------------------------- */
+/* Call document.startViewTransition() with data-nav on <html>:
+     push / pop  the new screen comes in from the right over the old one,
+                 which drifts a quarter left and dims; pop is the reverse
+     morph       an element named on both screens (view-transition-name)
+                 travels on its own spring between its two places; the old
+                 screen fades at once and the new one rises 24px into view
+                 110ms later, so the traveller crosses an almost empty page
+                 instead of running through the new one's text
+     morph-back  the same, back: the old screen's content fades, nothing rises
+   Text that changes size as it travels: name it vt-text-a (or vt-text-b),
+   set --vt-k (or --vt-k-b) on <html> to new font size / old font size, and
+   the glyphs grow instead of the snapshot stretching. */
+::view-transition-group(*) { animation-duration: var(--t-spring); animation-timing-function: var(--spring); }
+html[data-nav=push]::view-transition-old(root) { animation: var(--t-spring) var(--spring) both vt-out-left; }
+html[data-nav=push]::view-transition-new(root) { animation: var(--t-spring) var(--spring) both vt-in-right; box-shadow: -12px 0 32px rgba(0, 0, 0, .08); }
+html[data-nav=pop]::view-transition-old(root) { z-index: 1; animation: var(--t-spring) var(--spring) both vt-out-right; box-shadow: -12px 0 32px rgba(0, 0, 0, .08); }
+html[data-nav=pop]::view-transition-new(root) { animation: var(--t-spring) var(--spring) both vt-in-left; }
+html:is([data-nav=morph], [data-nav=morph-back])::view-transition-old(root) { animation: var(--t-quick) var(--ease-out) both vt-fade-out; }
+html[data-nav=morph]::view-transition-new(root) { animation: 300ms var(--ease-out) 110ms both vt-rise; }
+html[data-nav=morph-back]::view-transition-new(root) { animation: 240ms var(--ease-out) 110ms both vt-fade-in; }
+::view-transition-old(*):only-child, ::view-transition-new(*):only-child { animation-duration: var(--t-quick); }
+::view-transition-old(vt-text-a), ::view-transition-old(vt-text-b), ::view-transition-new(vt-text-a), ::view-transition-new(vt-text-b) {
+  width: auto; height: auto; transform-origin: 0 0;
+}
+::view-transition-old(vt-text-b), ::view-transition-new(vt-text-b) { --vt-k: var(--vt-k-b, 1); }
+::view-transition-old(vt-text-a), ::view-transition-old(vt-text-b) { animation: var(--t-spring) var(--spring) both vt-text-grow, 60ms linear both vt-fade-out; }
+::view-transition-new(vt-text-a), ::view-transition-new(vt-text-b) { animation: var(--t-spring) var(--spring) both vt-text-settle, 60ms linear both vt-fade-in; }
+@keyframes vt-in-right { from { translate: 100% 0; } }
+@keyframes vt-out-left { to { translate: -25% 0; opacity: .7; } }
+@keyframes vt-out-right { to { translate: 100% 0; } }
+@keyframes vt-in-left { from { translate: -25% 0; opacity: .7; } }
+@keyframes vt-rise { from { translate: 0 24px; opacity: 0; } }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+@keyframes vt-text-grow { to { scale: var(--vt-k, 1); } }
+@keyframes vt-text-settle { from { scale: calc(1 / var(--vt-k, 1)); } }
+
+/* Reduced motion: fewer and gentler, not none. Fades and colour changes
+   stay; anything that moves stops moving. A screen change is a quick fade. */
+@media (prefers-reduced-motion: reduce) {
+  .ui *, .ui *::before, .ui *::after {
+    transition-property: opacity, color, background-color, border-color, outline-color !important;
+    animation: none !important; scroll-behavior: auto !important;
+  }
+  .sheet, .sheet:not([open]) { translate: none; transition: opacity var(--t-quick) ease, display var(--t-quick) allow-discrete, overlay var(--t-quick) allow-discrete; }
+  .sheet:not([open]) { opacity: 0; }
+  @starting-style { .sheet[open] { translate: none; opacity: 0; } }
+  .toast, .toast[hidden] { translate: -50% 0; }
+  @starting-style { .toast:not([hidden]) { translate: -50% 0; opacity: 0; } }
+  .meter > i { transition: none; }
+  ::view-transition-group(*) { animation: none !important; }
+  ::view-transition-old(*) { animation: var(--t-quick) ease both vt-fade-out !important; }
+  ::view-transition-new(*) { animation: var(--t-quick) ease both vt-fade-in !important; }
+}

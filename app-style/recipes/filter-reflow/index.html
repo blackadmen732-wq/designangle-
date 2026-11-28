@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platform" content="desktop">
+<title>Recipe: Filter and sort reflow</title>
+<link rel="stylesheet" href="../recipes.css"></head>
+<body><main>
+<h1>Filter and sort reflow</h1><p class="why">Items move to their new places instead of jumping, so the eye can follow them. Built on AutoAnimate.</p>
+<div class="chips"><button id="odd">Only odd</button><button id="all">All</button><button id="rev">Reverse</button></div>
+<ul class="grid" id="grid"><li data-n="1">1</li><li data-n="2">2</li><li data-n="3">3</li><li data-n="4">4</li><li data-n="5">5</li><li data-n="6">6</li><li data-n="7">7</li><li data-n="8">8</li><li data-n="9">9</li><li data-n="10">10</li><li data-n="11">11</li><li data-n="12">12</li></ul>
+</main>
+<script type="application/json" id="motion-tour">[{"click": "#rev", "why": "reverse: each moves to its new place"}, {"click": "#odd", "why": "filter: the rest close up"}]</script>
+<script src="../../app-motion.js"></script>
+<script src="../../vendor/auto-animate.js"></script>
+<script src="../../interactions.js"></script>
+<script>
+var g = document.getElementById('grid'), all = Array.from(g.children), order = all.slice();
+Interact.lists(g);
+// AutoAnimate sees children come, go and move, so the filter adds and removes them
+function show(keep) { Interact.reflow(g, function () { all.forEach(function (li) { if (keep.indexOf(li) < 0 && li.parentNode) li.remove(); }); keep.forEach(function (li) { g.appendChild(li); }); }); }
+document.getElementById('odd').onclick = function () { show(order.filter(function (li) { return li.dataset.n % 2 === 1; })); };
+document.getElementById('all').onclick = function () { show(order); };
+document.getElementById('rev').onclick = function () { order.reverse(); show(order.filter(function (li) { return li.parentNode === g; })); };
+</script>
+</body></html>

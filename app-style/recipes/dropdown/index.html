@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platform" content="desktop">
+<title>Recipe: Dropdown from its trigger</title>
+<link rel="stylesheet" href="../recipes.css"></head>
+<body><main>
+<h1>Dropdown from its trigger</h1><p class="why">The menu grows from the button that opened it and flips above it near the bottom edge. Arrow keys move, Escape closes and puts focus back on the button. Built on the native popover and Floating UI.</p>
+<div><button id="trigger">Sort by</button>
+<div class="menu" id="menu" role="menu"><button role="menuitem">Newest</button><button role="menuitem">Price, low to high</button><button role="menuitem">Price, high to low</button></div></div>
+</main>
+<script type="application/json" id="motion-tour">[{"click": "#trigger", "why": "opens from the trigger"}, {"key": "Escape", "why": "closes, focus back"}]</script>
+<script src="../../app-motion.js"></script>
+<script src="../../vendor/floating-ui.core.umd.min.js"></script>
+<script src="../../vendor/floating-ui.dom.umd.min.js"></script>
+<script src="../../interactions.js"></script>
+<script>Interact.dropdown(document.getElementById('trigger'), document.getElementById('menu'));</script>
+</body></html>

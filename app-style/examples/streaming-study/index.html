@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050506">
+<meta name="platform" content="desktop">
+<title>REEL · Home (private study)</title>
+<!--
+  PRIVATE STUDY. A Netflix-style streaming home, redesigned with the dark
+  glass system to test it on a screen it was not built for. Not affiliated
+  with Netflix; no Netflix name, logo, titles or art. Not for clients.
+  Brief: brief/streaming-study.md.
+
+  The job:       get someone watching in under a minute.
+  The one thing: the featured show, and its Play button.
+  Cut:           the carousel, the second row of hero buttons, the maturity
+                 banner, the wall of equal posters.
+  Ground:        dark glass; the light comes from the still, so no streaks.
+  Accent:        one red, on "new" and on progress only.
+  Motion:        the still pushes in over 24s; rows rise in; cards lift,
+                 zoom and show a play button on hover. Still under reduced
+                 motion.
+-->
+<link rel="stylesheet" href="../../desktop/dark-glass.css">
+</head>
+<body class="dg scrolls">
+
+<div class="billboard" aria-hidden="true"><img src="../../../sites/meditation/img/doorway.webp" alt=""></div>
+
+<header class="topnav">
+  <span class="wordmark-sm">REEL</span>
+  <nav class="tabs" aria-label="Browse">
+    <a href="#" aria-current="page">Home</a>
+    <a href="#">Series</a>
+    <a href="#">Films</a>
+    <a href="#">New &amp; Popular</a>
+    <a href="#">My List</a>
+  </nav>
+  <div class="tools">
+    <button class="iconbtn" aria-label="Search"><svg class="i"><use href="#i-search"/></svg></button>
+    <button class="iconbtn" aria-label="Notifications"><svg class="i"><use href="#i-bell"/></svg></button>
+    <span class="avatar" aria-label="Profile: Mara" style="width:44px;height:44px;font-size:18px;margin-left:var(--space-2)">M</span>
+  </div>
+</header>
+
+<main>
+  <section class="feature" data-enter>
+    <span class="eyebrow"><span class="new">NEW SEASON</span>SERIES</span>
+    <h1>The Quiet<br>Room</h1>
+    <div class="meta"><span>2026</span><span>Season 2</span><span>8 episodes</span><span class="rating">16+</span><span>Drama</span></div>
+    <p class="synopsis">A monk who left the order comes back to run the retreat he walked out of, and finds the last guest is the man he left because of.</p>
+    <div class="actions">
+      <button class="btn-white"><svg class="i"><use href="#i-play"/></svg>Play S2:E1</button>
+      <button class="btn-glass">More info</button>
+      <button class="circle" aria-label="Add to My List"><svg class="i"><use href="#i-plus-plain"/></svg></button>
+    </div>
+  </section>
+
+  <div class="rows">
+    <section class="row" data-enter>
+      <h2>Continue watching</h2>
+      <div class="strip">
+        <a class="card" href="#"><div class="frame"><img src="../../../sites/barber/img/beard-bw.webp" alt=""><span class="play"><svg class="i"><use href="#i-play"/></svg></span><span class="bar"><i style="width:64%"></i></span></div><div class="label"><b>Close Shave</b><span>S1:E4 · 23 min left</span></div></a>
+        <a class="card" href="#"><div class="frame"><img src="../../../sites/restaurant/img/room.webp" alt=""><span class="play"><svg class="i"><use href="#i-play"/></svg></span><span class="bar"><i style="width:30%"></i></span></div><div class="label"><b>Last Service</b><span>1 h 12 min left</span></div></a>
+        <a class="card" href="#"><div class="frame"><img src="../../../sites/meditation/img/hall-dim.webp" alt=""><span class="play"><svg class="i"><use href="#i-play"/></svg></span><span class="bar"><i style="width:82%"></i></span></div><div class="label"><b>Low Light</b><span>S3:E9 · 8 min left</span></div></a>
+        <a class="card" href="#"><div class="frame"><img src="../../../sites/barber/img/shop.webp" alt=""><span class="play"><svg class="i"><use href="#i-play"/></svg></span><span class="bar"><i style="width:12%"></i></span></div><div class="label"><b>Brick Lane</b><span>S1:E1 · 41 min left</span></div></a>
+        <a class="card" href="#"><div class="frame"><img src="../../../sites/meditation/img/lamp.webp" alt=""><span class="play"><svg class="i"><use href="#i-play"/></svg></span><span class="bar"><i style="width:50%"></i></span></div><div class="label"><b>Ember</b><span>52 min left</span></div></a>
+      </div>
+    </section>
+
+    <section class="row" data-enter>
+      <h2>Top 10 this week <a href="#">See all</a></h2>
+      <div class="strip">
+        <a class="card tall" href="#"><div class="frame"><img src="../../../sites/meditation/img/corridor.webp" alt=""><span class="num">1</span></div><div class="label"><b>Long Hall</b></div></a>
+        <a class="card tall" href="#"><div class="frame"><img src="../../../sites/barber/img/razor.webp" alt=""><span class="num">2</span></div><div class="label"><b>Edge</b></div></a>
+        <a class="card tall" href="#"><div class="frame"><img src="../../../sites/meditation/img/shoji.webp" alt=""><span class="num">3</span></div><div class="label"><b>Paper Walls</b></div></a>
+        <a class="card tall" href="#"><div class="frame"><img src="../../../sites/restaurant/img/table.webp" alt=""><span class="num">4</span></div><div class="label"><b>Eight Courses</b></div></a>
+        <a class="card tall" href="#"><div class="frame"><img src="../../../sites/hvac/img/house.webp" alt=""><span class="num">5</span></div><div class="label"><b>The Glass House</b></div></a>
+        <a class="card tall" href="#"><div class="frame"><img src="../../../sites/meditation/img/hall-blue.webp" alt=""><span class="num">6</span></div><div class="label"><b>Blue Hour</b></div></a>
+        <a class="card tall" href="#"><div class="frame"><img src="../../../sites/salon/img/interior-chairs.webp" alt=""><span class="num">7</span></div><div class="label"><b>Chair Nine</b></div></a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script type="application/json" id="motion-tour">
+[
+  { "click": ".actions .circle", "why": "add to My List: the circle presses in" },
+  { "click": ".tabs a:nth-child(2)", "desktop": true, "why": "a tab: instant" }
+]
+</script>
+<script src="../../desktop/icons.js"></script>
+<script src="../../desktop/art.js"></script>
+<script>DG.enter();</script>
+</body>
+</html>

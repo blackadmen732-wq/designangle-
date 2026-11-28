@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f6f3">
+<title>Northwind Tickets</title>
+<!--
+  A redesign of Trac 1.6's ticket screens, from the same data. Trac is a real,
+  open-source issue tracker; it was picked at random as the ugliest app that
+  could be run here, photographed, then redesigned with the design and
+  app-style skills and the motion found for this (see docs/research).
+  The tickets come from a Trac project seeded by source/seed.py and exported
+  by source/export.py: the studio, the people and the tickets are invented.
+  Ticket 10's screenshot is a real bug in the kit's own sites/hvac.
+
+  The job:       someone on the team opens it to see what is left before the
+                 launch, and to pick up, discuss or close the next ticket.
+  The one thing: the launch. Days left, tickets to go, and the bar between.
+  Cut:           Trac's wiki, custom query builder, report SQL, RSS and CSV
+                 links, "max items per page", and every field nobody set
+                 (version, keywords, cc, severity).
+  Ground:        light. It is daylight work, read for minutes at a time. The
+                 photo at the top is the hero of the site being launched.
+  Accent:        one, Trac's red, spent on what is urgent or primary: the
+                 blocker, the launch bar and the new-ticket button.
+  Grid:          4pt. Radii: 24 for cards, 16 for fields and images, 32 for
+                 the top of a sheet, round for pills, circles and avatars.
+  Motion:        a ticket's title travels from its row to the top of the
+                 ticket and back (view transitions); filters slide the rows
+                 that stay into place (auto-animate, with its own keyframes:
+                 its defaults animate height and ease in); sheets rise on a
+                 spring and can be thrown down; tabs change instantly,
+                 because they are pressed all day. Reduced motion keeps the
+                 fades and drops the movement. tools/motion.js checks it.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../../app-style.css">
+<link rel="stylesheet" href="../../app-icons.css">
+<style>
+  body { margin: 0; background: #f7f6f3; }
+  .tk { --page: #f7f6f3; --accent: #c8361b; --on-accent: #ffffff; --ink-3: #686a66; min-height: 100dvh; }
+  /* The accent here means urgent, so focus is drawn in ink: a red ring on a
+     field reads as an error. */
+  .tk :focus-visible { outline-color: var(--ink); }
+
+  /* ---- the frame: one screen on a phone, list and ticket side by side wide */
+  .tk-app { position: relative; }
+  .tk-side[hidden], .tk-detail[hidden] { display: none; }
+  .tk-screen { position: relative; padding-bottom: 140px; }
+  .tk-screen[hidden] { display: none; }
+  .tk-col { position: relative; z-index: 1; max-width: 600px; margin-inline: auto; padding-inline: var(--gutter); }
+
+  /* ---- the top of Tickets: the site's own hero photo, faded into the page */
+  .tk-hero { position: absolute; z-index: 0; inset: 0 0 auto 0; height: 300px; }
+  .tk-hero img { filter: brightness(1.14) saturate(.85); object-position: 50% 25%; }
+  .tk-top { display: flex; align-items: center; justify-content: space-between; height: 56px; padding-top: max(48px, env(safe-area-inset-top, 0px)); }
+  .tk-mark { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+  .tk-me { font-size: 15px; font-weight: 600; }
+  .tk-kicker { font-size: 13px; font-weight: 500; color: var(--ink-3); }
+  /* Over the photo's fade the ground is darker than the page: read from the pixels, #686a66 was 3.99:1 there. */
+  .tk-lead .tk-kicker { color: #575955; }
+  .tk-lead { margin-top: 108px; }
+  .tk-h1 { margin-top: 8px; font-size: 36px; font-weight: 500; line-height: 40px; letter-spacing: -0.025em; }
+  .tk-h1 .dim { display: block; }
+  .tk-bar { margin-top: 24px; }
+  .tk-bar-cap { display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  /* ---- filters and the list ------------------------------------------- */
+  .tk-chips { margin: 24px calc(-1 * var(--gutter)) 0; padding-inline: var(--gutter); }
+  .tk-chips .chip { height: 44px; padding-inline: 16px; gap: 8px; font-size: 15px; }
+  .tk-chips .chip .n { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .tk-chips .chip[aria-pressed="true"] .n { color: rgba(255, 255, 255, .64); }
+  .tk-list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 4px; }
+  .tk-row { align-items: flex-start; padding: 12px 8px; }
+  .tk-row h3 { font-size: 15px; font-weight: 500; line-height: 20px; text-wrap: pretty; }
+  .tk-row p { margin-top: 4px; font-size: 13px; line-height: 16px; color: var(--ink-3); }
+  .tk-row[aria-current] { background: var(--surface); box-shadow: var(--shadow); }
+  .p-blocker { color: var(--accent); font-weight: 600; }
+  .p-critical { color: var(--ink); font-weight: 600; }
+  .tk-empty { padding: 32px 0; font-size: 15px; color: var(--ink-3); }
+
+  /* People: an initial in a circle. The signed-in person's is inverted, so
+     what is theirs shows at a glance. */
+  .tk-av { width: 40px; height: 40px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--fill); font-size: 15px; font-weight: 600; }
+  .tk-av.me { background: var(--pill); color: var(--on-pill); }
+  .tk-av.sm { width: 32px; height: 32px; font-size: 13px; }
+
+  /* ---- a ticket ---------------------------------------------------------- */
+  .tk-detail { position: relative; min-height: 100dvh; padding-bottom: 152px; }
+  .tk-d-hero { position: relative; height: 264px; overflow: hidden; display: grid; place-items: end center; padding-bottom: 24px; }
+  .tk-d-hero .blur { position: absolute; inset: -48px; width: calc(100% + 96px); height: calc(100% + 96px); max-width: none; object-fit: cover; filter: blur(32px) saturate(1.3); opacity: .55; }
+  .tk-d-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--page) 0%, transparent 60%); }
+  .tk-d-hero .shot { position: relative; z-index: 1; width: 216px; height: auto; border-radius: 16px; box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 16px 40px rgba(40, 40, 20, .18); }
+  .tk-detail .topbar { position: fixed; z-index: 30; top: max(48px, env(safe-area-inset-top, 0px)); max-width: 568px; margin-inline: auto; }
+  .tk-detail .topbar .circle { background: var(--glass); box-shadow: var(--shadow); }
+  .tk-d-plain { padding-top: 120px; }
+  .tk-d-title { margin-top: 8px; font-size: 29px; font-weight: 400; line-height: 34px; letter-spacing: -0.01em; text-wrap: pretty; }
+  .tk-detail .tags { margin-top: 16px; }
+  .tag.urgent { background: var(--accent); color: var(--on-accent); }
+  .tk-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+  .tk-fact { display: grid; align-content: start; gap: 4px; min-height: 104px; padding: 16px; }
+  .tk-fact .tk-av { margin-bottom: 8px; }
+  .tk-fact b { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+  .tk-fact span:not(.tk-av) { font-size: 13px; color: var(--ink-3); }
+  .tk-acts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 24px; }
+  .tk-act { display: grid; justify-items: center; gap: 8px; font-size: 13px; font-weight: 500; text-align: center; }
+  .tk-act .circle { width: 56px; height: 56px; background: var(--surface); box-shadow: var(--shadow); }
+  .tk-act .circle .ic { --ic: 22px; }
+  .tk-act[aria-pressed="true"] .circle { background: var(--pill); color: var(--on-pill); }
+  .tk-tabs { margin-top: 32px; }
+  .tk-tabs > button { height: 44px; }
+  .tk-panel { margin-top: 16px; padding: 20px; }
+  .tk-desc { font-size: 15px; line-height: 22px; text-wrap: pretty; }
+  .tk-att { margin-top: 20px; }
+  /* A screenshot stays the size it was taken at, framed, so its own text
+     never reads as the app's. */
+  .tk-att img { width: 100%; max-width: 393px; height: auto; border-radius: 16px; background: var(--fill); box-shadow: 0 0 0 1px var(--hair), 0 8px 24px rgba(40, 40, 20, .1); }
+  .tk-att figcaption { display: flex; gap: 8px; align-items: center; margin-top: 8px; font-size: 13px; color: var(--ink-3); }
+  .tk-att .ic { --ic: 16px; }
+  .tk-evs { display: grid; gap: 20px; }
+  .tk-ev { display: flex; gap: 12px; align-items: flex-start; }
+  .tk-ev .txt { flex: 1; min-width: 0; }
+  .tk-ev h4 { font-size: 13px; font-weight: 600; }
+  .tk-ev h4 span { font-weight: 400; color: var(--ink-3); }
+  .tk-ev p { margin-top: 4px; font-size: 15px; line-height: 22px; }
+  .tk-ev .chg { font-size: 13px; line-height: 18px; color: var(--ink-3); }
+  .tk-reply { display: flex; gap: 8px; align-items: flex-end; margin-top: 20px; }
+  .tk-reply textarea { flex: 1; }
+  .tk-detail .thumb-cta, .tk-detail .thumb-fade { position: fixed; }
+  .tk-detail .thumb-cta { max-width: 568px; margin-inline: auto; bottom: max(24px, env(safe-area-inset-bottom, 0px)); }
+  .tk-detail .thumb-cta .circle { background: var(--surface); box-shadow: var(--shadow); }
+
+  /* ---- fields: in app-style.css since the Chick-fil-A test needed them too -- */
+  .sheet .pill { width: 100%; margin-top: 8px; }
+  .tk-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 20px; }
+  .tk-sheet-head h2 { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+  .tk-people { display: grid; gap: 4px; margin-bottom: 8px; }
+  .tk-people button { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 8px; margin-inline: -8px; border-radius: 20px; text-align: left; font-size: 15px; font-weight: 500; transition: background-color var(--t-quick) var(--ease-out), scale var(--t-press) var(--ease-out); }
+  .tk-people button:hover { background: rgba(0, 0, 0, .03); }
+  .tk-people button:active { scale: .98; }
+  .tk-people .txt { flex: 1; }
+  .tk-people small { display: block; margin-top: 2px; font-size: 13px; font-weight: 400; color: var(--ink-3); }
+  .tk-people [aria-checked="true"] .ic { visibility: visible; }
+  .tk-people .ic { visibility: hidden; color: var(--accent); }
+
+  /* ---- Roadmap and Timeline ------------------------------------------- */
+  .tk-plain-top { padding-top: 24px; }
+  .tk-ms { margin-top: 16px; padding: 20px; }
+  .tk-ms h2 { margin-top: 4px; font-size: 22px; font-weight: 500; letter-spacing: -0.01em; }
+  .tk-ms > p { margin-top: 4px; font-size: 15px; line-height: 22px; color: var(--ink-3); }
+  .tk-ms .meter { margin-top: 20px; }
+  .tk-ms .stats { margin-top: 16px; }
+  .tk-ms .stats b { font-size: 20px; }
+  .tk-ms .stats span { font-size: 13px; }
+  .tk-ms .tk-list { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--hair); }
+  .tk-day { margin-top: 32px; }
+  .tk-day h2 { margin-bottom: 12px; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+  .tk-tl { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .tk-tl .list-row { align-items: flex-start; padding: 10px 8px; }
+  .tk-tl .ev-ic { width: 40px; height: 40px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--surface); box-shadow: var(--shadow); }
+  .tk-tl .ev-ic .ic { --ic: 18px; }
+  .tk-tl .ev-ic.done { background: var(--pill); color: var(--on-pill); box-shadow: none; }
+  .tk-tl h3 { font-size: 15px; font-weight: 400; line-height: 20px; }
+  .tk-tl h3 b { font-weight: 600; }
+  .tk-tl time { display: block; margin-top: 4px; font-size: 13px; color: var(--ink-3); }
+
+  /* ---- the dock ------------------------------------------------------- */
+  .tk .dock { position: fixed; left: 16px; right: 16px; bottom: max(24px, env(safe-area-inset-bottom, 0px)); max-width: 568px; margin-inline: auto; gap: 12px; }
+  .tk .dock-bar { height: 64px; padding: 6px; }
+  .tk .dock-bar a { height: 52px; border-radius: 999px; font-size: 15px; }
+  .tk .dock-bar a[aria-current] { height: 52px; font-size: 15px; }
+  .tk .dock-bar a:not([aria-current]) span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .tk .dock-fab { width: 64px; height: 64px; box-shadow: 0 10px 24px rgba(200, 54, 27, .28); }
+  .tk .dock-fab .ic { --ic: 26px; }
+
+  /* ---- short phones: the floating button must not sit on a control -------- */
+  /* Below 740px of height the screenshot hero goes (it is still in the
+     Description tab) and the top tightens, so the actions and tabs stay
+     above "Resolve as fixed". tools/check.js fails a page that hides a
+     control under a floating action. */
+  @media (max-height: 740px) and (max-width: 1023px) {
+    .tk-d-hero { display: none; }
+    .tk-d-hero + .tk-col, .tk-d-plain { padding-top: 100px; }
+    .tk-d-title { font-size: 26px; line-height: 30px; }
+    .tk-fact { min-height: 0; }
+    .tk-facts, .tk-acts { margin-top: 16px; }
+    .tk-tabs { margin-top: 20px; }
+  }
+
+  /* ---- wide: the list and the ticket side by side ------------------------ */
+  @media (min-width: 1024px) {
+    .tk-app { display: grid; grid-template-columns: 440px minmax(0, 1fr); height: 100dvh; overflow: hidden; }
+    .tk-side, .tk-detail { height: 100dvh; overflow-y: auto; overscroll-behavior: contain; }
+    .tk-side[hidden], .tk-detail[hidden] { display: block; }
+    .tk-side { position: relative; border-right: 1px solid var(--hair); }
+    .tk-screen { padding-bottom: 24px; }
+    .tk .dock { position: sticky; left: auto; right: auto; bottom: 16px; margin: 0 16px; max-width: none; }
+    .tk-detail { min-height: 0; padding-bottom: 0; }
+    .tk-detail .tk-col { max-width: 720px; padding-inline: 40px; }
+    .tk-detail .topbar .back { display: none; }
+    .tk-detail .thumb-fade { display: none; }
+    .tk-detail .thumb-cta { position: sticky; left: auto; right: auto; bottom: 24px; max-width: 640px; margin: 32px auto 24px; padding-inline: 0; }
+    .tk-detail .topbar { display: none; }
+    /* Two panes, one lead: the launch headline grows, the ticket's title
+       steps down, so the eye still lands on the launch first. */
+    .tk-h1 { font-size: 40px; line-height: 44px; }
+    .tk-d-title { font-size: 24px; line-height: 30px; }
+    .tk-d-hero { display: none; }
+    .tk-detail .tk-col, .tk-d-hero + .tk-col { margin-top: 0; padding-top: 64px; }
+    /* A new ticket in the pane fades up into place: once per pick. */
+    .tk-d-in { transition: opacity var(--t-enter) var(--ease-out), translate var(--t-enter) var(--ease-out); }
+    @starting-style { .tk-d-in { opacity: 0; translate: 0 8px; } }
+  }
+</style>
+</head>
+<body>
+<div class="ui ui-light tk" id="app">
+  <noscript><p class="tk-col tk-plain-top">This tracker needs JavaScript to show its tickets.</p></noscript>
+  <div class="tk-app">
+    <div class="tk-side" id="side">
+
+      <section class="tk-screen" id="s-tickets" aria-labelledby="ticketsTitle">
+        <div class="tk-hero hero" aria-hidden="true"><img src="../../../sites/hvac/img/thermostat.webp" alt=""></div>
+        <div class="tk-col">
+          <header class="tk-top">
+            <span class="tk-mark" id="project">Northwind website</span>
+            <button class="circle glass tk-me" id="me" type="button" aria-label="Signed in as Sam">S</button>
+          </header>
+          <div class="tk-lead">
+            <p class="tk-kicker" id="due"></p>
+            <h1 class="tk-h1" id="ticketsTitle"></h1>
+            <div class="tk-bar">
+              <div class="meter" id="launchBar" role="progressbar" aria-label="Launch tickets closed" aria-valuemin="0"><i></i></div>
+              <p class="tk-bar-cap"><span id="barDone"></span><span id="barLeft"></span></p>
+            </div>
+          </div>
+          <div class="chips tk-chips" id="filters" role="group" aria-label="Show"></div>
+          <ol class="tk-list" id="list" aria-label="Tickets"></ol>
+        </div>
+      </section>
+
+      <section class="tk-screen" id="s-roadmap" aria-labelledby="roadmapTitle" hidden>
+        <div class="tk-col tk-plain-top">
+          <header class="tk-top"><span class="tk-mark">Roadmap</span></header>
+          <h1 class="tk-h1" id="roadmapTitle"></h1>
+          <div id="milestones"></div>
+        </div>
+      </section>
+
+      <section class="tk-screen" id="s-timeline" aria-labelledby="timelineTitle" hidden>
+        <div class="tk-col tk-plain-top">
+          <header class="tk-top"><span class="tk-mark">Timeline</span></header>
+          <h1 class="tk-h1" id="timelineTitle"></h1>
+          <div id="days"></div>
+        </div>
+      </section>
+
+      <nav class="dock" id="dock" aria-label="Main">
+        <div class="dock-bar">
+          <a href="#/tickets" data-tab="tickets"><i class="ic ic-ticket"></i><span>Tickets</span></a>
+          <a href="#/roadmap" data-tab="roadmap"><i class="ic ic-flag"></i><span>Roadmap</span></a>
+          <a href="#/timeline" data-tab="timeline"><i class="ic ic-clock"></i><span>Timeline</span></a>
+        </div>
+        <button class="dock-fab" id="newBtn" type="button" aria-label="New ticket" aria-haspopup="dialog"><i class="ic ic-plus"></i></button>
+      </nav>
+    </div>
+
+    <article class="tk-detail" id="detail" hidden></article>
+  </div>
+
+  <dialog class="sheet" id="sheetNew" aria-labelledby="newTitle" closedby="any">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <form id="formNew" novalidate>
+      <div class="tk-sheet-head"><h2 id="newTitle">New ticket</h2>
+        <button class="circle" type="button" data-close aria-label="Close"><i class="ic ic-close"></i></button></div>
+      <label class="field"><span>What is wrong, or what is needed?</span>
+        <textarea name="summary" rows="2" required aria-describedby="summaryErr"></textarea>
+        <span class="err" id="summaryErr" hidden>Write a line about it, so the owner knows what to do.</span></label>
+      <fieldset class="field"><legend>Type</legend>
+        <div class="seg-radio">
+          <label><input type="radio" name="type" value="defect" checked><span>Defect</span></label>
+          <label><input type="radio" name="type" value="enhancement"><span>Improvement</span></label>
+          <label><input type="radio" name="type" value="task"><span>Task</span></label>
+        </div></fieldset>
+      <fieldset class="field"><legend>Priority</legend>
+        <div class="chip-radio">
+          <label><input type="radio" name="priority" value="blocker"><span>Blocker</span></label>
+          <label><input type="radio" name="priority" value="critical"><span>Critical</span></label>
+          <label><input type="radio" name="priority" value="major" checked><span>Major</span></label>
+          <label><input type="radio" name="priority" value="minor"><span>Minor</span></label>
+          <label><input type="radio" name="priority" value="trivial"><span>Trivial</span></label>
+        </div></fieldset>
+      <label class="field"><span>Part of the site</span><select name="component" id="componentSel"></select></label>
+      <fieldset class="field"><legend>Milestone</legend><div class="seg-radio" id="msRadios"></div></fieldset>
+      <fieldset class="field"><legend>Owner</legend><div class="chip-radio" id="ownerRadios"></div></fieldset>
+      <button class="pill" type="submit">Create ticket</button>
+    </form>
+  </dialog>
+
+  <dialog class="sheet" id="sheetOwner" aria-labelledby="ownerTitle" closedby="any">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="tk-sheet-head"><h2 id="ownerTitle">Who should own it?</h2>
+      <button class="circle" type="button" data-close aria-label="Close"><i class="ic ic-close"></i></button></div>
+    <div class="tk-people" id="people" role="radiogroup" aria-labelledby="ownerTitle"></div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" hidden><span></span><button type="button"></button></div>
+</div>
+
+<!-- What tools/motion.js presses to watch this page move. -->
+<script type="application/json" id="motion-tour">
+[
+  { "click": "#filters [data-filter=\"launch\"]", "why": "filter: rows slide into place" },
+  { "click": "#filters [data-filter=\"open\"]", "why": "filter back" },
+  { "click": "#list [data-id=\"10\"]", "why": "open a ticket: its title travels" },
+  { "click": "[data-pane=\"discussion\"]", "why": "a tab: instant on purpose" },
+  { "click": "#resolve", "why": "close it: toast, state" },
+  { "click": "#detail .back", "phone": true, "why": "back to the list" },
+  { "click": "#newBtn", "why": "the new-ticket sheet rises" },
+  { "key": "Escape", "why": "and leaves" }
+]
+</script>
+<script src="data.js"></script>
+<script src="../../vendor/auto-animate.js"></script>
+<script>
+(() => {
+  const D = window.TRAC;
+  const NOW = new Date(D.exported);          // a snapshot: times read from the day it was exported
+  const ME = 'sam';
+  const $ = (s, el = document) => el.querySelector(s);
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const wide = matchMedia('(min-width: 1024px)');
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+  const root = document.documentElement;
+
+  // ---- words ---------------------------------------------------------------
+  const RANK = { blocker: 0, critical: 1, major: 2, minor: 3, trivial: 4 };
+  const cap = (s) => s ? s[0].toUpperCase() + s.slice(1) : '';
+  const name = (p) => cap(p);
+  const TYPE = { defect: 'Defect', enhancement: 'Improvement', task: 'Task' };
+  const state = (t) => t.status === 'closed' ? cap(t.resolution || 'closed') : { new: 'Not started', assigned: 'Assigned', accepted: 'In progress', reopened: 'Reopened' }[t.status] || cap(t.status);
+  const isOpen = (t) => t.status !== 'closed';
+  const day = (d) => Math.floor((Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())) / 864e5);
+  const dateLong = (iso) => new Date(iso).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+  const dateShort = (iso) => new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+  const clock = (iso) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
+  function ago(iso) {
+    const m = (NOW - new Date(iso)) / 6e4;
+    if (m < 2) return 'just now';
+    if (m < 60) return `${Math.round(m)} min ago`;
+    if (m < 60 * 20) return `${Math.round(m / 60)} hours ago`;
+    const d = day(NOW) - day(new Date(iso));
+    return d <= 1 ? 'yesterday' : `${d} days ago`;
+  }
+  function span(iso) {
+    const h = (NOW - new Date(iso)) / 36e5;
+    return h < 1 ? plural(Math.max(1, Math.round(h * 60)), 'minute') : h < 24 ? plural(Math.round(h), 'hour') : plural(Math.floor(h / 24), 'day');
+  }
+  const daysTo = (iso) => Math.round((new Date(iso) - NOW) / 864e5);
+  const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
+  const avatar = (p, size = '') => `<span class="tk-av ${size} ${p === ME ? 'me' : ''}" aria-hidden="true">${esc(name(p)[0])}</span>`;
+  const byId = (id) => D.tickets.find((t) => t.id === +id);
+  const launch = D.milestones[0];
+
+  // ---- what is shown -------------------------------------------------------
+  const ui = { tab: 'tickets', filter: 'open', ticket: null, pane: 'description' };
+  const FILTERS = [
+    ['open', 'Open', isOpen],
+    ['mine', 'Mine', (t) => isOpen(t) && t.owner === ME],
+    ['launch', 'Launch', (t) => isOpen(t) && t.milestone === 'Launch'],
+    ['winter', 'Winter care plan', (t) => isOpen(t) && t.milestone === 'Winter care plan'],
+    ['closed', 'Closed', (t) => !isOpen(t)],
+  ];
+  const shown = () => D.tickets.filter(FILTERS.find((f) => f[0] === ui.filter)[2])
+    .sort((a, b) => RANK[a.priority] - RANK[b.priority] || a.id - b.id);
+
+  // ---- Tickets -----------------------------------------------------------
+  const list = $('#list');
+  const rows = new Map();          // one element per ticket, kept, so filters can move them
+  function rowHtml(t) {
+    const pri = t.priority === 'blocker' ? '<b class="p-blocker">Blocker</b>' : t.priority === 'critical' ? '<b class="p-critical">Critical</b>' : cap(t.priority);
+    const meta = [pri, `#${t.id}`, t.status === 'new' ? esc(t.component) : state(t)].join(' · ');
+    return `<a class="list-row tk-row" href="#/ticket/${t.id}" data-id="${t.id}">${avatar(t.owner)}
+      <span class="txt"><h3>${esc(t.summary)}</h3><p>${meta}</p></span></a>`;
+  }
+  function renderTickets() {
+    const days = daysTo(launch.due), mine = D.tickets.filter((t) => t.milestone === 'Launch');
+    const left = mine.filter(isOpen).length, done = mine.length - left;
+    $('#due').textContent = dateLong(launch.due);
+    $('#ticketsTitle').innerHTML = `Launch in ${plural(days, 'day')}. <span class="dim">${plural(left, 'ticket')} to go.</span>`;
+    const bar = $('#launchBar');
+    bar.style.setProperty('--p', (done / mine.length).toFixed(3));
+    bar.setAttribute('aria-valuemax', mine.length); bar.setAttribute('aria-valuenow', done);
+    $('#barDone').textContent = `${done} of ${mine.length} closed`;
+    $('#barLeft').textContent = `Due ${dateShort(launch.due)}`;
+
+    $('#filters').innerHTML = FILTERS.map(([key, label, test]) =>
+      `<button class="chip" type="button" data-filter="${key}" aria-pressed="${ui.filter === key}">${label} <span class="n">${D.tickets.filter(test).length}</span></button>`).join('');
+
+    // Keep the elements that stay, so auto-animate can slide them to their
+    // new places; add and remove only what changed.
+    const want = shown();
+    for (const [id, li] of rows) if (!want.some((t) => t.id === id)) { li.remove(); rows.delete(id); }
+    want.forEach((t, i) => {
+      let li = rows.get(t.id);
+      const html = rowHtml(t);
+      if (!li) { li = document.createElement('li'); rows.set(t.id, li); }
+      if (li.dataset.html !== html) { li.innerHTML = html; li.dataset.html = html; }
+      if (list.children[i] !== li) list.insertBefore(li, list.children[i] || null);
+    });
+    let empty = $('.tk-empty', list);
+    if (!want.length && !empty) list.insertAdjacentHTML('beforeend', '<li class="tk-empty">Nothing here. Every ticket in this list is closed.</li>');
+    if (want.length && empty) empty.remove();
+    markCurrent();
+  }
+  function markCurrent() {
+    document.querySelectorAll('.tk-row[aria-current]').forEach((a) => a.removeAttribute('aria-current'));
+    if (wide.matches && ui.ticket) document.querySelectorAll(`.tk-row[data-id="${ui.ticket}"]`).forEach((a) => a.setAttribute('aria-current', 'page'));
+  }
+
+  // ---- Roadmap -----------------------------------------------------------
+  function renderRoadmap() {
+    const open = D.tickets.filter(isOpen).length;
+    $('#roadmapTitle').innerHTML = `${plural(D.milestones.length, 'milestone')}. <span class="dim">${open} tickets open.</span>`;
+    $('#milestones').innerHTML = D.milestones.map((m) => {
+      const ts = D.tickets.filter((t) => t.milestone === m.name), left = ts.filter(isOpen);
+      const blockers = left.filter((t) => t.priority === 'blocker').length;
+      return `<article class="card tk-ms">
+        <p class="tk-kicker">Due ${dateLong(m.due)}, in ${plural(daysTo(m.due), 'day')}</p>
+        <h2>${esc(m.name)}</h2><p>${esc(m.description)}</p>
+        <div class="meter" role="progressbar" aria-label="${esc(m.name)} tickets closed" aria-valuemin="0" aria-valuemax="${ts.length}" aria-valuenow="${ts.length - left.length}" style="--p:${((ts.length - left.length) / ts.length).toFixed(3)}"><i></i></div>
+        <div class="stats"><div><b>${ts.length - left.length}</b><span>closed</span></div><div><b>${left.length}</b><span>open</span></div><div><b>${blockers}</b><span>${blockers === 1 ? 'blocker' : 'blockers'}</span></div></div>
+        <ol class="tk-list">${left.sort((a, b) => RANK[a.priority] - RANK[b.priority]).map((t) => `<li>${rowHtml(t)}</li>`).join('')}</ol>
+      </article>`;
+    }).join('');
+    markCurrent();
+  }
+
+  // ---- Timeline ----------------------------------------------------------
+  function events() {
+    const out = [];
+    for (const t of D.tickets) {
+      out.push({ at: t.opened, who: t.reporter, t, what: 'opened', ic: 'plus' });
+      for (const a of t.attachments) out.push({ at: a.at, who: a.author, t, what: `attached ${a.name} to`, ic: 'clip' });
+      for (const e of t.events) {
+        const st = e.changes.find((c) => c.field === 'status');
+        if (st && st.to === 'closed') out.push({ at: e.at, who: e.author, t, what: 'closed', ic: 'check', done: true });
+        else if (st) out.push({ at: e.at, who: e.author, t, what: st.to === 'accepted' ? 'started' : st.to === 'assigned' ? 'assigned' : `moved to ${st.to}`, ic: 'user' });
+        else if (e.comment) out.push({ at: e.at, who: e.author, t, what: 'commented on', ic: 'chat' });
+      }
+    }
+    return out.sort((a, b) => new Date(b.at) - new Date(a.at));
+  }
+  function renderTimeline() {
+    const evs = events(), groups = new Map();
+    for (const e of evs) {
+      const d = day(NOW) - day(new Date(e.at));
+      const label = d === 0 ? 'Today' : d === 1 ? 'Yesterday' : dateLong(e.at);
+      if (!groups.has(label)) groups.set(label, []);
+      groups.get(label).push(e);
+    }
+    $('#timelineTitle').innerHTML = `This week. <span class="dim">${evs.length} changes.</span>`;
+    $('#days').innerHTML = [...groups].map(([label, es]) => `<section class="tk-day"><h2>${label}</h2><ol class="tk-tl">${es.map((e) =>
+      `<li><a class="list-row" href="#/ticket/${e.t.id}" data-id="${e.t.id}"><span class="ev-ic ${e.done ? 'done' : ''}" aria-hidden="true"><i class="ic ic-${e.ic}"></i></span>
+        <span class="txt"><h3><b>${name(e.who)}</b> ${e.what} #${e.t.id}, ${esc(e.t.summary)}</h3><time datetime="${e.at}">${clock(e.at)}</time></span></a></li>`).join('')}</ol></section>`).join('');
+  }
+
+  // ---- a ticket ----------------------------------------------------------
+  const detail = $('#detail');
+  let watching = new Set(), lastShown = null;
+  function renderDetail() {
+    const t = byId(ui.ticket);
+    if (!t) { detail.innerHTML = ''; lastShown = null; return; }
+    const fresh = lastShown !== t.id; lastShown = t.id;
+    const focused = detail.contains(document.activeElement) && document.activeElement.id;
+    const img = t.attachments.find((a) => /\.(webp|png|jpe?g)$/i.test(a.name));
+    const talk = t.events.filter((e) => e.comment);
+    const changes = t.events.filter((e) => e.changes.length);
+    const urgent = t.priority === 'blocker';
+    detail.innerHTML = `
+      ${img ? `<div class="tk-d-hero" aria-hidden="true"><img class="blur" src="img/${esc(img.name)}" alt=""><img class="shot" src="img/${esc(img.name)}" alt=""></div>` : ''}
+      <div class="topbar"><a class="circle back" href="#/${ui.tab}" aria-label="Back to ${ui.tab}"><i class="ic ic-chev-left"></i></a></div>
+      <div class="tk-col ${fresh ? 'tk-d-in' : ''} ${img ? '' : 'tk-d-plain'}">
+        <p class="tk-kicker">#${t.id} · ${TYPE[t.type] || cap(t.type)} · ${esc(t.component)}</p>
+        <h1 class="tk-d-title" id="dTitle">${esc(t.summary)}</h1>
+        <div class="tags"><span class="tag ${urgent ? 'urgent' : ''}">${cap(t.priority)}</span><span class="tag">${esc(t.milestone)}</span><span class="tag">${state(t)}</span></div>
+        <div class="tk-facts">
+          <div class="card tk-fact tk-owner">${avatar(t.owner)}<b>${t.owner === ME ? 'You' : name(t.owner)}</b><span>${t.owner === ME ? 'own it' : 'owns it'}</span></div>
+          <div class="card tk-fact"><b>${isOpen(t) ? span(t.opened) : state(t)}</b><span>${isOpen(t) ? `open, reported by ${name(t.reporter)}` : `closed ${ago(t.changed)}`}</span></div>
+        </div>
+        <div class="tk-acts">
+          <button class="tk-act" type="button" id="accept" aria-pressed="${t.status === 'accepted' && t.owner === ME}" ${isOpen(t) ? '' : 'disabled'}><span class="circle"><i class="ic ic-check"></i></span>${t.status === 'accepted' && t.owner === ME ? 'Started' : 'Start'}</button>
+          <button class="tk-act" type="button" id="reassign" aria-haspopup="dialog"><span class="circle"><i class="ic ic-user"></i></span>Reassign</button>
+          <button class="tk-act" type="button" id="watch" aria-pressed="${watching.has(t.id)}"><span class="circle"><i class="ic ic-bell"></i></span>${watching.has(t.id) ? 'Watching' : 'Watch'}</button>
+          <button class="tk-act" type="button" id="copy"><span class="circle"><i class="ic ic-link"></i></span>Copy link</button>
+        </div>
+        <div class="segmented tk-tabs" role="tablist" aria-label="About this ticket">
+          ${[['description', 'Description'], ['discussion', `Discussion ${talk.length}`], ['history', 'History']].map(([k, l]) =>
+            `<button type="button" role="tab" data-pane="${k}" id="tab-${k}" aria-controls="pane" aria-selected="${ui.pane === k}">${l}</button>`).join('')}
+        </div>
+        <div class="card tk-panel" id="pane" role="tabpanel" aria-labelledby="tab-${ui.pane}">${pane(t, img, talk, changes)}</div>
+      </div>
+      <div class="thumb-fade"></div>
+      <div class="thumb-cta">
+        <button class="pill" type="button" id="resolve">${isOpen(t) ? '<i class="ic ic-check"></i>Resolve as fixed' : '<i class="ic ic-undo"></i>Reopen'}</button>
+        <button class="circle lg" type="button" id="comment" aria-label="Write a comment"><i class="ic ic-chat"></i></button>
+      </div>`;
+    if (focused) document.getElementById(focused)?.focus({ preventScroll: true });
+  }
+  function pane(t, img, talk, changes) {
+    if (ui.pane === 'description') return `<p class="tk-desc">${esc(t.description)}</p>${img ? `<figure class="tk-att"><img src="img/${esc(img.name)}" alt="Screenshot attached by ${name(img.author)}: ${esc(img.note)}" width="786" height="620"><figcaption><i class="ic ic-clip"></i>${esc(img.name)}, ${Math.round(img.size / 1024)} KB, from ${name(img.author)}</figcaption></figure>` : ''}`;
+    if (ui.pane === 'discussion') return `<div class="tk-evs">${talk.map((e) => `<div class="tk-ev">${avatar(e.author, 'sm')}<div class="txt"><h4>${name(e.author)} <span>${ago(e.at)}</span></h4><p>${esc(e.comment)}</p></div></div>`).join('') || '<p class="tk-desc">No one has said anything yet.</p>'}</div>
+      <form class="tk-reply" id="reply"><label class="grow"><textarea name="c" rows="1" placeholder="Write a comment" aria-label="Write a comment"></textarea></label><button class="circle lg" type="submit" aria-label="Send"><i class="ic ic-send"></i></button></form>`;
+    const lines = changes.flatMap((e) => e.changes.map((c) => `<div class="tk-ev">${avatar(e.author, 'sm')}<div class="txt"><h4>${name(e.author)} <span>${ago(e.at)}</span></h4><p class="chg">${cap(c.field)}: ${c.from ? esc(c.from) + ' to ' : ''}${esc(c.to)}</p></div></div>`));
+    return `<div class="tk-evs">${[`<div class="tk-ev">${avatar(t.reporter, 'sm')}<div class="txt"><h4>${name(t.reporter)} <span>${ago(t.opened)}</span></h4><p class="chg">Opened it</p></div></div>`, ...lines].join('')}</div>`;
+  }
+
+  // ---- changing a ticket ---------------------------------------------------
+  function change(t, fields, comment = '') {
+    const before = { ...t };
+    const e = { at: new Date(NOW.getTime() + 6e4).toISOString(), author: ME, comment, changes: [] };
+    for (const [k, v] of Object.entries(fields)) { if (t[k] !== v) e.changes.push({ field: k, from: t[k], to: v }); t[k] = v; }
+    t.changed = e.at;
+    if (e.changes.length || comment) t.events.push(e);
+    renderAll();
+    return () => { Object.assign(t, before); t.events = t.events.filter((x) => x !== e); renderAll(); };
+  }
+  function renderAll() { renderTickets(); renderRoadmap(); renderTimeline(); if (ui.ticket) renderDetail(); }
+
+  // ---- the toast -----------------------------------------------------------
+  const toastEl = $('#toast'); let toastTimer;
+  function toast(text, action, act) {
+    $('span', toastEl).textContent = text;
+    const b = $('button', toastEl); b.textContent = action || ''; b.hidden = !action;
+    b.onclick = () => { hideToast(); act && act(); };
+    toastEl.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, 4200);
+  }
+  function hideToast() { toastEl.hidden = true; }
+
+  // ---- sheets: open on the spring, thrown down to close ----------------------
+  function sheet(el) {
+    el.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => el.close()));
+    // A tap on the dim backdrop closes it, where closedby="any" is not yet understood.
+    el.addEventListener('click', (e) => { if (e.target === el && e.clientY < el.getBoundingClientRect().top) el.close(); });
+    const grip = $('.sheet-grip', el);
+    let y0 = 0, trail = [], held = false;
+    grip.addEventListener('pointerdown', (e) => { held = true; grip.setPointerCapture(e.pointerId); y0 = e.clientY; trail = [[e.clientY, e.timeStamp]]; el.style.transition = 'none'; });
+    grip.addEventListener('pointermove', (e) => {
+      if (!held) return;
+      const dy = e.clientY - y0;
+      el.style.setProperty('--drag', `${dy < 0 ? dy / 6 : dy}px`);   // upward, it resists
+      trail.push([e.clientY, e.timeStamp]); if (trail.length > 6) trail.shift();
+    });
+    const release = (e) => {
+      if (!held) return; held = false;
+      const [y1, t1] = trail[0];
+      const speed = (e.clientY - y1) / Math.max(1, e.timeStamp - t1);   // px per ms; a flick is enough
+      el.style.transition = '';
+      if (speed > 0.11 || e.clientY - y0 > el.offsetHeight * 0.3) el.close();
+      el.style.removeProperty('--drag');
+    };
+    grip.addEventListener('pointerup', release);
+    grip.addEventListener('pointercancel', release);
+  }
+  const sheetNew = $('#sheetNew'), sheetOwner = $('#sheetOwner');
+  sheet(sheetNew); sheet(sheetOwner);
+
+  // New ticket
+  $('#componentSel').innerHTML = D.components.map((c) => `<option>${esc(c)}</option>`).join('');
+  $('#msRadios').innerHTML = D.milestones.map((m, i) => `<label><input type="radio" name="milestone" value="${esc(m.name)}" ${i ? '' : 'checked'}><span>${esc(m.name)}</span></label>`).join('');
+  $('#ownerRadios').innerHTML = D.people.map((p) => `<label><input type="radio" name="owner" value="${p}" ${p === ME ? 'checked' : ''}><span>${name(p)}</span></label>`).join('');
+  $('#newBtn').addEventListener('click', () => { $('#formNew').reset(); $('#summaryErr').hidden = true; sheetNew.showModal(); });
+  $('#formNew').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target), summary = String(f.get('summary')).trim();
+    if (summary.length < 6) { $('#summaryErr').hidden = false; e.target.summary.focus(); return; }
+    const id = Math.max(...D.tickets.map((t) => t.id)) + 1;
+    D.tickets.push({ id, summary, type: f.get('type'), priority: f.get('priority'), component: f.get('component'), owner: f.get('owner'),
+      reporter: ME, milestone: f.get('milestone'), status: 'new', resolution: null, description: '', opened: NOW.toISOString(), changed: NOW.toISOString(), events: [], attachments: [] });
+    sheetNew.close();
+    if (ui.filter === 'closed') ui.filter = 'open';
+    renderAll();
+    toast(`Ticket #${id} created`, 'View', () => go(`#/ticket/${id}`));
+  });
+
+  // Reassign
+  function openOwners(t) {
+    $('#people').innerHTML = D.people.map((p) => {
+      const n = D.tickets.filter((x) => isOpen(x) && x.owner === p).length;
+      return `<button type="button" role="radio" aria-checked="${t.owner === p}" data-p="${p}">${avatar(p)}<span class="txt">${name(p)}${p === ME ? ' (you)' : ''}<small>${plural(n, 'open ticket')}</small></span><i class="ic ic-check"></i></button>`;
+    }).join('');
+    $('#people').onclick = (e) => {
+      const b = e.target.closest('[data-p]'); if (!b) return;
+      sheetOwner.close();
+      if (b.dataset.p === t.owner) return;
+      const undo = change(t, { owner: b.dataset.p, status: t.status === 'accepted' ? 'assigned' : t.status === 'new' ? 'assigned' : t.status });
+      toast(`#${t.id} is ${name(b.dataset.p)}'s now`, 'Undo', undo);
+    };
+    sheetOwner.showModal();
+  }
+
+  // ---- presses inside a ticket ---------------------------------------------
+  detail.addEventListener('click', (e) => {
+    const t = byId(ui.ticket); if (!t) return;
+    const hit = (id) => e.target.closest('#' + id);
+    const tab = e.target.closest('[data-pane]');
+    if (tab) { ui.pane = tab.dataset.pane; renderDetail(); $(`#tab-${ui.pane}`)?.focus(); return; }
+    if (hit('resolve')) {
+      const undo = isOpen(t) ? change(t, { status: 'closed', resolution: 'fixed' }) : change(t, { status: 'reopened', resolution: null });
+      toast(isOpen(t) ? `Reopened #${t.id}` : `Closed #${t.id} as fixed`, 'Undo', undo);
+    }
+    if (hit('accept')) {
+      if (t.status === 'accepted' && t.owner === ME) return;
+      const undo = change(t, { owner: ME, status: 'accepted' });
+      toast(`You started #${t.id}`, 'Undo', undo);
+    }
+    if (hit('reassign')) openOwners(t);
+    if (hit('watch')) {
+      watching.has(t.id) ? watching.delete(t.id) : watching.add(t.id);
+      renderDetail(); toast(watching.has(t.id) ? `Watching #${t.id}` : `Stopped watching #${t.id}`);
+    }
+    if (hit('copy')) {
+      const url = location.href.split('#')[0] + `#/ticket/${t.id}`;
+      (navigator.clipboard?.writeText(url) || Promise.reject()).then(() => toast('Link copied'), () => toast('Copy this link: ' + url.split('/').slice(-2).join('/')));
+    }
+    if (hit('comment')) { ui.pane = 'discussion'; renderDetail(); $('#reply textarea')?.focus(); }
+  });
+  detail.addEventListener('submit', (e) => {
+    if (e.target.id !== 'reply') return;
+    e.preventDefault();
+    const text = e.target.c.value.trim(); if (!text) return;
+    change(byId(ui.ticket), {}, text);
+    $('#reply textarea')?.focus();
+  });
+
+  // ---- moving between screens ----------------------------------------------
+  // Tabs change instantly: they are pressed all day. Opening a ticket on a
+  // phone is the one moment that travels: its title and its owner fly from
+  // the row into the ticket, and back again.
+  function parse(h) {
+    const m = h.match(/^#\/ticket\/(\d+)/);
+    if (m) return { ticket: +m[1] };
+    const tab = (h.match(/^#\/(tickets|roadmap|timeline)/) || [])[1] || 'tickets';
+    return { tab };
+  }
+  function apply(r) {
+    if (r.tab) { ui.tab = r.tab; ui.ticket = wide.matches ? (ui.ticket || firstTicket()) : null; }
+    if (r.ticket) { if (r.ticket !== ui.ticket) ui.pane = 'description'; ui.ticket = r.ticket; }
+    const phoneTicket = !wide.matches && r.ticket;
+    $('#side').hidden = !!phoneTicket;
+    detail.hidden = !wide.matches && !r.ticket;
+    for (const s of ['tickets', 'roadmap', 'timeline']) $('#s-' + s).hidden = ui.tab !== s;
+    document.querySelectorAll('.dock-bar a').forEach((a) => a.toggleAttribute('aria-current', a.dataset.tab === ui.tab));
+    if (ui.ticket) renderDetail(); else detail.innerHTML = '';
+    markCurrent();
+  }
+  const firstTicket = () => (shown()[0] || D.tickets[0]).id;
+  function go(h) { if (location.hash === h) route(); else location.hash = h; }
+
+  let here = parse(location.hash || '#/tickets');
+  let listY = 0;
+  const visible = (el) => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; };
+  function name2(el, n) { if (el) el.style.viewTransitionName = n; }
+  function travel(update, pairs, k, nav) {
+    if (!document.startViewTransition) { update(); return; }
+    root.dataset.nav = nav;
+    root.style.setProperty('--vt-k', k.toFixed(3));
+    const named = still.matches ? [] : pairs;
+    named.forEach(([from, , n]) => name2(from(), n));
+    const vt = document.startViewTransition(() => {
+      named.forEach(([from, , n]) => name2(from(), ''));
+      update();
+      named.forEach(([, to, n]) => name2(to(), n));
+    });
+    vt.finished.finally(() => {
+      named.forEach(([from, to]) => { name2(from(), ''); name2(to(), ''); });
+      delete root.dataset.nav;
+    });
+  }
+  function route() {
+    const next = parse(location.hash || '#/tickets');
+    const prev = here; here = next;
+    const phone = !wide.matches;
+    if (next.ticket && !prev.ticket) cameFromList = true;
+    if (!next.ticket) cameFromList = false;
+    if (phone && next.ticket && !prev.ticket) {
+      const row = () => [...document.querySelectorAll(`#s-${ui.tab} [data-id="${next.ticket}"]`)].find(visible);
+      listY = scrollY;
+      const from = row();
+      const pairs = from ? [[() => $('h3', from), () => $('#dTitle'), 'vt-text-a']] : [];
+      travel(() => { apply(next); scrollTo(0, 0); }, pairs, 29 / 15, 'morph');
+    } else if (phone && !next.ticket && prev.ticket) {
+      const id = prev.ticket;
+      const pairs = [[() => $('#dTitle'), () => [...document.querySelectorAll(`#s-${next.tab} [data-id="${id}"] h3`)].find(visible), 'vt-text-a']];
+      travel(() => { apply(next); scrollTo(0, listY); }, scrollY < 200 ? pairs : [], 15 / 29, 'morph-back');
+    } else {
+      apply(next);
+      if (phone && prev.tab !== next.tab) scrollTo(0, 0);
+    }
+  }
+  addEventListener('hashchange', route);
+  let cameFromList = false;
+  detail.addEventListener('click', (e) => {
+    if (!e.target.closest('.back') || !cameFromList) return;
+    e.preventDefault(); history.back();
+  }, true);
+  wide.addEventListener('change', () => apply(here));
+
+  // Filters: the rows that stay slide to their new places; the rest fade.
+  $('#filters').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-filter]'); if (!b) return;
+    ui.filter = b.dataset.filter; renderTickets();
+  });
+  // auto-animate's own keyframes animate height (layout) and ease new rows
+  // in; tools/motion.js caught both. Its plugin hook takes ours instead:
+  // transform and opacity only, on the house ease-out. A plugin also
+  // bypasses its reduced-motion check, so that check is made here.
+  const rowMotion = (el, action, from, to) => {
+    const ease = { easing: 'cubic-bezier(.23, 1, .32, 1)' };
+    if (action === 'add') return new KeyframeEffect(el, [{ opacity: 0, transform: 'scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 220, ...ease });
+    if (action === 'remove') return new KeyframeEffect(el, [{ opacity: 1 }, { opacity: 0, transform: 'scale(.98)' }], { duration: 160, ...ease });
+    const dx = from.left - to.left, dy = from.top - to.top;
+    if (el === list || (!dx && !dy)) return new KeyframeEffect(el, [], { duration: 0 });
+    return new KeyframeEffect(el, [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 220, ...ease });
+  };
+  if (window.autoAnimate && !still.matches) autoAnimate(list, rowMotion);
+
+  renderAll();
+  apply(here);
+})();
+</script>
+</body>
+</html>

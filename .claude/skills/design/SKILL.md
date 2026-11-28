@@ -53,11 +53,32 @@ Screenshot it. Run the critique tool. Fix the worst thing. Look again.
 
 ### Spacing
 
-One scale, multiples of **4** or **8**. Nothing between: no 13px, no 27px.
+One scale, multiples of **4**. Nothing between: no 13px, no 27px.
 
 ```
 4  8  12  16  24  32  48  64  96
 ```
+
+**Correction.** This file previously claimed every step above appears in
+Carbon, Material 3 and Uber Base Web. That was wrong, and checking it is what
+found it: Material 3's space tokens stop at `space-900`, which is 9 x 8 = 72px,
+so **96 is not in Material 3**. And **40 is in all three** and had been left
+out.
+
+The real intersection of the three published scales is:
+
+```
+2  4  8  12  16  24  32  40  48  64
+```
+
+Use that. The 2 and the 4 are what a dense screen needs; 96 and above are fine
+on a marketing page but are this kit's choice, not a cited one. Material builds
+from an explicit `--md-sys-space-unit: 8px` with quarter steps; Carbon and Base
+Web both start their ladders at 2px.
+
+**44 is not on this scale.** It is the minimum touch target, which is a
+different rule with a different reason, and it does not belong in a spacing
+sequence. Keep the two apart or the scale stops being a scale.
 
 Gaps come from the layout (`gap` in flex or grid), not per-element margins,
 which collapse and double unpredictably. Space groups things: related items
@@ -72,7 +93,7 @@ Hierarchy comes from **weight and colour before size**.
 |---|---|
 | Body size | 15–17px, never below 15 on a phone |
 | Line height | ~1.5 for body, ~1.1 for large headings |
-| Line length | 45–90 characters (`max-width: 65ch`) |
+| Line length | 45–90 characters, aim 55–75. `ch` is the width of "0" in *that* typeface, so the right `max-width` differs per font — measure it, do not copy a number. This kit's 17px Instrument Sans needs `54ch` to land at 45–60. |
 | Heading tracking | tighten slightly: `letter-spacing: -0.02em` |
 | Uppercase labels | loosen: `letter-spacing: 0.1em` |
 | Numbers in columns | `font-variant-numeric: tabular-nums` |
@@ -100,24 +121,66 @@ cheap.
 | Thing | Duration | Ease |
 |---|---|---|
 | Buttons, hovers, toggles, tabs | under 200ms | ease-out |
-| Things entering | 0.4–0.9s | `cubic-bezier(0.33, 1, 0.68, 1)` |
-| Full-screen moves, page transitions | 0.7–1.2s | `cubic-bezier(0.76, 0, 0.24, 1)` |
+
+200ms is not a taste, but the reason first given here was wrong. INP measures
+the time from a tap to the **next paint** — it is about how fast the interface
+starts responding, not how long an animation then runs. A 300ms transition on
+an element that begins moving immediately does not fail INP.
+
+The real support is simpler and still holds: Uber ships `timing200` and
+Material 3 calls 200ms `short4`, the end of its short band. Two published
+systems put the ceiling for small interface feedback in the same place. See `docs/research/motion-values-from-shipped-systems.md`.
+
+**State the intent, not a magic bezier.** Earlier versions of this file named
+two specific curves. They were never wired into anything, so anyone matching
+an existing site by reading the docs matched nothing. Pick a curve per intent
+and put it in one variable:
+
+| Intent | Shape | Uber's published value, if you want one |
+|---|---|---|
+| Entering | decelerate | `cubic-bezier(0.22, 1, 0.36, 1)` |
+| Exiting | accelerate | `cubic-bezier(0.64, 0, 0.78, 0)` |
+| Moving across | both | `cubic-bezier(0.83, 0, 0.17, 1)` |
+| Scroll-linked, looping | linear | `cubic-bezier(0, 0, 1, 1)` |
+
+Entering and exiting are not mirror images. Entering gets the longer duration
+and the softer landing; exiting is quicker, because nobody is waiting to look
+at a thing that is leaving.
+| Things entering | 0.4–0.9s | ease-out: decelerate into place |
+| Full-screen moves, page transitions | 0.7–1.2s | ease-in-out |
 | Anything scroll-linked or looping | — | linear |
 
 Rules that do not bend:
-- Animate **only `transform` and `opacity`**. Never width, height, top, left.
+- **Never transition a property that re-runs layout**: width, height, top,
+  left, margin, padding, font-size, gap, or `all`. Those recalculate the page
+  on every frame and drop frames. `transform` and `opacity` do not, which is
+  why they are the default answer.
+- Paint-only properties — background, colour, border-colour, box-shadow — do
+  *not* re-run layout. Transitioning one briefly on hover or focus is fine and
+  every shipping design system does it. Keep those under 200ms. The fault is a
+  slow one, or a layout one, not a coloured one.
+- A hover that changes instantly, with no transition on it at all, is not an
+  animation and breaks nothing.
 - **Never animate frequent actions.** Navigation, tabs and the main button must
   feel instant. A delight the hundredth time is a cost.
 - Spend motion on the rare moment: the load, the hero, the transition.
 - Honour `prefers-reduced-motion`, and make the page complete without it.
 
+The table is for websites, where a hero can take its time. **App screens
+are quicker:** done to the eye within 300ms, springs for what travels,
+sheets and shared-element transitions; the tokens, parts and rules are in
+the app-style skill's Motion section. `tools/motion.js` measures either: it
+presses through the page and fails layout animation, ease-in, slow motion and
+movement under reduced motion, and writes frame-by-frame filmstrips.
+
 ---
 
-## 2b. The eight patterns that make an app screen look expensive
+## 2b. The patterns that make an app screen look expensive
 
-`docs/app-patterns.html` is a live reference built by pulling two app redesign
-walkthroughs apart frame by frame. Open it when designing a phone screen.
-In short:
+`docs/phone/app-patterns-dark.html` is a live reference built by pulling app
+redesign walkthroughs apart frame by frame (Netflix, Spotify, Uber Eats,
+Airbnb and Google Maps). Open it when designing a phone screen or the owner
+panel. In short:
 
 1. **Action row.** One filled pill, then translucent circles **of the same
    height**, on one baseline. The equal height is what makes three controls
@@ -138,6 +201,29 @@ In short:
 8. **The brand colour appears once.** Netflix red is a 3px underline on one
    tab and nothing else on the screen. That restraint is why it still reads
    as the brand.
+9. **The context is the headline.** Whatever changes everything below it
+   (the delivery address, the business name, the date range) is the biggest
+   text on the screen, with a small grey label above it. Tapping it changes it.
+10. **Facts as a row of numbers.** Three numbers the same size, small grey
+    labels underneath, hairlines between: "4.5 / rating, 2,000+ / reviews,
+    18 / min". A number reads faster than a sentence. Colour only for a
+    status, such as "Open".
+11. **The main action waits at the thumb.** The one action that matters
+    leaves the row of buttons, becomes the only filled one, and floats at the
+    bottom with a fade behind it. The page scrolls under it.
+
+
+**Those eight came from two dark media apps, where one thing dominates the
+screen.** That is not most work. For a light, dense screen — a dashboard, a
+list of invoices, anything an owner scans rather than browses — read
+`docs/phone/light-dense-patterns.html` as well. Four of the eight flip:
+
+| Dark set says | On light |
+|---|---|
+| A glow, not a flat ground | No glow. A light screen does not need lighting, and a white radial on white is invisible. |
+| Cards separate by value, no border, no shadow | White has nowhere to go underneath. Use a hairline, or Material's two-part shadow. |
+| Navigation floats | Nothing to float above. Anchor it to the edge. |
+| Make one thing much larger than feels comfortable | Several numbers can be peers. Make them identical and let the *change* carry the emphasis. |
 
 What is **not** in those screens: no animation library, no 3D, no mesh
 gradient, no glass beyond one backdrop blur. The work is choosing one bright
@@ -154,10 +240,16 @@ Everything above applies. These are the extra constraints.
 screen, not at the top. A button in the top-right corner of a tall phone is
 a two-handed operation.
 
-**Navigation floats.** A pill-shaped bar sitting above the bottom edge with a
-margin around it reads as more considered than a bar locked to the edge. If
-there is a create action, give it its own circular button beside the bar rather
-than cramming it in as a fifth tab.
+**A bar anchors or floats by what it carries, not by the ground behind it.**
+Anchor a bar that summarises what is above it — a total, a count, a selection —
+because a total that floats is detached from the list it totals. Float a bar
+that only moves you between places: it is a control panel, not part of the
+page. Either way, if there is a create action, give it its own circular button
+beside the bar rather than cramming it in as a fifth tab.
+
+This replaces an unconditional "navigation floats", and a claim elsewhere that
+a bar must anchor on a light ground. Both were wrong; see
+`docs/phone/video-findings.html`.
 
 **Respect the safe areas.** Content clears the notch and the home indicator:
 
@@ -222,9 +314,31 @@ thing on the page memorable and let everything else be quiet.
 
 ---
 
-## 6. The critique loop
+## 6. The check, then the critique loop
 
-`tools/critique.py` sends a screenshot to a vision model on the user's own
+Run the measured checks first. They are cheap and they do not argue:
+
+```bash
+node tools/check.js              # every site, the owner panel, the docs pages, both sizes
+node tools/check.js portal/app   # one screen
+node tools/audit.js dist/restaurant/index.html --width 400    # one page in depth
+```
+
+`check.js` screenshots each screen at 400 and 1280 wide into `.check/` and
+fails on anything that can be measured: text under 4.5:1 contrast, tap
+targets under 44px on a phone, form fields under 16px, a page that scrolls
+sideways, text that is invisible with scripts off, script errors. The owner
+panel needs a login, so the check fills it with invented sample data from
+`tools/panel-sample.js`. `audit.js` goes deeper on one page: contrast against
+the colour actually painted behind the text, through translucent layers,
+with the exact replacement colour. A pass only means nothing measurable is
+wrong. Open the screenshots.
+
+Never ask a vision model whether 4.31:1 passes. It cannot divide. Spend the
+model on whether the thing looks good, which is the part arithmetic cannot
+reach.
+
+Then the judgement half. `tools/critique.py` sends a screenshot to a vision model on the user's own
 NVIDIA credit and returns specific fixes. Use it for the mechanical half of
 review so the expensive model is spent on judgement.
 
@@ -260,10 +374,12 @@ Use **400×860** for a phone and **1280×900** for desktop. Check both.
 - [ ] Every gap comes from one spacing scale
 - [ ] Two typefaces, three or four sizes
 - [ ] Two colours plus one accent; neutrals tinted toward it
-- [ ] Body text passes 4.5:1 contrast
+- [ ] `node tools/audit.js <page> --width 400` and `--width 1280` both clean
 - [ ] Phone width 400px: no sideways scroll, nothing clipped
 - [ ] Touch targets 44px, inputs 16px
-- [ ] One motion tempo; nothing frequent is animated
+- [ ] One motion tempo; nothing frequent is animated (`node tools/motion.js`)
 - [ ] Reduced motion: still complete and readable
 - [ ] No item from the generated-design list above
 - [ ] Real content and real images, no placeholder anything
+- [ ] `node tools/check.js` passes, and you have opened the screenshots
+- [ ] `node tools/slop.js` read as advice; taste changed only on a blind reviewer's notes

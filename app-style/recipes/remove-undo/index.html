@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platform" content="desktop">
+<title>Recipe: Remove with undo</title>
+<link rel="stylesheet" href="../recipes.css"></head>
+<body><main>
+<h1>Remove with undo</h1><p class="why">The row slides out and the rest close the gap. Undo puts it back where it was. Built on AutoAnimate.</p>
+<ul class="rows" id="rows"><li>Linen napkins <button data-remove>Remove</button></li><li>Olive bowl <button data-remove>Remove</button></li><li>Bread board <button data-remove>Remove</button></li></ul>
+<div class="toast" id="toast" hidden role="status"><span></span><button></button></div>
+</main>
+<script type="application/json" id="motion-tour">[{"click": "#rows li:nth-child(2) [data-remove]", "why": "slides out; the rest close up"}, {"click": "#toast button", "why": "undo: back in its place"}]</script>
+<script src="../../app-motion.js"></script>
+<script src="../../vendor/auto-animate.js"></script>
+<script src="../../interactions.js"></script>
+<script>Interact.lists(document.getElementById('rows'));document.getElementById('rows').addEventListener('click',function(e){var b=e.target.closest('[data-remove]');if(b)Interact.removeWithUndo(b.closest('li'),document.getElementById('toast'),b.parentNode.firstChild.textContent.trim()+' removed');});</script>
+</body></html>

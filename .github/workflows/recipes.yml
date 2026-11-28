@@ -1,0 +1,34 @@
+# Runs the interaction recipe tests in Chromium, Firefox and WebKit, on a
+# desktop and a phone viewport, whenever the recipes or their code change.
+# Free on public repositories. No AI is involved.
+name: Interaction recipes
+on:
+  pull_request:
+    paths:
+      - 'app-style/recipes/**'
+      - 'app-style/interactions.js'
+      - 'app-style/app-motion.js'
+      - 'app-style/vendor/**'
+      - 'tokens/tokens.css'
+      - 'tools/recipes-test.js'
+      - '.github/workflows/recipes.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recipes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright and its three browsers
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.63.0
+          npx playwright install --with-deps chromium firefox webkit
+      - name: Test every recipe in every engine
+        run: node tools/recipes-test.js

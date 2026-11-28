@@ -1,0 +1,326 @@
+<title>Video Findings</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Instrument+Serif:ital@1&display=swap">
+<style>
+:root{
+  --bg:#0d0d0f; --card:#17171a; --card2:#1f1f23;
+  --ink:#f2f2f0; --ink2:#b4b4ae; --ink3:#8b8b85;
+  --line:#2b2b30;
+  --ok:#43b581; --bad:#e2655b; --warn:#d8a24a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Geist",ui-sans-serif,system-ui,sans-serif;font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;line-height:1.15}
+p{margin:0}
+.wrap{max-width:1120px;margin-inline:auto;
+  padding-left:max(20px,env(safe-area-inset-left,0px));
+  padding-right:max(20px,env(safe-area-inset-right,0px))}
+header.top{padding-block:60px 10px}
+header.top h1{font-size:clamp(32px,5vw,52px);font-weight:700;letter-spacing:-0.025em;text-wrap:balance}
+header.top h1 em{font-family:"Instrument Serif",Georgia,serif;font-style:italic;font-weight:400;color:var(--warn)}
+header.top .lede{margin-top:18px;max-width:66ch;color:var(--ink2);font-size:17px}
+
+.bar{margin-top:28px;display:flex;flex-wrap:wrap;gap:8px}
+.bar span{background:var(--card);border:1px solid var(--line);border-radius:999px;
+  padding:6px 13px;font-size:13px;color:var(--ink2)}
+.bar span b{color:var(--ink);font-weight:600}
+
+section{padding-block:44px;border-top:1px solid var(--line)}
+section > h2{font-size:clamp(22px,3vw,28px);font-weight:700;letter-spacing:-0.02em}
+section > .sub{margin-top:12px;max-width:72ch;color:var(--ink2)}
+
+.grid{margin-top:26px;display:grid;gap:16px;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.item{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.item .tag{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.item .tag.ok{color:var(--ok)} .item .tag.bad{color:var(--bad)} .item .tag.new{color:var(--warn)}
+.item h3{margin-top:9px;font-size:17px;font-weight:600}
+.item p{margin-top:9px;font-size:15px;color:var(--ink2)}
+.item .ev{margin-top:11px;font-size:15px;color:var(--ink3);border-left:2px solid var(--line);padding-left:11px}
+
+/* before / after */
+.ba{margin-top:26px;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.ph{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.ph .hd{padding:11px 15px;font-size:12.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  border-bottom:1px solid var(--line)}
+.ph .hd.b{color:var(--bad)} .ph .hd.a{color:var(--ok)}
+.ph .body{padding:15px;display:grid;gap:11px}
+
+.ic-row{display:flex;gap:13px}
+.ic{width:46px;display:grid;gap:5px;justify-items:center}
+.ic .g{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:17px}
+.ic .g.loud{background:linear-gradient(135deg,#ff6a3d,#ffb03a)}
+.ic .g.line{border:1.5px solid var(--ink2);color:var(--ink2);font-size:14px}
+.ic small{font-size:11px;color:var(--ink3);text-align:center;line-height:1.2}
+
+.rc{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--card2)}
+.rc .art{height:66px;background:linear-gradient(135deg,#7a4a2e,#2e1c12)}
+.rc .meta{padding:10px 12px}
+.rc .nm{font-size:14.5px;font-weight:600}
+.rc .blob{margin-top:5px;font-size:12px;color:var(--ink3)}
+.rc .cols{margin-top:9px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.rc .cols div{display:grid;gap:1px}
+.rc .cols b{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.rc .cols small{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em}
+
+.ttl2{display:grid;gap:1px}
+.ttl2 .one{font-size:19px;font-weight:600;letter-spacing:-0.015em}
+.ttl2 .two{font-size:19px;font-weight:600;letter-spacing:-0.015em;color:var(--ink3)}
+.ttl1{font-size:19px;font-weight:600;text-align:center}
+
+.navs{display:flex;align-items:center;gap:9px;padding-top:4px}
+.navbar{flex:1;display:flex;justify-content:space-around;background:var(--card2);
+  border-radius:999px;padding:9px 6px}
+.navbar.anch{border-radius:0;border-top:1px solid var(--line);background:transparent;margin-inline:-15px;padding-inline:15px}
+.navbar i{font-style:normal;font-size:11px;color:var(--ink3)}
+.navbar i:first-child{color:var(--ink);font-weight:600}
+.fab{width:38px;height:38px;border-radius:50%;background:var(--ok);flex:none;display:grid;place-items:center;color:#06240f;font-weight:700}
+
+.hero{display:grid;gap:3px}
+.hero .big{font-size:42px;font-weight:700;letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums}
+.hero .cap{font-size:13.5px;color:var(--ink2)}
+.prog{margin-top:8px;height:4px;border-radius:4px;background:var(--line);position:relative}
+.prog b{position:absolute;inset:0 30% 0 0;background:var(--warn);border-radius:4px}
+.prog i{position:absolute;right:30%;top:-3px;width:10px;height:10px;border-radius:50%;background:var(--warn)}
+
+.capn{margin-top:10px;font-size:15px;color:var(--ink3)}
+
+footer{padding-block:40px 76px;border-top:1px solid var(--line);color:var(--ink3);font-size:15px}
+footer b{color:var(--ink);font-weight:600}
+footer p+p{margin-top:12px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <h1>What the six videos actually <em>showed.</em></h1>
+    <p class="lede">
+      The reference clips were in this container the whole time and had not been
+      opened. They have now been — nine frames pulled from each, across the full
+      length of every clip. Three things in the kit's own documentation turned
+      out to be wrong, and one of them was written yesterday.
+    </p>
+    <div class="bar">
+      <span><b>Netflix</b> 49s</span>
+      <span><b>Spotify</b> 33s</span>
+      <span><b>Google Maps</b> 37s</span>
+      <span><b>Airbnb</b> 37s</span>
+      <span><b>Uber Eats</b> 36s</span>
+      <span><b>Starbucks</b> 37s</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section>
+  <h2>The correction that matters most</h2>
+  <p class="sub">
+    Yesterday's light-dense pattern page stated: <em>"The bar sits on the edge.
+    It does not float. On a white list there is nothing behind it."</em> It was
+    confident, it was reasoned, and the Uber&nbsp;Eats redesign disproves it.
+    That page floats its navigation on a warm off-white ground, and it reads
+    correctly.
+  </p>
+
+  <div class="ba">
+    <div class="ph">
+      <div class="hd b">What the docs claimed</div>
+      <div class="body">
+        <div style="font-size:14px;color:var(--ink2)">On light, anchor it.</div>
+        <div class="navs"><div class="navbar anch"><i>Home</i><i>Search</i><i>Library</i><i>You</i></div></div>
+        <p class="capn">Stated as a consequence of the ground colour.</p>
+      </div>
+    </div>
+    <div class="ph">
+      <div class="hd a">What the video shows</div>
+      <div class="body">
+        <div style="font-size:14px;color:var(--ink2)">Floating, on off-white.</div>
+        <div class="navs">
+          <div class="navbar"><i>Home</i><i>Browse</i><i>Orders</i><i>Account</i></div>
+          <div class="fab">+</div>
+        </div>
+        <p class="capn">Lifted off the edge, solid fill, create pulled out as its own circle.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="item">
+      <p class="tag new">The real rule</p>
+      <h3>It is about what the bar carries, not the colour behind it.</h3>
+      <p><b>Anchor</b> a bar that summarises what is above it — a total, a count,
+      a selection. A total that floats is detached from the list it totals.
+      <b>Float</b> a bar that only moves you between places; it is a control
+      panel, not part of the page.</p>
+      <p class="ev">Both redesigns that float also pull the create action out as
+      a separate circle rather than cramming it in as a fifth tab. Spotify does
+      it on dark, Uber Eats on light.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Two more claims the videos corrected</h2>
+
+  <div class="grid">
+    <div class="item">
+      <p class="tag bad">Was wrong</p>
+      <h3>"Dark means sparse, light means dense."</h3>
+      <p>The whole docs split assumed it. The Google Maps redesign is dark
+      <em>and</em> dense — a rating box, an open-status box, four icon actions, a
+      five-tab row and a ticket card, all on near-black.</p>
+      <p class="ev">The axis was never light against dark. It is sparse against
+      dense, and the two are independent. A media screen is sparse because it has
+      one job, not because it is dark.</p>
+    </div>
+
+    <div class="item">
+      <p class="tag bad">Too strict</p>
+      <h3>"Exactly one filled button per screen."</h3>
+      <p>The Starbucks redesign has a filled Redeem button on every reward card
+      in a scrolling row. Four visible at once.</p>
+      <p class="ev">The rule holds for screen-level decisions: one primary action
+      answering "what now". A repeated action belonging to each item in a list is
+      a different class and does not count against it.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>What they confirmed, with evidence</h2>
+  <p class="sub">Four rules already in the kit, now backed by a real redesign rather than assertion.</p>
+
+  <div class="ba">
+    <div class="ph">
+      <div class="hd b">Before · Uber Eats</div>
+      <div class="body">
+        <div class="ic-row">
+          <div class="ic"><div class="g loud">🍽</div><small>Dine</small></div>
+          <div class="ic"><div class="g loud">🧭</div><small>Explore</small></div>
+          <div class="ic"><div class="g loud">🍕</div><small>Pizza</small></div>
+          <div class="ic"><div class="g loud">🍰</div><small>Dessert</small></div>
+        </div>
+        <div class="rc">
+          <div class="art"></div>
+          <div class="meta">
+            <div class="nm">Jack in the Box</div>
+            <div class="blob">Uber One benefits apply · 18 min · 4.5★ (2,000+)</div>
+          </div>
+        </div>
+        <p class="capn">Colour-filled emoji icons. Stats run together in one grey line.</p>
+      </div>
+    </div>
+    <div class="ph">
+      <div class="hd a">After · the redesign</div>
+      <div class="body">
+        <div class="ic-row">
+          <div class="ic"><div class="g line">◫</div><small>Dine</small></div>
+          <div class="ic"><div class="g line">◎</div><small>Explore</small></div>
+          <div class="ic"><div class="g line">◇</div><small>Pizza</small></div>
+          <div class="ic"><div class="g line">◠</div><small>Dessert</small></div>
+        </div>
+        <div class="rc">
+          <div class="art"></div>
+          <div class="meta">
+            <div class="nm">Jack in the Box</div>
+            <div class="cols">
+              <div><b>4.5</b><small>Rating</small></div>
+              <div><b>2,000+</b><small>Reviews</small></div>
+              <div><b>18</b><small>Min</small></div>
+            </div>
+          </div>
+        </div>
+        <p class="capn">Monochrome line icons. Three labelled columns, each a peer.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="item">
+      <p class="tag ok">Confirmed</p>
+      <h3>Emoji as icons is a tell.</h3>
+      <p>It is on the kit's generated-design list already. Watching a real
+      redesign replace exactly that with monochrome line icons is the strongest
+      evidence the list has.</p>
+    </div>
+    <div class="item">
+      <p class="tag ok">Confirmed</p>
+      <h3>Several numbers can be peers.</h3>
+      <p>Uber Eats: Rating, Reviews, Min. Airbnb: 4.93, Guest favorite, 184
+      Reviews. Google Maps: a rating box beside an open-status box. Three
+      independent redesigns, same move.</p>
+    </div>
+    <div class="item">
+      <p class="tag ok">Confirmed</p>
+      <h3>Rows run off the edge.</h3>
+      <p>Spotify's artwork row and Starbucks' reward row both cut the last card
+      at the screen edge. No arrows, no dots, no scrollbar.</p>
+    </div>
+    <div class="item">
+      <p class="tag ok">Confirmed</p>
+      <h3>Equal-height action rows.</h3>
+      <p>Spotify's episode card: two translucent circles and one filled green
+      pill, all the same height, on one baseline.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Three patterns the kit did not have</h2>
+
+  <div class="ba">
+    <div class="ph">
+      <div class="hd a">Hero number with progress</div>
+      <div class="body">
+        <div class="hero">
+          <div class="big">142</div>
+          <div class="cap">Stars ready to redeem</div>
+          <div class="prog"><b></b><i></i></div>
+          <div class="cap" style="font-size:12px;color:var(--ink3)">58 Stars to your next reward</div>
+        </div>
+        <p class="capn"><b>Starbucks.</b> One number is genuinely the hero, and the bar says how far to the next one. A count without a target is trivia.</p>
+      </div>
+    </div>
+    <div class="ph">
+      <div class="hd a">Title in two values</div>
+      <div class="body">
+        <div class="ttl2">
+          <span class="one">Sunny Silicon Valley</span>
+          <span class="two">Crashpad and Workspace</span>
+        </div>
+        <p class="capn"><b>Airbnb.</b> One title, two greys. Hierarchy inside a single string, without changing the size.</p>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">
+          <div class="ttl1">Sunny Silicon Valley<br>Crashpad/Workspace</div>
+          <p class="capn">The before: centred, one value, and it reads as a caption.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="item">
+      <p class="tag new">New</p>
+      <h3>Centred body text is the tell, not centred headings.</h3>
+      <p>Every one of the six redesigns left-aligns what the original centred.
+      The kit's generated-design list names "a centred hero" but not this, which
+      is the more common version of the same mistake.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <p><b>Method.</b> Nine frames per clip, evenly spaced across the full running
+  time, tiled and read at size. That is a visual review of stills: it catches
+  layout, hierarchy, colour and the before-and-after, and it does not catch
+  timing, easing or anything said aloud. Where a motion number appears anywhere
+  in this repo, it came from a published package, not from these frames.</p>
+  <p><b>What this cost.</b> The clips were available from the start. Three
+  documented rules were wrong in the meantime, one of them written and shipped
+  the day before. Reference material that is not opened is not reference.</p>
+</footer>

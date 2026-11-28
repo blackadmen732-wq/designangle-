@@ -3,281 +3,515 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#04110c">
 <title>Website Panel</title>
 <meta name="description" content="What your website did this month.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
 <style>
-/* MK portal. Deliberately not the colour of any client site: this is the
-   studio's product, and an owner should never confuse it with their own. */
+/* tokens:begin. A copy of tokens/tokens.css, written by `node tools/tokens.js --sync`. Change that file, not this block. */
 :root {
-  --bg: #ffffff;
-  --panel: #fbfaf8;
-  --ink: #15171c;
-  --muted: #666d78;
-  --faint: #8b929c;
-  --line: #e7e5e1;
-  --accent: #0f6b5c;        /* single hue: every bar and link */
-  --accent-soft: #e4f0ec;
-  --warn: #9a5b00;
-  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
-  --body: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
-  color-scheme: light;
+  /* Space: a 4-point scale; --space-N is N x 4px. 16 is the phone gutter and
+     the gap between blocks; 28 opens a section in an app (measured from her
+     screens); 64 and 96 separate a website's sections. A value off the
+     scale needs a reason written next to it. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+
+  /* Corners. */
+  --radius-s: 4px;          /* nearly square: an arch would be decoration */
+  --radius-m: 12px;         /* inputs, messages, small panels */
+  --radius-l: 18px;         /* an app's tiles and photos */
+  --radius-xl: 24px;        /* an app's cards */
+  --radius-2xl: 32px;       /* rating cards and host rows: nearly a capsule */
+  --radius-pill: 999px;
+
+  /* Touch. */
+  --tap: 44px;              /* the smallest thing a finger is asked to hit; tools/check.js fails below it */
+  --control: 56px;          /* the primary pill, and the circles beside it */
+  --gutter: 16px;           /* a phone screen's side margin */
+
+  /* Motion. A strong ease-out for anything that enters, leaves or is
+     pressed; a spring for anything that travels across the screen. From
+     Emil Kowalski's animation standards and Apple's "Designing Fluid
+     Interfaces" (docs/research/motion-sources.md): damping 1 and response
+     .3 for moves, .8 and .3 for sheets. The springs are CSS linear() curves
+     made by app-style/tools/spring.js; pair each with its duration.
+     tools/motion.js checks a screen's motion against these. */
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --ease-in-out: cubic-bezier(.77, 0, .175, 1);
+  --ease-reveal: cubic-bezier(.65, 0, .2, 1);   /* a website's large reveals as the page scrolls */
+  --t-press: 120ms;         /* a press: scale to .97 the moment it is touched */
+  --t-quick: 180ms;         /* small state: a chip, a toggle, a colour */
+  --t-enter: 280ms;         /* something arriving: a toast, a menu */
+  /* damping 1, response .3: done to the eye at 230ms */
+  --spring: linear(0, 0.005 1.1%, 0.0204 2.3%, 0.0461 3.6%, 0.0816 5%, 0.1615 7.6%, 0.3667 13.6%, 0.4635 16.6%, 0.5593 19.9%, 0.6398 23.1%, 0.7103 26.4%, 0.7704 29.8%, 0.8206 33.3%, 0.8638 37.1%, 0.9017 41.5%, 0.9322 46.4%, 0.9558 51.9%, 0.9729 58.1%, 0.9844 65%, 0.9922 73.4%, 1);
+  --t-spring: 450ms;
+  /* damping .8, response .3: overshoots 1.5%, done to the eye at 160ms */
+  --spring-sheet: linear(0, 0.0068 1.4%, 0.0254 2.8%, 0.0559 4.3%, 0.1006 6%, 0.1433 7.4%, 0.1967 9%, 0.4301 15.5%, 0.5358 18.6%, 0.6343 21.8%, 0.7176 24.9%, 0.7881 28%, 0.8464 31.1%, 0.8946 34.3%, 0.934 37.7%, 0.9647 41.3%, 0.9879 45.3%, 1.0034 49.7%, 1.0122 54.7%, 1.0147 64%, 1);
+  --t-sheet: 410ms;
+
+  /* What each kind of change takes, from the interaction recipes
+     (app-style/recipes). Productive motion (tools, work screens) sits at
+     the short end on --ease-out; expressive motion (a product opening, a
+     first arrival) at the long end, on --spring. Under reduced motion every
+     one of them becomes an instant change or a short fade; the state still
+     changes. */
+  --ease-productive: var(--ease-out);
+  --ease-expressive: var(--spring);
+  --t-button: 100ms;        /* press feedback: 80 to 120 */
+  --t-tooltip: 120ms;       /* 100 to 150 */
+  --t-dropdown: 180ms;      /* opens from its trigger: 150 to 200 */
+  --t-toast: 200ms;         /* 150 to 250 */
+  --t-modal: 250ms;         /* 200 to 300 */
+  --t-page: 280ms;          /* a step or a view: 200 to 350 */
+  --t-expand: 360ms;        /* a product opening into its detail: 250 to 450 */
+  --t-reveal: 500ms;        /* a rare, first-time reveal: 400 to 600 */
 }
+/* tokens:end */
+/* The owner panel, in the app style of app-style/ (measured from the app
+   redesign recordings). This file stands alone when deployed, so the parts
+   of app-style.css and app-icons.css it uses are copied in below; change
+   them there first.
+
+   The one job of this screen: see who asked for work, and call them back.
+   It borrows the Starbucks Rewards screen's structure: the owner's own photo
+   behind one huge thin number, a two-tone line under it, a bar against the
+   month before, cards that end in one gold button, and a floating dock with
+   the main action pulled out as a circle at the thumb. Deliberately not the
+   colours of any client site: this is the studio's product. */
+.ui {
+  --font: Inter, system-ui, sans-serif;
+  --page: #04110c;
+  --ink: #ffffff;
+  --ink-2: #c9d6d0;
+  --ink-3: #8fa79c;          /* labels and the quiet half of a two-tone line: 7:1 */
+  --surface: rgba(255, 255, 255, .07);
+  --fill: rgba(255, 255, 255, .1);
+  --fill-strong: rgba(255, 255, 255, .14);
+  --glass: rgba(24, 40, 34, .62);
+  --hair: rgba(255, 255, 255, .08);
+  --gold: #f5c25b;           /* the one accent: the actions that matter */
+  --on-gold: #241c00;
+  --good: #7fd8a8;
+  --bad: #ff9b8f;
+  /* --gutter and the motion come from the tokens above. */
+  --ease: var(--ease-out);
+  /* The colour roles every system gives (tokens/tokens.css). */
+  --ground: var(--page);
+  --ink-quiet: var(--ink-3);
+  --line: var(--hair);
+  font-family: var(--font);
+  font-optical-sizing: none;
+  font-variation-settings: "opsz" 32;
+  -webkit-font-smoothing: antialiased;
+  color: var(--ink);
+  background: var(--page);
+  color-scheme: dark;
+}
+@supports (font: -apple-system-body) { .ui { --font: -apple-system, BlinkMacSystemFont, Inter, sans-serif; } }
 * { box-sizing: border-box; }
-body {
-  margin: 0; background: var(--bg); color: var(--ink);
-  font-family: var(--body); font-size: 16px; line-height: 1.5;
-  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -0.02em; line-height: 1.1; }
-p { margin: 0; }
-a { color: var(--accent); }
-button { font: inherit; cursor: pointer; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+html { -webkit-text-size-adjust: 100%; background: #04110c; }
+body { margin: 0; min-height: 100vh; font-size: 17px; line-height: 1.4; }
+h1, h2, h3, p { margin: 0; }
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 12px; }
 [hidden] { display: none !important; }
-.wrap {
-  max-width: 1080px; margin-inline: auto;
-  padding-left: max(20px, env(safe-area-inset-left, 0px));
-  padding-right: max(20px, env(safe-area-inset-right, 0px));
+b, strong { font-weight: 600; }
+.wrap { position: relative; z-index: 1; max-width: 760px; margin-inline: auto;
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px)); padding-right: max(var(--gutter), env(safe-area-inset-right, 0px)); }
+.dim { color: var(--ink-3); }
+
+/* ---- controls from app-style ---- */
+.circle { width: 44px; height: 44px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--fill);
+  transition: transform var(--t-quick) var(--ease), background-color var(--t-quick) ease-out; }
+/* Glass only where a control floats over the photo (unslop 15). */
+.topbar .circle { background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
+.circle:hover { background: rgba(255, 255, 255, .16); }
+.circle:active { transform: scale(.94); }
+.pill { height: 52px; padding-inline: 24px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 17px; font-weight: 600; white-space: nowrap; transition: transform var(--t-quick) var(--ease), filter var(--t-quick) ease-out; }
+.pill:active { transform: scale(.98); }
+.pill:disabled { opacity: .6; cursor: default; }
+.pill.gold { background: var(--gold); color: var(--on-gold); }
+.pill.gold:hover { filter: brightness(1.06); }
+.pill.white { background: #ffffff; color: #0b1310; }
+.pill.glass { background: var(--fill); color: var(--ink); font-weight: 500; }
+.pill.glass:hover { background: var(--fill-strong); }
+
+/* ---- sign in, and the screen when the panel cannot load ---- */
+/* Real artwork instead of a gradient and a card (the sign-in lesson): a
+   planet's edge at sunrise, drawn so it never has to be downloaded. */
+.art { position: absolute; inset: 0 0 auto 0; height: 560px; overflow: hidden; pointer-events: none;
+  background:
+    radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,.7), transparent), radial-gradient(1px 1px at 34% 9%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1px 1px at 58% 22%, rgba(255,255,255,.6), transparent), radial-gradient(1px 1px at 81% 13%, rgba(255,255,255,.55), transparent),
+    radial-gradient(1px 1px at 91% 31%, rgba(255,255,255,.4), transparent), radial-gradient(1px 1px at 7% 37%, rgba(255,255,255,.4), transparent),
+    radial-gradient(1.5px 1.5px at 24% 28%, rgba(255,255,255,.55), transparent), radial-gradient(1px 1px at 69% 40%, rgba(255,255,255,.3), transparent),
+    #03100b; }
+.art .glow { position: absolute; left: calc(50% + 94px); top: 267px; width: 600px; height: 220px; margin: -120px 0 0 -300px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 226, 180, .3), rgba(255, 200, 140, .1) 55%, transparent); }
+.art .planet { position: absolute; left: calc(50% - 526px); top: 265px; width: 1100px; height: 1100px; border-radius: 50%;
+  background: radial-gradient(farthest-side at 56% 0%, #43382c 0%, #2c251e 4%, #172019 10%, #08140f 17%, #04110c 26%);
+  box-shadow: 0 -1px 0 rgba(255, 236, 210, .55), 0 -6px 18px rgba(255, 215, 170, .18), inset 0 1.5px 1px rgba(255, 238, 215, .55), inset 0 10px 30px rgba(255, 210, 160, .1); }
+.art .flare { position: absolute; left: calc(50% + 88px); top: 261px; width: 12px; height: 12px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 10px 4px rgba(255, 245, 225, .9), 0 0 40px 14px rgba(255, 220, 170, .35); }
+.gate { position: relative; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden;
+  padding: 0 max(24px, env(safe-area-inset-right, 0px)) max(28px, env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px)); }
+.gate-body { position: relative; z-index: 1; width: min(400px, 100%); margin-inline: auto; padding-top: 340px; display: grid; gap: 12px; }
+.mark { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 24px; font-size: 29px; font-weight: 600; letter-spacing: -0.01em; }
+.mark i { position: relative; width: 22px; height: 22px; margin-top: 4px; border: 3.4px solid #fff; border-radius: 50%; }
+.mark i::after { content: ""; position: absolute; right: -8px; top: -9px; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.gate .lede { text-align: center; color: var(--ink-3); font-size: 15px; margin: -12px 0 12px; }
+.field { display: grid; gap: 8px; font-size: 13px; font-weight: 500; color: var(--ink-3); }
+.field input, .field textarea { font: inherit; font-size: 16px; font-weight: 400; color: var(--ink); width: 100%; min-height: 52px; padding: 16px 16px;
+  border: 1px solid var(--hair); border-radius: 16px; background: var(--surface); }
+.field textarea { min-height: 116px; resize: vertical; line-height: 1.45; }
+.field input::placeholder, .field textarea::placeholder { color: #7f978c; }
+.field input:focus, .field textarea:focus { outline: none; border-color: rgba(255, 255, 255, .32); background: rgba(255, 255, 255, .09); }
+.field input[type=date] { color-scheme: dark; }
+.gate .pill { width: 100%; margin-top: 8px; }
+.gate .help { margin-top: 16px; text-align: center; font-size: 15px; color: var(--ink-3); }
+.err { color: var(--bad); font-size: 15px; }
+.ok { color: var(--good); font-size: 15px; font-weight: 500; }
+
+/* ---- the owner's photo behind everything ---- */
+.backdrop { position: absolute; z-index: 0; inset: 0 0 auto 0; height: 640px; overflow: hidden; pointer-events: none;
+  background: linear-gradient(to bottom, #0b2219, #04110c); }
+.backdrop img { width: 100%; height: 100%; object-fit: cover; object-position: 65% 35%; filter: brightness(.6) saturate(.85) blur(3px); transform: scale(1.06); }
+.backdrop::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to right, rgba(4, 17, 12, .62), rgba(4, 17, 12, .12) 78%), linear-gradient(to bottom, rgba(4, 17, 12, .35) 0%, rgba(4, 17, 12, .55) 48%, #04110c 97%); }
+
+/* ---- top: the business is the headline ---- */
+.top { padding-top: max(8px, env(safe-area-inset-top, 0px)); }
+.topbar { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.plan { height: 32px; padding: 0 16px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 13px; font-weight: 500;
+  background: var(--glass); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.ctx { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 15px; color: var(--ink-2); }
+.ctx .live { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 4px rgba(127, 216, 168, .16); }
+.ctx .live.off { background: var(--ink-3); box-shadow: none; }
+.name { margin-top: 8px; font-size: 29px; font-weight: 400; line-height: 34px; letter-spacing: -0.01em; text-wrap: balance; }
+
+/* ---- the number ---- */
+.hero { padding-top: 36px; }
+.hero .label { font-size: 15px; color: var(--ink-2); }
+.hero .num { margin: 8px 0 0 -4px; font-size: 132px; font-weight: 200; line-height: .9; letter-spacing: -0.03em; font-variant-numeric: lining-nums; }
+.hero .what { margin-top: 16px; font-size: 29px; font-weight: 400; line-height: 1.14; letter-spacing: -0.01em; }
+.compare { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+.track { position: relative; width: clamp(96px, 28vw, 169px); height: 3px; flex: none; border-radius: 12px; background: rgba(255, 255, 255, .14); }
+.track i { position: absolute; inset: 0 auto 0 0; border-radius: 12px; background: var(--gold); }
+.track i::after { content: ""; position: absolute; right: -7px; top: 50%; width: 14px; height: 14px; margin-top: -8px; border-radius: 50%;
+  background: var(--gold); box-shadow: 0 0 0 2px rgba(4, 17, 12, .6); }
+.compare p { font-size: 15px; font-weight: 500; color: var(--ink-2); }
+
+/* ---- facts: three cards, number loud, label quiet ---- */
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 32px; }
+.fact { min-height: 96px; padding: 16px 16px 16px; border-radius: 24px; background: var(--surface); display: grid; align-content: start; gap: 2px; }
+.fact b { font-size: 22px; font-weight: 400; line-height: 1.1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.fact span { font-size: 13px; color: var(--ink-3); }
+.fact em { margin-top: 4px; font-style: normal; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+.fact em.up { color: var(--good); }
+/* A reading width on wide screens: past about 70 characters a line, the eye
+   loses its place. The note keeps its full-width card; only its text narrows. */
+.fine { margin-top: 12px; font-size: 15px; color: var(--ink-3); max-width: 64ch; }
+.note { display: flex; gap: 12px; margin-top: 12px; padding: 12px 16px; padding-inline-end: max(16px, 100% - 66ch); border-radius: 16px; background: rgba(255, 255, 255, .045); font-size: 15px; color: var(--ink-2); }
+.note .ic { --ic: 18px; margin-top: 1px; color: var(--gold); }
+
+/* ---- sections ---- */
+.sec { padding-top: 44px; scroll-margin-top: 16px; }
+.sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.sec-head h2 { font-size: 22px; font-weight: 400; letter-spacing: -0.01em; }
+.sec-head .count { min-width: 32px; height: 32px; padding: 0 8px; border-radius: 999px; display: grid; place-items: center; background: var(--fill); font-size: 15px; font-weight: 600; }
+.sec-sub { margin: -4px 0 16px; font-size: 15px; color: var(--ink-3); max-width: 64ch; }
+
+/* ---- enquiries: a row that runs off the edge on a phone ---- */
+.leads { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+  margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); scroll-padding-inline: var(--gutter); }
+.leads::-webkit-scrollbar { display: none; }
+.leads.list { display: grid; overflow: visible; margin-inline: 0; padding-inline: 0; }
+.lead { flex: none; width: min(318px, 84vw); padding: 8px; border-radius: 24px; background: var(--surface); scroll-snap-align: start; display: flex; flex-direction: column; gap: 12px; }
+.leads.list .lead { width: auto; }
+.lead header { display: flex; align-items: center; gap: 12px; padding: 8px 8px 0; }
+.avatar { width: 46px; height: 46px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 17px; font-weight: 600;
+  background: #21483a; color: #d9efe5; }
+.lead h3 { font-size: 17px; font-weight: 500; line-height: 1.25; overflow-wrap: anywhere; }
+.lead header p { font-size: 13px; color: var(--ink-3); }
+.lead .msg { padding: 0 8px; font-size: 15px; line-height: 1.45; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 8px; }
+.tag { min-height: 30px; padding: 4px 12px; border-radius: 999px; display: inline-flex; align-items: center; gap: 8px; background: var(--fill); font-size: 13px; color: var(--ink-2); }
+.tag .ic { --ic: 15px; color: var(--ink-3); }
+.tag.far { background: rgba(255, 155, 143, .14); color: var(--bad); }
+.tag.far .ic { color: var(--bad); }
+.lead .actions { display: flex; gap: 8px; margin-top: auto; }
+.lead .pill.gold { flex: 1; min-width: 0; height: 48px; padding-inline: 12px; font-size: 15px; }
+.lead .pill.gold span { overflow: hidden; text-overflow: ellipsis; }
+.lead .pill.off { flex: 1; height: 48px; background: var(--fill); color: var(--ink-3); font-weight: 400; font-size: 15px; }
+.lead .circle { width: 48px; height: 48px; background: var(--fill); }
+.more { margin-top: 12px; }
+.empty { padding: 24px; border-radius: 24px; background: var(--surface); color: var(--ink-2); font-size: 15px; }
+@media (min-width: 720px) {
+  .leads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; margin-inline: 0; padding-inline: 0; }
+  .lead { width: auto; }
 }
-.btn {
-  background: var(--ink); color: #fff; border: 0; border-radius: 10px;
-  padding: 12px 18px; font-weight: 600; font-size: 15px;
-  transition: background .2s, transform .2s;
-}
-.btn:hover { background: var(--accent); }
-.btn:active { transform: scale(.98); }
-.btn.ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--line); }
-.btn.ghost:hover { color: var(--ink); border-color: var(--ink); background: transparent; }
 
-/* ---- sign in ---- */
-#signin { display: grid; place-items: center; min-height: 100vh; }
-.card-in { width: min(400px, 100%); display: grid; gap: 18px; }
-.card-in h1 { font-size: 30px; font-weight: 800; }
-label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; }
-input {
-  font: inherit; font-size: 16px; padding: 12px 14px; border-radius: 10px;
-  border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); width: 100%;
-}
-input:focus { border-color: var(--ink); }
-.err { color: #b3261e; font-size: 14px; }
-
-/* ---- shell ---- */
-header.bar { border-bottom: 1px solid var(--line); position: sticky; top: env(safe-area-inset-top, 0px); background: rgba(255,255,255,.92); backdrop-filter: blur(10px); z-index: 5; }
-header.bar .wrap { display: flex; align-items: center; gap: 16px; padding-block: 14px; flex-wrap: wrap; }
-.biz { margin-right: auto; display: grid; gap: 2px; min-width: 0; }
-.biz b { font-family: var(--display); font-size: 19px; font-weight: 800; }
-.biz span { font-size: 13px; color: var(--muted); }
-.plan { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
-        background: var(--accent-soft); color: var(--accent); padding: 5px 10px; border-radius: 99px; }
-main .wrap { padding-block: 28px 56px; display: grid; gap: 22px; }
-/* Grid and flex children refuse to shrink below their content unless told.
-   Without this a wide table drags the whole page sideways on a phone. */
-main .wrap > *, .card > *, .scroll-x { min-width: 0; max-width: 100%; }
-.sec-title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.sec-title h2 { font-size: 22px; font-weight: 800; }
-.sec-title span { font-size: 13px; color: var(--faint); }
-
-/* ---- stat tiles ---- */
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 12px; }
-.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 4px; }
-.tile .n { font-family: var(--display); font-size: 38px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
-.tile .k { font-size: 14px; font-weight: 600; }
-.tile .sub { font-size: 12.5px; color: var(--faint); }
-.tile.lead { background: var(--accent-soft); border-color: #c9e2da; }
-.tile.lead .n { color: var(--accent); }
-
-/* ---- chart ---- */
-.card { border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
-.chart-wrap { position: relative; margin-top: 16px; }
-svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
-.bar { fill: var(--accent); }
+/* ---- visits ---- */
+.chart-card { padding: 16px 16px 8px; border-radius: 24px; background: var(--surface); }
+.chart-wrap { position: relative; }
+#chartSvg svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+.bar { fill: rgba(255, 255, 255, .24); }
+.bar.last, .bar.on { fill: var(--gold); }
 .bar-hit { fill: transparent; cursor: pointer; }
-.bar.on { fill: var(--ink); }
-.grid-line { stroke: var(--line); stroke-width: 1; }
-.axis-txt { fill: var(--faint); font-family: var(--body); font-size: 11px; }
-.tip {
-  position: absolute; pointer-events: none; background: var(--ink); color: #fff;
-  font-size: 12.5px; padding: 7px 10px; border-radius: 8px; white-space: nowrap;
-  transform: translate(-50%, -112%); opacity: 0; transition: opacity .12s;
-}
+.grid-line { stroke: var(--hair); stroke-width: 1; }
+.axis-txt { fill: var(--ink-3); font-family: var(--font); font-size: 13px; }
+.tip { position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap; padding: 8px 12px; border-radius: 12px;
+  background: #ffffff; color: #0b1310; font-size: 13px; transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity var(--t-press) ease-out; }
 .tip.on { opacity: 1; }
-.tip b { font-variant-numeric: tabular-nums; }
+details summary { list-style: none; cursor: pointer; }
+details summary::-webkit-details-marker { display: none; }
+.chart-table summary { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: var(--ink-3); }
+.chart-table summary .ic, .locked summary .ic { --ic: 18px; transition: transform var(--t-quick) ease-out; }
+details[open] > summary .ic { transform: rotate(180deg); }
+.scroll-x { overflow-x: auto; }
+table { width: 100%; max-width: 360px; border-collapse: collapse; margin-bottom: 8px; }
+th { text-align: left; font-size: 13px; font-weight: 500; color: var(--ink-3); padding: 0 0 8px; }
+td { padding: 8px 0; border-top: 1px solid var(--hair); font-size: 15px; }
 
-/* ---- tables ---- */
-/* A table is the one thing allowed to be wider than the screen, and only
-   inside its own scroller. Without this the nowrap cells push the whole
-   page wider on a phone. */
-.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 14px; }
-table { width: 100%; border-collapse: collapse; min-width: 460px; }
-th { text-align: left; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); font-weight: 600; padding-bottom: 8px; }
-td { padding: 11px 0; border-top: 1px solid var(--line); font-size: 15px; vertical-align: top; }
-td.when { color: var(--muted); font-size: 13.5px; white-space: nowrap; }
-td .when a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
-td .when a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-td > a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
-td > a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-.note-line { white-space: normal; display: inline-block; max-width: 30ch; margin-top: 4px; font-style: italic; }
-.pill { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
-.pill.far { background: #fdeaea; color: #b3261e; }
-.empty { color: var(--muted); font-size: 15px; padding: 18px 0; }
+/* ---- forms ---- */
+.stack { display: grid; gap: 16px; max-width: 640px; }
+.hours { display: grid; gap: 8px; }
+.hour { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) 44px; gap: 8px; align-items: center; }
+.hour input { font: inherit; font-size: 16px; color: var(--ink); width: 100%; height: 52px; padding: 0 16px; border: 1px solid var(--hair); border-radius: 16px; background: var(--surface); }
+.hour input:focus { outline: none; border-color: rgba(255, 255, 255, .32); }
+.hour .circle { background: var(--fill); }
+.hour .circle:hover { background: rgba(255, 155, 143, .18); color: var(--bad); }
+.two-up { display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: 8px; align-items: end; }
+@media (max-width: 560px) { .two-up { grid-template-columns: minmax(0, 1fr); } }
+.legend { font-size: 13px; font-weight: 500; color: var(--ink-3); margin-bottom: 8px; }
+.hint { margin-top: 8px; font-size: 15px; color: var(--ink-3); }
+.row-end { display: flex; justify-content: flex-end; align-items: center; gap: 16px; flex-wrap: wrap; }
+.row-end .ok { margin-right: auto; }
+.edits { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 8px; }
+.edits li { padding: 16px 16px; border-radius: 16px; background: var(--surface); display: grid; gap: 8px; }
+.edits .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 8px; font-size: 13px; color: var(--ink-3); }
+.badge { height: 24px; padding: 0 8px; border-radius: 999px; display: inline-flex; align-items: center; font-size: 13px; font-weight: 600; background: rgba(127, 216, 168, .14); color: var(--good); }
+.badge.quote { background: rgba(245, 194, 91, .14); color: var(--gold); }
 
-/* ---- notes & locked ---- */
-.note { background: #fff8ec; border: 1px solid #f0e2c8; border-radius: 12px; padding: 13px 15px; font-size: 14px; color: var(--warn); }
-.locked { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; margin-top: 14px; }
-.locked div { border: 1px dashed var(--line); border-radius: 12px; padding: 14px; font-size: 14px; color: var(--faint); }
-.locked b { display: block; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
-textarea {
-  font: inherit; font-size: 15px; width: 100%; min-height: 96px; resize: vertical;
-  border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px;
-  background: var(--bg); color: var(--ink);
-}
-textarea:focus { border-color: var(--ink); }
-.row-end { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
-.ok { color: var(--accent); font-size: 14px; font-weight: 500; }
-/* business details editor */
-.field-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 8px; }
-.field-row input { font-size: 15px; padding: 10px 12px; }
-.icon-btn { border: 1.5px solid var(--line); background: var(--bg); color: var(--muted);
-            border-radius: 9px; width: 40px; height: 40px; font-size: 18px; line-height: 1; }
-.icon-btn:hover { border-color: #b3261e; color: #b3261e; }
-.two-up { display: grid; grid-template-columns: 1fr 180px; gap: 12px; align-items: end; }
-.sub-label { font-size: 12px; color: var(--faint); margin-top: 4px; }
-@media (max-width: 620px) { .field-row { grid-template-columns: 1fr 1fr auto; } .two-up { grid-template-columns: 1fr; } }
-@media (max-width: 560px) { .tile .n { font-size: 32px; } }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+/* ---- not on the plan ---- */
+.locked { padding: 8px 16px; border-radius: 24px; background: var(--surface); }
+.locked summary { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.locked summary h2 { font-size: 17px; font-weight: 500; }
+.locked summary span { font-size: 15px; color: var(--ink-3); display: block; }
+.locked ul { list-style: none; margin: 4px 0 16px; padding: 0; display: grid; gap: 16px 28px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.locked li { display: grid; gap: 2px; font-size: 15px; }
+.locked li span { color: var(--ink-3); }
+
+/* ---- the dock: sections in a floating bar, the main action at the thumb ---- */
+main { padding-bottom: calc(128px + env(safe-area-inset-bottom, 0px)); }
+.dock { position: fixed; z-index: 20; left: 50%; bottom: max(14px, env(safe-area-inset-bottom, 0px)); width: min(728px, calc(100% - 32px));
+  transform: translateX(-50%); display: flex; align-items: center; gap: 12px; }
+.dock-bar { flex: 1; height: 64px; padding: 0 8px; border-radius: 999px; display: flex; align-items: center;
+  background: rgba(10, 28, 22, .84); -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .35); }
+.dock-bar a { flex: 1; height: 52px; border-radius: 999px; display: grid; place-items: center; align-content: center; gap: 4px;
+  font-size: 13px; font-weight: 500; color: var(--ink-3); transition: background-color var(--t-quick) ease-out, color var(--t-quick) ease-out; }
+.dock-bar a .ic { --ic: 22px; }
+.dock-bar a[aria-current] { background: rgba(255, 255, 255, .1); color: var(--ink); }
+.dock-fab { width: 64px; height: 64px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--gold); color: var(--on-gold);
+  box-shadow: 0 10px 24px rgba(245, 194, 91, .25); transition: transform var(--t-quick) var(--ease); }
+.dock-fab:active { transform: scale(.95); }
+.dock-fab .ic { --ic: 26px; }
+/* While there are unsaved changes and the form's own button is off screen,
+   the save action takes the dock's place at the thumb. */
+.savebar { position: fixed; z-index: 21; left: 50%; bottom: max(14px, env(safe-area-inset-bottom, 0px)); width: min(560px, calc(100% - 32px));
+  min-height: 64px; transform: translateX(-50%); padding: 8px 8px 8px 24px; border-radius: 999px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: rgba(10, 28, 22, .92); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  font-size: 15px; animation: rise .2s var(--ease); }
+.savebar .pill { height: 52px; }
+.savebar.done .pill { display: none; }
+@keyframes rise { from { opacity: 0; transform: translate(-50%, 12px); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+
+/*ICONS*/
+/* Copied from app-style/app-icons.css by app-style/tools/inline-icons.py. */
+.ic { display: inline-block; flex: none; width: var(--ic, 22px); height: var(--ic, 22px);
+      background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+.ic-chart { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5h15M7 16v-4M11 16V8M15 16v-6M19 16V5.5"/%3E%3C/svg%3E'); }
+.ic-chev-down { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/%3E%3C/svg%3E'); }
+.ic-clock { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Ccircle fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="8.5"/%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 7.5V12l3 2"/%3E%3C/svg%3E'); }
+.ic-close { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6 6 18"/%3E%3C/svg%3E'); }
+.ic-home { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/%3E%3C/svg%3E'); }
+.ic-inbox { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 13.5 6.4 6a1.5 1.5 0 0 1 1.4-1h8.4a1.5 1.5 0 0 1 1.4 1l2.4 7.5V18a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18zM4 13.5h4.5l1.2 2.2h4.6l1.2-2.2H20"/%3E%3C/svg%3E'); }
+.ic-info { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Ccircle fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="8.5"/%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 11v5"/%3E%3Ccircle fill="black" cx="12" cy="8" r="1.1"/%3E%3C/svg%3E'); }
+.ic-logout { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M14 4.5H6.5c-.6 0-1 .4-1 1v13c0 .6.4 1 1 1H14M10.5 12h10m0 0-3.5-3.5M20.5 12 17 15.5"/%3E%3C/svg%3E'); }
+.ic-mail { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Crect fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" x="3.5" y="5.5" width="17" height="13" rx="2.5"/%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m4.5 7 7.5 6 7.5-6"/%3E%3C/svg%3E'); }
+.ic-pencil { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l1-4.5L15.8 4.7a2 2 0 0 1 2.9 0l.6.6a2 2 0 0 1 0 2.9L9 18.5z"/%3E%3C/svg%3E'); }
+.ic-phone { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M5.3 3.8h3.3l1.6 4.4-2.2 1.4a11 11 0 0 0 6.4 6.4l1.4-2.2 4.4 1.6v3.3a1.8 1.8 0 0 1-1.9 1.8A16.5 16.5 0 0 1 3.5 5.7a1.8 1.8 0 0 1 1.8-1.9z"/%3E%3C/svg%3E'); }
+.ic-pin { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 21s6.5-5.6 6.5-11a6.5 6.5 0 0 0-13 0c0 5.4 6.5 11 6.5 11z"/%3E%3Ccircle fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="10" r="2.4"/%3E%3C/svg%3E'); }
+.ic-plus { --m: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15M4.5 12h15"/%3E%3C/svg%3E'); }
+/*/ICONS*/
 </style>
 </head>
-<body>
+<body class="ui">
 
-<!-- sign in -->
-<section id="signin" class="wrap" hidden>
-  <form class="card-in" id="loginForm">
-    <h1>Your website panel</h1>
-    <p style="color:var(--muted);font-size:15px">Sign in to see what your website did this month.</p>
-    <label for="em">Email<input id="em" type="email" autocomplete="username" required></label>
-    <label for="pw">Password<input id="pw" type="password" autocomplete="current-password" required></label>
-    <button class="btn" type="submit">Sign in</button>
+<noscript><div class="gate"><div class="gate-body"><p>This panel needs JavaScript. Switch it on in your browser, then reload the page.</p></div></div></noscript>
+
+<!-- shown only when the sign-in code cannot be downloaded, instead of a blank page -->
+<section id="boot" class="gate" hidden>
+  <div class="art" aria-hidden="true"><i class="glow"></i><i class="planet"></i><i class="flare"></i></div>
+  <div class="gate-body">
+    <p class="mark"><i></i>Website panel</p>
+    <p class="lede">The panel did not load. Check your internet connection, then try again. If it keeps happening, tell your studio.</p>
+    <button class="pill white" type="button" onclick="location.reload()">Try again</button>
+  </div>
+</section>
+
+<section id="signin" class="gate" hidden>
+  <div class="art" aria-hidden="true"><i class="glow"></i><i class="planet"></i><i class="flare"></i></div>
+  <form class="gate-body" id="loginForm">
+    <h1 class="mark"><i></i>Website panel</h1>
+    <p class="lede">What your website did this month.</p>
+    <label class="field" for="em">Email<input id="em" type="email" autocomplete="username" required></label>
+    <label class="field" for="pw">Password<input id="pw" type="password" autocomplete="current-password" required></label>
+    <button class="pill white" type="submit">Sign in</button>
     <p class="err" id="loginErr" hidden></p>
-    <p style="color:var(--faint);font-size:13px">Forgotten your password? Contact your studio and they will reset it.</p>
+    <p class="help">Forgotten your password? Your studio can reset it.</p>
   </form>
 </section>
 
-<!-- dashboard -->
 <div id="app" hidden>
-  <header class="bar">
-    <div class="wrap">
-      <div class="biz"><b id="bizName">—</b><span id="bizSite"></span></div>
+  <div class="backdrop" id="backdrop" aria-hidden="true"><img id="backdropImg" alt="" hidden></div>
+
+  <header class="top wrap">
+    <div class="topbar">
       <span class="plan" id="planName">—</span>
-      <button class="btn ghost" id="out" type="button">Sign out</button>
+      <button class="circle" id="out" type="button" aria-label="Sign out"><i class="ic ic-logout"></i></button>
     </div>
+    <p class="ctx"><i class="live" id="liveDot"></i><span id="bizSite"></span></p>
+    <h1 class="name"><span id="bizName">—</span><br><span class="dim">Your website</span></h1>
   </header>
 
-  <main>
-    <div class="wrap">
-      <div class="sec-title">
-        <h2>Last 30 days</h2>
-        <span id="range"></span>
+  <main class="wrap">
+    <section class="hero" id="overview" aria-labelledby="heroWhat">
+      <p class="label"><span id="range"></span></p>
+      <p class="num" id="heroNum">0</p>
+      <p class="what" id="heroWhat">Enquiries <span class="dim">from the form</span></p>
+      <div class="compare" id="compare" hidden><span class="track"><i id="compareFill"></i></span><p id="compareText"></p></div>
+      <div class="facts" id="facts"></div>
+      <p class="fine" id="factsNote"></p>
+      <p class="note"><i class="ic ic-info"></i><span><b>Call taps are not completed calls.</b> This counts people who tapped your
+        phone number on the website. It cannot tell whether the call connected or was answered. A tracking number would show real calls.</span></p>
+    </section>
+
+    <section class="sec" id="enquiries" aria-labelledby="leadsTitle">
+      <div class="sec-head"><h2 id="leadsTitle">Call them back <span class="dim">newest first</span></h2><span class="count" id="leadCount" hidden></span></div>
+      <div id="leads"></div>
+      <p class="fine" id="leadsNote" hidden>Distances are estimates: a straight line adjusted for roads, not a planned route.</p>
+    </section>
+
+    <section class="sec" id="visits" aria-labelledby="chartTitle">
+      <div class="sec-head"><h2 id="chartTitle">Visits <span class="dim">each day</span></h2></div>
+      <div class="chart-card">
+        <p class="fine" id="chartHint" style="margin:0 0 10px"></p>
+        <div class="chart-wrap" id="chartWrap"><div id="chartSvg"></div><div class="tip" id="tip" aria-hidden="true"></div></div>
+        <details class="chart-table">
+          <summary>See the numbers as a table <i class="ic ic-chev-down"></i></summary>
+          <div class="scroll-x" id="chartRows"></div>
+        </details>
       </div>
+    </section>
 
-      <div class="tiles" id="tiles"></div>
-
-      <p class="note">
-        <b>Call taps are not completed calls.</b> This counts people who tapped your
-        phone number on the website. It cannot tell whether the call connected or
-        was answered. A tracking number would show real calls.
-      </p>
-
-      <section class="card">
-        <div class="sec-title">
-          <h2>Visitors each day</h2>
-          <span>hover a bar for the exact figure</span>
+    <section class="sec" id="details" hidden aria-labelledby="detailsTitle">
+      <div class="sec-head"><h2 id="detailsTitle">Your <span class="dim">details</span></h2></div>
+      <p class="sec-sub">Change these yourself, any time. They appear on your website within a minute.</p>
+      <form id="detailsForm" class="stack">
+        <label class="field" for="d-phone">Phone number
+          <input id="d-phone" type="tel" placeholder="(555) 010-4470">
+          <span class="hint">This updates the tap-to-call button everywhere on your site.</span>
+        </label>
+        <div>
+          <p class="legend">Opening hours</p>
+          <div class="hours" id="hoursRows"></div>
+          <button class="pill glass" type="button" id="addHour" style="margin-top:10px"><i class="ic ic-plus"></i>Add a line</button>
         </div>
-        <div class="chart-wrap" id="chartWrap"></div>
-      </section>
-
-      <section class="card">
-        <div class="sec-title"><h2>Enquiries</h2><span>from the website form</span></div>
-        <div id="leads"></div>
-      </section>
-
-      <section class="card" id="detailsCard" hidden>
-        <div class="sec-title"><h2>Your business details</h2><span>changes appear on your website within a minute</span></div>
-        <p style="color:var(--muted);font-size:14.5px;margin-top:8px">
-          Change these yourself, any time. You do not need to ask us.
-        </p>
-        <form id="detailsForm" style="margin-top:16px;display:grid;gap:18px">
-          <label for="d-phone">Phone number
-            <input id="d-phone" type="tel" placeholder="(555) 010-4470">
-            <span class="sub-label">This updates the tap-to-call button everywhere on your site.</span>
-          </label>
-
-          <div>
-            <span style="font-size:13px;font-weight:600">Opening hours</span>
-            <div id="hoursRows" style="margin-top:8px"></div>
-            <button class="btn ghost" type="button" id="addHour">Add a line</button>
+        <div>
+          <p class="legend">Notice banner</p>
+          <p class="hint" style="margin:0 0 10px">For a holiday, a closure or anything urgent. It shows at the top of your website and disappears on its own after the date you choose.</p>
+          <div class="two-up">
+            <label class="field"><input id="d-notice" type="text" aria-label="Notice text" placeholder="Closed Thursday for Thanksgiving"></label>
+            <label class="field" for="d-until">Hide it after<input id="d-until" type="date"></label>
           </div>
+          <p class="err" id="noticeErr" hidden style="margin-top:8px">Choose a date for the notice to disappear, so it cannot be left up by accident.</p>
+        </div>
+        <p class="err" id="detailsErr" hidden>That did not save. Check your connection and try again.</p>
+        <div class="row-end">
+          <span class="ok" id="detailsOk" hidden>Saved. Your website is updating.</span>
+          <button class="pill gold" type="submit" id="detailsSave">Save changes</button>
+        </div>
+      </form>
+    </section>
 
-          <div>
-            <span style="font-size:13px;font-weight:600">Notice banner</span>
-            <span class="sub-label" style="display:block;margin-bottom:8px">
-              For a holiday, a closure or anything urgent. It shows at the top of your
-              website and disappears on its own after the date you choose.
-            </span>
-            <div class="two-up">
-              <input id="d-notice" type="text" placeholder="Closed Thursday for Thanksgiving">
-              <label for="d-until" style="font-size:12px;color:var(--faint)">Hide it after
-                <input id="d-until" type="date">
-              </label>
-            </div>
-            <p class="err" id="noticeErr" hidden>Choose a date for the notice to disappear, so it cannot be left up by accident.</p>
-          </div>
+    <section class="sec" id="changes" aria-labelledby="editTitle">
+      <div class="sec-head"><h2 id="editTitle">Request <span class="dim">a change</span></h2></div>
+      <p class="sec-sub">Anything else: text, photos, prices. Small edits are included and usually done within two business days. A new page or a redesign gets a written quote first.</p>
+      <form id="editForm" class="stack">
+        <label class="field"><textarea id="editBody" aria-label="What would you like changed?" placeholder="What would you like changed?" required></textarea></label>
+        <p class="err" id="editErr" hidden>That did not send. Check your connection and try again.</p>
+        <div class="row-end">
+          <span class="ok" id="editOk" hidden>Sent. Your studio has it.</span>
+          <button class="pill gold" type="submit">Send request</button>
+        </div>
+      </form>
+      <div id="editList"></div>
+    </section>
 
-          <div class="row-end">
-            <span class="ok" id="detailsOk" hidden>Saved. Your website is updating.</span>
-            <button class="btn" type="submit">Save changes</button>
-          </div>
-        </form>
-      </section>
-
-      <section class="card">
-        <div class="sec-title"><h2>Request a change</h2><span>anything else: text, photos, prices</span></div>
-        <p style="color:var(--muted);font-size:14.5px;margin-top:8px">
-          Small edits are included and usually done within two business days. Anything
-          needing a new page or a redesign gets a written quote first.
-        </p>
-        <form id="editForm" style="margin-top:12px">
-          <textarea id="editBody" placeholder="What would you like changed?" required></textarea>
-          <div class="row-end">
-            <span class="ok" id="editOk" hidden>Sent. Your studio has it.</span>
-            <button class="btn" type="submit">Send request</button>
-          </div>
-        </form>
-        <div id="editList"></div>
-      </section>
-
-      <section class="card" id="lockedCard" hidden>
-        <div class="sec-title"><h2>Not on your plan yet</h2></div>
-        <div class="locked" id="locked"></div>
-      </section>
-    </div>
+    <section class="sec" id="lockedCard" hidden>
+      <details class="locked">
+        <summary><div><h2>Not on your plan yet</h2><span id="lockedCount"></span></div><i class="ic ic-chev-down"></i></summary>
+        <ul id="locked"></ul>
+        <p class="fine" style="margin:0 0 14px">Ask your studio about any of these.</p>
+      </details>
+    </section>
   </main>
+
+  <nav class="dock" id="dock" aria-label="Sections">
+    <div class="dock-bar">
+      <a href="#overview" data-sec="overview"><i class="ic ic-home"></i>Overview</a>
+      <a href="#enquiries" data-sec="enquiries"><i class="ic ic-inbox"></i>Enquiries</a>
+      <a href="#visits" data-sec="visits"><i class="ic ic-chart"></i>Visits</a>
+      <a href="#changes" data-sec="changes"><i class="ic ic-pencil"></i>Changes</a>
+    </div>
+    <a class="dock-fab" id="callNext" hidden><i class="ic ic-phone"></i></a>
+  </nav>
+
+  <div class="savebar" id="saveBar" role="status" hidden>
+    <span id="saveBarText">You have unsaved changes</span>
+    <button class="pill gold" type="button" id="saveBarBtn">Save changes</button>
+  </div>
 </div>
 
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/+esm';
-
 // Publishable key: safe in a browser. Row-level security decides what each
 // signed-in person can read, so this key alone shows nobody anything.
 const CFG = {
   url: 'https://mhahkbssltukjhusjsjf.supabase.co',
   key: 'sb_publishable_TI48mx2rEonk2g3Ds6Bihw_R9_Dsjbo',
+  client: 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/+esm',
 };
-const db = createClient(CFG.url, CFG.key);
 const $ = (id) => document.getElementById(id);
 const DAYS = 30;
+const DAY_MS = 864e5;
 
 const FEATURES = {
   menu: ['Menu and ordering', 'Edit your menu and take orders on the site'],
@@ -290,19 +524,32 @@ const FEATURES = {
   pipeline: ['Lead follow-up', 'Chases quotes that have gone quiet'],
 };
 
-/* ---------------- sign in ---------------- */
-$('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const err = $('loginErr'); err.hidden = true;
-  const { error } = await db.auth.signInWithPassword({
-    email: $('em').value.trim(), password: $('pw').value,
-  });
-  if (error) { err.textContent = 'That email and password did not match.'; err.hidden = false; }
-});
-$('out').addEventListener('click', async () => { await db.auth.signOut(); location.reload(); });
+// Loaded on its own, so a blocked or failed download shows a message
+// instead of a blank page.
+let db = null;
+try {
+  const { createClient } = await import(CFG.client);
+  db = createClient(CFG.url, CFG.key);
+} catch {
+  $('boot').hidden = false;
+}
+if (db) wire();
 
-db.auth.getSession().then(({ data }) => data.session ? start() : show('signin'));
-db.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') start(); });
+function wire() {
+  $('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = $('loginErr'); err.hidden = true;
+    const { error } = await db.auth.signInWithPassword({ email: $('em').value.trim(), password: $('pw').value });
+    if (error) { err.textContent = 'That email and password did not match.'; err.hidden = false; }
+  });
+  $('out').addEventListener('click', async () => { await db.auth.signOut(); location.reload(); });
+  wireChart();
+  wireDetails();
+  wireEdits();
+  wireDock();
+  db.auth.getSession().then(({ data }) => (data.session ? start() : show('signin')));
+  db.auth.onAuthStateChange((evt) => { if (evt === 'SIGNED_IN') start(); });
+}
 
 function show(which) {
   $('signin').hidden = which !== 'signin';
@@ -310,9 +557,17 @@ function show(which) {
 }
 
 /* ---------------- load ---------------- */
+let started = false;
 async function start() {
+  if (started) return;   // the session check and the auth event can both arrive
+  started = true;
   show('app');
-  const { data: accounts } = await db.from('mk_accounts').select('*, mk_plans(*)');
+  const { data: accounts, error } = await db.from('mk_accounts').select('*, mk_plans(*)');
+  if (error) {
+    $('bizName').textContent = 'Something went wrong';
+    $('bizSite').textContent = 'Your numbers could not be loaded. Refresh the page to try again.';
+    return;
+  }
   if (!accounts?.length) {
     $('bizName').textContent = 'No website yet';
     $('bizSite').textContent = 'Your studio has not linked a site to this login.';
@@ -320,221 +575,346 @@ async function start() {
   }
   const acct = accounts[0];
   $('bizName').textContent = acct.business_name;
-  $('planName').textContent = acct.mk_plans?.name ?? acct.plan_id;
+  $('planName').textContent = `${acct.mk_plans?.name ?? acct.plan_id} plan`;
 
   const { data: sites } = await db.from('mk_sites').select('*').eq('account_id', acct.id);
   const site = sites?.[0];
-  $('bizSite').textContent = site ? (site.is_live ? site.domain + ' — live' : site.domain + ' — not live yet') : 'No site linked';
+  $('bizSite').textContent = site ? `${site.domain} · ${site.is_live ? 'live' : 'not live yet'}` : 'No site linked yet';
+  $('liveDot').classList.toggle('off', !site?.is_live);
+  if (site) showPhoto(site);
 
-  const since = new Date(Date.now() - DAYS * 864e5).toISOString();
-  const fmt = (d) => new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-  $('range').textContent = fmt(since) + ' to ' + fmt(Date.now());
+  // Whole days in UTC, because that is how mk_site_daily groups them. Every
+  // date on this page is printed in UTC too, so the bar marked Nov 26 holds
+  // Nov 26's rows.
+  const days = lastDays(DAYS);
+  const since = days[0] + 'T00:00:00Z';
+  const before = new Date(Date.parse(since) - DAYS * DAY_MS).toISOString();
+  $('range').textContent = `${fmtDay(days[0])} to ${fmtDay(days[days.length - 1])}`;
 
-  const [{ data: daily }, { data: leads }, { data: edits }, { data: settings }] = await Promise.all([
-    db.from('mk_site_daily').select('*').gte('day', since).order('day'),
+  const [daily, leads, count, prevCount, edits, settings] = await Promise.all([
+    db.from('mk_site_daily').select('*').gte('day', before).order('day'),
     db.from('mk_leads').select('*').gte('created_at', since).order('created_at', { ascending: false }).limit(50),
+    // Counted by the database, not from the rows loaded: the list stops at 50.
+    db.from('mk_leads').select('id', { count: 'exact', head: true }).gte('created_at', since),
+    db.from('mk_leads').select('id', { count: 'exact', head: true }).gte('created_at', before).lt('created_at', since),
     db.from('mk_edit_requests').select('*').order('created_at', { ascending: false }).limit(10),
     site ? db.from('mk_site_settings').select('*').eq('site_id', site.id).maybeSingle() : Promise.resolve({ data: null }),
   ]);
 
-  renderTiles(daily ?? [], leads ?? []);
-  renderChart(daily ?? []);
-  renderLeads(leads ?? []);
-  renderEdits(edits ?? []);
+  const rows = daily.data ?? [];
+  const cut = Date.parse(since);
+  const cur = rows.filter((r) => Date.parse(r.day) >= cut);
+  const prev = rows.filter((r) => Date.parse(r.day) < cut);
+  const leadRows = leads.data ?? [];
+  const total = count.error || count.count == null ? leadRows.length : count.count;
+  const prevTotal = prevCount.error ? null : prevCount.count;
+
+  renderNumbers(total, prevTotal, cur, prev);
+  renderLeads(leadRows, total);
+  renderChart(days, cur);
+  renderEdits(edits.data ?? []);
   renderLocked(acct.mk_plans?.features ?? []);
   $('editForm').dataset.account = acct.id;
-  if (site) renderDetails(site, settings);
+  if (site) renderDetails(site, settings.data);
+  watchSections();
 }
 
-function sum(rows, k) { return rows.reduce((t, r) => t + (Number(r[k]) || 0), 0); }
-
-function renderTiles(daily, leads) {
-  const tiles = [
-    ['lead', leads.length, 'Enquiries', 'people who filled in the form'],
-    ['', sum(daily, 'visitors'), 'Visitors', 'different people, counted once a day'],
-    ['', sum(daily, 'call_taps'), 'Call taps', 'tapped your phone number'],
-    ['', sum(daily, 'views'), 'Page views', 'pages opened in total'],
-  ];
-  $('tiles').innerHTML = tiles.map(([cls, n, k, sub]) =>
-    `<div class="tile ${cls}"><span class="n">${n}</span><span class="k">${k}</span><span class="sub">${sub}</span></div>`
-  ).join('');
+// The owner's own photo behind their numbers: the first photo of their
+// website, which the build saves as og.webp. Until the site is rebuilt, or
+// if it cannot load, the drawn glow behind it stays.
+function showPhoto(site) {
+  const img = $('backdropImg');
+  img.onload = () => { img.hidden = false; };
+  img.onerror = () => { img.hidden = true; };
+  img.src = site.photo_url || `https://${site.domain}/og.webp`;
 }
 
-/* One series, so one hue and no legend: the heading names it.
-   Bars sit on the baseline with rounded tops and a 2px gap. */
-function renderChart(daily) {
-  const wrap = $('chartWrap');
-  const byDay = new Map(daily.map((d) => [d.day.slice(0, 10), d]));
-  const days = [];
-  for (let i = DAYS - 1; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
-    const row = byDay.get(d);
-    days.push({ date: d, visitors: Number(row?.visitors || 0) });
+/* ---------------- the number ---------------- */
+function renderNumbers(leads, prevLeads, cur, prev) {
+  $('heroNum').textContent = fmtN(leads);
+  $('heroWhat').innerHTML = `${leads === 1 ? 'Enquiry' : 'Enquiries'} <span class="dim">from the form</span>`;
+
+  // Like a progress bar towards a reward: how this month stands against the
+  // month before. Full when it has caught up; the text says by how much.
+  if (prevLeads != null) {
+    const d = leads - prevLeads;
+    $('compare').hidden = false;
+    $('compareFill').style.width = `${Math.min(100, (leads / Math.max(prevLeads, 1)) * 100)}%`;
+    $('compareText').textContent = d === 0 ? 'Same as the 30 days before'
+      : d > 0 ? `${fmtN(d)} more than the 30 days before`
+      : `${fmtN(-d)} to match the 30 days before`;
   }
-  const max = Math.max(4, ...days.map((d) => d.visitors));
-  const W = 900, H = 240, padL = 34, padB = 26, padT = 10;
-  const plotW = W - padL, plotH = H - padB - padT;
-  const step = plotW / days.length, bw = Math.max(3, step - 2);
 
-  const ticks = [0, Math.round(max / 2), max];
-  const y = (v) => padT + plotH - (v / max) * plotH;
-
-  const grid = ticks.map((t) =>
-    `<line class="grid-line" x1="${padL}" x2="${W}" y1="${y(t)}" y2="${y(t)}"></line>
-     <text class="axis-txt" x="${padL - 8}" y="${y(t) + 4}" text-anchor="end">${t}</text>`).join('');
-
-  // Bars first, then the invisible hit areas on top, so a hover is never
-  // swallowed by the bar itself.
-  const bars = days.map((d, i) => {
-    const h = d.visitors === 0 ? 0 : Math.max(2, (d.visitors / max) * plotH);
-    const x = padL + i * step;
-    return `<rect class="bar" data-i="${i}" x="${x}" y="${padT + plotH - h}" width="${bw}" height="${h}" rx="${Math.min(4, bw / 2)}"></rect>`;
+  // A site that links out to a booking page reports booking clicks. For one
+  // that does not, the third number is page views.
+  const booked = sum(cur, 'book_clicks') + sum(prev, 'book_clicks') > 0;
+  const facts = [['visits', 'visitors'], ['call taps', 'call_taps'], booked ? ['booking clicks', 'book_clicks'] : ['page views', 'views']];
+  $('facts').innerHTML = facts.map(([label, key]) => {
+    const n = sum(cur, key), p = prev.length ? sum(prev, key) : null;
+    return `<div class="fact"><b>${fmtN(n)}</b><span>${label}</span>${change(n, p)}</div>`;
   }).join('');
-  const hits = days.map((d, i) =>
-    `<rect class="bar-hit" x="${padL + i * step}" y="${padT}" width="${bw}" height="${plotH}" data-i="${i}"></rect>`
-  ).join('');
-
-  const labelAt = (i) => padL + i * step + bw / 2;
-  const marks = [0, Math.floor(DAYS / 2), DAYS - 1].map((i) =>
-    `<text class="axis-txt" x="${labelAt(i)}" y="${H - 6}" text-anchor="middle">${
-      new Date(days[i].date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</text>`).join('');
-
-  wrap.innerHTML =
-    `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Visitors each day for the last ${DAYS} days">
-       ${grid}${bars}${hits}${marks}
-     </svg>
-     <div class="tip" id="tip"></div>
-     <details style="margin-top:12px">
-       <summary style="font-size:13.5px;color:var(--muted);cursor:pointer">See the numbers as a table</summary>
-       <div class="scroll-x"><table><thead><tr><th>Day</th><th>Visitors</th></tr></thead><tbody>${
-         days.map((d) => `<tr><td class="when">${d.date}</td><td>${d.visitors}</td></tr>`).join('')
-       }</tbody></table></div>
-     </details>`;
-
-  const tip = $('tip'), svg = wrap.querySelector('svg');
-  const clear = () => {
-    tip.classList.remove('on');
-    svg.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on'));
-  };
-  svg.addEventListener('mousemove', (e) => {
-    const hit = e.target.closest('.bar-hit');
-    if (!hit) { clear(); return; }
-    const i = +hit.dataset.i, d = days[i], r = svg.getBoundingClientRect();
-    svg.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on'));
-    svg.querySelector(`.bar[data-i="${i}"]`)?.classList.add('on');
-    tip.innerHTML = `${new Date(d.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })} &middot; <b>${d.visitors}</b>`;
-    tip.style.left = (e.clientX - r.left) + 'px';
-    tip.style.top = (e.clientY - r.top) + 'px';
-    tip.classList.add('on');
-  });
-  svg.addEventListener('mouseleave', clear);
+  $('factsNote').textContent =
+    'Visits count each person once a day, so someone who comes back on three days is three visits. ' +
+    (booked ? 'Booking clicks are taps on your booking link, not finished bookings. ' : '') +
+    'Changes compare with the 30 days before.';
 }
 
-// How far the job is, as it stood when they asked. Marked as an estimate,
-// because it is a straight-line distance adjusted for roads, not a routed
-// drive time, and the owner should not plan a tight day around it.
-function distanceCell(l) {
-  if (l.road_miles == null) return '<span class="when">—</span>';
-  const far = l.in_area === false;
-  return `<span class="${far ? 'pill far' : 'pill'}">${l.road_miles} mi</span>` +
-         `<br><span class="when">about ${l.drive_minutes} min${far ? ', outside area' : ''}</span>`;
+// A percentage of a small number exaggerates, so below 20 it is a count.
+function change(n, p) {
+  if (p == null) return '';
+  const d = n - p, sign = d > 0 ? '+' : '−';
+  const text = d === 0 ? 'same' : p < 20 ? `${sign}${fmtN(Math.abs(d))}` : `${sign}${Math.round((Math.abs(d) / p) * 100)}%`;
+  return `<em class="${d > 0 ? 'up' : ''}">${text}</em>`;
 }
 
-// The phone number is the point of a lead, so make it tappable: an owner
-// reading this on site can ring back without copying anything out.
-function contactLines(l) {
-  const phone = l.phone || l.contact;
-  const out = [];
-  if (phone) out.push(`<a href="tel:${esc(String(phone).replace(/[^0-9+]/g, ''))}">${esc(phone)}</a>`);
-  if (l.email) out.push(`<a href="mailto:${esc(l.email)}">${esc(l.email)}</a>`);
-  return out.length ? '<br><span class="when">' + out.join('<br>') + '</span>' : '';
-}
+/* ---------------- enquiries ---------------- */
+const ICON = (n) => `<i class="ic ic-${n}"></i>`;
+const phoneOf = (l) => l.phone || (l.contact && !String(l.contact).includes('@') ? l.contact : '');
+const emailOf = (l) => l.email || (l.contact && String(l.contact).includes('@') ? l.contact : '');
+const placeOf = (l) => [l.address, l.city, l.zip].filter(Boolean).join(', ');
+const mapLink = (q) => 'https://maps.google.com/?q=' + encodeURIComponent(q);
+const initials = (name) => String(name).trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
 
-// Where the job is. The address opens in whatever map app the owner uses.
-function placeCell(l) {
-  if (!l.address && !l.zip) return '<span class="when">—</span>';
-  const full = [l.address, l.city, l.zip].filter(Boolean).join(', ');
-  const below = [l.city, l.zip].filter(Boolean).join(' ');
-  return l.address
-    ? `<a href="https://maps.google.com/?q=${encodeURIComponent(full)}" target="_blank" rel="noopener">${esc(l.address)}</a>` +
-      (below ? `<br><span class="when">${esc(below)}</span>` : '')
-    : `<span class="when">${esc(below)}</span>`;
-}
-
-function renderLeads(leads) {
+function renderLeads(leads, total) {
+  const count = $('leadCount');
+  count.hidden = !total; count.textContent = fmtN(total);
   if (!leads.length) {
     $('leads').innerHTML = '<p class="empty">No enquiries yet in this period. They will appear here the moment someone uses the form.</p>';
+    $('leadsNote').hidden = true;
+    setCallNext(null);
     return;
   }
-  $('leads').innerHTML =
-    `<div class="scroll-x"><table><thead><tr><th>Who</th><th>Where</th><th>Wanted</th><th>How far</th><th>For</th><th>Came in</th></tr></thead><tbody>${
-      leads.map((l) => `<tr>
-        <td><b>${esc(l.name)}</b>${contactLines(l)}</td>
-        <td>${placeCell(l)}</td>
-        <td>${l.requested ? '<span class="pill">' + esc(l.requested) + '</span>' : '—'}${
-          l.message ? '<br><span class="when note-line">' + esc(l.message) + '</span>' : ''}</td>
-        <td>${distanceCell(l)}</td>
-        <td class="when">${esc(l.preferred || '—')}</td>
-        <td class="when">${new Date(l.created_at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}</td>
-      </tr>`).join('')
-    }</tbody></table></div>`;
+  $('leadsNote').hidden = !leads.some((l) => l.road_miles != null);
+  $('leads').innerHTML = `<div class="leads" id="leadRail">${leads.map(leadCard).join('')}</div>` +
+    (leads.length > 3 ? `<button class="pill glass more" type="button" id="leadMode">Show them as a list</button>` : '') +
+    (total > leads.length ? `<p class="fine">Showing the ${leads.length} newest of ${fmtN(total)}.</p>` : '');
+  const mode = $('leadMode');
+  if (mode) mode.addEventListener('click', () => {
+    const list = $('leadRail').classList.toggle('list');
+    mode.textContent = list ? 'Show them in a row' : 'Show them as a list';
+  });
+  setCallNext(leads.find((l) => phoneOf(l)));
 }
 
+// One enquiry: who, what and when, what they said, where, then one gold
+// button to call them back with the map and email beside it.
+function leadCard(l) {
+  const phone = phoneOf(l), email = emailOf(l), place = placeOf(l);
+  const tel = String(phone).replace(/[^0-9+]/g, '');
+  const tags = [];
+  if (l.road_miles != null) {
+    const far = l.in_area === false;
+    tags.push(`<span class="tag${far ? ' far' : ''}">${ICON('pin')}${esc(l.road_miles)} mi${far ? ', outside your area' : l.drive_minutes != null ? `, about ${esc(l.drive_minutes)} min` : ''}</span>`);
+  }
+  if (l.preferred) tags.push(`<span class="tag">${ICON('clock')}${esc(l.preferred)}</span>`);
+  return `<article class="lead">
+    <header><span class="avatar" aria-hidden="true">${esc(initials(l.name))}</span>
+      <div><h3>${esc(l.name)}</h3><p>${[l.requested, ago(l.created_at)].filter(Boolean).map(esc).join(' · ')}</p></div></header>
+    ${l.message ? `<p class="msg">${esc(l.message)}</p>` : ''}
+    ${place ? `<div class="tags"><span class="tag">${ICON('home')}${esc(place)}</span></div>` : ''}
+    ${tags.length ? `<div class="tags">${tags.join('')}</div>` : ''}
+    <div class="actions">
+      ${tel ? `<a class="pill gold" href="tel:${esc(tel)}" aria-label="Call ${esc(l.name)} on ${esc(phone)}">${ICON('phone')}<span>Call ${esc(String(l.name).split(/\s+/)[0])}</span></a>` : '<span class="pill off">No phone number given</span>'}
+      ${place ? `<a class="circle" href="${esc(mapLink(place))}" target="_blank" rel="noopener" aria-label="Open ${esc(place)} in maps">${ICON('pin')}</a>` : ''}
+      ${email ? `<a class="circle" href="mailto:${esc(email)}" aria-label="Email ${esc(email)}">${ICON('mail')}</a>` : ''}
+    </div>
+  </article>`;
+}
+
+// The gold circle at the thumb calls the newest enquiry that left a number.
+function setCallNext(l) {
+  const fab = $('callNext');
+  if (!l) { fab.hidden = true; return; }
+  fab.hidden = false;
+  fab.href = 'tel:' + String(phoneOf(l)).replace(/[^0-9+]/g, '');
+  fab.setAttribute('aria-label', `Call ${l.name}, your newest enquiry`);
+}
+
+function ago(iso) {
+  const min = Math.round((Date.now() - Date.parse(iso)) / 6e4);
+  if (min < 2) return 'just now';
+  if (min < 60) return `${min} min ago`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `${h}h ago`;
+  if (h < 48) return 'yesterday';
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}
+
+/* ---------------- visits ---------------- */
+let chart = null;
+
+function renderChart(days, cur) {
+  const byDay = new Map(cur.map((d) => [String(d.day).slice(0, 10), d]));
+  chart = days.map((date) => ({ date, visits: Number(byDay.get(date)?.visitors || 0) }));
+  $('chartHint').textContent = matchMedia('(hover: hover)').matches ? 'Hover a bar for the exact figure.' : 'Tap a bar for the exact figure.';
+  $('chartRows').innerHTML = `<table><thead><tr><th>Day</th><th>Visits</th></tr></thead><tbody>${
+    chart.map((d) => `<tr><td>${fmtDay(d.date, { weekday: 'short' })}</td><td>${fmtN(d.visits)}</td></tr>`).join('')}</tbody></table>`;
+  $('chartSvg').dataset.w = '';
+  drawChart();
+}
+
+// Drawn at the width it is shown at, so labels stay 12px on a phone.
+// Today's bar carries the gold; the rest are quiet.
+function drawChart() {
+  if (!chart) return;
+  const box = $('chartSvg');
+  const W = Math.max(260, Math.round($('chartWrap').clientWidth));
+  if (box.dataset.w === String(W)) return;
+  box.dataset.w = String(W);
+  $('tip').classList.remove('on');
+  const H = W < 600 ? 170 : 220, padL = 30, padB = 26, padT = 6;
+  const plotW = W - padL, plotH = H - padB - padT;
+  const step = plotW / chart.length, bw = Math.max(3, step - (step >= 12 ? 4 : 2.5));
+  const max = niceMax(Math.max(0, ...chart.map((d) => d.visits)));
+  const y = (v) => padT + plotH - (v / max) * plotH;
+  const grid = [0, max / 2, max].map((t) => `<line class="grid-line" x1="${padL}" x2="${W}" y1="${y(t)}" y2="${y(t)}"></line>
+     <text class="axis-txt" x="${padL - 8}" y="${y(t) + 4}" text-anchor="end">${fmtN(t)}</text>`).join('');
+  const last = chart.length - 1;
+  const bars = chart.map((d, i) => {
+    const h = d.visits === 0 ? 0 : Math.max(2, (d.visits / max) * plotH);
+    return `<rect class="bar${i === last ? ' last' : ''}" data-i="${i}" x="${padL + i * step + (step - bw) / 2}" y="${padT + plotH - h}" width="${bw}" height="${h}" rx="${Math.min(3, bw / 2)}"></rect>`;
+  }).join('');
+  const hits = chart.map((d, i) => `<rect class="bar-hit" data-i="${i}" x="${padL + i * step}" y="${padT}" width="${step}" height="${plotH}"></rect>`).join('');
+  const mid = Math.floor(last / 2);
+  const marks = [[0, 'start', padL], [mid, 'middle', padL + mid * step + step / 2], [last, 'end', W]]
+    .map(([i, anchor, x]) => `<text class="axis-txt" x="${x}" y="${H - 6}" text-anchor="${anchor}">${fmtDay(chart[i].date)}</text>`).join('');
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Visits each day for the last ${chart.length} days. The same numbers are in the table below.">${grid}${bars}${hits}${marks}</svg>`;
+}
+
+function niceMax(v) {
+  if (v <= 4) return 4;
+  for (let p = 1; ; p *= 10) for (const m of p === 1 ? [6, 8, 10] : [1.2, 1.6, 2, 3, 4, 5, 6, 8, 10]) { const c = Math.round(m * p); if (c >= v) return c; }
+}
+
+function wireChart() {
+  const box = $('chartSvg'), tip = $('tip');
+  const clear = () => { tip.classList.remove('on'); box.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on')); };
+  const point = (e) => {
+    const hit = e.target.closest?.('.bar-hit');
+    if (!hit || !chart) { clear(); return; }
+    const i = +hit.dataset.i, d = chart[i], bar = box.querySelector(`.bar[data-i="${i}"]`);
+    box.querySelectorAll('.bar.on').forEach((b) => b.classList.remove('on'));
+    bar?.classList.add('on');
+    tip.innerHTML = `${fmtDay(d.date, { weekday: 'short' })} &middot; <b>${fmtN(d.visits)}</b> ${d.visits === 1 ? 'visit' : 'visits'}`;
+    const wrap = $('chartWrap').getBoundingClientRect(), r = hit.getBoundingClientRect(), half = tip.offsetWidth / 2;
+    tip.style.left = Math.min(Math.max(r.left + r.width / 2 - wrap.left, half), wrap.width - half) + 'px';
+    tip.style.top = ((bar ?? hit).getBoundingClientRect().top - wrap.top) + 'px';
+    tip.classList.add('on');
+  };
+  box.addEventListener('pointermove', point);
+  box.addEventListener('pointerdown', point);
+  // A finger lifting is not leaving: on touch the figure stays until the next tap.
+  box.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') clear(); });
+  let t; addEventListener('resize', () => { clearTimeout(t); t = setTimeout(drawChart, 120); });
+}
+
+/* ---------------- the dock follows the page ---------------- */
+function wireDock() {
+  $('dock').addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-sec]');
+    if (!a) return;
+    e.preventDefault();
+    document.getElementById(a.dataset.sec)?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  });
+}
+function watchSections() {
+  const links = [...document.querySelectorAll('.dock-bar a')];
+  const mark = (id) => links.forEach((a) => (a.dataset.sec === id ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
+  mark('overview');
+  if (!('IntersectionObserver' in window)) return;
+  const seen = new Map();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => seen.set(en.target.id, en.isIntersecting ? en.intersectionRatio : 0));
+    const ids = ['overview', 'enquiries', 'visits', 'changes'];
+    const best = ids.reduce((a, b) => ((seen.get(b) || 0) > (seen.get(a) || 0) ? b : a), ids[0]);
+    mark(best);
+  }, { threshold: [0, .2, .4, .6, .8, 1] });
+  ['overview', 'enquiries', 'visits', 'details', 'changes'].forEach((id) => { const el = $(id); if (el) io.observe(el); });
+}
+
+/* ---------------- change requests and plan ---------------- */
 function renderEdits(edits) {
-  if (!edits.length) { $('editList').innerHTML = ''; return; }
-  $('editList').innerHTML =
-    `<div class="scroll-x"><table><thead><tr><th>Request</th><th>Scope</th><th>Status</th><th>Sent</th></tr></thead><tbody>${
-      edits.map((r) => `<tr>
-        <td>${esc(r.body)}</td>
-        <td><span class="pill">${r.scope === 'small' ? 'included' : 'quoted'}</span></td>
-        <td class="when">${esc(r.status)}</td>
-        <td class="when">${new Date(r.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</td>
-      </tr>`).join('')
-    }</tbody></table></div>`;
+  $('editList').innerHTML = edits.length ? `<ul class="edits">${edits.map((r) => `<li>
+      <p>${esc(r.body)}</p>
+      <p class="meta"><span class="badge${r.scope === 'small' ? '' : ' quote'}">${r.scope === 'small' ? 'Included' : 'Quoted'}</span>${esc(r.status)} · sent ${fmtDate(r.created_at)}</p>
+    </li>`).join('')}</ul>` : '';
+}
+
+function wireEdits() {
+  $('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = $('editBody').value.trim(); if (!body) return;
+    $('editErr').hidden = true;
+    const { error } = await db.from('mk_edit_requests').insert({ account_id: e.target.dataset.account, body });
+    if (error) { $('editErr').hidden = false; return; }
+    $('editBody').value = '';
+    $('editOk').hidden = false;
+    setTimeout(() => { $('editOk').hidden = true; }, 4000);
+    const { data } = await db.from('mk_edit_requests').select('*').order('created_at', { ascending: false }).limit(10);
+    renderEdits(data ?? []);
+  });
 }
 
 function renderLocked(features) {
   const missing = Object.entries(FEATURES).filter(([k]) => !features.includes(k));
   if (!missing.length) return;
   $('lockedCard').hidden = false;
-  $('locked').innerHTML = missing.map(([, [name, what]]) =>
-    `<div><b>${name}</b>${what}</div>`).join('');
+  $('lockedCount').textContent = `${missing.length} more ${missing.length === 1 ? 'feature' : 'features'} on a bigger plan`;
+  $('locked').innerHTML = missing.map(([, [name, what]]) => `<li><b>${name}</b><span>${what}</span></li>`).join('');
 }
 
 /* ---------------- business details the owner edits ---------------- */
+let dirty = false, formButtonSeen = true, flashing = false;
+
+function setDirty(v) { dirty = v; syncSaveBar(); }
+function syncSaveBar() {
+  const show = flashing || (dirty && !formButtonSeen && !$('details').hidden);
+  $('saveBar').hidden = !show;
+  $('dock').hidden = show;
+}
+
 function hourRow(label, value) {
   const row = document.createElement('div');
-  row.className = 'field-row';
+  row.className = 'hour';
   const a = document.createElement('input'); a.type = 'text'; a.placeholder = 'Monday'; a.value = label || '';
   const b = document.createElement('input'); b.type = 'text'; b.placeholder = '09:00 - 17:00'; b.value = value || '';
   a.setAttribute('aria-label', 'Day or label'); b.setAttribute('aria-label', 'Hours');
   const x = document.createElement('button');
-  x.type = 'button'; x.className = 'icon-btn'; x.textContent = '\u00d7';
+  x.type = 'button'; x.className = 'circle'; x.innerHTML = ICON('close');
   x.setAttribute('aria-label', 'Remove this line');
-  x.addEventListener('click', () => row.remove());
+  x.addEventListener('click', () => { row.remove(); setDirty(true); });
   row.append(a, b, x);
   return row;
 }
 
 function renderDetails(site, settings) {
-  $('detailsCard').hidden = false;
+  $('details').hidden = false;
   $('detailsForm').dataset.site = site.id;
   $('d-phone').value = settings?.phone ?? '';
   $('d-notice').value = settings?.notice ?? '';
   $('d-until').value = settings?.notice_until ?? '';
   const rows = $('hoursRows');
   rows.textContent = '';
-  const hours = Array.isArray(settings?.hours) && settings.hours.length
-    ? settings.hours : [['', '']];
+  const hours = Array.isArray(settings?.hours) && settings.hours.length ? settings.hours : [['', '']];
   hours.forEach(([l, v]) => rows.appendChild(hourRow(l, v)));
+  setDirty(false);
 }
 
-$('addHour').addEventListener('click', () => $('hoursRows').appendChild(hourRow('', '')));
+function wireDetails() {
+  const form = $('detailsForm');
+  form.addEventListener('input', () => setDirty(true));
+  $('addHour').addEventListener('click', () => { $('hoursRows').appendChild(hourRow('', '')); setDirty(true); });
+  $('saveBarBtn').addEventListener('click', () => form.requestSubmit());
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => { formButtonSeen = e.isIntersecting; syncSaveBar(); }).observe($('detailsSave'));
+  }
+  addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+  form.addEventListener('submit', saveDetails);
+}
 
-$('detailsForm').addEventListener('submit', async (e) => {
+async function saveDetails(e) {
   e.preventDefault();
-  const siteId = e.target.dataset.site;
-  const hours = [...$('hoursRows').querySelectorAll('.field-row')]
+  const hours = [...$('hoursRows').querySelectorAll('.hour')]
     .map((r) => [...r.querySelectorAll('input')].map((i) => i.value.trim()))
     .filter((pair) => pair[0] || pair[1]);
   const notice = $('d-notice').value.trim();
@@ -543,44 +923,45 @@ $('detailsForm').addEventListener('submit', async (e) => {
   // A banner with no end date is the one that gets left up for months. If
   // there is a notice there must be a date, and clearing the notice clears
   // the date with it.
-  const noticeErr = $('noticeErr');
-  if (notice && !until) {
-    noticeErr.hidden = false;
-    $('d-until').focus();
-    return;
-  }
-  noticeErr.hidden = true;
+  if (notice && !until) { $('noticeErr').hidden = false; $('d-until').focus(); return; }
+  $('noticeErr').hidden = true;
+  $('detailsErr').hidden = true;
 
-  const row = {
-    site_id: siteId,
-    phone: $('d-phone').value.trim() || null,
-    hours,
-    notice: notice || null,
-    notice_until: notice ? until : null,
-  };
+  const row = { site_id: e.target.dataset.site, phone: $('d-phone').value.trim() || null, hours, notice: notice || null, notice_until: notice ? until : null };
+  const buttons = [$('detailsSave'), $('saveBarBtn')];
+  buttons.forEach((b) => { b.disabled = true; });
   const { error } = await db.from('mk_site_settings').upsert(row, { onConflict: 'site_id' });
-  if (error) return;
+  buttons.forEach((b) => { b.disabled = false; });
+  if (error) { $('detailsErr').hidden = false; $('saveBarText').textContent = 'That did not save. Try again.'; return; }
+
+  // Saved from the floating bar: confirm there, where the owner is looking.
+  if (!$('saveBar').hidden) {
+    flashing = true;
+    $('saveBar').classList.add('done');
+    $('saveBarText').textContent = 'Saved. Your website is updating.';
+    setTimeout(() => {
+      flashing = false;
+      $('saveBar').classList.remove('done');
+      $('saveBarText').textContent = 'You have unsaved changes';
+      syncSaveBar();
+    }, 2500);
+  }
+  setDirty(false);
   $('detailsOk').hidden = false;
   setTimeout(() => { $('detailsOk').hidden = true; }, 4000);
-});
-
-$('editForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const body = $('editBody').value.trim(); if (!body) return;
-  const { error } = await db.from('mk_edit_requests')
-    .insert({ account_id: e.target.dataset.account, body });
-  if (!error) {
-    $('editBody').value = '';
-    $('editOk').hidden = false;
-    setTimeout(() => { $('editOk').hidden = true; }, 4000);
-    const { data } = await db.from('mk_edit_requests').select('*').order('created_at', { ascending: false }).limit(10);
-    renderEdits(data ?? []);
-  }
-});
-
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
+
+/* ---------------- helpers ---------------- */
+function lastDays(n) {
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) out.push(new Date(Date.now() - i * DAY_MS).toISOString().slice(0, 10));
+  return out;
+}
+function fmtDay(d, opts = {}) { return new Date(d + 'T00:00:00Z').toLocaleDateString(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC', ...opts }); }
+function fmtDate(iso) { return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }); }
+function fmtN(n) { return Number(n).toLocaleString(); }
+function sum(rows, k) { return rows.reduce((t, r) => t + (Number(r[k]) || 0), 0); }
+function esc(s) { return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 </script>
 </body>
 </html>

@@ -1,0 +1,86 @@
+Copyright (c) 2026 the owner of this repository. All rights reserved.
+
+    Replace that line with your legal name or registered company before this
+    is relied on. "Design Angle" (README.md) and "MK Web Studio" (OFFER.md)
+    are trading names, not legal entities, and a copyright line naming
+    neither is weaker than one naming the person or company that owns it.
+
+
+NOTE ON VISIBILITY
+
+This repository is currently public on GitHub. Anyone can read, clone and
+fork it, and this file does not change that — a licence states terms, it does
+not control access. If the contents are meant to stay private, the repository
+must be made private; nothing written here substitutes for that.
+
+
+GRANT: NONE, BY DEFAULT
+
+No permission is granted to any person or entity to use, copy, modify, merge,
+publish, distribute, sublicense or sell any part of this repository without
+the prior written permission of the copyright holder. Reading it on GitHub
+grants nothing.
+
+
+WHAT A CLIENT RECEIVES
+
+A client who commissions a website receives the built output that `build.js`
+writes to `dist/<site>/`: the generated `index.html`, plus `site.css` and
+`site.js` copied from `template/`, plus their own photographs.
+
+That output is **licensed, not sold**. The licence is:
+
+  - non-exclusive and non-transferable;
+  - for one named business, at one named domain;
+  - for the paid term only, and it ends when the term ends;
+  - perpetual only if a buyout is paid, as set out in the service agreement;
+  - not reusable for any other business, site or client.
+
+`template/site.css` and `template/site.js` are distributed verbatim inside
+every built site, so they are covered by the licence above when they arrive
+that way. The repository copies of them are not.
+
+**The client keeps, and this file does not touch:** their domain, their own
+photographs and words, their customer and lead data, and their business name
+and marks.
+
+A client does NOT receive, and is not licensed to use, the repository itself:
+`build.js`, the `template/` sources, `tools/`, `portal/`, `docs/`, the design
+method in `.claude/skills/`, or any other client's `sites/<name>/`.
+
+Nothing in a contract to build or host a website transfers a licence to this
+repository unless that contract says so explicitly and in writing.
+
+
+THE SERVICE AGREEMENT PREVAILS
+
+Where this file and the signed service agreement disagree, the service
+agreement governs. This file is a notice about software. What a client may do
+with their site, what happens when they stop paying, and what a buyout costs
+are commercial terms, and they belong in the agreement, not here.
+
+
+THIRD-PARTY SOFTWARE
+
+Built sites load GSAP, Lenis and Google Fonts from third-party CDNs at
+runtime. None is copied into this repository or into a built site, and each
+stays under its own licence rather than this one.
+
+`THIRD-PARTY-NOTICES.md` lists every one, with version, licence and what this
+project takes from it.
+
+
+NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+This is a notice, not legal advice, and it was not written by a lawyer. Much
+of the code here was written by an AI assistant, and copyright in such code is
+unsettled in several jurisdictions. The signed client agreement is the real
+protection; treat this file as the floor, not the ceiling.

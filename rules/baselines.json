@@ -1,0 +1,26 @@
+{
+  "note": "Screens once judged good. tools/regress.js re-checks them after every rule change.",
+  "updated": "2026-11-28",
+  "screens": [
+    {
+      "page": "app-style/examples/tally-home",
+      "desktop": true,
+      "slop": 93
+    },
+    {
+      "page": "app-style/examples/cinevora-home",
+      "desktop": true,
+      "slop": 80
+    },
+    {
+      "page": "app-style/examples/cinema-login",
+      "desktop": true,
+      "slop": 79
+    },
+    {
+      "page": "app-style/examples/streaming-study",
+      "desktop": true,
+      "slop": 96
+    }
+  ]
+}

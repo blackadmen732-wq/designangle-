@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platform" content="desktop">
+<title>Interaction recipes</title>
+<link rel="stylesheet" href="recipes.css">
+<style>
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .seg { display: inline-flex; border: 1px solid #d6d3d1; border-radius: 12px; padding: 3px; background: #fff; }
+  .seg button { border: 0; min-height: 40px; }
+  .seg button[aria-pressed="true"] { background: #1d1d1f; color: #fff; }
+  .wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), 1fr)); gap: 16px; }
+  figure { margin: 0; background: #fff; border: 1px solid #e7e5e4; border-radius: 16px; overflow: hidden; }
+  figcaption { padding: 10px 16px; font-size: 13px; color: #57534e; border-top: 1px solid #e7e5e4; }
+  figure iframe { display: block; width: 100%; height: 440px; border: 0; }
+  main { max-width: 1400px; }
+</style></head>
+<body><main>
+<div class="top">
+  <div><h1>Interaction recipes</h1>
+  <p class="why" style="margin:0">Each one is its own page and works with any look. Try them; switch the motion personality to feel the difference.</p></div>
+  <div class="seg" role="group" aria-label="Motion personality">
+    <button aria-pressed="true" data-p="calm">Calm</button><button aria-pressed="false" data-p="lively">Lively</button>
+  </div>
+</div>
+<p class="why">Calm: a little slower, travels less, never overshoots, for tools used all day. Lively: quicker, travels further, settles with a slight spring, for rare moments and playful brands. Turn on "reduce motion" in your system and movement stops; only gentle fades stay.</p>
+<p class="why">Under each one: what does the work. Native means the browser itself; Floating UI and AutoAnimate are small open-source libraries (MIT). Our own code is used only where nothing existing fits.</p>
+<div class="wall" id="wall"></div>
+</main>
+<script>
+  var names = ['product-expand', 'dropdown', 'bottom-sheet', 'modal', 'steps', 'add-to-cart', 'remove-undo', 'filter-reflow', 'states'];
+  var built = { 'product-expand': 'Native View Transitions', 'dropdown': 'Native popover + Floating UI', 'bottom-sheet': 'pure-web-bottom-sheet + native dialog',
+    'modal': 'Native dialog', 'steps': 'Native Web Animations', 'add-to-cart': 'Our flyTo (CartFlow checked, weaker)', 'remove-undo': 'AutoAnimate + our undo toast',
+    'filter-reflow': 'AutoAnimate', 'states': 'Native aria-busy + live region' };
+  var wall = document.getElementById('wall'), p = 'calm';
+  function draw() {
+    wall.innerHTML = names.map(function (n) { return '<figure><iframe title="' + n + '" src="' + n + '/index.html#' + p + '"></iframe><figcaption>Built on: ' + built[n] + '</figcaption></figure>'; }).join('');
+  }
+  document.querySelectorAll('[data-p]').forEach(function (b) {
+    b.onclick = function () { p = b.dataset.p; document.querySelectorAll('[data-p]').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); }); draw(); };
+  });
+  draw();
+</script>
+</body></html>

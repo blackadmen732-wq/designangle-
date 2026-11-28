@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="design-check" content="gutter 12.5: the chip row starts 12.5pt in, measured from the original frame">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Uber Eats Home Study</title>
+<!-- A study of the Uber Eats redesign by uidesignmahsa, rebuilt from measured
+     frames to prove the system reproduces it. Brand names belong to their
+     owners; the food photos are the kit's own free-licence stock. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../app-style.css">
+<link rel="stylesheet" href="../app-icons.css">
+<style>
+  body { margin: 0; }
+  /* The dish bleeds off the top right and melts into the page. */
+  .ue-dish { position: absolute; left: 196px; top: 30px; width: 262px; height: 262px; object-fit: cover; border-radius: 50%;
+    -webkit-mask: radial-gradient(closest-side, #000 72%, transparent 100%); mask: radial-gradient(closest-side, #000 72%, transparent 100%); }
+  .ue-bell { position: absolute; right: 16px; top: 63px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+    background: #fff; box-shadow: var(--shadow); }
+  .ue-bell::after { content: ""; position: absolute; top: 8px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .ue-where { display: flex; align-items: center; gap: 6px; font-size: 15px; color: var(--ink-3); }
+  .ue-where .ic { --ic: 15px; color: #007148; }
+  .ue-glass { background: rgba(255,255,255,.8); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    box-shadow: 0 1px 2px rgba(40,40,20,.05), 0 6px 16px rgba(40,40,20,.05); }
+  .chip[aria-pressed="true"] .ic { color: var(--accent); }
+  .ue-search { position: absolute; left: 18px; right: 17px; top: 205px; height: 51px; border-radius: 999px; padding: 0 5px 0 18px;
+    display: flex; align-items: center; gap: 12px; background: #fff; box-shadow: var(--shadow); }
+  .ue-search input { flex: 1; min-width: 0; align-self: stretch; border: 0; background: none; outline: none; font: inherit; font-size: 16px; color: var(--ink); }
+  .ue-search input::placeholder { color: #8a8c89; }
+  .ue-search .filter { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--fill-strong); }
+  .ue-tiles { position: absolute; left: 20px; top: 271.5px; display: flex; gap: 16px; }
+  .ue-tile { width: 58px; display: grid; justify-items: center; }
+  .ue-tile span:first-child { width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center; background: #fff; box-shadow: var(--shadow); }
+  .ue-tile .ic { --ic: 26px; }
+  .ue-tile span:last-child { margin-top: 10px; font-size: 13px; color: var(--ink-3); white-space: nowrap; }
+  .chip.sm .crown { color: #2e7d65; }
+  .ue-more { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--fill); }
+  .ue-more .ic { --ic: 19px; }
+  .ue-card { width: 180px; height: 191px; border-radius: 26px; overflow: hidden; position: relative; background: #fff; box-shadow: var(--shadow); }
+  .ue-card .photo { position: absolute; inset: 0 0 auto 0; height: 128px; }
+  .ue-card .photo img { width: 100%; height: 100%; object-fit: cover; }
+  .ue-card .photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, #fff 4%, rgba(255,255,255,.6) 30%, transparent 62%); }
+  .ue-badge { position: absolute; left: 10.5px; top: 10px; height: 26px; padding: 0 11px; border-radius: 999px; display: grid; place-items: center;
+    background: rgba(255,255,255,.86); font-size: 13.5px; font-weight: 500; }
+  .ue-heart { position: absolute; right: 8px; top: 7px; width: 31px; height: 31px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.86); }
+  .ue-heart .ic { --ic: 17px; }
+  .ue-card .body { position: absolute; left: 14.5px; right: 10px; top: 94.5px; }
+  .ue-card h3 { font-size: 17.5px; font-weight: 500; line-height: 1.3; }
+  .ue-card .perk { display: flex; align-items: center; gap: 5px; margin-top: 1px; font-size: 14px; color: #2b765f; }
+  .ue-card .perk .ic { --ic: 15px; }
+  .ue-card .stats { margin-top: 7.5px; gap: 0; }
+  .ue-card .stats > div { margin-right: 22px; }
+  .ue-card .stats b { color: #353534; }
+  .ue-card .stats span { color: #737572; font-size: 10.5px; margin-top: -1px; }
+  .ue-peek { position: absolute; left: 16px; right: 16px; top: 740px; height: 96px; border-radius: 26px; background: #fff; box-shadow: var(--shadow);
+    display: flex; gap: 12px; padding: 12px; }
+  .ue-peek img { width: 50px; height: 50px; border-radius: 14px; object-fit: cover; }
+  .ue-peek b { font-size: 17px; font-weight: 500; }
+  .dock-bar a .ic { --ic: 23px; }
+  .ui-light .dock-bar { background: rgba(242, 245, 240, .82); }
+  .ui-light .dock-bar a { color: #7b7d7a; }
+  .ui-light .dock-bar a[aria-current] { color: #fff; }
+</style>
+</head>
+<body>
+<div class="ui ui-light ui-phone" style="--accent:#00aa66">
+  <div class="ui-status"><span>9:41</span><span class="ui-status-icons"><i class="ic ic-signal"></i><i class="ic ic-wifi"></i><i class="ic ic-battery"></i></span></div>
+  <div class="ui-island"></div>
+
+  <img class="ue-dish" src="../../sites/restaurant/img/farfalle.webp" alt="">
+  <button class="ue-bell" aria-label="Notifications"><i class="ic ic-bell"></i></button>
+
+  <p class="ue-where" style="position:absolute; left:20px; top:59.5px"><i class="ic ic-pin-fill"></i>Delivering to</p>
+  <h1 class="t-title" style="position:absolute; left:21px; top:80px; font-size:29px; letter-spacing:-0.02em">1226 <span class="dim">University Dr</span></h1>
+
+  <div class="chips" style="position:absolute; left:0; right:0; top:139px; padding-inline:12.5px">
+    <button class="chip" aria-pressed="true"><i class="ic ic-bag"></i>All</button>
+    <button class="chip ue-glass"><i class="ic ic-car"></i>Rides</button>
+    <button class="chip ue-glass"><i class="ic ic-basket"></i>Grocery</button>
+    <button class="chip ue-glass"><i class="ic ic-store"></i>Convenience</button>
+  </div>
+
+  <label class="ue-search"><i class="ic ic-search"></i><input type="search" placeholder="Search Uber Eats" aria-label="Search Uber Eats"><span class="filter"><i class="ic ic-sliders"></i></span></label>
+
+  <div class="ue-tiles">
+    <a class="ue-tile"><span><i class="ic ic-fork"></i></span><span>Dine Out</span></a>
+    <a class="ue-tile"><span><i class="ic ic-compass"></i></span><span>Explore</span></a>
+    <a class="ue-tile"><span><i class="ic ic-pizza"></i></span><span>Pizza</span></a>
+    <a class="ue-tile"><span><i class="ic ic-icecream"></i></span><span>Desserts</span></a>
+    <a class="ue-tile"><span><i class="ic ic-takeout"></i></span><span>Chinese</span></a>
+  </div>
+
+  <div class="chips" style="position:absolute; left:0; right:0; top:372.5px; padding-inline:16.5px; gap:8.5px">
+    <button class="chip sm"><i class="ic ic-crown crown"></i>Uber One</button>
+    <button class="chip sm"><i class="ic ic-walk"></i>Pickup</button>
+    <button class="chip sm"><i class="ic ic-tag"></i>Offers</button>
+    <button class="chip sm"><i class="ic ic-timer"></i>Under 30 min</button>
+  </div>
+
+  <div class="row between" style="position:absolute; left:21px; right:16px; top:439px">
+    <h2 class="t-title-2" style="font-size:21.5px; margin-top:1.5px">Featured <span class="dim">on Uber Eats</span></h2>
+    <a class="ue-more" aria-label="See all featured"><i class="ic ic-arrow-right"></i></a>
+  </div>
+
+  <div class="rail" style="position:absolute; left:0; right:0; top:491.5px; padding-inline:12.5px; gap:8.5px">
+    <article class="ue-card">
+      <div class="photo"><img src="../../sites/restaurant/img/steak.webp" alt=""></div>
+      <span class="ue-badge">Buy 1, get 1</span><span class="ue-heart"><i class="ic ic-heart"></i></span>
+      <div class="body">
+        <h3>Jack in the Box</h3>
+        <p class="perk"><i class="ic ic-crown"></i>Uber One benefits</p>
+        <div class="stats"><div><b>4.5</b><span>Rating</span></div><div><b>2,000+</b><span>Reviews</span></div><div><b>18</b><span>Min</span></div></div>
+      </div>
+    </article>
+    <article class="ue-card">
+      <div class="photo"><img src="../../sites/restaurant/img/pizza.webp" alt=""></div>
+      <span class="ue-badge">#2 Italian</span><span class="ue-heart"><i class="ic ic-heart"></i></span>
+      <div class="body">
+        <h3>Domino’s</h3>
+        <p class="perk"><i class="ic ic-crown"></i>Uber One benefits</p>
+        <div class="stats"><div><b>4.1</b><span>Rating</span></div><div><b>340+</b><span>Reviews</span></div></div>
+      </div>
+    </article>
+  </div>
+
+  <div class="row between" style="position:absolute; left:18px; right:12px; top:698px">
+    <h2 class="t-head" style="font-size:17px; margin-top:4px">Places you might like</h2>
+    <a class="ue-more" style="width:32px; height:32px; background:#fff; box-shadow:var(--shadow)" aria-label="See all places"><i class="ic ic-arrow-right"></i></a>
+  </div>
+  <div class="ue-peek"><img src="../../sites/restaurant/img/cake.webp" alt=""><b>Shake Shack</b></div>
+
+  <nav class="dock" aria-label="Main">
+    <div class="dock-bar">
+      <a aria-current="page"><i class="ic ic-home"></i>Home</a>
+      <a aria-label="Explore"><i class="ic ic-globe"></i></a>
+      <a aria-label="Cart"><i class="ic ic-cart"></i></a>
+      <a aria-label="Account"><i class="ic ic-user"></i></a>
+    </div>
+    <a class="dock-fab" aria-label="Search"><i class="ic ic-search"></i></a>
+  </nav>
+
+  <div class="ui-home-bar"></div>
+</div>
+</body>
+</html>

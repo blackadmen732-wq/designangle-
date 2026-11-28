@@ -1,59 +1,115 @@
 # Design Angle
 
-A kit for building business websites, plus the owner panel behind them.
-Read this before changing anything.
+A lightweight design-engineering toolkit. It helps a capable model build,
+animate and check its own design: parts, tokens, motion, accessibility and
+breakage checks, and matching against a reference. It does not replace the
+model's creative judgment, and it imposes no house look. Read this page,
+then only what your job needs.
 
-## Load the design skill
+**Start from the product, not a layout.** Understand what the business
+sells, who uses the screen and what they do there, then design for that.
+Benchmarks on unseen briefs showed that rules, layouts and review loops
+imposed on the model made its designs worse, not better
+(`rules/BENCHMARKS.md`). Everything creative in this repo is optional.
 
-Before building or changing any screen — a web page, a phone layout, the
-owner panel, a client site — read `.claude/skills/design/SKILL.md`. It holds
-the method: the order of work, the type, colour, spacing and motion systems,
-the phone rules, and how to redesign something that looks bad.
+**Examples teach structure, never appearance.** Take an example's
+hierarchy, grouping, primary action and interactions; choose colour, type,
+imagery, materials and motion fresh from each product's brief. A flower
+shop does not inherit an invoicing app's black and metallic light.
 
-`DESIGN.md` holds the kit's own locked-in values (the exact tokens every
-client site uses). The skill is the method; DESIGN.md is this kit's instance
-of it. Where they overlap, DESIGN.md wins for the kit's sites.
+**Before designing anything, get a brief.** Fill `brief/TEMPLATE.md` from
+what you were told. If a line marked *needed* is empty, ask (at most five
+short questions, each with a suggested answer); do not guess. Why:
+`docs/WHY-AI-DESIGN-IS-GENERIC.md`.
 
-## The rules that are not style preferences
+## Start here
 
-These exist because breaking them loses money or breaks trust.
+| The job | Read first | Then, if needed |
+|---|---|---|
+| A client's website | `sites/CLAUDE.md` | `DESIGN.md`, the locked values |
+| A web page that is not a business: a product, a portfolio, docs | `sites/CLAUDE.md`, the part on `kind` | `DESIGN.md` |
+| A desktop app screen: an editor, a studio, a launcher, a dashboard, a business tool | Choose the look from the brief. `app-style/desktop/` (dark glass) is one preset, only for briefs that ask for dark, cinematic or glass, or give a reference like it. Benchmarks: `rules/BENCHMARKS.md` | `.claude/skills/design/SKILL.md` for the method |
+| A logo in a reference picture | `.claude/skills/logo-recreate/SKILL.md` | `tools/trace-logo.py` |
+| A background, or making one move | `.claude/skills/animated-backgrounds/SKILL.md` | `app-style/desktop/art.js` |
+| A phone app screen | `.claude/skills/app-style/SKILL.md` | `app-style/styles/` when the brief wants a tool, not a brand |
+| Redesigning an existing app or screen | `.claude/skills/app-redesign/SKILL.md` | `.claude/skills/redesign-eye/SKILL.md`, to brief and present it her way |
+| The owner panel, the database, the edge functions | `portal/CLAUDE.md` | the app-style skill, for the panel's screens |
+| Motion | `app-style/recipes/README.md` for tested interaction recipes (expand, menu, sheet, modal, steps, cart, undo, reflow, states); `.claude/skills/animate/SKILL.md` | `.claude/skills/review-animations/SKILL.md`, to critique it |
+| Any other screen | `.claude/skills/design/SKILL.md` | |
 
-- **A phone-button tap is not a phone call.** Taps live in `mk_events`, real
-  calls in `mk_calls`. Never report one as the other. The panel says so on
-  the page.
-- **No automated text without registration and consent.** Both
-  `mk_messaging_registration` and a matching `mk_message_consent` row must
-  exist first. Do not add a bypass. See `OFFER.md` section 5.
-- **Never invent a client fact.** No guarantee, response time, price, review
-  count or certification that the client did not give you. The example sites
-  are invented and labelled as such in every file.
-- **A lead needs a name and a phone number.** The collector refuses one
-  without them, so a miswired form fails loudly instead of filling the
-  owner's list with enquiries nobody can answer.
-- **Distances are estimates and say so.** Straight-line adjusted for roads,
-  not a routed drive time.
+The design skill is the method under all of them: the order of work, the type,
+colour, spacing and motion systems, the phone rules, and how to fix something
+that looks bad. The other skills say when to open it. A copy edit does not
+need it.
+
+## One design system
+
+- `tokens/tokens.css` holds the space scale, the corners, the touch sizes and
+  the motion, for the websites, the app screens and the panel alike. Change a
+  value there, never in a stylesheet: `node tools/tokens.js` fails if anything
+  sets its own.
+- `template/` draws every website; a client's look is the `theme` in its
+  `content.js`.
+- `app-style/` draws the app screens, in her look by default. `app-style/styles/`
+  holds other looks for the same parts and markup.
+
+## Five rules that are not style
+
+Breaking these loses money or breaks trust. Each is enforced in code, and its
+detail lives beside that code.
+
+1. **A phone-button tap is not a phone call.** Never report one as the other. `portal/CLAUDE.md`
+2. **No automated text without registration and consent.** Do not add a bypass. `portal/CLAUDE.md`, `OFFER.md` section 5
+3. **Never launch a client fact they did not give you.** No guarantee, response time, price, review count or certification unless the client said it. `sites/CLAUDE.md`
+4. **A lead needs a name and a phone number.** The collector refuses one without them. `portal/CLAUDE.md`
+5. **Distances are estimates and say so.** `portal/CLAUDE.md`
 
 ## Checking work
 
-Build with `node build.js`, then look at it before saying it is done:
+Look before saying it is done. The measured checks come first: they exit
+non-zero, so they can gate a build. Then open the screenshots. Then judge.
 
 ```bash
-node build.js                      # every site, into dist/
-node build.js hvac                 # one site
-python3 tools/critique.py shot.png --kind app    # cheap design review
+node build.js                            # every site into dist/; node build.js hvac for one
+node tools/test-sections.js              # a wrong section list or kind cannot reach a built page
+node tools/tokens.js                     # one set of tokens
+node tools/check.js [page]               # 400x860 and 1280x900: contrast, tap size, sideways scroll; shots in .check/
+node tools/audit.js <page> --width 400   # one page in depth: contrast against the painted ground, with the fix
+node tools/slop.js <page>                # advice only: taste signals, never a reason to change a design
+node tools/motion.js <page>              # every animation measured; filmstrips in .check/motion/
+node tools/match.js <page> <ref.png>     # against a reference: side by side and a score out of 100
 ```
 
-Screenshot at **400×860** and **1280×900**. Both, every time.
+**What blocks and what does not.** `check.js` and `motion.js` catch
+breakage: words cut off, overlap, sideways scroll, contrast, broken images,
+motion that ignores reduced motion. Fix those always. `slop.js` measures
+taste (type sizes, badges, spacing grid, radii); it is advice and never
+blocks. On unseen briefs, repairs made to satisfy it scored lower with
+blind reviewers, and it fails screens reviewers rated best
+(`rules/BENCHMARKS.md`). Change a design for taste only on a blind
+reviewer's notes.
+
+Never ask a model whether a ratio passes. Do open the screenshots, and for
+anything that moves, the filmstrips: a recording once caught a tab hidden
+under a floating button that every audit had passed. Where cdnjs or jsDelivr
+are blocked, the checks load the same GSAP and Lenis versions from npm
+(`tools/cdn.js`), so they test the page visitors get.
 
 ## Layout
 
 ```
-build.js              turns sites/<name>/content.js into static files
-template/             shared design, motion, tracking — change once, all sites improve
-sites/<name>/         one client: content.js plus photos
-portal/               owner panel: schema, edge functions, dashboard
-tools/critique.py     screenshot review on the user's NVIDIA credit
-docs/research/        the research the design decisions came from
-DESIGN.md             this kit's locked values
+CLAUDE.md             this map
+DESIGN.md             the websites' locked values
 OFFER.md              packages, and the rules that protect the business
+tokens/tokens.css     the shared scales and motion
+build.js              sites/<name>/content.js into static files in dist/
+template/             the websites' shared design, motion and tracking
+sites/                one folder per site (sites/CLAUDE.md)
+portal/               owner panel, schema, edge functions (portal/CLAUDE.md)
+app-style/            the app style: parts, icons, styles/, recreations, examples
+tools/                checks: check, audit, slop, motion, tokens, test-sections, launch-check
+                      makers: preview, photos.py, reel, watch.py, compare, critique.py
+docs/research/        the research the design decisions came from
+.claude/skills/       design, app-style, app-redesign, redesign-eye, animate, review-animations,
+                      logo-recreate, animated-backgrounds
 ```

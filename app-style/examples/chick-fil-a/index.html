@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f8f8f5">
+<title>Chick-fil-A Redesign Study</title>
+<!--
+  An unofficial redesign study of the Chick-fil-A app, made with only what
+  this repo has (the design and app-style skills, app-style.css, the checks).
+  Not affiliated with Chick-fil-A. The real app could not be photographed
+  here (the App Store and its site are blocked), so the "before" is what was
+  reported: members confused by how points work (Digiday), money having to be
+  loaded before paying (Marketing Dive), orders sent to the wrong restaurant,
+  and checkout errors after updates (app reviews). Photos are Unsplash
+  stand-ins (img/CREDITS.json), not Chick-fil-A's food. Prices, points,
+  rewards and the three restaurants are samples, and say so on screen.
+
+  Second version, after watching every step of uidesignmahsa's five
+  redesigns (docs/research/her-redesigns.md). The first was beige, had
+  a 36pt three-line headline and 40pt gaps, and put categories in photos:
+  her light screen (Uber Eats) is white, titles are 29pt at 400, blocks sit
+  16pt apart and categories are clean icons. This one follows her.
+
+  The job:       order the usual, or something new, from the right restaurant,
+                 and know what your points will get you.
+  The one thing: your usual, one tap from ordering again.
+  Cut:           the promotions carousel, the gift cards on the home screen,
+                 the "load money" step. Paying is a card or Apple Pay.
+  Ground:        her light ground: #f8f8f5, white cards, a soft shadow, no
+                 borders. The food is in the cards, not behind the page.
+  Accent:        one red, near the brand's, spent on the pin and the bag
+                 button. The main button is the dark pill.
+  Answers:       wrong restaurant: the restaurant is the headline of the home
+                 screen (her "Delivering to 1226 University Dr"), with how you
+                 pick up in one row under it, and it is confirmed with its
+                 distance before you pay. Points: numbers over labels in one
+                 card, and a gauge to the next tier (her Starbucks). Paying:
+                 no stored balance needed. Errors: say what failed and keep
+                 the order.
+  Motion:        what you add flies into the bag (AppMotion.flyTo); sheets
+                 rise on a spring over a blurred page and can be flicked
+                 away; tabs change instantly; a placed order gets the one
+                 moment of delight.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../../app-style.css">
+<link rel="stylesheet" href="../../app-icons.css">
+<style>
+  body { margin: 0; background: var(--page, #f8f8f5); }
+  .cf { --accent: #dd0031; --on-accent: #ffffff; min-height: 100dvh; background: var(--page); }
+  .cf :focus-visible { outline-color: var(--ink); }
+  .cf-app { position: relative; }
+  .cf-screen[hidden], .cf-bag[hidden] { display: none; }
+  .cf-screen { position: relative; padding-bottom: 128px; }
+  .cf-col { position: relative; max-width: 640px; margin-inline: auto; padding-inline: var(--gutter); }
+  .cf-fine { margin-top: var(--space-sec); font-size: 15px; line-height: 1.4; color: var(--ink-3); }
+  .cf-white { background: #ffffff; box-shadow: var(--shadow); }
+
+  /* ---- the top of Home: where you are picking up, as the headline -------- */
+  .cf-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-top: max(56px, env(safe-area-inset-top, 0px)); }
+  .cf-kicker { display: flex; align-items: center; gap: 6px; font-size: 15px; color: var(--ink-3); }
+  .cf-kicker .ic { --ic: 16px; color: var(--accent); }
+  .cf-where-big { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; max-width: 100%; text-align: left;
+    font-size: 29px; font-weight: 400; line-height: 34px; letter-spacing: -0.02em; }
+  .cf-where-big .ic { --ic: 22px; color: var(--ink-3); flex: none; }
+  .cf-where-big { position: relative; }
+  .cf-where-big::after { content: ""; position: absolute; inset: -5px 0; }
+  .cf-me { font-size: 15px; font-weight: 600; }
+  .cf-how { margin-top: 20px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding: 4px var(--gutter) 12px; margin-bottom: -12px; }
+  .cf-how::-webkit-scrollbar { display: none; }
+  .cf-how span { background: #ffffff; box-shadow: var(--shadow); }
+  .cf-how .ic { --ic: 18px; }
+
+  /* ---- the usual: one card, the food fading into it --------------------- */
+  .cf-usual { position: relative; margin-top: var(--space-block); overflow: hidden; }
+  .cf-usual-photo { position: relative; height: 176px; }
+  .cf-usual-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; }
+  .cf-usual-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, #fff 2%, rgba(255, 255, 255, .55) 28%, transparent 60%); }
+  .cf-badge { position: absolute; left: 12px; top: 12px; height: 28px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center;
+    background: rgba(255, 255, 255, .88); font-size: 13px; font-weight: 600; }
+  .cf-usual-body { position: relative; margin-top: -32px; padding: 0 16px 16px; }
+  .cf-usual-body h2 { font-size: 22px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; }
+  .cf-usual-body h2 .dim { display: block; }
+  .cf-usual .actions { margin-top: 16px; }
+  .cf-usual .circle.lg { background: var(--fill); }
+
+  /* ---- the menu as icons you scan in one look (her Uber Eats tiles) ----- */
+  .cf-tiles { margin: var(--space-block) calc(-1 * var(--gutter)) 0; padding-block: 4px 8px; gap: 0; }
+  .cf-tile { display: grid; justify-items: center; gap: 8px; width: 72px; font-size: 13px; color: var(--ink-3); white-space: nowrap; }
+  .cf-tile span { width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center; background: #ffffff; box-shadow: var(--shadow); color: var(--ink);
+    transition: scale var(--t-press) var(--ease-out); }
+  .cf-tile:active span { scale: .94; }
+  .cf-tile .ic { --ic: 26px; }
+
+  /* ---- points: numbers over labels, and the gauge to the next tier ------ */
+  .cf-points { display: grid; gap: 12px; margin-top: var(--space-block); padding: 16px; }
+  .cf-points .stats { gap: 0; }
+  .cf-points .stats > div { flex: 1; }
+  .cf-points .stats b { font-size: 22px; }
+  .cf-points .stats span { font-size: 13px; margin-top: 2px; }
+  .cf-points p { font-size: 13px; color: var(--ink-3); }
+
+  /* ---- a card per dish, side by side (her Featured cards) --------------- */
+  .cf-cards { margin-inline: calc(-1 * var(--gutter)); padding-block: 4px 12px; margin-block: -4px -12px; gap: 8px; }
+  .cf-card { position: relative; display: block; width: 176px; border-radius: var(--r-card); overflow: hidden; text-align: left; background: #fff; box-shadow: var(--shadow);
+    transition: scale var(--t-press) var(--ease-out); }
+  .cf-card:active { scale: .97; }
+  .cf-card .ph { position: relative; display: block; height: 116px; }
+  .cf-card .ph img { width: 100%; height: 100%; object-fit: cover; }
+  .cf-card .ph::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, #fff 2%, rgba(255, 255, 255, .5) 30%, transparent 64%); }
+  .cf-card .bd { position: relative; display: block; margin-top: -20px; padding: 0 12px 12px; }
+  .cf-card .nm { display: block; font-size: 17px; font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; }
+  .cf-card .nums { display: flex; gap: 20px; margin-top: 8px; }
+  .cf-card .nums b { display: block; font-size: 17px; font-weight: 400; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+  .cf-card .nums small { display: block; margin-top: 1px; font-size: 13px; color: var(--ink-3); }
+
+  /* ---- Menu and Rewards: the restaurant stays at the top ----------------- */
+  .cf-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: max(48px, env(safe-area-inset-top, 0px)); }
+  .cf-where { display: inline-flex; align-items: center; gap: 8px; min-width: 0; height: 44px; padding: 0 12px; border-radius: 999px; background: #fff; box-shadow: var(--shadow); font-size: 15px; }
+  .cf-where span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cf-where b { font-weight: 500; }
+  .cf-where .ic { --ic: 18px; flex: none; }
+  .cf-where .ic-pin-fill { color: var(--accent); }
+  .cf-title { margin-top: 16px; font-size: 29px; font-weight: 400; line-height: 34px; letter-spacing: -0.02em; }
+  .cf-chips { margin: var(--space-block) calc(-1 * var(--gutter)) 0; padding-inline: var(--gutter); }
+  .cf-chips .chip { height: 40px; font-size: 15px; padding-inline: 16px; }
+  .cf-chips .chip:not([aria-pressed="true"]) { background: #fff; box-shadow: var(--shadow); }
+  .cf-group { margin-top: var(--space-sec); scroll-margin-top: 16px; }
+  .cf-group .sec-head { margin-bottom: 12px; }
+  .cf-rows { display: grid; gap: 8px; list-style: none; padding: 0; }
+  .cf-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border-radius: 20px; text-align: left; background: #fff; box-shadow: var(--shadow);
+    transition: scale var(--t-press) var(--ease-out); }
+  .cf-row:active { scale: .98; }
+  .cf-row .cover { width: 64px; height: 64px; border-radius: 16px; }
+  .cf-row .txt { flex: 1; min-width: 0; }
+  .cf-row .nm { display: block; font-size: 17px; font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; }
+  .cf-row .cf-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 2px; font-size: 13px; line-height: 1.35; color: var(--ink-3); }
+  .cf-row .price { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* ---- an item: photo, choices, how many, add --------------------------- */
+  .cf-item-photo { width: calc(100% + 2 * var(--gutter)); margin: 0 calc(-1 * var(--gutter)); height: 232px; overflow: hidden; border-radius: 32px 32px 0 0; margin-top: -28px; }
+  .cf-item-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .sheet:has(.cf-item-photo) .sheet-grip { position: relative; z-index: 2; }
+  .sheet:has(.cf-item-photo) .sheet-grip::before { background: rgba(255, 255, 255, .85); }
+  .cf-item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin: 16px 0 4px; }
+  .cf-item-head h2 { font-size: 22px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; }
+  .cf-item-head b { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cf-item-desc { margin-bottom: 16px; font-size: 15px; line-height: 22px; color: var(--ink-3); }
+  .cf-qty { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 4px 0 16px; font-size: 15px; font-weight: 600; }
+  .sheet .pill { width: 100%; }
+  .sheet .field { margin-bottom: 16px; }
+  .cf-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 16px; }
+  .cf-sheet-head h2 { font-size: 22px; font-weight: 400; letter-spacing: -0.01em; }
+
+  /* ---- the bag ---------------------------------------------------------- */
+  .cf-bag { padding-bottom: 152px; background: var(--page); }
+  .cf-bag .cf-col { max-width: 560px; }
+  .cf-bag-head { display: flex; align-items: center; gap: 12px; padding-top: max(48px, env(safe-area-inset-top, 0px)); min-height: 56px; }
+  .cf-bag-head h1 { font-size: 29px; font-weight: 400; line-height: 34px; letter-spacing: -0.02em; }
+  .cf-bag-head .circle { background: #fff; box-shadow: var(--shadow); }
+  .cf-block { margin-top: var(--space-block); }
+  .cf-block > h2 { margin-bottom: 8px; font-size: 17px; font-weight: 500; }
+  .cf-pickup { display: flex; align-items: center; gap: 12px; padding: 16px; }
+  .cf-pickup .txt { flex: 1; min-width: 0; }
+  .cf-pickup b { display: block; font-size: 17px; font-weight: 500; }
+  .cf-pickup p { margin-top: 2px; font-size: 13px; color: var(--ink-3); }
+  .cf-pickup .circle { background: var(--fill); }
+  .cf-lines { padding: 4px 16px; }
+  .cf-line { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; }
+  .cf-line + .cf-line { border-top: 1px solid var(--hair); }
+  .cf-line .stepper { margin-top: 8px; }
+  .cf-line .cover { border-radius: 12px; }
+  .cf-line .txt { flex: 1; min-width: 0; }
+  .cf-line h3 { font-size: 15px; font-weight: 500; }
+  .cf-line p { margin-top: 2px; font-size: 13px; color: var(--ink-3); }
+  .cf-line .price { min-width: 56px; text-align: right; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cf-reward { display: flex; align-items: center; gap: 12px; padding: 16px; }
+  .cf-reward .txt { flex: 1; font-size: 15px; font-weight: 500; }
+  .cf-reward small { display: block; margin-top: 2px; font-size: 13px; font-weight: 400; color: var(--ink-3); }
+  .cf-bag .sum { padding: 16px; border-radius: var(--r-card); background: #fff; box-shadow: var(--shadow); }
+  .cf-empty { padding: 32px 0 8px; }
+  .cf-empty b { display: block; font-size: 22px; font-weight: 400; letter-spacing: -0.01em; }
+  .cf-empty p { margin-top: 4px; font-size: 15px; line-height: 1.4; color: var(--ink-3); }
+  .cf-empty .pill { margin-top: 16px; width: 100%; background: transparent; box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .cf-err { margin-top: 16px; padding: 12px 16px; border-radius: 16px; background: #fff0f2; color: #9b0024; font-size: 15px; }
+  .cf-bag .thumb-cta, .cf-bag .thumb-fade { position: fixed; }
+  .cf-bag .thumb-cta { max-width: 528px; margin-inline: auto; bottom: max(24px, env(safe-area-inset-bottom, 0px)); }
+  .cf-done { display: grid; justify-items: center; gap: 8px; padding: 48px 0 16px; text-align: center; }
+  .cf-done svg { width: 72px; height: 72px; }
+  .cf-done circle { fill: var(--ink); }
+  .cf-done path { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 0; }
+  .cf-done.fresh path { animation: cf-draw 360ms var(--ease-out) 80ms both; }
+  @keyframes cf-draw { from { stroke-dashoffset: 30; } }
+  .cf-done b { margin-top: 8px; font-size: 22px; font-weight: 400; letter-spacing: -0.01em; }
+  .cf-done p { max-width: 34ch; font-size: 15px; line-height: 1.4; color: var(--ink-3); }
+  .cf-done .pill { margin-top: 16px; width: 100%; }
+  .cf-status { margin-top: var(--space-block); padding: 16px; display: grid; gap: 4px; }
+  .cf-status b { font-size: 17px; font-weight: 500; }
+  .cf-status p { font-size: 15px; line-height: 1.4; color: var(--ink-3); }
+  .cf-status .pill { margin-top: 12px; }
+
+  /* ---- Rewards: the balance is the headline (her Starbucks) -------------- */
+  .cf-pts { margin-top: var(--space-block); }
+  .cf-pts .cf-kicker { color: var(--ink-3); }
+  .cf-pts .t-mega { margin-top: 4px; font-size: 120px; font-variant-numeric: tabular-nums; }
+  .cf-pts h2 { margin-top: 8px; font-size: 29px; font-weight: 400; line-height: 34px; letter-spacing: -0.02em; }
+  .cf-pts .meter { margin-top: 16px; }
+  .cf-tier { display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; color: var(--ink-3); }
+  .cf-redeem { display: grid; gap: 12px; width: 168px; padding-bottom: 12px; overflow: hidden; }
+  .cf-redeem .cover { width: 168px; height: 128px; }
+  .cf-redeem .bd { display: grid; gap: 2px; padding-inline: 12px; }
+  .cf-redeem h3 { font-size: 15px; font-weight: 500; }
+  .cf-redeem p { font-size: 13px; color: var(--ink-3); }
+  .cf-redeem .pill { height: 44px; margin-inline: 12px; width: auto; font-size: 15px; }
+  .cf-redeem .pill.light { background: var(--fill); }
+  .cf-how-list { display: grid; gap: 12px; padding: 16px; margin: 0; counter-reset: how; }
+  .cf-how-list li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 22px; list-style: none; }
+  .cf-how-list li::before { counter-increment: how; content: counter(how); flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--fill); font-size: 13px; font-weight: 600; }
+
+  /* ---- the dock and the bag button -------------------------------------- */
+  .cf .dock { position: fixed; left: 16px; right: 16px; bottom: max(24px, env(safe-area-inset-bottom, 0px)); max-width: 568px; margin-inline: auto; gap: 12px; }
+  .cf .dock-bar { height: 64px; padding: 6px; background: rgba(255, 255, 255, .86); }
+  .cf .dock-bar a { height: 52px; border-radius: 999px; font-size: 15px; }
+  .cf .dock-bar a[aria-current] { height: 52px; font-size: 15px; }
+  .cf .dock-bar a:not([aria-current]) span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .cf .dock-fab { position: relative; width: 64px; height: 64px; box-shadow: 0 10px 24px rgba(221, 0, 49, .28); }
+  .cf .dock-fab .ic { --ic: 26px; }
+
+  /* ---- wide: the menu, and the bag beside it ---------------------------- */
+  @media (min-width: 1024px) {
+    .cf-app { display: grid; grid-template-columns: minmax(0, 1fr) 420px; }
+    .cf-bag, .cf-bag[hidden] { display: block; position: sticky; top: 0; height: 100dvh; overflow-y: auto; border-left: 1px solid var(--hair); background: #ffffff; padding-bottom: 24px; }
+    .cf-bag .cf-back { display: none; }
+    .cf-bag .cf-bag-head { padding-top: 32px; }
+    /* Two panes, one lead: the bag's title steps down beside the home's. */
+    .cf-bag-head h1 { font-size: 22px; line-height: 28px; }
+    .cf-bag .thumb-fade { display: none; }
+    .cf-bag .thumb-cta { position: sticky; left: auto; right: auto; bottom: 16px; margin: 24px 0 0; padding: 0; max-width: none; }
+    .cf .dock { position: sticky; left: auto; right: auto; bottom: 16px; margin: 0 auto; max-width: 480px; }
+    .cf .dock-fab { display: none; }
+    .cf-head { padding-top: 40px; }
+    .cf-top { padding-top: 32px; }
+    .cf-usual-photo { height: 232px; }
+  }
+  @media (max-width: 1023px) { .cf-app:has(#bag:not([hidden])) .cf-main { display: none; } }
+</style>
+</head>
+<body>
+<div class="ui ui-light cf" id="app">
+  <noscript><p class="cf-col">This study needs JavaScript to show its menu.</p></noscript>
+  <div class="cf-app">
+    <div class="cf-main">
+
+      <section class="cf-screen" id="s-home" aria-labelledby="homeTitle">
+        <div class="cf-col">
+          <header class="cf-head">
+            <div>
+              <p class="cf-kicker"><i class="ic ic-pin-fill"></i><span>Picking up at · <span data-where-far></span></span></p>
+              <h1 id="homeTitle"><button class="cf-where-big" type="button" data-where aria-haspopup="dialog"><span data-where-two></span><i class="ic ic-chev-down"></i></button></h1>
+            </div>
+            <button class="circle cf-white cf-me" type="button" aria-label="Your account, Jo">J</button>
+          </header>
+          <div class="chip-radio cf-how" role="radiogroup" aria-label="How you pick up" data-how-group="how-home"></div>
+
+          <article class="card cf-usual" aria-labelledby="usualName">
+            <div class="cf-usual-photo"><img src="img/sandwich.webp" alt=""></div>
+            <span class="cf-badge">Your usual</span>
+            <div class="cf-usual-body">
+              <h2 id="usualName">Chicken Sandwich meal <span class="dim">Waffle Potato Fries, Lemonade</span></h2>
+              <div class="actions">
+                <button class="pill" type="button" id="again"></button>
+                <button class="circle lg" type="button" id="editUsual" aria-label="Change your usual before adding it"><i class="ic ic-pencil"></i></button>
+              </div>
+            </div>
+          </article>
+          <div id="status"></div>
+
+          <nav class="rail cf-tiles" id="cats" aria-label="The menu"></nav>
+
+          <a class="card cf-points" href="#/rewards" aria-label="Your points">
+            <div class="stats">
+              <div><b data-points></b><span>points</span></div>
+              <div><b data-ready></b><span>rewards ready</span></div>
+              <div><b data-tier></b><span>your tier</span></div>
+            </div>
+            <div class="meter" data-meter role="progressbar" aria-label="Points towards the next tier" aria-valuemin="0"><i></i></div>
+            <p data-points-line></p>
+          </a>
+
+          <section class="sec" aria-labelledby="popTitle">
+            <div class="sec-head"><h2 id="popTitle">Popular <span class="dim">at <span data-where-name></span></span></h2><a class="go" href="#/menu" aria-label="The whole menu"><i class="ic ic-arrow-right"></i></a></div>
+            <div class="rail cf-cards" id="popular"></div>
+          </section>
+          <p class="cf-fine">This is a design study, not Chick-fil-A's app: prices, points and restaurants here are samples.</p>
+        </div>
+      </section>
+
+      <section class="cf-screen" id="s-menu" aria-labelledby="menuTitle" hidden>
+        <div class="cf-col">
+          <header class="cf-top">
+            <button class="cf-where" type="button" data-where aria-haspopup="dialog"><i class="ic ic-pin-fill"></i><span><b data-where-name></b> · <span data-where-far></span></span><i class="ic ic-chev-down"></i></button>
+          </header>
+          <h1 class="cf-title" id="menuTitle">Menu</h1>
+          <div class="chips cf-chips" id="menuChips" role="group" aria-label="Jump to"></div>
+          <div id="menuGroups"></div>
+          <p class="cf-fine">Prices vary by restaurant. This is a design study: prices here are samples.</p>
+        </div>
+      </section>
+
+      <section class="cf-screen" id="s-rewards" aria-labelledby="rewTitle" hidden>
+        <div class="cf-col">
+          <header class="cf-top"><h1 class="cf-title" id="rewTitle" style="margin:0">Rewards</h1><span class="tag lg" data-tier></span></header>
+          <div class="cf-pts">
+            <p class="cf-kicker">You have</p>
+            <p class="t-mega" data-points></p>
+            <h2>points to spend</h2>
+            <div class="meter" data-meter role="progressbar" aria-label="Points towards the next tier" aria-valuemin="0"><i></i></div>
+            <div class="cf-tier"><span data-tier-now></span><span data-tier-next></span></div>
+          </div>
+          <section class="sec" aria-labelledby="nowTitle">
+            <div class="sec-head"><h2 id="nowTitle">Yours <span class="dim">to take now</span></h2></div>
+            <div class="rail cf-cards" id="redeemable"></div>
+          </section>
+          <section class="sec" aria-labelledby="howTitle">
+            <div class="sec-head"><h2 id="howTitle">How points work</h2></div>
+            <ol class="card cf-how-list">
+              <li>Every order you place in the app earns points.</li>
+              <li>Spend them here on a reward. It goes in your bag and costs nothing.</li>
+              <li>Points over the year move you up a tier, and each tier earns faster.</li>
+            </ol>
+          </section>
+          <p class="cf-fine">This is a design study: points, tiers and rewards here are samples, not an account.</p>
+        </div>
+      </section>
+
+      <nav class="dock" id="dock" aria-label="Main">
+        <div class="dock-bar">
+          <a href="#/home" data-tab="home"><i class="ic ic-home"></i><span>Home</span></a>
+          <a href="#/menu" data-tab="menu"><i class="ic ic-fork"></i><span>Menu</span></a>
+          <a href="#/rewards" data-tab="rewards"><i class="ic ic-gift"></i><span>Rewards</span></a>
+        </div>
+        <a class="dock-fab" href="#/bag" id="bagBtn" aria-label="Your bag"><i class="ic ic-bag"></i><span class="badge" id="bagCount"></span></a>
+      </nav>
+    </div>
+
+    <aside class="cf-bag" id="bag" aria-labelledby="bagTitle" hidden>
+      <div class="cf-col">
+        <header class="cf-bag-head">
+          <a class="circle cf-back" href="#/home" aria-label="Back"><i class="ic ic-chev-left"></i></a>
+          <h1 id="bagTitle">Your bag <span class="dim" id="bagItems"></span></h1>
+        </header>
+        <div id="bagBody"></div>
+      </div>
+    </aside>
+  </div>
+
+  <dialog class="sheet" id="itemSheet" aria-labelledby="itemName" closedby="any">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <form id="itemForm" novalidate></form>
+  </dialog>
+
+  <dialog class="sheet" id="whereSheet" aria-labelledby="whereTitle" closedby="any">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="cf-sheet-head"><h2 id="whereTitle">Where are you picking up?</h2>
+      <button class="circle" type="button" data-close aria-label="Close"><i class="ic ic-close"></i></button></div>
+    <div class="choices" id="whereList" role="radiogroup" aria-labelledby="whereTitle"></div>
+    <p class="cf-fine" style="margin-top:16px">Distances are estimates: a straight line, adjusted for roads. These restaurants are samples.</p>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" hidden><span></span><button type="button"></button></div>
+</div>
+
+<script type="application/json" id="motion-tour">
+[
+  { "click": "#again", "why": "your usual flies into the bag" },
+  { "click": "#popular [data-item=\"nuggets\"]", "why": "an item's sheet rises over a blurred page" },
+  { "click": "#itemForm label:has(input[value=\"Polynesian\"])", "why": "a choice: instant" },
+  { "click": "#addBtn", "why": "added: it flies into the bag" },
+  { "click": "#bagBtn", "phone": true, "why": "the bag (a tab: instant)" },
+  { "click": "[data-change-where]", "why": "change the restaurant: a sheet" },
+  { "key": "Escape", "why": "and it leaves" },
+  { "click": "#useReward", "why": "use a reward: the switch, the total" },
+  { "click": "#place", "why": "order placed: the one moment of delight" }
+]
+</script>
+<script src="../../app-motion.js"></script>
+<script>
+(() => {
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const money = (n) => '$' + n.toFixed(2);
+  const wide = matchMedia('(min-width: 1024px)');
+
+  // ---- samples (the brief says so; the screens say so too) ------------------
+  const MENU = [
+    { id: 'sandwich', cat: 'Sandwiches', name: 'Chicken Sandwich', desc: 'Breaded chicken breast on a toasted, buttered bun with pickles.', price: 5.29, img: 'sandwich', meal: true },
+    { id: 'nuggets', cat: 'Nuggets & strips', name: 'Nuggets, 8 count', desc: 'Bite-sized pieces of breaded chicken breast, with a sauce.', price: 5.19, img: 'nuggets', meal: true, sauce: true },
+    { id: 'strips', cat: 'Nuggets & strips', name: 'Chick-n-Strips, 3 count', desc: 'Strips of whole chicken breast, breaded by hand, with a sauce.', price: 5.79, img: 'strips', meal: true, sauce: true },
+    { id: 'fries', cat: 'Sides', name: 'Waffle Potato Fries', desc: 'Crisp, salted, and the usual side in a meal.', price: 2.59, img: 'fries', sizes: true },
+    { id: 'salad', cat: 'Salads', name: 'Cobb Salad', desc: 'Greens, egg, corn and cheese, with nuggets on top.', price: 10.19, img: 'salad' },
+    { id: 'lemonade', cat: 'Drinks', name: 'Lemonade', desc: 'Lemons, sugar and water.', price: 2.39, img: 'lemonade', sizes: true },
+    { id: 'tea', cat: 'Drinks', name: 'Iced Tea', desc: 'Brewed, sweetened or not.', price: 2.09, img: 'tea', sizes: true },
+    { id: 'shake', cat: 'Treats', name: 'Cookies & Cream Milkshake', desc: 'Hand-spun, with cookie pieces through it.', price: 4.59, img: 'shake' },
+  ];
+  // The categories as icons you scan in one look, not photos.
+  const CATS = [['Sandwiches', 'sandwich', 'Sandwiches'], ['Nuggets & strips', 'drumstick', 'Nuggets'], ['Sides', 'fries', 'Sides'], ['Salads', 'salad', 'Salads'], ['Drinks', 'drink', 'Drinks'], ['Treats', 'icecream', 'Treats']];
+  const SAUCES = ['Chick-fil-A Sauce', 'Polynesian', 'Honey Mustard', 'Barbeque'];
+  const MEAL = 4.1, SIZE = { Small: 0, Medium: 0.4, Large: 0.8 };
+  const PLACES = [
+    { id: 'riverside', name: 'Riverside Plaza', far: 'about 1.2 mi', how: ['Carry-out', 'Drive-thru', 'Curbside'] },
+    { id: 'oak', name: 'Oak Street', far: 'about 2.8 mi', how: ['Carry-out', 'Drive-thru', 'Dine-in'] },
+    { id: 'northgate', name: 'Northgate', far: 'about 4.1 mi', how: ['Carry-out', 'Curbside', 'Dine-in'] },
+  ];
+  const HOW_ICON = { 'Carry-out': 'bag', 'Drive-thru': 'car', 'Curbside': 'pin', 'Dine-in': 'fork' };
+  const REWARDS = [{ id: 'sandwich', name: 'Chicken Sandwich', pts: 600 }, { id: 'fries', name: 'Waffle Potato Fries', pts: 300 }, { id: 'shake', name: 'Cookies & Cream Milkshake', pts: 1000 }];
+  const TIERS = [['Member', 0], ['Silver', 1000], ['Red', 4000], ['Signature', 10000]];
+  const USUAL = [{ id: 'sandwich', meal: { side: 'Waffle Potato Fries', drink: 'Lemonade' }, qty: 1 }];
+
+  const st = { place: PLACES[0], how: 'Carry-out', bag: [], points: 1240, yearPts: 1240, reward: false, pay: 'apple', placed: null, tab: 'home' };
+  const byId = (id) => MENU.find((m) => m.id === id);
+  const linePrice = (l) => { const m = byId(l.id); return (m.price + (l.meal ? MEAL : 0) + (SIZE[l.size] || 0)) * l.qty; };
+  const lineName = (l) => byId(l.id).name + (l.meal ? ' meal' : '');
+  const lineNote = (l) => [l.meal && `${l.meal.side}, ${l.meal.drink}`, l.size && l.size !== 'Medium' && l.size, l.sauce].filter(Boolean).join(' · ') || byId(l.id).cat;
+  const subtotal = () => st.bag.reduce((s, l) => s + linePrice(l), 0);
+  const rewardValue = () => (st.reward ? Math.min(byId('sandwich').price, subtotal()) : 0);
+  const tax = () => Math.round((subtotal() - rewardValue()) * 0.075 * 100) / 100;
+  const total = () => subtotal() - rewardValue() + tax();
+  const count = () => st.bag.reduce((s, l) => s + l.qty, 0);
+  const tierOf = (p) => { let i = 0; TIERS.forEach((t, k) => { if (p >= t[1]) i = k; }); return i; };
+  const usualPrice = () => USUAL.reduce((s, l) => s + linePrice(l), 0);
+  // Two tones, as she sets an address: the first word in ink, the rest grey.
+  const twoTone = (name) => { const [a, ...b] = name.split(' '); return esc(a) + (b.length ? ` <span class="dim">${esc(b.join(' '))}</span>` : ''); };
+  const howChips = (name) => st.place.how.map((h) => `<label><input type="radio" name="${name}" value="${h}" ${h === st.how ? 'checked' : ''}><span><i class="ic ic-${HOW_ICON[h]}"></i>${h}</span></label>`).join('');
+
+  // ---- render --------------------------------------------------------------
+  function renderShared() {
+    $$('[data-where-name]').forEach((e) => (e.textContent = st.place.name));
+    $$('[data-where-two]').forEach((e) => (e.innerHTML = twoTone(st.place.name)));
+    $$('[data-where-far]').forEach((e) => (e.textContent = st.place.far));
+    $$('[data-where]').forEach((b) => b.setAttribute('aria-label', `Picking up at ${st.place.name}, ${st.place.far}. Change`));
+    $$('[data-how-group]').forEach((g) => (g.innerHTML = howChips(g.dataset.howGroup)));
+    const t = tierOf(st.yearPts), next = TIERS[t + 1];
+    $$('[data-points]').forEach((e) => (e.textContent = st.points.toLocaleString('en-US')));
+    $$('[data-tier]').forEach((e) => (e.textContent = TIERS[t][0]));
+    $$('[data-meter]').forEach((m) => {
+      const p = next ? (st.yearPts - TIERS[t][1]) / (next[1] - TIERS[t][1]) : 1;
+      m.style.setProperty('--p', p.toFixed(3)); m.setAttribute('aria-valuemax', next ? next[1] : st.yearPts); m.setAttribute('aria-valuenow', st.yearPts);
+    });
+    const ready = REWARDS.filter((r) => r.pts <= st.points).length;
+    $$('[data-ready]').forEach((e) => (e.textContent = ready));
+    $$('[data-points-line]').forEach((e) => (e.textContent = next ? `${(next[1] - st.yearPts).toLocaleString('en-US')} more points this year to ${next[0]}` : 'The top tier'));
+    $$('[data-tier-now]').forEach((e) => (e.textContent = `${TIERS[t][0]} since this year's ${TIERS[t][1].toLocaleString('en-US')}th point`));
+    $$('[data-tier-next]').forEach((e) => (e.textContent = next ? `${next[0]} at ${next[1].toLocaleString('en-US')}` : ''));
+    const n = count();
+    $('#bagCount').textContent = n || '';
+    $('#bagBtn').setAttribute('aria-label', n ? `Your bag, ${n} ${n === 1 ? 'item' : 'items'}, ${money(total())}` : 'Your bag, empty');
+    $('#again').innerHTML = `Order again <span class="sub">${money(usualPrice())}</span>`;
+    $('#status').innerHTML = st.placed ? `<div class="card cf-status"><b>Order ${esc(st.placed.no)} is placed</b><p>At ${esc(st.placed.place)}, ${esc(st.placed.how.toLowerCase())}. Tap below when you arrive and we start it.</p><button class="pill" type="button" id="here">I'm here</button></div>` : '';
+  }
+
+  // A card per dish (Home), a row per dish (Menu): name, and the prices as
+  // numbers over labels, so you can compare without opening each one.
+  const card = (m) => `<button class="cf-card" type="button" data-item="${m.id}"><span class="ph"><img src="img/${m.img}.webp" alt=""></span>
+    <span class="bd"><span class="nm">${esc(m.name)}</span><span class="nums"><span><b>${money(m.price)}</b><small>on its own</small></span>${m.meal ? `<span><b>${money(m.price + MEAL)}</b><small>as a meal</small></span>` : ''}</span></span></button>`;
+  const row = (m) => `<li><button class="cf-row" type="button" data-item="${m.id}"><span class="cover"><img src="img/${m.img}.webp" alt=""></span>
+    <span class="txt"><span class="nm">${esc(m.name)}</span><span class="cf-desc">${esc(m.desc)}</span></span><span class="price">${money(m.price)}</span></button></li>`;
+
+  function renderHome() {
+    $('#cats').innerHTML = CATS.map(([c, ic, label]) => `<a class="cf-tile" href="#/menu" data-cat="${esc(c)}"><span><i class="ic ic-${ic}"></i></span>${esc(label)}</a>`).join('');
+    $('#popular').innerHTML = ['sandwich', 'nuggets', 'lemonade', 'shake'].map((id) => card(byId(id))).join('');
+  }
+  function renderMenu() {
+    const cats = [...new Set(MENU.map((m) => m.cat))];
+    $('#menuChips').innerHTML = cats.map((c, i) => `<button class="chip" type="button" data-jump="${esc(c)}" aria-pressed="${i === 0}">${esc(c)}</button>`).join('');
+    $('#menuGroups').innerHTML = cats.map((c) => `<section class="cf-group" id="g-${c.replace(/\W+/g, '-')}" aria-label="${esc(c)}"><div class="sec-head"><h2>${esc(c)}</h2></div>
+      <ol class="cf-rows">${MENU.filter((m) => m.cat === c).map((m) => row(m)).join('')}</ol></section>`).join('');
+  }
+  function renderRewards() {
+    $('#redeemable').innerHTML = REWARDS.map((r) => {
+      const m = byId(r.id), can = r.pts <= st.points;
+      return `<div class="card cf-redeem"><span class="cover"><img src="img/${m.img}.webp" alt=""></span>
+        <div class="bd"><h3>${esc(r.name)}</h3><p>${r.pts.toLocaleString('en-US')} points${can ? '' : ` · ${(r.pts - st.points).toLocaleString('en-US')} to go`}</p></div>
+        <button class="pill ${can ? '' : 'light'}" type="button" data-redeem="${r.id}" ${can ? '' : 'disabled aria-disabled="true"'}>${can ? 'Add free' : 'Not yet'}</button></div>`;
+    }).join('');
+  }
+  function renderBag() {
+    const n = count();
+    $('#bagItems').textContent = n ? `${n} ${n === 1 ? 'item' : 'items'}` : '';
+    const B = $('#bagBody');
+    if (st.placed && !n) {
+      B.innerHTML = `<div class="cf-done ${st.placed.fresh ? 'fresh' : ''}" role="status"><svg viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="36"/><path d="M24 37l8 8 16-17"/></svg>
+        <b>Order ${esc(st.placed.no)} is placed</b><p>At ${esc(st.placed.place)}, ${esc(st.placed.how.toLowerCase())}. Tap I'm here when you arrive, and we start cooking then.</p>
+        <a class="pill" href="#/home">Done</a></div>`;
+      st.placed.fresh = false;
+      return;
+    }
+    if (!n) {
+      B.innerHTML = `<div class="cf-empty"><b>Nothing in your bag yet</b><p>Your usual is one tap: ${esc(USUAL.map(lineName).join(', '))} and a Lemonade, ${money(usualPrice())}.</p><button class="pill light" type="button" data-again>Add your usual</button></div>`;
+      return;
+    }
+    const can = st.points >= 600 && st.bag.some((l) => l.id === 'sandwich');
+    B.innerHTML = `
+      <section class="cf-block" aria-labelledby="pickTitle"><h2 id="pickTitle">Picking up at</h2>
+        <div class="card cf-pickup"><i class="ic ic-pin-fill" style="--ic:24px;color:var(--accent)"></i><div class="txt"><b>${esc(st.place.name)}</b><p>${esc(st.place.far)} from you · check it is the one you mean</p></div>
+          <button class="circle" type="button" data-change-where aria-label="Change the restaurant"><i class="ic ic-pencil"></i></button></div></section>
+      <section class="cf-block" aria-labelledby="howTitle2"><h2 id="howTitle2">How</h2>
+        <div class="chip-radio cf-how" role="radiogroup" aria-labelledby="howTitle2" style="margin-top:0" data-how-group="how-bag">${howChips('how-bag')}</div></section>
+      <section class="cf-block" aria-labelledby="itemsTitle"><h2 id="itemsTitle">In the bag</h2>
+        <div class="card cf-lines">${st.bag.map((l, i) => `<div class="cf-line"><span class="cover sm"><img src="img/${byId(l.id).img}.webp" alt=""></span>
+          <div class="txt"><h3>${esc(lineName(l))}</h3><p>${esc(lineNote(l))}</p>
+          <div class="stepper" role="group" aria-label="How many ${esc(lineName(l))}"><button type="button" data-less="${i}" aria-label="${l.qty > 1 ? 'One less' : 'Take it out'}"><i class="ic ic-${l.qty > 1 ? 'minus' : 'close'}"></i></button><output aria-live="polite">${l.qty}</output><button type="button" data-more="${i}" aria-label="One more"><i class="ic ic-plus"></i></button></div></div>
+          <span class="price">${money(linePrice(l))}</span></div>`).join('')}</div></section>
+      ${can ? `<section class="cf-block"><label class="card cf-reward"><i class="ic ic-gift" style="--ic:24px"></i><span class="txt">Use a reward<small>Chicken Sandwich, free · 600 of your ${st.points.toLocaleString('en-US')} points</small></span><input class="switch" type="checkbox" id="useReward" ${st.reward ? 'checked' : ''}></label></section>` : ''}
+      <section class="cf-block" aria-labelledby="payTitle"><h2 id="payTitle">Pay with</h2>
+        <div class="choices" role="radiogroup" aria-labelledby="payTitle">
+          <label class="choice"><input type="radio" name="pay" value="apple" ${st.pay === 'apple' ? 'checked' : ''}><i class="ic ic-apple"></i><span class="txt">Apple Pay</span></label>
+          <label class="choice"><input type="radio" name="pay" value="card" ${st.pay === 'card' ? 'checked' : ''}><i class="ic ic-card"></i><span class="txt">Visa ending 4242<small>No balance to load first</small></span></label>
+        </div></section>
+      <section class="cf-block"><div class="sum" id="bagSum">${sumHtml()}</div></section>
+      <div id="bagErr"></div>
+      <div class="thumb-fade"></div>
+      <div class="thumb-cta"><button class="pill" type="button" id="place">Place order <span class="sub" id="placeTotal">${money(total())}</span></button></div>`;
+  }
+  function sumHtml() {
+    return `<div><span>Subtotal</span><b>${money(subtotal())}</b></div>
+      ${st.reward ? `<div><span>Reward</span><b>−${money(rewardValue())}</b></div>` : ''}
+      <div><span>Tax, estimated</span><b>${money(tax())}</b></div>
+      <div class="total"><span>Total</span><b>${money(total())}</b></div>`;
+  }
+  function renderAll() { renderShared(); renderBag(); renderRewards(); }
+
+  // ---- the bag -------------------------------------------------------------
+  function add(lines, from) {
+    for (const l of lines) {
+      const same = st.bag.find((b) => JSON.stringify({ ...b, qty: 0 }) === JSON.stringify({ ...l, qty: 0 }));
+      same ? (same.qty += l.qty) : st.bag.push({ ...l });
+    }
+    st.placed = null;
+    renderAll();
+    const target = wide.matches ? $('#bagTitle') : $('#bagBtn');
+    AppMotion.flyTo(from, target);
+    const n = lines.reduce((s, l) => s + l.qty, 0);
+    AppMotion.toast($('#toast'), `Added ${lines.length === 1 ? lineName(lines[0]) : n + ' items'}`, wide.matches ? '' : 'View bag', () => go('#/bag'));
+  }
+
+  // ---- the item sheet -------------------------------------------------------
+  const itemSheet = AppMotion.sheet($('#itemSheet'));
+  let editing = null;
+  function openItem(id) {
+    const m = byId(id); editing = m;
+    const f = $('#itemForm');
+    f.innerHTML = `
+      <div class="cf-item-photo"><img src="img/${m.img}.webp" alt="" id="itemPhoto"></div>
+      <div class="cf-item-head"><h2 id="itemName">${esc(m.name)}</h2><b id="itemPrice"></b></div>
+      <p class="cf-item-desc">${esc(m.desc)}</p>
+      ${m.meal ? `<fieldset class="field"><legend>Make it a meal</legend><div class="seg-radio"><label><input type="radio" name="meal" value="no" checked><span>On its own</span></label><label><input type="radio" name="meal" value="yes"><span>Meal, +${money(MEAL)}</span></label></div></fieldset>
+        <div id="mealOpts" hidden>
+          <fieldset class="field"><legend>Side</legend><div class="chip-radio"><label><input type="radio" name="side" value="Waffle Potato Fries" checked><span>Waffle Potato Fries</span></label><label><input type="radio" name="side" value="Fruit Cup"><span>Fruit Cup</span></label></div></fieldset>
+          <fieldset class="field"><legend>Drink</legend><div class="chip-radio"><label><input type="radio" name="drink" value="Lemonade" checked><span>Lemonade</span></label><label><input type="radio" name="drink" value="Iced Tea"><span>Iced Tea</span></label><label><input type="radio" name="drink" value="Soft drink"><span>Soft drink</span></label></div></fieldset>
+        </div>` : ''}
+      ${m.sauce ? `<fieldset class="field"><legend>Sauce</legend><div class="chip-radio">${SAUCES.map((s, i) => `<label><input type="radio" name="sauce" value="${esc(s)}" ${i ? '' : 'checked'}><span>${esc(s)}</span></label>`).join('')}</div></fieldset>` : ''}
+      ${m.sizes ? `<fieldset class="field"><legend>Size</legend><div class="seg-radio">${Object.keys(SIZE).map((s) => `<label><input type="radio" name="size" value="${s}" ${s === 'Medium' ? 'checked' : ''}><span>${s}</span></label>`).join('')}</div></fieldset>` : ''}
+      <div class="cf-qty"><span id="qtyLabel">How many</span><div class="stepper" role="group" aria-labelledby="qtyLabel"><button type="button" data-q="-1" aria-label="One less"><i class="ic ic-minus"></i></button><output id="qty" aria-live="polite">1</output><button type="button" data-q="1" aria-label="One more"><i class="ic ic-plus"></i></button></div></div>
+      <button class="pill" type="submit" id="addBtn"></button>`;
+    const sync = () => {
+      const d = new FormData(f), meal = d.get('meal') === 'yes';
+      const mo = $('#mealOpts', f); if (mo) mo.hidden = !meal;
+      const l = current();
+      $('#itemPrice', f).textContent = money(byId(m.id).price + (meal ? MEAL : 0) + (SIZE[l.size] || 0));
+      $('#addBtn', f).innerHTML = `Add to bag <span class="sub">${money(linePrice(l))}</span>`;
+    };
+    f.onchange = sync;
+    f.onclick = (e) => { const q = e.target.closest('[data-q]'); if (!q) return; const o = $('#qty', f); o.textContent = Math.max(1, Math.min(20, +o.textContent + +q.dataset.q)); sync(); };
+    sync();
+    itemSheet.showModal();
+  }
+  function current() {
+    const f = $('#itemForm'), d = new FormData(f), m = editing;
+    const l = { id: m.id, qty: +$('#qty', f).textContent };
+    if (d.get('meal') === 'yes') l.meal = { side: d.get('side'), drink: d.get('drink') };
+    if (d.get('size')) l.size = d.get('size');
+    if (d.get('sauce')) l.sauce = d.get('sauce');
+    return l;
+  }
+  $('#itemForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const l = current(), photo = $('#itemPhoto');
+    const r = photo.getBoundingClientRect(), stand = document.createElement('img');
+    stand.src = photo.src; Object.assign(stand.style, { position: 'fixed', left: r.left + r.width / 2 - 60 + 'px', top: r.top + r.height / 2 - 60 + 'px', width: '120px', height: '120px', opacity: 0, pointerEvents: 'none' });
+    document.body.appendChild(stand);
+    itemSheet.close();
+    add([l], stand);
+    setTimeout(() => stand.remove(), 600);
+  });
+
+  // ---- where -------------------------------------------------------------
+  const whereSheet = AppMotion.sheet($('#whereSheet'));
+  function openWhere() {
+    $('#whereList').innerHTML = PLACES.map((p) => `<label class="choice"><input type="radio" name="where" value="${p.id}" ${p.id === st.place.id ? 'checked' : ''}><i class="ic ic-pin"></i><span class="txt">${esc(p.name)}<small>${esc(p.far)} · ${esc(p.how.join(', '))}</small></span></label>`).join('');
+    whereSheet.showModal();
+  }
+  $('#whereList').addEventListener('change', (e) => {
+    st.place = PLACES.find((p) => p.id === e.target.value);
+    if (!st.place.how.includes(st.how)) st.how = st.place.how[0];
+    whereSheet.close(); renderAll();
+    AppMotion.toast($('#toast'), `Picking up at ${st.place.name}`);
+  });
+
+  // ---- presses -------------------------------------------------------------
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+    if (t.closest('[data-where], [data-change-where]')) return openWhere();
+    const item = t.closest('[data-item]'); if (item) return openItem(item.dataset.item);
+    if (t.closest('#again, [data-again]')) return add(USUAL.map((l) => ({ ...l })), $('.cf-usual-photo img'));
+    if (t.closest('#editUsual')) return openItem('sandwich');
+    const red = t.closest('[data-redeem]');
+    if (red && !red.disabled) { add([{ id: red.dataset.redeem, qty: 1 }], red.closest('.cf-redeem').querySelector('img')); if (red.dataset.redeem === 'sandwich') st.reward = true; renderAll(); return; }
+    const less = t.closest('[data-less]'), more = t.closest('[data-more]');
+    if (less || more) {
+      const l = st.bag[+(less || more).dataset[less ? 'less' : 'more']];
+      l.qty += more ? 1 : -1; if (l.qty < 1) st.bag.splice(st.bag.indexOf(l), 1);
+      if (!st.bag.some((b) => b.id === 'sandwich')) st.reward = false;
+      renderAll(); if (more) AppMotion.bump($('#bagBtn'));
+      return;
+    }
+    if (t.closest('#place')) return place();
+    if (t.closest('#here')) { AppMotion.toast($('#toast'), `${st.place.name} has your order. It will be ready in a few minutes.`); return; }
+    const jump = t.closest('[data-jump]');
+    if (jump) { $$('#menuChips .chip').forEach((c) => c.setAttribute('aria-pressed', c === jump)); document.getElementById('g-' + jump.dataset.jump.replace(/\W+/g, '-')).scrollIntoView({ behavior: AppMotion.still() ? 'auto' : 'smooth', block: 'start' }); }
+    const cat = t.closest('[data-cat]'); if (cat) setTimeout(() => $(`#menuChips [data-jump="${cat.dataset.cat}"]`)?.click(), 0);
+  });
+  // How you pick up lives in two places (the top of Home, and the bag); a
+  // choice in one sets the other without redrawing the one pressed.
+  document.addEventListener('change', (e) => {
+    if (e.target.name?.startsWith('how-')) { st.how = e.target.value; $$('[data-how-group] input').forEach((i) => (i.checked = i.value === st.how)); }
+    if (e.target.name === 'pay') { st.pay = e.target.value; }
+    if (e.target.id === 'useReward') { st.reward = e.target.checked; renderShared(); $('#bagSum').innerHTML = sumHtml(); $('#placeTotal').textContent = money(total()); }
+  });
+  // An order that fails keeps the bag and says what to do; nothing is charged twice.
+  function place() {
+    const btn = $('#place'); btn.disabled = true; btn.textContent = 'Placing your order…';
+    setTimeout(() => {
+      if (location.search.includes('fail')) {
+        btn.disabled = false; renderBag();
+        $('#bagErr').innerHTML = `<p class="cf-err" role="alert">${esc(st.place.name)} did not answer, so nothing was charged. Your bag is kept: try again, or pick another restaurant.</p>`;
+        return;
+      }
+      if (st.reward) st.points -= 600;
+      st.yearPts += Math.round(total() * 10);
+      st.placed = { no: '#' + (4400 + Math.floor(total() * 7)), place: st.place.name, how: st.how, fresh: true };
+      st.bag = []; st.reward = false;
+      renderAll(); renderHome();
+    }, 450);
+  }
+
+  // ---- screens -------------------------------------------------------------
+  // Tabs change instantly: they are pressed all day.
+  function route() {
+    const tab = (location.hash.match(/^#\/(home|menu|rewards|bag)/) || [])[1] || 'home';
+    const bag = tab === 'bag' && !wide.matches;
+    if (tab !== 'bag') st.tab = tab;
+    for (const s of ['home', 'menu', 'rewards']) $('#s-' + s).hidden = st.tab !== s;
+    $('#bag').hidden = !bag && !wide.matches;
+    $$('.dock-bar a').forEach((a) => a.toggleAttribute('aria-current', a.dataset.tab === st.tab));
+    $('.cf-back').setAttribute('href', '#/' + st.tab);
+    if (!wide.matches) scrollTo(0, 0);
+  }
+  function go(h) { location.hash = h; }
+  addEventListener('hashchange', route);
+  wide.addEventListener('change', route);
+
+  renderHome(); renderMenu(); renderAll(); route();
+})();
+</script>
+</body>
+</html>

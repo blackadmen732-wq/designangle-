@@ -5,14 +5,19 @@
   --muted: #6f625c;
   --line: #eee7e2;
   --soft: #fff4f1;
-  --accent: #e03a4b;
+  --accent: #db2235;
   --leaf: #1f6b45;
   --tint: #ffe3dc;
   --on-photo: #ffffff;
+  --on-photo-bg: #140c0a;   /* what sits behind text over a photo, dark in every theme */
   --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --body: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
-  --ease: cubic-bezier(.65, 0, .2, 1);
+  --ease: var(--ease-reveal);   /* tokens/tokens.css, which build.js puts above this file */
   --wrap: 1180px;
+  /* The colour roles every system gives (tokens/tokens.css). */
+  --ground: var(--bg);
+  --surface: var(--soft);
+  --ink-quiet: var(--muted);
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { color-scheme: light; }
@@ -42,44 +47,59 @@ img { display: block; }
   padding-left: max(20px, env(safe-area-inset-left, 0px));
   padding-right: max(20px, env(safe-area-inset-right, 0px));
 }
-.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+/* Small text in the accent uses --accent-text: build.js darkens the client's
+   accent, keeping its hue, until it passes 4.5:1. Large text uses --accent. */
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-text, var(--accent)); }
 .photo { filter: saturate(1.04) contrast(1.03); }
 
 /* Header */
 .top {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9;
-  background: rgba(255, 255, 255, .88);
+  /* The sticky header was hardcoded to rgba(255,255,255,.88). On a light
+     theme that is the page colour at 88%, which is what was wanted. On a
+     dark theme it became a white bar carrying pale text — the nav was
+     nearly invisible, and the audit missed it because the links were still
+     fading in when it measured.
+     color-mix keeps it tied to the page in either direction. */
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid transparent; transition: border-color .3s;
 }
 .top.scrolled { border-bottom-color: var(--line); }
-.top .wrap { display: flex; align-items: center; gap: 24px; padding-block: 14px; }
+.top .wrap { display: flex; align-items: center; gap: 24px; padding-block: 12px; }
 .logo {
   font-family: var(--display); font-weight: 800; font-size: 24px; letter-spacing: -0.03em;
   text-decoration: none; display: flex; align-items: center; gap: 8px; margin-right: auto;
+  min-height: 44px;
 }
 .logo i {
   width: 22px; height: 22px; border-radius: 50%; display: block;
-  background: radial-gradient(circle at 50% 50%, var(--bg) 0 28%, var(--accent) 30% 100%);
+  border: 7px solid var(--accent);
 }
 .nav { display: flex; gap: 28px; }
-.nav a { text-decoration: none; font-weight: 500; font-size: 15px; position: relative; padding-block: 4px; }
+.nav a { text-decoration: none; font-weight: 600; font-size: 15px; position: relative; padding-block: 4px; }
 .nav a::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--accent);
   transform: scaleX(0); transform-origin: left; transition: transform .35s var(--ease);
 }
 .nav a:hover::after, .nav a:focus-visible::after { transform: scaleX(1); }
 .btn {
-  display: inline-flex; align-items: center; gap: 10px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   background: var(--ink); color: var(--bg); border: 0; border-radius: 999px;
-  padding: 13px 24px; font-weight: 600; font-size: 15px; text-decoration: none;
+  padding: 12px 24px; font-weight: 600; font-size: 15px; text-decoration: none;
+  min-height: 44px;
   transition: background .25s, transform .25s var(--ease);
 }
 .btn:hover { background: var(--accent); transform: translateY(-2px); }
 .btn:active { transform: scale(.97); }
 .btn svg { transition: transform .25s var(--ease); }
 .btn:hover svg { transform: translateX(4px); }
-.btn.small { padding: 10px 18px; }
+.btn.small { padding: 8px 20px; }
+/* One filled button per screen: the header's waits outlined while the hero's
+   own button is in view, and fills once that has scrolled away (site.js). */
+.top .btn.small { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); transition: background .25s, color .25s, box-shadow .25s, transform .25s var(--ease); }
+.top.cta-on .btn.small { background: var(--ink); color: var(--bg); box-shadow: none; }
+.top .btn.small:hover { background: var(--accent); color: var(--bg); box-shadow: none; }
 
 /* Hero */
 .gs-wait .hero-text > *, .gs-wait .stage { opacity: 0; }
@@ -88,7 +108,7 @@ img { display: block; }
   display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   align-items: center; gap: 40px; padding-block: 36px 64px;
 }
-.hero-text { display: grid; gap: 22px; min-width: 0; }
+.hero-text { display: grid; gap: 24px; min-width: 0; }
 .hero h1 { font-size: clamp(42px, 6vw, 88px); font-weight: 800; }
 .hero h1 em { font-style: normal; color: var(--accent); }
 .dish-info { display: grid; }
@@ -102,17 +122,18 @@ img { display: block; }
 .dish-info h2 { font-size: clamp(24px, 2.6vw, 34px); font-weight: 700; }
 .dish-info p { color: var(--muted); max-width: 44ch; }
 .dish-info .price { font-family: var(--display); font-weight: 700; font-size: 20px; }
-.hero-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 22px; }
-.ctrl { display: flex; align-items: center; gap: 10px; }
+.hero-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+.ctrl { display: flex; align-items: center; gap: 8px; }
 .round {
   width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--bg);
   display: grid; place-items: center; transition: background .25s, color .25s, transform .25s var(--ease);
 }
 .round:hover { background: var(--ink); color: var(--bg); transform: scale(1.06); }
 .round:active { transform: scale(.97); }
-.dots { display: flex; gap: 6px; margin-left: 6px; }
-.dots button { width: 26px; height: 22px; border: 0; background: none; padding: 0; display: grid; place-items: center; }
-.dots button span { display: block; width: 100%; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; position: relative; }
+/* The bar you see is 26 x 4; the button you press is 44 x 44. */
+.dots { display: flex; gap: 0; }
+.dots button { width: 44px; height: 44px; border: 0; background: none; padding: 0; display: grid; place-items: center; }
+.dots button span { display: block; width: 26px; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; position: relative; }
 .dots button span::after { content: ""; position: absolute; inset: 0; background: var(--ink); transform: scaleX(0); transform-origin: left; }
 .dots button.on span::after { transform: scaleX(1); }
 .dots button.on.run span::after { animation: fill var(--dur, 5s) linear both; }
@@ -135,52 +156,60 @@ img { display: block; }
   position: absolute; aspect-ratio: 1; border-radius: 50%; overflow: hidden; padding: 0;
   border: 6px solid var(--bg); background: var(--soft);
   box-shadow: 0 18px 30px -12px rgba(60, 30, 20, .4);
-  transition: transform .4s var(--ease);
+
 }
-.thumb:hover { transform: scale(1.07); }
+/* The photo zooms inside the circle; the circle itself is GSAP's to move, and
+   a CSS transition on the same property fights it. Mouse only: a tap on a
+   phone fires hover too. */
+@media (hover: hover) and (pointer: fine) { .thumb:hover img { transform: scale(1.07); } }
 .thumb.t1 { width: 28%; right: 0; bottom: 8%; }
 .thumb.t2 { width: 19%; right: 3%; top: 13%; }
-.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .7s; }
+.thumb { min-width: 44px; }   /* on a phone 19% is 41px: still a 44px target */
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .7s, transform .4s var(--ease); }
 .thumb img.on { opacity: 1; }
 
 /* Sliding belt */
-.belt { border-block: 1px solid var(--line); overflow: hidden; padding-block: 18px; }
+.belt { border-block: 1px solid var(--line); overflow: hidden; padding-block: 16px; }
 .belt-track { display: flex; width: max-content; animation: slide 40s linear infinite; }
 .belt-set { display: flex; align-items: center; gap: 44px; padding-right: 44px; }
 .belt-set span {
   display: flex; align-items: center; gap: 16px; white-space: nowrap;
-  font-family: var(--display); font-weight: 700; font-size: clamp(22px, 2.6vw, 34px); letter-spacing: -0.02em;
+  font-family: var(--display); font-weight: 700; font-size: clamp(24px, 2.6vw, 34px); letter-spacing: -0.02em;
 }
 .belt-set img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; flex: none; }
 @keyframes slide { to { transform: translateX(-50%); } }
 
 /* Sections */
 section { scroll-margin-top: 80px; }
-.sec .wrap { padding-block: clamp(64px, 9vw, 120px); }
-.sec-head { display: grid; gap: 14px; margin-bottom: 40px; }
+.sec .wrap { padding-block: clamp(64px, 9vw, 120px); padding-block: round(clamp(64px, 9vw, 120px), 8px); }
+.sec-head { display: grid; gap: 16px; margin-bottom: 40px; }
 .sec-head h2, .hs-intro h2 { font-size: clamp(36px, 5vw, 64px); font-weight: 800; }
-.sec-head p { color: var(--muted); max-width: 56ch; }
+.sec-head p:not(.eyebrow) { color: var(--muted); max-width: 56ch; }
 
 /* Tonight: horizontal table (swipe on phones, pinned scroll on desktop) */
-.hs { overflow: hidden; padding-block: clamp(56px, 8vw, 96px) 0; }
+.hs { overflow: hidden; padding-block: clamp(56px, 8vw, 96px) 0; padding-block: round(clamp(56px, 8vw, 96px), 8px) 0; }
 .hs-track {
   display: flex; gap: 28px; align-items: center;
   padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px));
-  padding-bottom: clamp(56px, 8vw, 96px);
+  /* Snapping lines an item up with the edge of the scroll area, not its
+     padding, unless it is told the padding too: without this the first
+     item snaps to 0px from the screen edge. */
+  scroll-padding-left: max(20px, env(safe-area-inset-left, 0px)); scroll-padding-right: max(20px, env(safe-area-inset-right, 0px));
+  padding-bottom: clamp(56px, 8vw, 96px); padding-bottom: round(clamp(56px, 8vw, 96px), 8px);
   overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
 }
 .hs-track::-webkit-scrollbar { display: none; }
 .hs-intro { flex: none; width: min(78vw, 460px); display: grid; gap: 16px; scroll-snap-align: start; }
 .hs-intro p:last-child { color: var(--muted); }
-.card { flex: none; width: clamp(250px, 72vw, 400px); display: grid; gap: 14px; scroll-snap-align: center; }
+.card { flex: none; width: clamp(250px, 72vw, 400px); display: grid; gap: 16px; scroll-snap-align: center; }
 .card .pic { aspect-ratio: 4 / 5; border-radius: 22px; overflow: hidden; background: var(--soft); }
 .card .pic img { width: 116%; max-width: none; height: 100%; object-fit: cover; margin-left: -8%; }
 .card .row { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
-.card h3 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
-.card .p { font-family: var(--display); font-weight: 700; font-size: 19px; font-variant-numeric: tabular-nums; }
-.card p { color: var(--muted); font-size: 15.5px; }
+.card h3 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.card .p { font-family: var(--display); font-weight: 700; font-size: 20px; font-variant-numeric: tabular-nums; }
+.card p { color: var(--muted); font-size: 15px; }
 .hs.is-pinned { padding-block: 0; }
-.hs.is-pinned .hs-track { overflow: visible; width: max-content; height: 100vh; min-height: 620px; padding-block: 90px 40px; scroll-snap-type: none; gap: 44px; }
+.hs.is-pinned .hs-track { overflow: visible; width: max-content; height: 100dvh; min-height: 620px; padding-block: 88px 40px; scroll-snap-type: none; gap: 44px; }
 .hs.is-pinned .hs-intro { width: 440px; margin-right: 40px; }
 .hs.is-pinned .card { width: clamp(300px, 27vw, 420px); }
 .hs.is-pinned .card:nth-child(even) { transform: translateY(-34px); }
@@ -194,69 +223,76 @@ section { scroll-margin-top: 80px; }
 .hs { position: relative; }
 
 /* Menu */
-.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
 .tabs button {
-  border: 1.5px solid var(--line); background: var(--bg); border-radius: 999px; padding: 10px 20px;
+  border: 1.5px solid var(--line); background: var(--bg); border-radius: 999px; padding: 8px 20px; min-height: 44px;
   font-weight: 600; font-size: 15px; transition: background .25s, color .25s, border-color .25s;
 }
 .tabs button:hover { border-color: var(--ink); }
 .tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.menu-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 56px; }
+.menu-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 56px; overflow-x: clip; }
 .menu-list li {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 18px; padding-block: 20px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding-block: 20px;
   border-bottom: 1px solid var(--line);
   animation: rise .6s var(--ease) both; animation-delay: calc(var(--i) * 55ms);
 }
 @keyframes rise { from { opacity: 0; transform: translateX(40px); } }
-.menu-list h3 { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; }
-.menu-list .p { font-family: var(--display); font-weight: 700; font-size: 19px; font-variant-numeric: tabular-nums; }
-.menu-list p { grid-column: 1 / -1; color: var(--muted); font-size: 15.5px; max-width: 48ch; }
-.menu-list .tag { font-family: var(--body); font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--leaf); margin-left: 8px; vertical-align: middle; }
-.menu-note { margin-top: 22px; color: var(--muted); font-size: 14px; }
+.menu-list h3 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.menu-list .p { font-family: var(--display); font-weight: 700; font-size: 20px; font-variant-numeric: tabular-nums; }
+.menu-list p { grid-column: 1 / -1; color: var(--muted); font-size: 15px; max-width: 48ch; }
+.menu-list .tag { font-family: var(--body); font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--leaf); margin-left: 8px; vertical-align: middle; }
+.menu-note { margin-top: 24px; color: var(--muted); font-size: 15px; max-width: 64ch; }
 
 /* Story */
 .story { background: var(--soft); overflow: clip; }
-.story .wrap { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1fr); gap: clamp(28px, 6vw, 90px); align-items: center; }
+.story .wrap { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 88px); gap: round(clamp(32px, 6vw, 88px), 8px); align-items: center; }
 .story-pic { aspect-ratio: 4 / 5; border-radius: 28px; overflow: hidden; background: var(--line); }
 .story-pic img { width: 100%; height: 118%; object-fit: cover; }
-.story-text { display: grid; gap: 22px; min-width: 0; }
-.story-text h2 { font-size: clamp(34px, 4.6vw, 58px); font-weight: 800; }
-.story-text p { color: var(--muted); max-width: 54ch; }
+.story-text { display: grid; gap: 24px; min-width: 0; }
+.story-text h2 { font-size: clamp(36px, 5vw, 64px); font-weight: 800; }
+.story-text p:not(.eyebrow) { color: var(--muted); max-width: 54ch; }
 .facts { display: flex; flex-wrap: wrap; gap: 20px 44px; margin-top: 8px; }
 .facts div { display: grid; gap: 2px; }
-.facts b { font-family: var(--display); font-size: clamp(32px, 4vw, 46px); font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-.facts span { color: var(--muted); font-size: 14px; }
+.facts b { font-family: var(--display); font-size: clamp(36px, 4vw, 46px); font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.facts span { color: var(--muted); font-size: 15px; }
 
 /* Photo band */
-.band { position: relative; height: clamp(340px, 52vw, 620px); overflow: hidden; background: var(--ink); display: grid; align-items: end; }
+/* The band lays white text over a photograph, with a dark gradient between
+   them. Its fallback background used var(--ink), which is dark on a light
+   theme and therefore fine — but inverts on a dark theme, where ink is a
+   pale cream. If the photograph failed to load there, the heading became
+   white on cream and vanished.
+   The fallback now matches what the overlay actually guarantees, in every
+   theme, and a theme can still override it. */
+.band { position: relative; height: clamp(340px, 52vw, 620px); overflow: hidden; background: var(--on-photo-bg, #140c0a); display: grid; align-items: end; }
 .band img { position: absolute; left: 0; top: -12%; width: 100%; height: 124%; object-fit: cover; }
 .band::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(20, 12, 10, .82), rgba(20, 12, 10, .1) 70%); }
-.band .wrap { position: relative; z-index: 1; width: 100%; padding-block: clamp(28px, 5vw, 56px); display: grid; gap: 14px; }
-.band h2 { color: var(--on-photo); font-size: clamp(30px, 5vw, 64px); font-weight: 800; max-width: 16ch; }
-.band a { color: var(--on-photo); font-weight: 600; font-size: 15px; }
+.band .wrap { position: relative; z-index: 1; width: 100%; padding-block: clamp(32px, 5vw, 56px); padding-block: round(clamp(32px, 5vw, 56px), 8px); display: grid; gap: 16px; }
+.band h2 { color: var(--on-photo); font-size: clamp(36px, 5vw, 64px); font-weight: 800; max-width: 16ch; }
+.band a { color: var(--on-photo); font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; min-height: 44px; justify-self: start; }
 
 /* Visit */
-.visit-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(28px, 6vw, 80px); align-items: start; }
+.visit-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 80px); gap: round(clamp(32px, 6vw, 80px), 8px); align-items: start; }
 .info { display: grid; gap: 28px; min-width: 0; }
 .info h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
 .hours { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.hours td { padding: 9px 0; border-bottom: 1px solid var(--line); }
+.hours td { padding: 8px 0; border-bottom: 1px solid var(--line); }
 .hours td:last-child { text-align: right; color: var(--muted); }
 .info address { font-style: normal; color: var(--muted); }
-.info .sel { user-select: all; color: var(--ink); font-weight: 500; }
-form { border: 1.5px solid var(--ink); border-radius: 26px; padding: clamp(20px, 3vw, 34px); display: grid; gap: 18px; min-width: 0; }
-form h3 { font-size: 26px; font-weight: 800; }
-.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.fields label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; min-width: 0; }
+.info .sel { user-select: all; color: var(--ink); font-weight: 600; }
+form { border: 1.5px solid var(--ink); border-radius: 28px; padding: clamp(20px, 3vw, 32px); padding: round(clamp(20px, 3vw, 32px), 4px); display: grid; gap: 16px; min-width: 0; }
+form h3 { font-size: 24px; font-weight: 800; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.fields label { display: grid; gap: 8px; font-size: 13px; font-weight: 600; min-width: 0; }
 .fields .full { grid-column: 1 / -1; }
 input, select {
-  font: inherit; font-size: 16px; color: var(--ink); background: var(--bg); width: 100%; min-width: 0;
-  border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; transition: border-color .2s;
+  font: inherit; font-size: 17px; color: var(--ink); background: var(--bg); width: 100%; min-width: 0;
+  border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 16px; transition: border-color .2s;
 }
 input:hover, select:hover, input:focus, select:focus { border-color: var(--ink); }
-form .btn { justify-content: center; padding-block: 16px; font-size: 16px; }
-.msg { border-radius: 14px; padding: 14px 16px; font-size: 15px; background: var(--soft); }
-.msg.err { color: var(--accent); }
+form .btn { justify-content: center; padding-block: 16px; font-size: 15px; }
+.msg { border-radius: 12px; padding: 12px 16px; font-size: 15px; background: var(--soft); }
+.msg.err { color: var(--accent-text, var(--accent)); }
 .msg b { font-weight: 600; }
 
 footer { border-top: 1px solid var(--line); overflow: hidden; }
@@ -265,7 +301,7 @@ footer { border-top: 1px solid var(--line); overflow: hidden; }
   font-size: clamp(88px, 25vw, 380px); text-align: center; padding-top: 28px; margin-bottom: -0.06em; white-space: nowrap;
 }
 .mark em { font-style: normal; color: var(--accent); }
-footer .wrap { padding-block: 22px; display: flex; flex-wrap: wrap; gap: 10px 24px; justify-content: space-between; color: var(--muted); font-size: 14px; }
+footer .wrap { padding-block: 24px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; color: var(--muted); font-size: 15px; }
 
 @media (max-width: 860px) {
   .nav { display: none; }
@@ -282,39 +318,40 @@ footer .wrap { padding-block: 22px; display: flex; flex-wrap: wrap; gap: 10px 24
 }
 
 /* Phone and email in the contact block are real links, so taps can be counted. */
-.info address a.sel { color: var(--ink); font-weight: 500; text-decoration: none; border-bottom: 1px solid var(--line); }
+.info address a.sel { color: var(--ink); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--line); }
+
 .info address a.sel:hover { border-bottom-color: var(--accent); color: var(--accent); }
 
 /* Closure or holiday notice, set by the owner in their panel. Hidden until
    there is one to show, and it hides itself after the date they chose. */
 .notice-bar { background: var(--ink); color: var(--bg); font-size: 15px; }
-.notice-bar .wrap { padding-block: 11px; display: flex; gap: 10px; align-items: center; }
+.notice-bar .wrap { padding-block: 12px; display: flex; gap: 8px; align-items: center; }
 .notice-bar .wrap::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
 
 /* Service-area answer under the ZIP field. It appears as soon as there are
    five digits, so nobody fills in a whole form to be told we do not come out. */
-.area-msg { font-size: 13.5px; font-weight: 500; line-height: 1.45; display: none; }
+.area-msg { font-size: 13px; font-weight: 400; line-height: 1.45; display: none; }
 .area-msg.on { display: block; }
 .area-msg.yes { color: var(--leaf); }
-.area-msg.no { color: var(--accent); }
+.area-msg.no { color: var(--accent-text, var(--accent)); }
 .area-msg.thinking { color: var(--muted); }
 
 /* Grouped form. Three short blocks read as less work than one long list,
    and they tell the visitor what is being asked for and why. */
-.group { border: 0; padding: 0; margin: 0 0 22px; min-width: 0; }
+.group { border: 0; padding: 0; margin: 0 0 24px; min-width: 0; }
 .group:last-of-type { margin-bottom: 8px; }
 /* These group a long form, so they must read as quiet structure rather than
    decoration. Three uppercase tracked eyebrows in one card is the "eyebrow
    above every heading" tell; sentence case does the same job silently. */
 .group legend {
-  padding: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--ink);
-  margin-bottom: 14px; width: 100%; border-bottom: 1px solid var(--line);
+  padding: 0 0 8px; font-size: 15px; font-weight: 600; color: var(--ink);
+  margin-bottom: 16px; width: 100%; border-bottom: 1px solid var(--line);
 }
-.opt { font-weight: 400; color: var(--faint, #9aa0a6); text-transform: none; letter-spacing: 0; }
+.opt { font-weight: 400; color: var(--faint, #70777f); text-transform: none; letter-spacing: 0; }
 .fields .full { grid-column: 1 / -1; }
 textarea {
-  font: inherit; font-size: 16px; color: var(--ink); background: var(--bg); width: 100%;
-  min-width: 0; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px;
+  font: inherit; font-size: 17px; color: var(--ink); background: var(--bg); width: 100%;
+  min-width: 0; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 16px;
   resize: vertical; transition: border-color .2s;
 }
 textarea:hover, textarea:focus { border-color: var(--ink); }
@@ -325,9 +362,343 @@ textarea:hover, textarea:focus { border-color: var(--ink); }
  /* An outlined control sitting among outlined inputs reads as another input.
    Tinting it with the accent makes it unmistakably a thing you press. */
 .btn.locate {
-  font-size: 14px; padding: 11px 18px;
-  background: var(--soft); color: var(--accent);
+  font-size: 15px; padding: 12px 16px;
+  background: var(--soft); color: var(--accent-text, var(--accent));
   border: 1.5px solid transparent; font-weight: 600;
 }
 .btn.locate:hover { background: var(--accent); color: var(--bg); border-color: transparent; }
 .btn.locate[disabled] { opacity: .6; cursor: default; }
+
+/* ---------------------------------------------------------------------------
+   Tap targets.
+
+   Every one of these keeps the look it already had. What grows is the
+   invisible box you can hit, because the rule is about the box around the
+   control, not the control. tools/audit.js measures these; it found them.
+
+   The phone link matters most. A 21px-tall tel: link is the single most
+   valuable tap on a trades site, and on a phone it was a near miss.
+   --------------------------------------------------------------------------- */
+
+a.sel[href^="tel:"], a.sel[href^="mailto:"], .info address a.sel {
+  position: relative;
+  display: inline-block;
+  padding-block: 2px;
+}
+a.sel[href^="tel:"]::after,
+a.sel[href^="mailto:"]::after,
+.info address a.sel::after {
+  content: ""; position: absolute;
+  inset: 50% 0 auto 0; height: 44px; transform: translateY(-50%);
+}
+/* In the contact block each link gets a 44px row of its own instead. On
+   consecutive lines their tap areas overlapped, so a thumb between the email
+   and the phone number could land on either. (After the rule above, and more
+   specific, or it puts the links back inline and they run together.) */
+.info address a.sel[href] { display: flex; align-items: center; width: fit-content; min-height: 44px; padding-block: 0; border-bottom: 0;
+  text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; }
+.info address a.sel[href]:hover { text-decoration-color: var(--accent); }
+.info address a.sel[href] + br { display: none; }
+.info address a.sel[href]::after { content: none; }
+
+/* Carousel dots: 26x22 visually, 44 tall to the thumb. */
+.dots button { position: relative; }
+.dots button::after {
+  content: ""; position: absolute;
+  inset: 50% -9px auto -9px; height: 44px; transform: translateY(-50%);
+}
+
+/* Gallery thumbs: 41px square, 44 to the thumb. */
+.thumb { position: relative; }
+.thumb::after { content: ""; position: absolute; inset: -2px; border-radius: inherit; }
+
+/* The header button lands at 43px on a phone. One pixel, but it is the rule. */
+.btn { min-height: 44px; }
+
+/* Inline links inside running text sit at the line height. Grow the box
+   around them, not the text, so the line spacing is untouched. */
+main a:not(.btn):not(.sel):not(.logo) { position: relative; display: inline-block; }
+main a:not(.btn):not(.sel):not(.logo)::after {
+  content: ""; position: absolute;
+  inset: 50% 0 auto 0; height: 44px; transform: translateY(-50%);
+}
+
+/* The wordmark in the header is a link home. */
+.logo { position: relative; }
+.logo::after {
+  content: ""; position: absolute;
+  inset: 50% 0 auto 0; height: 44px; transform: translateY(-50%);
+}
+
+/* "optional" was #9aa0a6 on white: 2.64:1.
+   It was then hardcoded to #70777f, which I checked against pure white and
+   got 4.53:1. The salon theme's ground is #faf8f6, and the same grey reads
+   4.28:1 there — a fix that only worked for the themes it was tested on.
+   A hardcoded neutral cannot be right for every ground, so it uses the
+   theme's own muted token, which each theme must already clear. */
+.opt { color: var(--muted); }
+
+/* The header nav already spends ::after on the hover underline, so the hit
+   area goes on ::before. 31px tall on a laptop that happens to have a touch
+   screen is a miss; this costs nothing and removes the question. */
+.nav a::before {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: max(100% + 8px, 44px); height: 44px;
+  transform: translate(-50%, -50%);
+}
+
+/* A preview is a layout, not a quote. This bar is what makes one safe to send:
+   the person looking at it is told on the page that the words are placeholders.
+   It is deliberately plain and not dismissible. */
+.preview-bar{
+  background: #1e1512; color: #fff;
+  font-size: 15px; line-height: 1.45;
+  padding-block: 12px;
+}
+.preview-bar .wrap{ display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.preview-bar b{
+  font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  background: var(--accent); color: #fff; padding: 4px 9px; border-radius: 999px; flex: none;
+}
+.preview-bar span{ color: #e8dfda; min-width: 0; }
+/* Under a preview's banner, the atelier header sits lower on the photograph,
+   wherever that photograph happens to be bright. The banner's own dark runs
+   down behind the header and fades into the picture, so the header reads on
+   any photo, and the photo gives up the banner's height so the first screen
+   still ends with it. Only on previews: a live site has no banner. */
+.layout-atelier.has-preview .top:not(.scrolled) { background: linear-gradient(to bottom, #1e1512 0%, rgba(30, 21, 18, .6) 55%, rgba(30, 21, 18, 0) 100%); }
+.layout-atelier.has-preview .hero-atelier { min-height: calc(100dvh - var(--preview-h, 0px)); }
+
+/* ===========================================================================
+   LAYOUT: still
+   ---------------------------------------------------------------------------
+   The default layout sells a thing you choose from: text on the left, a photo
+   carousel on the right, arrows, dots, two thumbnails, a tint blob. It suits a
+   menu or a price list, where the visitor is comparing.
+
+   Some businesses sell the opposite. Nobody compares five meditation sittings
+   and picks the best value. For those, every one of those controls is noise,
+   and the page's job is to be calm rather than to be browsable.
+
+   So: one centred column, one photograph, no carousel furniture at all. The
+   difference is structural, not a change of colour.
+   =========================================================================== */
+
+.hero-still { padding-block: clamp(56px, 11vh, 132px) clamp(40px, 7vh, 88px); }
+/* .hero .wrap sets a two-column grid, so this has to say one column
+   explicitly or the "centred" text ends up centred inside a left-hand
+   column, which reads as a mistake rather than a choice. */
+.hero-still .wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(36px, 5vw, 60px);
+  justify-items: center;
+  padding-block: 0;
+}
+
+.still-text { max-width: 30ch; text-align: center; display: grid; gap: 20px; justify-items: center; }
+.still-text h1 {
+  font-size: clamp(38px, 6.4vw, 78px);
+  font-weight: 700;              /* not 800: the page is quiet, the type should be */
+  letter-spacing: -0.025em; line-height: 1.1; text-wrap: balance;
+}
+.still-text h1 em { font-style: normal; color: var(--accent); }
+.still-lead { color: var(--muted); font-size: clamp(17px, 2vw, 20px); line-height: 1.55; max-width: 44ch; }
+
+.still-shot { margin: 0; width: min(100%, 980px); display: grid; gap: 16px; }
+.still-shot img {
+  width: 100%; height: clamp(300px, 54vh, 560px); object-fit: cover;
+  border-radius: 4px;            /* nearly square: an arch would be decoration */
+  display: block;
+}
+.still-shot figcaption {
+  color: var(--muted); font-size: 16px; line-height: 1.5;
+  max-width: 56ch; justify-self: center; text-align: center;
+}
+
+/* The still layout keeps more air between sections and never shouts. */
+.layout-still section { padding-block: clamp(56px, 9vh, 112px); }
+.layout-still .sec-head h2 { font-weight: 700; }
+.layout-still .mark { font-weight: 700; }
+
+/* ===========================================================================
+   LAYOUT: atelier
+   ---------------------------------------------------------------------------
+   For a business whose work is the thing worth looking at — a salon, a studio,
+   anywhere the photograph sells better than the paragraph.
+
+   The default layout puts text beside a picture and gives the visitor controls
+   to browse with. That is right when they are comparing items. It is wrong
+   here: a person choosing a salon is not reading a feature list, they are
+   deciding whether the place looks like somewhere they want to sit for an
+   hour. So the first screen is one photograph at full bleed with the name
+   over it, and nothing to click but the booking.
+
+   On the dark hero: this is one photographic panel, not a dark theme. The body
+   of the page stays on the client's own light ground. Type over a photograph
+   needs a scrim and a light ink whatever the business is; that is a
+   legibility requirement, not a style choice, and it stops at the fold.
+   =========================================================================== */
+
+.hero-atelier {
+  position: relative; isolation: isolate;
+  min-height: 100dvh; padding: 0; overflow: clip;
+  /* The column is declared, not implied. Left implicit, the single auto track
+     sized itself to the text and the whole block floated into the middle of
+     the picture — placement by accident rather than by decision. */
+  display: grid; grid-template-columns: minmax(0, 1fr); align-items: end;
+}
+.hero-atelier .shot { position: absolute; inset: 0; z-index: 0; overflow: clip; }
+/* The image is over-tall so the parallax has somewhere to travel without
+   ever uncovering the edge of the picture. */
+.hero-atelier .shot-img { position: absolute; inset: -12% 0; will-change: transform; }
+.hero-atelier .shot-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Two gradients, not a flat wash. A flat wash greys the whole photograph;
+   these pay only for the corner the type actually occupies. The vertical one
+   carries the headline, the horizontal one keeps the left edge dark enough for
+   white type even where the picture goes bright. Measured, not guessed: the
+   audit checks this text against the pixels that end up painted behind it. */
+.hero-scrim {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to top, rgba(12,7,9,.90) 0%, rgba(12,7,9,.84) 34%,
+                    rgba(12,7,9,.30) 66%, rgba(12,7,9,.06) 100%),
+    linear-gradient(to right, rgba(12,7,9,.62) 0%, rgba(12,7,9,.28) 42%,
+                    rgba(12,7,9,0) 72%),
+    /* A band under the header. Measured, not decorative: without it the nav
+       links landed on the bright skin tones at the top right of the picture
+       and read at 3.40:1, under the 4.5:1 a 15px link needs. */
+    linear-gradient(to bottom, rgba(12,7,9,.60) 0%, rgba(12,7,9,.34) 8%,
+                    rgba(12,7,9,0) 20%);
+}
+
+.hero-atelier .wrap {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: minmax(0, 1fr);
+  /* Anchored to the bottom-left corner. Floating in the middle of a photograph
+     reads as an accident; sitting on an edge reads as a decision. */
+  align-content: end; justify-items: start;
+  /* Explicit, because as a grid item this box was shrinking to its contents
+     and then centring itself — which put the headline in the middle of the
+     photograph by arithmetic rather than by choice. */
+  justify-self: stretch; width: 100%;
+  padding-block: clamp(72px, 13vh, 150px) clamp(88px, 13vh, 150px);
+}
+/* The measure goes on the lines themselves, in their own type size. Setting it
+   on this container instead made `ch` resolve against the container's 17px body
+   font — a 170px column, and a headline broken over four lines. */
+.atelier-text { width: min(100%, 680px); display: grid; gap: clamp(16px, 2vw, 26px); will-change: transform; }
+.atelier-text .eyebrow { color: #efe2e6; }
+.atelier-text h1 {
+  /* Capped well below the earlier 136px: at that size the headline ran to four
+     lines and ate the whole first screen, leaving no photograph to look at. */
+  font-size: clamp(40px, 6.6vw, 92px);
+  font-weight: 800; letter-spacing: -0.035em; line-height: .96;
+  color: #fff; text-wrap: balance;
+  max-width: 8em;                /* em, so the measure scales with the type */
+}
+/* The accent is a wine on paper; at 8:1 it is unreadable on a photograph.
+   The second line changes weight and colour instead of hue. */
+/* The second line in a light tint of the site's own accent, so each client keeps its colour on the photograph (the salon's wine gives the pink it always had). */
+.atelier-text h1 em { font-style: normal; color: color-mix(in srgb, var(--accent) 22%, #fff); font-weight: 300; }
+/* Fixed steps of the kit's scale, not a clamp: a clamp lands on 18, 19 and 21
+   on the way, and a page grows to nine sizes a pixel apart. */
+.atelier-lead { color: rgba(255, 255, 255, .9); font-size: 17px; line-height: 1.5; max-width: 34ch; }
+@media (min-width: 1024px) { .atelier-lead { font-size: 20px; } }
+
+.hero-atelier .hero-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
+.hero-atelier .btn { background: #fff; color: var(--ink); }
+.hero-tel {
+  position: relative; color: #fff; font-weight: 600; font-size: 17px;
+  text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.42); padding-bottom: 2px;
+}
+.hero-tel::before { content: ''; position: absolute; inset: -14px -10px; }
+
+.hero-foot {
+  position: absolute; z-index: 1; left: 0; right: 0; bottom: clamp(20px, 3.4vh, 36px);
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  color: rgba(255,255,255,.72); font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+}
+.hero-foot i { width: 1px; height: 26px; background: linear-gradient(to bottom, rgba(255,255,255,.7), transparent); }
+.hero-foot span:empty + i { height: 40px; }
+
+/* --- Gallery: sizes differ, so the eye has somewhere to go ---------------- */
+.plates { display: grid; gap: clamp(28px, 5vw, 72px); }
+.plate { margin: 0; display: grid; gap: 18px; will-change: clip-path; }
+.plate-pic { overflow: clip; border-radius: 3px; }
+.plate-pic img { width: 100%; display: block; object-fit: cover; will-change: transform; }
+.plate figcaption { display: grid; gap: 8px; max-width: 46ch; }
+.plate h3 { font-size: 20px; letter-spacing: -0.02em; }
+@media (min-width: 1024px) { .plate h3 { font-size: 24px; } }
+.plate .p { color: var(--accent); font-weight: 600; font-size: 15px; }
+.plate figcaption p { color: var(--muted); line-height: 1.55; }
+
+@media (min-width: 861px) {
+  .plates { grid-template-columns: repeat(12, 1fr); align-items: start; }
+  /* A rhythm, not a grid of equal squares: tall, short-pair, wide, offset. */
+  .plate-0 { grid-column: 1 / 7;  }
+  .plate-1 { grid-column: 8 / 13; margin-top: clamp(60px, 11vw, 150px); }
+  .plate-2 { grid-column: 1 / 6;  }
+  .plate-3 { grid-column: 7 / 13; margin-top: clamp(-40px, -3vw, 0px); }
+  .plate-4 { grid-column: 3 / 11; margin-top: clamp(20px, 3vw, 48px); }
+  .plate-0 .plate-pic img { height: clamp(380px, 46vw, 660px); }
+  .plate-1 .plate-pic img { height: clamp(300px, 34vw, 470px); }
+  .plate-2 .plate-pic img { height: clamp(300px, 34vw, 470px); }
+  .plate-3 .plate-pic img { height: clamp(340px, 40vw, 560px); }
+  .plate-4 .plate-pic img { height: clamp(360px, 42vw, 600px); }
+}
+@media (max-width: 860px) {
+  .plate-pic img { height: clamp(260px, 62vw, 420px); }
+}
+
+/* --- Prices as a ledger, not a stack of cards ---------------------------- */
+.ledger { list-style: none; margin: 0; padding: 0; display: grid; }
+/* The base list reveals itself with a CSS keyframe that slides in from
+   translateX(40px). Here the rows are driven by GSAP instead, and leaving both
+   on meant two animation systems writing the same transform — and 20px of
+   sideways page scroll on a 400px screen. */
+.ledger li { animation: none; border-bottom: 0; }
+.ledger li {
+  --rule: 0;   /* drawn in by site.js; see the ledger tween */
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline; gap: 6px 20px;
+  padding-block: clamp(16px, 2.2vw, 24px);
+  position: relative;
+}
+.ledger li::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: var(--line); transform: scaleX(var(--rule)); transform-origin: left;
+}
+.ledger li h3 { font-size: 20px; font-weight: 700; letter-spacing: -0.015em; }
+.ledger li .p { font-size: 20px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+.ledger li p { grid-column: 1 / -1; color: var(--muted); font-size: 15px; line-height: 1.5; max-width: 58ch; }
+
+/* The atelier page breathes more than the default and never uses the arch. */
+/* The bar floats over the photograph until the page moves, then becomes the
+   ordinary paper header. A light strip pasted across a full-bleed hero cuts
+   the picture in half and throws the whole composition away.
+
+   `fixed`, not `sticky`: a sticky header still occupies a row of layout, so the
+   photograph began below it and the first screen opened with a cream band. */
+.layout-atelier .top {
+  position: fixed; left: 0; right: 0;
+  background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+.layout-atelier .top:not(.scrolled) { color: #fff; }
+.layout-atelier .top:not(.scrolled) .logo,
+.layout-atelier .top:not(.scrolled) .nav a { color: #fff; }
+.layout-atelier .top:not(.scrolled) .logo i { background: #fff; }
+/* Over the photograph the header's button is a white outline while the
+   hero's own white button is in view, and fills once that has gone: one
+   filled button on the screen at a time, as on the other layouts. */
+.layout-atelier .top:not(.scrolled) .btn { background: transparent; color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .75); }
+.layout-atelier .top.cta-on:not(.scrolled) .btn { background: #fff; color: var(--ink); box-shadow: none; }
+.layout-atelier .top.scrolled {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+
+/* Generous, but not a dead zone: at 128px top and bottom the gap between the
+   last photograph and the next heading read as a missing section. */
+.layout-atelier section { padding-block: clamp(56px, 8vh, 96px); }

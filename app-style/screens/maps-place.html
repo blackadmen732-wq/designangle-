@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maps Place Study</title>
+<!-- A study of the Google Maps place-page redesign by uidesignmahsa, rebuilt
+     from measured frames. Brand names belong to their owners; the photos are
+     the kit's own free-licence stock. Not for shipping. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../app-style.css">
+<link rel="stylesheet" href="../app-icons.css">
+<style>
+  body { margin: 0; }
+  .mp { --page: #111315; --surface: rgba(255, 255, 255, .085); --ink-3: #9d9fa1; }
+  .mp-chip { position: absolute; left: 17px; top: 201px; height: 34px; padding: 0 14px 0 11px; border-radius: 999px; display: flex; align-items: center; gap: 8px;
+    background: rgba(255, 255, 255, .14); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); font-size: 14px; font-weight: 500; }
+  .mp-chip .ic { --ic: 18px; }
+  .mp-dots { position: absolute; right: 21px; top: 215px; display: flex; gap: 6px; align-items: center; }
+  .mp-dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .55); }
+  .mp-dots i:first-child { width: 18px; background: #fff; }
+  .mp .tag.lg { color: #e8e8e8; }
+  .mp .tag .ic-accessible { color: #6fa3f5; }
+  .mp-stat { position: absolute; top: 356px; width: 175px; height: 88px; padding: 13.8px 17px 0; }
+  .mp-stat b { display: flex; align-items: center; gap: 10px; font-size: 28px; font-weight: 400; line-height: 1.1; letter-spacing: -0.01em; }
+  .mp-stat .stars { display: flex; gap: 0; color: #ffb700; }
+  .mp-stat .stars .ic { --ic: 16.5px; }
+  .mp-stat span { display: block; margin-top: 14px; font-size: 13.5px; color: #8b8b8c; }
+  .mp-open b { color: #70b68f; }
+  .mp-acts { position: absolute; left: 33.5px; right: 33.5px; top: 461px; display: flex; justify-content: space-between; }
+  .mp-acts a { display: grid; justify-items: center; gap: 9.5px; width: 56px; font-size: 13.3px; color: var(--ink-3); }
+  .mp-acts .circle { background: rgba(255, 255, 255, .08); }
+  .mp-seg { position: absolute; left: 17px; right: 16px; top: 558px; height: 45px; padding: 4.5px; }
+  .mp-seg a { flex: none; height: 36px; padding-inline: 16px; font-size: 14px; }
+  .mp-seg a[aria-current] { width: 86.5px; }
+  .mp-tix { position: absolute; left: 17px; right: 17px; top: 611px; height: 260px; border-radius: 28px; padding: 15.8px 16px 0; }
+  .mp-tix header { display: flex; justify-content: space-between; align-items: baseline; }
+  .mp-tix h2 { font-size: 18px; font-weight: 500; }
+  .mp-tix header span { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--ink-3); }
+  .mp-tix header .ic { --ic: 15px; }
+  .mp-item { display: flex; align-items: center; gap: 12px; margin-top: 21px; }
+  .mp-item .ico { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: #2c3a4f; color: #9fc0ff; }
+  .mp-item .ico .ic { --ic: 18px; }
+  .mp-item b { display: block; font-size: 17px; font-weight: 500; }
+  .mp-item span { display: block; font-size: 15px; color: var(--ink-3); }
+  .mp-item em { margin-left: auto; font-style: normal; font-size: 16px; font-weight: 600; color: #70bf90; }
+  .mp-photos { display: flex; gap: 9px; margin-top: 19px; }
+  .mp-photos img { width: 159px; height: 80px; border-radius: 18px; object-fit: cover; }
+  .mp .pill.brand { --on-accent: #fff; font-size: 17.5px; font-weight: 500; gap: 12px; }
+  .mp .pill.brand .ic { --ic: 22px; }
+</style>
+</head>
+<body>
+<div class="ui ui-dark ui-phone mp" style="--accent:#1171ed">
+  <div class="hero fade-top" style="position:absolute; top:0; left:0; right:0; height:420px"><img src="../../sites/hvac/img/house.webp" alt="" style="object-position:30% 30%"></div>
+  <div class="ui-status"><span>9:41</span><span class="ui-status-icons"><i class="ic ic-signal"></i><i class="ic ic-wifi"></i><i class="ic ic-battery"></i></span></div>
+  <div class="ui-island"></div>
+  <div class="topbar">
+    <button class="circle" aria-label="Close"><i class="ic ic-chev-down"></i></button>
+    <div class="end"><button class="circle" aria-label="Share"><i class="ic ic-share"></i></button><button class="circle" aria-label="More"><i class="ic ic-more"></i></button></div>
+  </div>
+
+  <span class="mp-chip"><i class="ic ic-cube"></i>Immersive View</span>
+  <span class="mp-dots"><i></i><i></i><i></i></span>
+  <h1 class="t-display" style="position:absolute; left:17px; top:244.1px; font-size:48.5px; font-weight:370">Dolores Park</h1>
+  <div class="tags" style="position:absolute; left:17px; top:307.5px; gap:9px">
+    <span class="tag lg">Park</span><span class="tag lg"><i class="ic ic-accessible"></i>Accessible</span>
+  </div>
+
+  <div class="card mp-stat" style="left:17px"><b>4.7 <span class="stars"><i class="ic ic-star"></i><i class="ic ic-star"></i><i class="ic ic-star"></i><i class="ic ic-star"></i><i class="ic ic-star-half"></i></span></b><span>14,868 reviews</span></div>
+  <div class="card mp-stat mp-open" style="left:201px"><b>Open</b><span>Closes 10 pm</span></div>
+
+  <div class="mp-acts">
+    <a><span class="circle lg"><i class="ic ic-contacts"></i></span>Directory</a>
+    <a><span class="circle lg"><i class="ic ic-bookmark"></i></span>Save</a>
+    <a><span class="circle lg"><i class="ic ic-share"></i></span>Share</a>
+    <a><span class="circle lg"><i class="ic ic-globe"></i></span>Website</a>
+  </div>
+
+  <nav class="segmented mp-seg"><a aria-current="page">Overview</a><a>Tickets</a><a>Directory</a><a>Reviews</a><a>Photos</a></nav>
+
+  <section class="card mp-tix">
+    <header><h2>Tickets</h2><span>About these results <i class="ic ic-info"></i></span></header>
+    <div class="mp-item"><span class="ico"><i class="ic ic-ticket"></i></span><div><b>Dolores Park</b><span>General entry</span></div><em>Free</em></div>
+    <div class="mp-photos"><img src="../../sites/restaurant/img/table.webp" alt=""><img src="../../sites/hvac/img/room-open.webp" alt=""></div>
+  </section>
+
+  <div class="thumb-fade"></div>
+  <div class="thumb-cta" style="left:16.5px; right:16.5px; bottom:33.5px">
+    <button class="pill brand"><i class="ic ic-directions"></i>Directions</button>
+  </div>
+  <div class="ui-home-bar"></div>
+</div>
+</body>
+</html>

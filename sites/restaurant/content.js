@@ -5,6 +5,18 @@
  */
 module.exports = {
   lang: 'en',
+
+  // The sections this page has, in order. One name per line. Each name is also
+  // the key its content lives under below, so 'story' renders `story:`.
+  sections: [
+    'belt',
+    'showcase',
+    'list',
+    'story',
+    'band',
+    'contact'
+  ],
+
   name: 'Pomelo Kitchen',
   short: 'Pomelo',
   seo: {
@@ -17,7 +29,7 @@ module.exports = {
     address: { streetAddress: '214 Harbour Street', addressLocality: 'Your City' }
   },
   theme: {
-    accent: '#e03a4b', soft: '#fff4f1', tint: '#ffe3dc', tag: '#1f6b45'
+    accent: '#db2235', soft: '#fff4f1', tint: '#ffe3dc', tag: '#1e1512'
   },
   cta: { label: 'Reserve', href: '#visit' },
 
@@ -133,7 +145,7 @@ module.exports = {
       choiceLabel: 'Guests', choices: ['1', '2', '3', '4', '5', '6', '7', '8'], defaultChoice: '2',
       button: 'Request this table',
       confirm: 'Table for {choice} on {date} at {time}, under {name}.',
-      note: 'This is a preview site, so the request has not been sent to a restaurant yet.',
+      note: 'This is a demonstration site and no booking system is connected, so nothing was sent.',
       nameError: 'Add a name for the booking.', dateError: 'Pick a date for the booking.'
     }
   },

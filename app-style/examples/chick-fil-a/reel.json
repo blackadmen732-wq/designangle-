@@ -1,0 +1,26 @@
+{
+  "name": "chick-fil-a",
+  "title": ["Chick-fil-A", "redesign study"],
+  "note": "An unofficial study. Not affiliated with Chick-fil-A.",
+  "mark": "Design Angle",
+  "shots": {
+    "before": { "page": "git:2c2fc96:app-style/examples/chick-fil-a/index.html", "hash": "#/home" },
+    "after": { "page": "app-style/examples/chick-fil-a/index.html", "hash": "#/home" }
+  },
+  "beats": [
+    { "say": "Let's redesign our Chick-fil-A study.", "hook": true },
+    { "say": "This is it right now.", "shot": "before" },
+    { "say": "A photo takes the top third, and the headline runs to three lines.", "focus": [".cf-hero", ".cf-h1"] },
+    { "say": "Every section sits far apart, so you scroll for everything.", "focus": [".cf-points", ".cf-cats"] },
+    { "say": "Let's fix it, step by step.", "shot": "after" },
+    { "say": "The restaurant is the headline now: you know where you're picking up before anything else.", "focus": ".cf-head" },
+    { "say": "How you pick up sits right under it, one tap.", "focus": ".cf-how" },
+    { "say": "Your usual is one card with the food inside: one tap to order it again.", "focus": ".cf-usual" },
+    { "say": "The menu became icons you can scan in one look.", "focus": ".cf-tiles" },
+    { "say": "Points are numbers, not a sentence: you see what you have at a glance.", "focus": ".cf-points" },
+    { "say": "And the bag stays under your thumb, wherever you are.", "focus": "#bagBtn" },
+    { "say": "Before.", "shot": "before" },
+    { "say": "And after.", "shot": "after" },
+    { "say": "Which app next?", "ask": true }
+  ]
+}

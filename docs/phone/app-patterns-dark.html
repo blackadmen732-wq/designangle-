@@ -11,10 +11,12 @@
   --surface-2: #1c1c1c;
   --ink: #ffffff;
   --ink-2: #a8a8a8;          /* same size as --ink, lower value: hierarchy without size */
-  --ink-3: #6e6e6e;
+  --ink-3: #968d8d;
   --hair: rgba(255,255,255,.09);
   --spotify: #1ed760;
   --netflix: #e50914;
+  --maps: #1967d2;           /* a darker blue than the app's, so white text on it passes 4.5:1 */
+  --open: #4cd07d;
   --font: "Instrument Sans", -apple-system, system-ui, sans-serif;
   color-scheme: dark;
 }
@@ -74,8 +76,12 @@ pre .c { color: var(--ink-3); }
   display: inline-flex; align-items: center; justify-content: center; gap: 9px;
   height: 56px; padding-inline: 34px; border: 0; border-radius: 999px;
   font: inherit; font-weight: 700; font-size: 17px; cursor: pointer;
-  transition: transform .18s cubic-bezier(.33,1,.68,1), filter .18s;
+  transition: transform .18s cubic-bezier(.33,1,.68,1), opacity .18s;
 }
+/* Hover changes brightness instantly, with no transition on it. An instant
+   state change is not an animation, so it does not break the transform-and-
+   opacity rule; transitioning brightness or background would. Only :active
+   is animated, and it animates transform. */
 .pill:hover { filter: brightness(1.08); }
 .pill:active { transform: scale(.97); }
 .pill.green { background: var(--spotify); color: #000; }
@@ -84,7 +90,7 @@ pre .c { color: var(--ink-3); }
   width: 56px; height: 56px; flex: none; border: 0; border-radius: 50%;
   background: rgba(255,255,255,.11); color: var(--ink);
   display: grid; place-items: center; cursor: pointer;
-  transition: background .18s, transform .18s cubic-bezier(.33,1,.68,1);
+  transition: transform .18s cubic-bezier(.33,1,.68,1), opacity .18s;
 }
 .circ:hover { background: rgba(255,255,255,.2); }
 .circ:active { transform: scale(.94); }
@@ -100,10 +106,16 @@ pre .c { color: var(--ink-3); }
 .filters { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
 .filter {
   border: 0; border-radius: 999px; padding: 9px 18px; font: inherit;
-  font-size: 15px; font-weight: 500; cursor: pointer;
-  background: rgba(255,255,255,.1); color: var(--ink); transition: background .18s;
+  font-size: 15px; font-weight: 500; cursor: pointer; position: relative;
+  background: rgba(255,255,255,.1); color: var(--ink);
 }
-.filter:hover { background: rgba(255,255,255,.17); }
+/* The pill stays 41px tall because that is the right look. The box you can
+   hit is 44px, grown outward where it cannot be seen. This is the rule:
+   the target is the box around the control, not the control. */
+.filter::after {
+  content: ""; position: absolute; inset: 50% 0 auto 0;
+  height: 44px; transform: translateY(-50%);
+}
 .filter[aria-pressed="true"] { background: #fff; color: #000; font-weight: 600; }
 .avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#4a4a4a,#2a2a2a); flex: none; }
 
@@ -115,17 +127,24 @@ pre .c { color: var(--ink-3); }
 .art { aspect-ratio: 1; border-radius: 11px; background: linear-gradient(135deg,#8a5a3a,#3a2318); }
 .media-card .label { font-size: 12.5px; color: var(--ink-3); }
 .media-card h4 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
-.media-card .sub { font-size: 14px; color: var(--ink-2); margin-bottom: 12px; }
-.mini-row { display: flex; align-items: center; gap: 9px; }
+.media-card .sub { font-size: 14px; color: var(--ink-2); }
+.media-card .mini-row { grid-column: 1 / -1; }   /* the row runs under both, so it never squeezes */
+/* Drawn at 38px, tapped at 44px: the button is 44px and paints only its
+   middle. The 3px gap plus 3px of padding each side looks like 9px. */
+.mini-row { display: flex; align-items: center; gap: 6px; }   /* 6, so the 44px hit areas meet rather than overlap */
 .mini {
-  width: 38px; height: 38px; border: 0; border-radius: 50%; cursor: pointer;
+  width: 38px; height: 38px; flex: none; border: 0; border-radius: 50%; cursor: pointer;
   background: rgba(255,255,255,.11); color: var(--ink); display: grid; place-items: center;
+  position: relative;
 }
+.mini::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; }
 .mini-pill {
   margin-left: auto; height: 38px; padding-inline: 20px; border: 0; border-radius: 999px;
+  position: relative;
   background: var(--spotify); color: #000; font: inherit; font-weight: 700; font-size: 15px;
   display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
 }
+.mini-pill::after { content: ""; position: absolute; inset: -3px 0; }
 
 /* 5. The row that bleeds off the edge: the cut card is the scroll cue. */
 .bleed { margin-inline: -22px; padding-inline: 22px; overflow-x: auto; scrollbar-width: none; }
@@ -144,6 +163,7 @@ pre .c { color: var(--ink-3); }
   border-radius: 50%; background: rgba(0,0,0,.6); display: grid; place-items: center;
   backdrop-filter: blur(6px);
 }
+.on-art::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; }
 
 /* 6. Floating nav: a pill above the edge, with the create action separate. */
 .nav-demo { position: relative; padding: 34px 0 14px; }
@@ -179,7 +199,65 @@ pre .c { color: var(--ink-3); }
 .hero-body { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px; display: grid; gap: 11px; }
 .hero-body h3 { font-size: 27px; font-weight: 700; }
 
+/* 9. The context is the headline: a quiet label, then the place itself, loud. */
+.ctx-label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-2); }
+.ctx-title {
+  display: flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 2px; padding: 0;
+  border: 0; background: none; color: var(--ink); cursor: pointer; text-align: left;
+  font: inherit; font-size: 30px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.1;
+}
+.ctx-title svg { flex: none; color: var(--ink-2); margin-top: 4px; }
+.search {
+  display: flex; align-items: center; gap: 10px; height: 48px; margin-top: 16px; padding-inline: 16px;
+  border-radius: 999px; background: rgba(255,255,255,.1); color: var(--ink-2);
+}
+.search input {
+  flex: 1; min-width: 0; align-self: stretch; border: 0; background: none; outline: none;
+  font: inherit; font-size: 16px; color: var(--ink);
+}
+.search input::placeholder { color: var(--ink-2); }
+.search:focus-within { box-shadow: 0 0 0 2px var(--ink-2); }   /* the input drops its own outline */
+
+/* 10. Facts as a row of numbers: the number loud, the label quiet, hairlines between. */
+.place-card { background: var(--surface-2); border-radius: 18px; overflow: hidden; }
+.place-art { position: relative; aspect-ratio: 16/9; background: linear-gradient(135deg,#9a5a34,#3a1d12 72%); }
+.badge {
+  position: absolute; left: 12px; top: 12px; padding: 3px 9px; border-radius: 7px;
+  background: #fff; color: #000; font-size: 13px; font-weight: 600;
+}
+.place-body { padding: 14px 16px 16px; display: grid; gap: 12px; }
+.place-body h4 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.facts > div { display: grid; gap: 1px; padding-inline: 12px; }
+.facts > div:first-child { padding-left: 0; }
+.facts > div + div { border-left: 1px solid var(--hair); }
+.facts b { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.facts span, .fact-card span { font-size: 13px; color: var(--ink-2); }
+.fact-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.fact-card { display: grid; gap: 2px; padding: 14px 16px; border-radius: 16px; background: var(--surface-2); }
+.fact-card b { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.fact-card .open { color: var(--open); }
+
+/* 11. The main action waits at the thumb; everything else scrolls under it. */
+.thumb-demo { position: relative; height: 360px; border-radius: 18px; overflow: hidden; background: var(--surface-2); }
+.thumb-scroll { height: 100%; overflow-y: auto; padding: 18px 18px 108px; scrollbar-width: none; }
+.thumb-scroll::-webkit-scrollbar { display: none; }
+.thumb-scroll h4 { margin: 2px 0 14px; font-size: 27px; font-weight: 700; letter-spacing: -0.025em; }
+.thumb-scroll .fact-card { background: rgba(255,255,255,.07); }
+.thumb-scroll .mini-row { margin-top: 12px; }
+.thumb-scroll p { margin-top: 16px; font-size: 15px; color: var(--ink-2); }
+.thumb-row { display: flex; justify-content: space-between; gap: 12px; padding-block: 12px; border-top: 1px solid var(--hair); font-size: 15px; }
+.thumb-row span { color: var(--ink-2); }
+.thumb-fade {
+  position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: 108px; pointer-events: none;
+  background: linear-gradient(to top, var(--surface-2) 52%, rgba(28,28,28,0));
+}
+.thumb-bar { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: 12px; display: flex; }   /* layered over what scrolls */
+.pill.blue { flex: 1; background: var(--maps); color: #fff; }
+
+
 footer { padding-block: 48px 72px; color: var(--ink-3); font-size: 14px; }
+footer p + p { margin-top: 8px; }
 @media (max-width: 760px) { .split { grid-template-columns: minmax(0,1fr); } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -188,10 +266,10 @@ footer { padding-block: 48px 72px; color: var(--ink-3); font-size: 14px; }
   <div class="wrap">
     <h1>How those app redesigns actually work</h1>
     <p>
-      Eight patterns, pulled frame by frame out of two app redesign walkthroughs
-      and rebuilt here in plain CSS. None of them is difficult. What makes the
-      screens look expensive is that all eight are applied together, and nothing
-      else is.
+      Eleven patterns, pulled out of app redesign walkthroughs (Netflix, Spotify,
+      Uber Eats, Airbnb and Google Maps) and rebuilt here in plain CSS. None of
+      them is difficult. What makes the screens look expensive is that they are
+      applied together, and nothing else is.
     </p>
     <p class="src">
       Every demo below is live, not a picture. Resize the window, press the buttons.
@@ -289,7 +367,7 @@ footer { padding-block: 48px 72px; color: var(--ink-3); font-size: 14px; }
       Reach for colour before you reach for size.</p>
       <pre>--ink:   <span class="k">#ffffff</span>  <span class="c">/* the thing itself */</span>
 --ink-2: <span class="k">#a8a8a8</span>  <span class="c">/* same size, quieter */</span>
---ink-3: <span class="k">#6e6e6e</span>  <span class="c">/* labels, captions */</span></pre>
+--ink-3: <span class="k">#968d8d</span>  <span class="c">/* labels, captions */</span></pre>
     </div>
   </div>
 </div></section>
@@ -338,18 +416,18 @@ footer { padding-block: 48px 72px; color: var(--ink-3); font-size: 14px; }
           <div class="label">Episode</div>
           <h4>Ana Gasteyer</h4>
           <div class="sub">Good Hang with Amy Poehler</div>
-          <div class="mini-row">
-            <button class="mini" aria-label="Add">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
-            </button>
-            <button class="mini" aria-label="More">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><circle cx="4" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="16" cy="10" r="1.6"/></svg>
-            </button>
-            <button class="mini-pill">
-              <svg width="11" height="13" viewBox="0 0 15 17" fill="currentColor" aria-hidden="true"><path d="M1 1.8v13.4a.8.8 0 0 0 1.2.7l11-6.7a.8.8 0 0 0 0-1.4l-11-6.7A.8.8 0 0 0 1 1.8Z"/></svg>
-              Play
-            </button>
-          </div>
+        </div>
+        <div class="mini-row">
+          <button class="mini" aria-label="Add">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
+          </button>
+          <button class="mini" aria-label="More">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><circle cx="4" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="16" cy="10" r="1.6"/></svg>
+          </button>
+          <button class="mini-pill"><span>
+            <svg width="11" height="13" viewBox="0 0 15 17" fill="currentColor" aria-hidden="true"><path d="M1 1.8v13.4a.8.8 0 0 0 1.2.7l11-6.7a.8.8 0 0 0 0-1.4l-11-6.7A.8.8 0 0 0 1 1.8Z"/></svg>
+            Play
+          </span></button>
         </div>
       </div>
     </div>
@@ -357,14 +435,20 @@ footer { padding-block: 48px 72px; color: var(--ink-3); font-size: 14px; }
       <p><b>Page #070707, card #1c1c1c.</b> That difference alone separates
       them. Adding a border or a shadow on top makes it look like a web page
       from 2014.</p>
-      <p><b>The artwork is square and sits flush</b> to the card's padding on
-      three sides, with its own smaller radius. Rounding inside rounding: the
-      inner radius is always smaller than the outer.</p>
+      <p><b>The artwork is square and sits flush</b> to the card's padding,
+      with its own smaller radius. Rounding inside rounding: the inner radius is
+      always smaller than the outer.</p>
       <p><b>The action row repeats at a smaller size.</b> 38px circles, 38px
-      pill, same shapes as the big row. One vocabulary, two scales.</p>
+      pill, same shapes as the big row. One vocabulary, two scales. It runs
+      under the artwork and the words together, so it never has to squeeze.</p>
+      <p><b>Small to look at, full size to tap.</b> A thumb still needs 44px.
+      Each button here is 44px and paints only its middle 38px, so the row looks
+      as tight as the recording and is as easy to hit as the big one.</p>
       <pre><span class="c">/* inner radius &lt; outer radius, always */</span>
 .media-card { border-radius: <span class="k">18px</span>; padding: <span class="k">14px</span> }
-.art        { border-radius: <span class="k">11px</span> }</pre>
+.art        { border-radius: <span class="k">11px</span> }
+<span class="c">/* drawn at 38px, tapped at 44px */</span>
+.mini { width: <span class="k">44px</span>; padding: <span class="k">3px</span>; background-clip: <span class="k">content-box</span> }</pre>
     </div>
   </div>
 </div></section>
@@ -474,6 +558,151 @@ footer { padding-block: 48px 72px; color: var(--ink-3); font-size: 14px; }
 </div></section>
 
 <section><div class="wrap">
+  <div class="sec-head"><span class="num">09</span><h2>The context is the headline</h2></div>
+  <p class="lede">Whatever changes everything below it is the biggest text on the screen. From the Uber Eats redesign.</p>
+  <div class="split">
+    <div class="demo">
+      <div class="ctx-label">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M10 18s6-5.2 6-10a6 6 0 0 0-12 0c0 4.8 6 10 6 10Z"/><circle cx="10" cy="8" r="2.2"/></svg>
+        Delivering to
+      </div>
+      <button class="ctx-title" aria-label="Delivering to 18 Foundry Lane. Change the address">
+        18 Foundry Lane
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 5 5 5-5"/></svg>
+      </button>
+      <label class="search">
+        <svg width="18" height="18" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 4 4"/></svg>
+        <input type="search" placeholder="Search dishes" aria-label="Search dishes and places">
+      </label>
+      <div class="filters" style="margin-top:16px">
+        <button class="filter" aria-pressed="true">All</button>
+        <button class="filter" aria-pressed="false">Pizza</button>
+        <button class="filter" aria-pressed="false">Thai</button>
+      </div>
+    </div>
+    <div class="why">
+      <p><b>The thing that changes the whole screen is the biggest text on it.</b>
+      In the original the delivery address is a small line in the top corner,
+      though every restaurant, price and delivery time below depends on it. The
+      redesign makes it the headline.</p>
+      <p><b>A quiet label sets it up.</b> "Delivering to" sits above it, small and
+      grey: pattern 03 again, the quiet line before the loud one.</p>
+      <p><b>The headline is the control.</b> Tap it to change the address; the
+      chevron says so. There is no separate Change button competing with it.</p>
+      <p><b>Away from food delivery</b> it is whatever frames everything below:
+      the business name at the top of an owner's panel, the date range on a
+      report, the town on a booking form.</p>
+      <pre>.ctx-label { font-size: <span class="k">14px</span>; color: <span class="k">var(--ink-2)</span> }
+.ctx-title { font-size: <span class="k">30px</span>; font-weight: <span class="k">700</span>;
+             letter-spacing: <span class="k">-0.025em</span> }</pre>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><span class="num">10</span><h2>Facts as a row of numbers</h2></div>
+  <p class="lede">Three numbers taken in at a glance, instead of a sentence that has to be read. All three redesigns do it.</p>
+  <div class="split">
+    <div class="demo">
+      <div class="place-card">
+        <div class="place-art"><span class="badge">2 for 1</span></div>
+        <div class="place-body">
+          <h4>Pomelo Kitchen</h4>
+          <div class="facts">
+            <div><b>4.6</b><span>rating</span></div>
+            <div><b>340+</b><span>reviews</span></div>
+            <div><b>18</b><span>min away</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="fact-cards">
+        <div class="fact-card"><b>4.7</b><span>2,310 reviews</span></div>
+        <div class="fact-card"><b class="open">Open</b><span>until 10 pm</span></div>
+      </div>
+    </div>
+    <div class="why">
+      <p><b>A number reads faster than a sentence.</b> "Rated 4.6 from more than
+      340 reviews, about 18 minutes away" becomes three numbers taken in at
+      once. Uber Eats puts the row under every restaurant, Airbnb uses it for a
+      listing's rating, Maps for the rating and the opening hours.</p>
+      <p><b>The number is loud, the label is quiet.</b> All three numbers are the
+      same size and weight, so none of them wins. The labels sit underneath,
+      small and grey.</p>
+      <p><b>Hairlines inside a card, cards on the page.</b> Inside a card the
+      facts are split by 1px lines at 9% white. Standing alone, each fact is its
+      own card, lighter than the page and with no border: pattern 05.</p>
+      <p><b>Colour only for a status.</b> "Open" is green because it changes
+      through the day. A rating is not a status, so it stays white.</p>
+      <pre>.facts         { display: <span class="k">grid</span>; grid-template-columns: <span class="k">repeat(3, 1fr)</span> }
+.facts > * + * { border-left: <span class="k">1px solid rgba(255,255,255,.09)</span> }
+.facts b       { font-variant-numeric: <span class="k">tabular-nums</span> }</pre>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><span class="num">11</span><h2>The main action waits at the thumb</h2></div>
+  <p class="lede">The one button that matters floats at the bottom, and the page scrolls under it. From the Google Maps and Airbnb redesigns.</p>
+  <div class="split">
+    <div class="demo">
+      <div class="thumb-demo">
+        <div class="thumb-scroll" tabindex="0" aria-label="A place page. It scrolls.">
+          <div class="ctx-label">Park · Step-free access</div>
+          <h4>Alder Park</h4>
+          <div class="fact-cards">
+            <div class="fact-card"><b>4.7</b><span>rating</span></div>
+            <div class="fact-card"><b>Open</b><span>until 10 pm</span></div>
+          </div>
+          <div class="mini-row">
+            <button class="mini" aria-label="Save">
+              <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8a1 1 0 0 1 1 1v13l-5-3.5L5 17V4a1 1 0 0 1 1-1Z"/></svg>
+            </button>
+            <button class="mini" aria-label="Share">
+              <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3v10M6 7l4-4 4 4M4 12v4a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-4"/></svg>
+            </button>
+            <button class="mini" aria-label="Website">
+              <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2 2.2 2.8 4.6 2.8 7s-.8 4.8-2.8 7c-2-2.2-2.8-4.6-2.8-7S8 5.2 10 3Z"/></svg>
+            </button>
+          </div>
+          <p>Eleven acres of lawn on a slope above the old rail line, with a
+          playground, two tennis courts and a fenced area for dogs.</p>
+          <div class="thumb-row" style="margin-top:16px">Entry<span>Free</span></div>
+          <div class="thumb-row">Tennis courts<span>Book ahead</span></div>
+          <div class="thumb-row">Playground<span>Open daily</span></div>
+          <div class="thumb-row">Parking<span>Street only</span></div>
+        </div>
+        <div class="thumb-fade" aria-hidden="true"></div>
+        <div class="thumb-bar">
+          <button class="pill blue">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M10.7 1.3a1 1 0 0 0-1.4 0l-8 8a1 1 0 0 0 0 1.4l8 8a1 1 0 0 0 1.4 0l8-8a1 1 0 0 0 0-1.4ZM11 12.5V10H8.2v3H6.6V9.2c0-.4.3-.7.7-.7H11V6l3.2 3.2Z"/></svg>
+            Directions
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="why">
+      <p><b>The one action leaves the row.</b> In the original, Directions sits in
+      a row of pills beside Save, Share and Website, near the top. The redesign
+      takes it out of the row, makes it the only filled button on the screen, and
+      floats it at the bottom, where a thumb already is. On a tall phone the top
+      of the screen is a two-handed reach.</p>
+      <p><b>Everything else scrolls under it.</b> A fade behind the button stops
+      text running into it, and padding at the end of the content lets the last
+      line scroll clear. Scroll the demo.</p>
+      <p><b>Airbnb does the same with a circle beside it:</b> "Check availability"
+      as the pill and the calendar as its own circle. That is pattern 01,
+      floating.</p>
+      <p><b>On a real screen, clear the home indicator</b> with the safe-area
+      inset, or the button sits under the phone's own swipe bar.</p>
+      <pre>.thumb-bar    { position: <span class="k">fixed</span>; left: <span class="k">12px</span>; right: <span class="k">12px</span>;
+                bottom: <span class="k">max(12px, env(safe-area-inset-bottom))</span> }
+.thumb-scroll { padding-bottom: <span class="k">108px</span> } <span class="c">/* the last line can clear it */</span></pre>
+    </div>
+  </div>
+</div></section>
+
+
+<section><div class="wrap">
   <div class="sec-head"><span class="num">—</span><h2>What is not here</h2></div>
   <p class="lede" style="max-width:68ch">
     No animation library, no 3D, no gradient mesh, no glassmorphism beyond one
@@ -487,6 +716,22 @@ footer { padding-block: 48px 72px; color: var(--ink-3); font-size: 14px; }
 </main>
 
 <footer><div class="wrap">
-  Rebuilt from two app redesign walkthroughs, frame by frame. Colours and shapes
-  are measured from the recordings; the code is written from scratch.
+  <p>Rebuilt from app redesign walkthroughs, frame by frame, with the code
+  written from scratch. Patterns 01 to 08 come from the Netflix and Spotify
+  redesigns, with colours and shapes measured from the recordings. Patterns 09
+  to 11 come from the Uber Eats,
+  Airbnb and Google Maps redesigns by uidesignmahsa, read from frames rather
+  than measured exactly.</p>
+  <p>The names, places and numbers in patterns 09 to 11 are invented.</p>
 </div></footer>
+
+<script>
+// The filter pills are live: pressing one selects it and releases the rest.
+document.querySelectorAll('.filters').forEach((group) => {
+  group.addEventListener('click', (e) => {
+    const pressed = e.target.closest('.filter');
+    if (!pressed) return;
+    group.querySelectorAll('.filter').forEach((f) => f.setAttribute('aria-pressed', String(f === pressed)));
+  });
+});
+</script>

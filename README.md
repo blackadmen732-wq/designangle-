@@ -34,6 +34,90 @@ To look at it:
 npx serve dist/hvac
 ```
 
+## The two halves are separate, and that is tested
+
+The design kit and the business side share a repository and nothing else.
+
+```
+DESIGN                              BUSINESS
+build.js    template/   tools/      portal/   OFFER.md
+.claude/skills/design/              Supabase, the panel, leads
+```
+
+`build.js`, `tools/audit.js`, `tools/contrast.js` and `tools/preview.js`
+import nothing from `portal/`. Verified by deleting `portal/` outright and
+running all four: every one still worked. The only mentions of the collector
+anywhere in the design half are two comments in `template/site.js` and one
+line in `DESIGN.md`, explaining why the form behaves as it does.
+
+So you can design with this — a page, a phone screen, anything — without
+touching or knowing about the business side. The design skill loads on its
+own and the tools run on any HTML file, including files that have nothing to
+do with a client site.
+
+## Scale, money, and what is not built
+
+`docs/SCALE-AND-TERMS.md` answers four things with measured numbers: whether
+clients pay before or after (before — the preview is what makes that
+sellable), whether one system runs 500 sites (yes, about $45 a month, but
+only with event retention or the database fills in 14.5 months), what the
+booking feature actually does today (it is a request form, not a booking
+engine — and the $397 tier promises a booking engine), and what bundling
+ReviewBoost into every plan really costs.
+
+## The whole process, start to finish
+
+`docs/RUNBOOK.md` is the sequence with real timings: what you need at each
+stage, what the client gets, what they do not, and which things must be done
+once before any real client exists. The short version is about two and a half
+hours of your work per client, and everything else is waiting on their
+photographs.
+
+## Show a prospect a preview, without building their site
+
+A prospect cannot picture themselves inside someone else's website. Showing
+them Pomelo Kitchen and saying "yours would look like this" asks them to do
+imaginative work while deciding whether to trust you, and most will not
+bother. But hand-building a real site for every enquiry is hours of unpaid
+work, and most enquiries do not close.
+
+The preview is the middle. Their name, their town, their trade, in the real
+template:
+
+```bash
+node tools/preview.js --name "Hartley Heating" --trade hvac --city "Dublin, OH"
+```
+
+Under a minute, and it converts like the real thing, because the only thing
+most people need to see is their own name at the top of a page that looks
+expensive.
+
+It also writes `sites/<slug>/intake.md`: the list of what you need from that
+client, with their name on it, worded for them rather than for you. Send it
+the moment they show interest. The photographs are what you will wait days
+for, so the ask should be out before the deposit clears.
+
+**It reads as finished, and nothing on it is a claim about them.** Prices are
+removed, because a price is an offer and somebody will call expecting it.
+Promises and credentials are replaced with neutral trade copy any business
+could stand behind. On the HVAC example that is 23 prices dropped and 8
+claims neutralised. Only what the business must actually supply — phone,
+email, hours — is left as a visible marker, and a banner across the top says
+the words are a layout, not a quote.
+
+The real risk was never the preview. It is the preview quietly becoming the
+live site with example words still in it, so the check lives at launch:
+
+```bash
+node tools/launch-check.js <slug>      # exit 1 means do not ship
+node tools/audit.js dist/<slug>/index.html --width 400
+```
+
+`launch-check` blocks placeholders, the preview banner and example names,
+phone numbers and domains. It **flags** promises, credentials, prices and
+review counts rather than blocking them — a client is entitled to make claims
+about their own business, so it only asks that somebody confirm they said it.
+
 ## Make a site for a new client
 
 ```bash
@@ -50,6 +134,102 @@ Then:
 
 The build fails with a clear message if a photo named in `content.js` is missing, so a
 broken image cannot reach a client.
+
+## Layouts
+
+A site picks a layout, not just colours. Recolouring one layout produces
+sites that are obviously the same page, which a prospect shown two demos
+notices immediately.
+
+```js
+module.exports = { layout: 'still', /* ... */ };
+```
+
+| `layout` | For | What it does |
+|---|---|---|
+| `studio` *(default)* | restaurants, trades | Text left, photo carousel right: arrows, dots, two thumbnails, a tint blob, and a moving belt under the fold. Suits a business whose visitor is **comparing** — a menu, a price list, a service range. |
+| `still` | meditation, therapy, anything calm | One centred column, one photograph, and none of the carousel furniture. Suits a business where nobody compares five options and picks the best value, and where the controls are noise. |
+| `atelier` | salons, studios, anywhere the work is what sells | One photograph at full bleed with the name over it, then an asymmetric gallery and a price ledger. Suits a business whose visitor is **not reading a feature list** — they are deciding whether the place looks like somewhere they want to spend an hour. |
+
+The difference is structural. `studio` renders a carousel, thumbnails, a blob,
+an arch mask and a marquee; `still` and `atelier` render none of them.
+`<body>` carries `layout-<name>` so the stylesheet can vary spacing and type
+weight too.
+
+**On `atelier`'s dark first screen.** That is one photographic panel, not a
+dark theme — the body of the page stays on the client's own light ground.
+Type over a photograph needs a scrim and light ink whatever the business is;
+that is a legibility requirement, not a style choice, and it stops at the fold.
+`tools/audit.js` grades it by reading the pixels actually painted behind the
+text, so the scrim has to earn its keep rather than merely look present.
+
+Adding a third is a block in `build.js` and a section in `template/site.css`.
+
+## Sections
+
+A layout changes how the first screen looks. **Sections change what the page
+argues.** The two are separate on purpose: the kit used to vary the hero and
+then give every business the same four-part case — show your work, list your
+prices, tell your story, take a booking — which is right for a restaurant and
+wrong for a law firm.
+
+The list is flat, one name per line, in `content.js`:
+
+```js
+sections: [
+  'belt',
+  'showcase',
+  'list',
+  'story',
+  'band',
+  'contact'
+],
+```
+
+Each name is also the key its content lives under, so `'story'` renders
+`story:` and nothing else. No nesting, no options, no per-section config —
+the order of the list is the order of the page.
+
+| name | what it is | has a nav link |
+|---|---|---|
+| `belt` | scrolling marquee of short claims | no |
+| `showcase` | the work: cards, or an asymmetric gallery on `atelier` | yes |
+| `list` | tabbed groups of items with prices | yes |
+| `story` | photo, paragraphs, counted facts | yes |
+| `band` | full-bleed photo with one line over it | no |
+| `contact` | hours, address, and the enquiry form | yes |
+
+A section earns its nav link by having an `id`. Add it to the list and the
+link appears; remove it and the link goes too.
+
+**Omit `sections` entirely** and you get all six in the order above, so an
+older `content.js` builds unchanged.
+
+### It fails loudly on purpose
+
+A wrong section list is worse than a generic page: the page still builds, and
+it ships without its prices or without the form that takes the lead. So every
+wrong edit stops the build and names the file, the value and the fix.
+
+```
+Build failed.
+  sites/salon/content.js: `sections` lists "stroy", which is not a section.
+  Valid names: belt, showcase, list, story, band, contact
+  Did you mean "story"?
+```
+
+Caught: unknown names (with the nearest suggestion), duplicates, a name with
+no matching block, a list that is not an array, an empty list, an entry that
+is an object rather than a name, and dropping `contact` — which is refused
+outright, because a site that cannot take a lead has no job.
+
+Content that exists but is not listed is a **warning**, not an error: keeping
+a price list in the file while it is switched off is a reasonable thing to do,
+but it should not be silent.
+
+```bash
+node tools/test-sections.js    # 12 checks that bad edits cannot reach a page
+```
 
 ## What is on the page
 
@@ -119,6 +299,43 @@ to take something that looks bad and make it look made. It loads automatically
 in this repo, so any session starts knowing it, and it applies to app screens
 as much as web pages.
 
+`tools/check.js` looks at every screen at phone and desktop size and fails on
+the rules that can be measured: contrast, tap-target size, form fields that
+make an iPhone zoom, sideways scrolling, text that vanishes without scripts.
+It saves the screenshots in `.check/`, including the owner panel filled with
+invented sample data, so the panel can be seen without a login:
+
+```bash
+node build.js && node tools/check.js
+```
+
+### Two halves of review
+
+`tools/audit.js` does the half that is arithmetic. It opens the page in a real
+browser, reads the computed styles, and reports exactly what is wrong:
+
+```bash
+node tools/audit.js dist/hvac/index.html --width 400
+node tools/audit.js dist/hvac/index.html --width 1280
+```
+
+It checks contrast against the colour actually painted behind the text
+(including through translucent layers), tap-target boxes including ones grown
+by a pseudo-element, input font sizes that make iOS zoom, transitions on
+properties that re-run layout, and sideways overflow. Every finding comes with
+the fix, and contrast findings come with the exact replacement colour. It exits
+non-zero, so it can gate a build.
+
+`tools/contrast.js` is the maths on its own:
+
+```bash
+node tools/contrast.js check "#db2235" "#ffffff"
+node tools/contrast.js darken "#e03a4b" "#ffffff" 4.5
+```
+
+`darken` keeps hue and saturation and walks lightness until it passes, so a
+client's brand colour stays their brand colour.
+
 `tools/critique.py` reviews a screenshot on your own NVIDIA credit, not
 Claude's:
 
@@ -133,8 +350,10 @@ motion. Argue with it.
 
 ## The owner panel
 
-Each client gets a dashboard showing what their website did: visitors, taps on
-their phone number, enquiries from the form, and a box to request changes.
+Each client gets a dashboard showing what their website did: how many
+enquiries came in (the largest number on the page), visits, taps on their phone
+number, each enquiry with a button to call them back, and a box to request
+changes. Every number is compared with the 30 days before.
 The database and collector are live; see `portal/README.md` to add a client.
 
 What the panel will not do is overstate results. A tap on a phone button is
@@ -152,6 +371,15 @@ sites/
   restaurant/            example: Pomelo Kitchen (invented)
   hvac/                  example: Northwind Heating & Air (invented)
 .claude/skills/design/  the design method, loaded automatically
+tools/check.js           measured design checks and screenshots, both sizes
+tools/slop.js            the unslop audit: 18 points, a score, the bottleneck
+tools/motion.js          the motion audit, with frame-exact filmstrips
+tools/reel.js            a redesign told as a vertical video
+tools/watch.py           a redesign video read: words, storyboard, camera
+tools/preview.js       a named preview for a prospect, polished, no invented facts
+tools/launch-check.js  refuses to ship a site with somebody else's words in it
+tools/audit.js         the design rules, measured in a real browser
+tools/contrast.js      WCAG contrast maths and brand-safe darkening
 tools/critique.py      screenshot review on your NVIDIA credit
 portal/
   schema.sql             the portal database

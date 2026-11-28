@@ -69,6 +69,68 @@ Two of these exist to prevent a mistake rather than to store data:
 - `mk_messaging_registration` and `mk_message_consent` must both be satisfied
   before any automated text is sent. See `../OFFER.md` section 5.
 
+## What the system does not do: dispatch
+
+A lead is an **enquiry, not an appointment.** The customer picks a service, a
+preferred date and a rough time window, and presses send. `preferred` is free
+text like "Tuesday, 25 November, 10:00 – 12:00". It is what they asked for.
+Nothing has agreed to it.
+
+The owner opens the panel, reads the list, and **rings them back.**
+
+What exists, per lead: who they are, phone and email, the address with a maps
+link, what they asked for, their message, how far it is and roughly how long
+to drive, and when the enquiry came in.
+
+What does **not** exist anywhere in this system:
+
+- availability — nothing knows which slots are free
+- double-booking prevention — two people can ask for the same morning
+- travel time between jobs, or route order
+- staff, vehicle or resource rules
+- holidays and closures
+- any confirmation back to the customer beyond "we got it"
+- a notification — the owner finds out by opening the panel
+
+That is a **request form**, and for the $150 and $197 tiers that is exactly
+what is sold and it is honest. The **$397 tier promises "AI Booking:
+assistant settings, booking calendar, conversation history"** and none of it
+is built. Do not sell that tier yet.
+
+### The three columns that close most of the gap
+
+`status`, `scheduled_at` and `owner_note` turn a list of enquiries into a day
+plan without building a scheduler:
+
+| Column | Meaning |
+|---|---|
+| `preferred` | what the customer asked for. Free text. Not an appointment. |
+| `scheduled_at` | what the owner actually arranged after ringing. Null until then. |
+| `status` | new → contacted → booked → done, or lost |
+| `owner_note` | what the owner wants to remember |
+
+An owner may write **only those three.** The customer's name, phone, address
+and request are not writable by anyone through the API, because the enquiry
+as submitted is evidence — if it could be edited, a disputed job would come
+down to a record only one side can change.
+
+Verified against the live database: an owner scheduling a stranger's lead is
+denied, scheduling their own is allowed, rewriting the customer's phone is
+denied at the column grant, and anonymous is denied outright.
+
+**The panel does not yet render any of this.** It still lists enquiries newest
+first. A "today" view ordered by `scheduled_at`, with the maps link and the
+status buttons, is the next piece of work and it is what makes the panel feel
+like a tool rather than an inbox.
+
+### This shape is for trades, not restaurants
+
+Travel time, route order and "where am I going at 10am" are problems for a
+business that **drives to the customer**: HVAC, plumbing, electrical. A
+restaurant has the opposite shape — the customer travels, there is no
+distance to compute, and the scarce resource is tables at a sitting. The
+distance fields are meaningless for them and the panel should not show them.
+
 ## Details the owner changes themselves
 
 Hours, phone number and a notice banner are editable in the panel, with no
@@ -118,7 +180,10 @@ The distance is stored on the lead, so the owner sees "47 mi, about 90 min,
 outside area" on the enquiry without looking anything up.
 
 **It is an estimate and is labelled as one.** Straight-line distance multiplied
-by the account's `road_factor` (1.30 by default) at `avg_speed_mph` (32). That
+by the account's `road_factor` (1.30 by default). The time comes from
+`mk_drive_minutes()`, where speed rises with trip length — a flat
+`avg_speed_mph` of 32 told an owner a 129-mile job was "about 242 min" when
+the real drive is about 110. That
 is honest for "can we come?" but nobody should plan a tight day around it. For
 real routed drive times, put a routing engine behind the same response shape;
 nothing else changes. Self-hosted OSRM is the usual free choice.
@@ -169,7 +234,11 @@ what each signed-in person can read, so the key alone shows nobody anything.
 
 ## Before a real client is onboarded
 
-- [ ] Delete the demo login `demo-owner@mkwebstudio.test` and the demo account
+- [x] **Done 24 Nov 2026.** The demo login `demo-owner@mkwebstudio.test` is
+      deleted. The hvac account, its site and its six leads are kept, because
+      `sites/hvac/content.js` carries that site id in its `track` block and
+      deleting the account would break the demo site's collector. The login
+      was the risk; the data is yours.
 - [ ] Turn on leaked-password protection in Supabase Auth settings
 - [ ] Decide where the panel is hosted and give clients that URL
 - [ ] Check the panel in a normal browser on a real phone

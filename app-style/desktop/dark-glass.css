@@ -1,0 +1,649 @@
+/* =========================================================================
+   Dark glass: desktop app screens on a near-black ground.
+
+   The look of a creative tool that runs full screen: a black ground lit by
+   a few streaks of light, panels of frosted glass edged with a thin bright
+   line, white text, and one white button that is the only solid thing on
+   the screen. Built for the Cinema sign-in and the CINEVORA home
+   (app-style/examples/cinema-login, cinevora-home), and for any desktop app
+   that wants that look: an editor, a launcher, a studio, a dashboard.
+
+   It is a style in the system's sense: the spacing, corners, touch sizes
+   and motion all come from tokens/tokens.css; this file sets only the
+   colour roles, the glass, and the parts a desktop app has that a phone
+   screen does not (a window bar, a sidebar, a search with a shortcut key,
+   tiles, panels, empty states, a sign-in card).
+
+   Use:
+     <link rel="stylesheet" href="../../desktop/dark-glass.css">
+     <body class="dg"> ... </body>
+     <script src="../../desktop/icons.js"></script>
+     <script src="../../desktop/art.js"></script>
+
+   Rules that make it this look and not "dark mode":
+     - the ground is black with a faint lift, never grey: #050506
+     - glass is barely there: 3 to 6% white over the ground, and its edge
+       does the work, a 1px line that is brighter at the top
+     - one white button per screen, with a vertical sheen; everything else
+       is outlined glass
+     - text is white or a cool grey that still passes 4.5:1 on the ground
+     - light comes from the art, not from coloured accents; the only colour
+       on the screen is a link and the brand marks
+   ========================================================================= */
+
+@import url("../../tokens/tokens.css");
+
+.dg {
+  /* the brand's one colour, as three numbers (red green blue), so light,
+     meters and the selected item can take it: style="--accent: 232 163 61".
+     White by default: a screen with no brand colour stays monochrome. */
+  --accent: 255 255 255;
+  /* status tones, as numbers too. If the brand colour is close to one,
+     move the status tone away, never the brand: --late: 255 107 107 */
+  --late: 255 196 107;
+  --good: 58 209 107;
+  /* the colour roles every system gives */
+  --ground: #050506;
+  --surface: rgba(255, 255, 255, .035);
+  --ink: #f5f5f7;
+  --ink-quiet: #a7a7b1;            /* 8.4:1 on the ground */
+  --line: rgba(255, 255, 255, .13);
+  --accent: #ffffff;
+
+  /* the glass */
+  /* Dark glass is mostly dark: a diagonal sheen at 6% fading to under 2%.
+     A flat 6 to 10% reads as grey plastic (found by review, Nov 28). */
+  --glass: linear-gradient(145deg, rgba(255, 255, 255, .06) 0%, rgba(255, 255, 255, .014) 45%, rgba(255, 255, 255, .026) 100%);
+  /* Frost: fine grain at 5%, so glass reads as a material and not as a
+     transparent box. Without it, dark glass over black looks like nothing. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .04 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  --glass-solid: #0c0c0f;
+  --edge: rgba(255, 255, 255, .16);
+  --edge-hot: rgba(255, 255, 255, .5);
+  --glow: 0 0 0 1px rgba(255, 255, 255, .04), 0 0 24px rgba(255, 255, 255, .06);
+  --lift: 0 18px 50px rgba(0, 0, 0, .55);
+  --link: #9cc8ff;                 /* 10:1 on the glass; the one colour */
+  --field: rgba(255, 255, 255, .035);
+  --dashed: rgba(255, 255, 255, .26);
+
+  --ui-font: "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, sans-serif;
+  --ui-display: "Segoe UI Variable Display", "Segoe UI", "Inter Display", Inter, system-ui, sans-serif;
+
+  margin: 0;
+  min-height: 100vh;
+  background: var(--ground);
+  color: var(--ink);
+  font: 400 17px/1.45 var(--ui-font);
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+.dg *, .dg *::before, .dg *::after { box-sizing: border-box; }
+/* Low specificity on purpose, so every part below can set its own colour. */
+:where(.dg) button, :where(.dg) input { font: inherit; color: inherit; }
+:where(.dg) button { cursor: pointer; }
+:where(.dg) a { color: inherit; }
+.dg :focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+
+/* icons: <svg class="i"><use href="#i-home"/></svg>
+   Sizes by role, never by default: 30 in navigation and the top bar, 26 in
+   buttons, 44 on tiles and empty states, 24 inline. A thin 20px icon in a
+   58px row is the commonest tell of a generated screen (review, Nov 28). */
+.dg .i { width: 24px; height: 24px; flex: none; display: block; }
+.dg .iconbtn .i, .dg .nav .i { width: 30px; height: 30px; stroke-width: 1.7; }
+.dg .btn-glass .i, .dg .btn-white.inline .i { width: 26px; height: 26px; }
+.dg .i-lg { stroke-width: 1.5; }
+.dg .i-sm { width: 18px; height: 18px; }
+.dg .i-lg { width: 40px; height: 40px; }
+
+/* ------------------------------------------------------------- the art */
+
+/* The streaks sit behind everything and never take a click. */
+.dg-art { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.dg-art svg { width: 100%; height: 100%; display: block; }
+.dg-art.in-panel { position: absolute; border-radius: inherit; overflow: hidden; }
+.dg-streak {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: dg-drift var(--dur) ease-in-out var(--delay) infinite alternate;
+}
+.dg-sheen {
+  stroke-dasharray: 6 94;
+  stroke-dashoffset: 100;
+  opacity: .9;
+  animation: dg-sheen calc(var(--dur) / 3) linear var(--delay) infinite;
+}
+@keyframes dg-drift {
+  from { transform: translate(0, 0) rotate(0deg); }
+  to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); }
+}
+@keyframes dg-sheen { to { stroke-dashoffset: -100; } }
+
+/* Glow and sweep: light that sits behind glass, so the glass has something
+   to blur. A glass panel over pure black cannot look like glass. */
+.dg-glow { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(60px);
+  background: radial-gradient(closest-side, rgb(var(--c, 255 255 255) / var(--a, .1)), rgb(var(--c, 255 255 255) / 0)); }
+.dg-sweep { position: absolute; inset: -20%; pointer-events: none; overflow: hidden; }
+.dg-sweep::before { content: ""; position: absolute; top: 0; bottom: 0; left: -30%; width: 30%;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, var(--a, .06)) 50%, rgba(255, 255, 255, 0));
+  transform: skewX(-18deg); animation: dg-sweep var(--dur, 14s) var(--ease-in-out) infinite; }
+@keyframes dg-sweep { 0% { translate: 0 0; } 60%, 100% { translate: 520% 0; } }
+
+/* -------------------------------------------------------------- glass */
+
+.glass {
+  position: relative;
+  background: var(--grain), var(--glass);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-xl);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), var(--lift);
+  /* Blur strong enough that light behind it turns to a soft glow; a little
+     extra brightness so that glow lifts the glass instead of greying it. */
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  backdrop-filter: blur(28px) saturate(140%);
+}
+/* A brighter rim: the one panel the screen is about (the sign-in card).
+   Light falls on a rim from one side: bright at the top left and bottom
+   right, nearly gone between. A uniform grey stroke reads as a box. */
+.glass.rim::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, .8) 0%, rgba(255, 255, 255, .18) 22%, rgba(255, 255, 255, .06) 50%, rgba(255, 255, 255, .2) 78%, rgba(255, 255, 255, .7) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.glass.rim {
+  border-color: rgba(255, 255, 255, .1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 0 0 1px rgba(255, 255, 255, .03),
+              0 0 32px rgba(255, 255, 255, .06), var(--lift);
+}
+.glass.flat { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 0 24px rgba(255, 255, 255, .02); }
+
+/* --------------------------------------------------------- window bar */
+
+.winbar {
+  position: relative; z-index: 2;
+  height: 64px; padding: 0 var(--space-6) 0 var(--space-10);
+  display: flex; align-items: center; gap: var(--space-6);
+}
+.brand { display: flex; align-items: center; gap: var(--space-3); text-decoration: none; }
+.brand-name { font: 600 24px/1 var(--ui-display); letter-spacing: -.005em; }
+.brand-name.caps { letter-spacing: .01em; font-weight: 600; }
+.vrule { width: 1px; align-self: stretch; margin: 16px 0; background: var(--edge); }
+.wincontrols { margin-left: auto; display: flex; gap: var(--space-2); }
+.wincontrols { margin-right: -12px; }
+.wincontrols .i { width: 26px; height: 26px; stroke-width: 1.8; }
+.wincontrols button {
+  width: 64px; height: 48px; border: 0; background: none; border-radius: var(--radius-m);
+  display: grid; place-items: center; color: var(--ink);
+  transition: background var(--t-quick) var(--ease-out);
+}
+.wincontrols button:hover { background: rgba(255, 255, 255, .08); }
+.wincontrols button.close:hover { background: #c42b1c; }
+
+/* ------------------------------------------------------------- fields */
+
+.field {
+  height: 54px; display: flex; align-items: center; gap: var(--space-4);
+  padding: 0 var(--space-5);
+  /* A field sits into the glass, so it is darker than the glass, never lighter. */
+  background: rgba(0, 0, 0, .32);
+  border: 1px solid rgba(255, 255, 255, .15);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .5);
+  border-radius: var(--radius-m);
+  transition: border-color var(--t-quick) var(--ease-out), box-shadow var(--t-quick) var(--ease-out), background var(--t-quick) var(--ease-out);
+}
+.field:focus-within { border-color: rgba(255, 255, 255, .45); background: rgba(255, 255, 255, .05); box-shadow: 0 0 0 4px rgba(255, 255, 255, .05), 0 0 22px rgba(255, 255, 255, .07); }
+.field input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: none; font-size: 20px; }
+.field input::placeholder { color: var(--ink-quiet); opacity: 1; }
+.field > .i { width: 28px; height: 28px; color: var(--ink); opacity: .92; stroke-width: 1.7; }
+.field input::placeholder { color: #bdbdc4; }
+.field .reveal { border: 0; background: none; padding: 0; width: var(--tap); height: var(--tap); margin-right: -10px; display: grid; place-items: center; border-radius: var(--radius-m); }
+
+.check { display: inline-flex; align-items: center; gap: var(--space-3); font-size: 17px; cursor: pointer; user-select: none; }
+.check input { appearance: none; width: 24px; height: 24px; margin: 0; border: 2px solid rgba(255, 255, 255, .6); border-radius: 5px; display: grid; place-items: center; transition: background var(--t-quick) var(--ease-out); }
+.check input:checked { background: #fff; }
+.check input:checked::after { content: ""; width: 10px; height: 6px; border: solid #050506; border-width: 0 0 2px 2px; transform: translateY(-1px) rotate(-45deg); }
+.link { color: var(--link); text-decoration: none; font-size: 17px; }
+.link:hover { text-decoration: underline; }
+
+/* ------------------------------------------------------------ buttons */
+
+/* The one solid thing: white, with a soft vertical sheen. */
+.btn-white {
+  height: 54px; width: 100%; border: 0; border-radius: var(--radius-m);
+  display: flex; align-items: center; justify-content: center; gap: var(--space-3);
+  position: relative;
+  background: linear-gradient(180deg, #ffffff 0%, #ececf0 55%, #d9d9df 100%);
+  color: #0a0a0c; font: 600 22px/1 var(--ui-font);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .12), 0 0 0 1px rgba(255, 255, 255, .25), 0 8px 26px rgba(255, 255, 255, .08);
+  transition: transform var(--t-press) var(--ease-out), box-shadow var(--t-enter) var(--ease-out);
+}
+.btn-white .end { position: absolute; right: var(--space-5); width: 28px; height: 28px; stroke-width: 2.2; transition: transform var(--t-enter) var(--ease-out); }
+.btn-white:hover { box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .12), 0 0 0 1px rgba(255, 255, 255, .5), 0 0 34px rgba(255, 255, 255, .22); }
+.btn-white:active, .btn-glass:active, .tile:active, .social:active { transform: scale(.97); }
+.btn-white.inline { width: auto; height: 44px; padding: 0 var(--space-5); font-size: 17px; font-weight: 700; border-radius: 10px; background: linear-gradient(180deg, #ffffff, #f1f1f4); }
+
+.btn-glass {
+  height: 56px; padding: 0 var(--space-4); white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-3);
+  background: rgba(255, 255, 255, .025); border: 1px solid var(--edge); border-radius: var(--radius-m);
+  font-size: 18px;
+  transition: transform var(--t-press) var(--ease-out), border-color var(--t-quick) var(--ease-out), background var(--t-quick) var(--ease-out), box-shadow var(--t-enter) var(--ease-out);
+}
+.btn-glass:hover { border-color: rgba(255, 255, 255, .42); background: rgba(255, 255, 255, .06); box-shadow: 0 0 22px rgba(255, 255, 255, .08); }
+/* A raised secondary: lighter than the glass it sits on, with a lit top edge. */
+.btn-glass.solid { background: linear-gradient(180deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .11)); border-color: rgba(255, 255, 255, .18); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25); font-weight: 600; }
+
+.social {
+  width: 84px; height: 72px; display: grid; place-items: center;
+  background: rgba(0, 0, 0, .4); border: 1px solid rgba(255, 255, 255, .24); border-radius: var(--radius-m);
+  transition: transform var(--t-press) var(--ease-out), border-color var(--t-quick) var(--ease-out), box-shadow var(--t-enter) var(--ease-out), translate var(--t-enter) var(--ease-out);
+}
+.social .i { width: 36px; height: 36px; }
+
+.or { display: flex; align-items: center; gap: var(--space-5); color: var(--ink); font-size: 17px; }
+.or { padding: 0 60px; }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: rgba(255, 255, 255, .2); }
+
+.kbd { height: 32px; padding: 0 var(--space-3); display: inline-flex; align-items: center; border-radius: 8px; background: rgba(255, 255, 255, .16); font: 600 15px/1 var(--ui-font); }
+
+/* ---------------------------------------------------------- the shell */
+
+/* A desktop app's frame: a top bar over a sidebar and a work area. */
+.shell { position: relative; z-index: 1; height: 100vh; display: grid; grid-template-columns: 250px minmax(0, 1fr); grid-template-rows: 88px 1fr; }
+.topbar { grid-column: 1 / -1; display: flex; align-items: center; gap: 44px; padding: 0 var(--space-8) 0 56px; }
+.topbar .tools { gap: var(--space-6); }
+.topbar .brand-name { font-size: 27px; }
+.search {
+  flex: 0 1 750px; min-width: 0; height: 50px; margin-left: var(--space-2);
+  display: flex; align-items: center; gap: var(--space-4); padding: 0 var(--space-2) 0 var(--space-5);
+  background: rgba(255, 255, 255, .03); border: 1px solid var(--edge); border-radius: var(--radius-pill);
+  transition: border-color var(--t-quick) var(--ease-out), box-shadow var(--t-enter) var(--ease-out);
+}
+.search:focus-within { border-color: rgba(255, 255, 255, .4); box-shadow: 0 0 26px rgba(255, 255, 255, .08); }
+.search input { flex: 1; border: 0; outline: 0; background: none; font-size: 18px; }
+.search input::placeholder { color: var(--ink-quiet); opacity: 1; }
+.topbar .tools { margin-left: auto; display: flex; align-items: center; }
+.iconbtn { width: 52px; height: 52px; border: 0; background: none; border-radius: var(--radius-pill); display: grid; place-items: center; transition: background var(--t-quick) var(--ease-out); }
+.iconbtn:hover { background: rgba(255, 255, 255, .07); }
+.me { display: flex; align-items: center; gap: var(--space-4); padding-left: var(--space-4); border-left: 1px solid var(--edge); }
+.avatar { position: relative; width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; background: #26262b; font: 600 22px/1 var(--ui-font); }
+.avatar::after { content: ""; position: absolute; right: 1px; bottom: 1px; width: 12px; height: 12px; border-radius: 50%; background: #3ad16b; box-shadow: 0 0 0 2px var(--ground); }
+.me b { display: block; font: 600 18px/1.2 var(--ui-font); }
+.me small { display: flex; align-items: center; gap: 6px; color: var(--ink-quiet); font-size: 15px; }
+.me small::before { content: ""; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid currentColor; }
+
+.sidebar { position: relative; display: flex; flex-direction: column; padding: var(--space-8) var(--space-3) 74px; gap: var(--space-2); }
+.nav { display: flex; flex-direction: column; gap: 4px; }
+.nav a {
+  height: 58px; padding: 0 var(--space-6) 0 30px; display: flex; align-items: center; gap: var(--space-6);
+  border: 1px solid transparent; border-radius: var(--radius-m); text-decoration: none; font-size: 18px;
+  transition: background var(--t-quick) var(--ease-out), border-color var(--t-quick) var(--ease-out);
+}
+.nav a:hover { background: rgba(255, 255, 255, .05); }
+/* The selected item must read at a glance: clearly lighter, a bright edge,
+   a soft glow. A selected state only a shade off rest has no hierarchy. */
+.nav a[aria-current="page"] { background: linear-gradient(180deg, rgba(255, 255, 255, .17), rgba(255, 255, 255, .07)); border-color: rgb(var(--accent) / .45); font-weight: 600; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 0 18px rgb(var(--accent) / .1); }
+.nav a[aria-current="page"] .i { color: rgb(var(--accent)); }
+.promo { margin-top: auto; padding: var(--space-4); border-radius: var(--radius-l); text-align: center; }
+.promo h3 { margin: 0; display: flex; justify-content: center; align-items: center; gap: var(--space-3); font: 600 18px/1.2 var(--ui-font); }
+.promo p { margin: 4px 0 var(--space-3); color: var(--ink-quiet); font-size: 15px; }
+.promo .btn-glass { width: 100%; height: 44px; font-weight: 600; }
+
+/* The work area: one glass panel with a column of side panels. */
+.work { position: relative; display: grid; grid-template-columns: 1fr 310px; gap: 28px; padding: 0 17px 0 0; min-height: 0; }
+/* Only the top-left corner shows an edge: the work area opens out of the
+   sidebar and runs to the side panels. */
+.stage { position: relative; border-radius: 32px 0 0 0; border: 1px solid var(--line); border-width: 1px 0 0 1px; background: linear-gradient(160deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, 0) 45%); padding: var(--space-6) 2px 0 var(--space-6); overflow: hidden auto; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .18) transparent; }
+/* the stage scrolls when its content runs past the window, never clips it */
+.stage > *:not(.dg-art) { position: relative; z-index: 1; }
+.side { display: flex; flex-direction: column; gap: var(--space-6); padding-top: var(--space-8); }
+
+.hero { display: flex; align-items: center; gap: var(--space-4); padding: 10px var(--space-6) 34px; }
+.hero h1 { margin: 0; font: 600 33px/1.1 var(--ui-display); letter-spacing: -.012em; }
+.hero p { margin: 8px 0 0; color: #f0f0f3; font-size: 18px; text-shadow: 0 1px 12px rgba(0, 0, 0, .8); }
+
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+.tile {
+  height: 184px; padding: var(--space-8) var(--space-4) var(--space-5); position: relative;
+  display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .01)); border: 1px solid var(--edge); border-radius: var(--radius-m);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14);
+  transition: transform var(--t-enter) var(--ease-out), translate var(--t-enter) var(--ease-out), border-color var(--t-quick) var(--ease-out), box-shadow var(--t-enter) var(--ease-out), background var(--t-quick) var(--ease-out);
+}
+.tile .i-lg { width: 44px; height: 44px; margin-bottom: var(--space-3); }
+.tile b { font: 600 22px/1.2 var(--ui-display); }
+.tile span { margin-top: var(--space-2); padding: 0 30px; font-size: 14.5px; letter-spacing: -.005em; color: #e6e6ea; }
+.tile .go { position: absolute; right: 18px; bottom: 26px; width: 24px; height: 24px; stroke-width: 2; transition: transform var(--t-enter) var(--ease-out); }
+
+.section-head { display: flex; align-items: center; gap: var(--space-4); margin: 18px 0 14px; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, .1); }
+.section-head h2 { margin: 0; font: 600 22px/1 var(--ui-display); }
+.section-head .i { width: 30px; height: 30px; }
+.section-head .more { margin-left: auto; display: flex; align-items: center; gap: 4px; font-size: 17px; text-decoration: none; }
+.seg { display: flex; padding: 4px; gap: 4px; border: 1px solid var(--line); border-radius: var(--radius-m); }
+.seg button { width: 44px; height: 36px; border: 0; background: none; border-radius: 8px; display: grid; place-items: center; }
+.seg button[aria-pressed="true"] { background: rgba(255, 255, 255, .18); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2); }
+
+.empty { display: flex; flex-direction: column; align-items: center; text-align: center; border: 1.5px dashed var(--dashed); border-radius: var(--radius-m); padding: var(--space-6) var(--space-6) var(--space-6); }
+.empty .i-lg { width: 44px; height: 44px; color: #cfcfd5; }
+.empty b { margin-top: var(--space-4); font: 600 22px/1.2 var(--ui-display); }
+.empty p { margin: var(--space-2) 0 var(--space-5); color: #d4d4da; font-size: 15px; line-height: 1.55; }
+.side .empty { padding: var(--space-6) var(--space-3); }
+.side .empty b { font-size: 18px; }
+.side .empty p { font-size: 15px; }
+.empty.loose { border: 0; }
+
+.tools-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(176px, 1fr)); gap: var(--space-5); }
+
+.panel { padding: var(--space-5); border-radius: var(--radius-l); }
+.panel h3 { margin: 0 0 var(--space-4); display: flex; align-items: center; gap: var(--space-3); font: 600 18px/1.2 var(--ui-display); }
+.dot-live { width: 10px; height: 10px; border-radius: 50%; background: #3ad16b; box-shadow: 0 0 10px rgba(58, 209, 107, .6); }
+
+/* ---------------------------------------------------------------- data */
+
+/* Numbers people act on: a big figure, a table of rows, a status. Added
+   when Haiku, Sonnet and Opus were each given an invoicing brief and all
+   three had to invent these by hand (Nov 28). */
+.brand-word { font: 650 24px/1 var(--ui-display); letter-spacing: .02em; text-shadow: 0 0 18px rgba(255, 255, 255, .25); white-space: nowrap; flex: none; }   /* a two-word name must not wrap in the top bar at 1280 */
+.stat-label { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-quiet); font-size: 15px; }
+.stat-num { margin: var(--space-2) 0 var(--space-1); font: 600 64px/1 var(--ui-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.stat-num small { font-size: .45em; font-weight: 500; color: var(--ink-quiet); letter-spacing: 0; margin-left: var(--space-2); }
+.delta { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; color: var(--ink-quiet); }
+.delta.up { color: #5fe08a; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-5); }
+.stats .panel { padding: var(--space-6); }
+.stats .stat-num { font-size: 36px; }
+
+/* A table that reads as a list: each row one line, the amount last and
+   right-aligned in tabular figures so the columns of digits line up. */
+.table { display: flex; flex-direction: column; }
+.table .tr { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1fr) 120px; align-items: center; gap: var(--space-4);
+  min-height: 60px; padding: 0 var(--space-4); border-radius: var(--radius-m); text-decoration: none; transition: background var(--t-quick) var(--ease-out); }
+.table .tr + .tr { border-top: 1px solid rgba(255, 255, 255, .06); }
+.table a.tr:hover { background: rgba(255, 255, 255, .05); }
+.table .th { min-height: 40px; color: var(--ink-quiet); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; border-top: 0; }
+.table .name { display: flex; align-items: center; gap: var(--space-3); min-width: 0; font-weight: 600; }
+.table .name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.table .muted { color: var(--ink-quiet); font-size: 15px; }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.initials { width: 36px; height: 36px; flex: none; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .1); font: 600 14px/1 var(--ui-font); }
+
+/* Status: a dot and a word, never colour alone. Three tones only. */
+/* status: a dot and a word, not a pill (pills read as badges and crowd a
+   list); the dot glows in its tone */
+.status { justify-self: start; width: max-content; display: inline-flex; align-items: center; gap: var(--space-2); font-size: 16px; color: #e6e6ea; }
+.status::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.status.good::before { background: rgb(var(--good)); box-shadow: 0 0 8px rgb(var(--good) / .5); }
+.status.wait::before { background: none; box-shadow: none; border: 1.5px solid #f0f0f3; width: 9px; height: 9px; }
+.status.late { color: rgb(var(--late)); }
+.status.late::before { background: rgb(var(--late)); box-shadow: 0 0 10px rgb(var(--late) / .6); }
+
+/* ---------------------------------------------- screens built on a number
+   The layout a blind review rated best (app-style/examples/tally-home):
+   the big figure with its one action beside it, what the figure is made
+   of under it, a strip of facts, a ledger, and side panels that add
+   something the ledger does not (a breakdown with meters, a trend). */
+
+.dg .num, .figure, .facts, .ledger, .breakdown, .bars { font-variant-numeric: tabular-nums; }
+
+/* the figure: the one thing on the screen */
+.figure { display: flex; align-items: flex-end; gap: var(--space-8); padding: var(--space-4) var(--space-6) var(--space-8); }
+.figure .label { margin: 0; display: flex; align-items: center; gap: var(--space-3); color: var(--ink-quiet); font-size: 18px; }
+.figure .label .i { width: 26px; height: 26px; color: rgb(var(--accent)); filter: drop-shadow(0 0 8px rgb(var(--accent) / .5)); }
+.figure .amount { margin: var(--space-2) 0 0; font: 600 104px/.92 var(--ui-display); letter-spacing: -.045em; color: #fff; text-shadow: 0 0 48px rgba(255, 255, 255, .16); }
+.figure .amount sup { font-size: 40px; vertical-align: .95em; margin-right: .06em; letter-spacing: 0; color: #d8d8de; }
+.figure .sub { margin: var(--space-4) 0 0; font-size: 18px; color: #e6e6ea; }
+.figure .sub em { font-style: normal; color: rgb(var(--late)); }   /* what is urgent, in the warning tone */
+.figure .act { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-3); padding-bottom: var(--space-2); }
+.figure .btn-white { width: auto; height: 56px; padding: 0 var(--space-6) 0 var(--space-5); font-size: 18px; border-radius: var(--radius-m); }
+.figure .hint { color: var(--ink-quiet); font-size: 14px; }
+@media (max-width: 1360px) { .figure { gap: var(--space-6); } .figure .amount { font-size: 92px; } }
+/* the figure alone, centred, its action under it: version B of the number
+   pattern, and the better one when the stage has a picture behind it */
+.figure.stacked { flex-direction: column; align-items: center; text-align: center; padding-top: var(--space-10); }
+.figure.stacked .label { justify-content: center; }
+.figure.stacked .act { margin: var(--space-6) 0 0; align-items: center; }
+/* split: the picture fills the stage's right half, top to the list; the
+   figure and facts keep the left half */
+.stage.split > .scene { width: 50%; height: 430px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 35%); mask-image: linear-gradient(90deg, transparent, #000 35%); }
+.stage.split > .scene img { opacity: .7; }
+.stage.split .figure { max-width: 56%; flex-wrap: wrap; }
+.stage.split .figure .act { margin-left: 0; flex-basis: 100%; align-items: flex-start; }
+.stage.split .facts { max-width: 56%; grid-template-columns: repeat(3, auto); }
+.stage.split .facts div { padding-right: var(--space-6); }
+.stage.split .facts div + div { padding-left: var(--space-6); }
+.facts b, .facts span { white-space: nowrap; }
+/* a busy day: denser rows when the list is long (decide.js says when) */
+.ledger.dense td { height: 48px; }
+
+/* facts: a strip of figures with hairlines between, not a row of cards */
+.facts { display: grid; grid-template-columns: repeat(3, auto) 1fr; margin: 0 var(--space-6); padding: var(--space-5) 0; border-top: 1px solid rgba(255, 255, 255, .1); border-bottom: 1px solid rgba(255, 255, 255, .1); }
+.facts div { padding: 0 var(--space-10) 0 0; }
+.facts div + div { padding-left: var(--space-10); border-left: 1px solid rgba(255, 255, 255, .1); }
+.facts b { display: block; font: 600 28px/1.1 var(--ui-display); letter-spacing: -.02em; }
+.facts span { display: block; margin-top: var(--space-1); color: var(--ink-quiet); font-size: 14px; }
+@media (max-width: 1360px) { .facts div { padding-right: var(--space-8); } .facts div + div { padding-left: var(--space-8); } }
+
+/* a list's heading with a quiet "all" link */
+.list-head { display: flex; align-items: center; gap: var(--space-4); margin: var(--space-6) var(--space-6) var(--space-2); }
+.list-head h2 { margin: 0; font: 600 22px/1.2 var(--ui-display); letter-spacing: -.01em; }
+.list-head .more { margin-left: auto; min-height: 44px; display: inline-flex; align-items: center; gap: var(--space-1); font-size: 16px; text-decoration: none; color: var(--ink-quiet); transition: color var(--t-quick) var(--ease-out); }
+.list-head .more:hover { color: var(--ink); }
+
+/* ledger: a real table; rows answer a hover with light */
+.ledger { width: calc(100% - var(--space-6)); margin-left: var(--space-3); border-collapse: separate; border-spacing: 0; font-size: 16px; }
+.ledger th { height: 36px; padding: 0 var(--space-3); text-align: left; font-weight: 400; font-size: 14px; color: var(--ink-quiet); }
+.ledger td { height: 56px; padding: 0 var(--space-3); border-top: 1px solid rgba(255, 255, 255, .07); white-space: nowrap; }
+.ledger .num { text-align: right; }
+.ledger td.who b { display: block; font-weight: 600; }
+.ledger td.who span, .ledger td small { display: block; margin-top: 2px; font-size: 14px; color: var(--ink-quiet); }
+.ledger td.amt { font-weight: 600; }
+.ledger tr.done td.amt { color: #c9c9d0; font-weight: 400; }
+.ledger tbody tr { transition: background var(--t-quick) var(--ease-out); }
+.ledger tbody tr:hover { background: rgba(255, 255, 255, .045); }
+.ledger tbody tr:hover td, .ledger tbody tr:hover + tr td { border-top-color: transparent; }
+.ledger tbody td:first-child { border-radius: var(--radius-m) 0 0 var(--radius-m); }
+.ledger tbody td:last-child { border-radius: 0 var(--radius-m) var(--radius-m) 0; }
+.ledger td.go { width: 56px; text-align: right; }
+
+/* a quiet row action, and a row's arrow */
+.btn-quiet { height: 36px; padding: 0 var(--space-3); border: 1px solid var(--edge); border-radius: var(--radius-m); background: rgba(255, 255, 255, .03); font-size: 14px; font-weight: 600; transition: border-color var(--t-quick) var(--ease-out), background var(--t-quick) var(--ease-out), box-shadow var(--t-quick) var(--ease-out); }
+.btn-quiet:hover { border-color: rgba(255, 255, 255, .42); background: rgba(255, 255, 255, .07); box-shadow: 0 0 18px rgba(255, 255, 255, .08); }
+.btn-quiet:active { transform: scale(.97); }
+.chev { width: 44px; height: 44px; display: inline-grid; place-items: center; border-radius: var(--radius-m); color: var(--ink-quiet); text-decoration: none; transition: color var(--t-quick) var(--ease-out); }
+.chev .i { width: 22px; height: 22px; transition: transform var(--t-quick) var(--ease-out); }
+.ledger tbody tr:hover .chev { color: var(--ink); }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .ledger tbody tr:hover .chev .i { transform: translateX(3px); }
+}
+
+/* side panels that add something: a breakdown with meters, bars over time */
+.panel h3 .aside { margin-left: auto; font: 400 14px/1 var(--ui-font); color: var(--ink-quiet); }
+.breakdown { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-4); }
+.breakdown li { display: grid; grid-template-columns: 1fr auto; row-gap: var(--space-2); font-size: 16px; }
+.breakdown li b { font-weight: 600; }
+.breakdown li small { grid-column: 1 / -1; color: var(--ink-quiet); font-size: 14px; }
+.breakdown li small.late { color: rgb(var(--late)); }
+.meter { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, rgb(var(--accent) / .5), rgb(var(--accent))); box-shadow: 0 0 10px rgb(var(--accent) / .4); }
+.meter.late i { background: linear-gradient(90deg, rgb(var(--late) / .55), rgb(var(--late))); box-shadow: 0 0 10px rgb(var(--late) / .45); }
+.panel .lede { margin: 0 0 var(--space-5); color: var(--ink-quiet); font-size: 16px; }
+.panel .lede b { color: var(--ink); font-weight: 600; }
+.bars { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--space-3); align-items: end; height: 96px; }
+.bars div { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: var(--space-2); height: 100%; }
+.bars i { display: block; width: 100%; border-radius: 8px 8px 4px 4px; background: linear-gradient(180deg, rgba(255, 255, 255, .26), rgba(255, 255, 255, .06)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3); transform-origin: bottom; }
+.bars .now i { background: linear-gradient(180deg, rgb(var(--accent)), rgb(var(--accent) / .35)); box-shadow: 0 0 18px rgb(var(--accent) / .25); }
+.bars span { font-size: 14px; color: var(--ink-quiet); }
+.bars .now span { color: var(--ink); }
+.dg-in.dg-js .bars i { animation: dg-grow 700ms var(--ease-out) both; animation-delay: calc(var(--n, 0) * 60ms + 500ms); }
+@keyframes dg-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) { .dg-in.dg-js .bars i { animation: none; } }
+
+/* a count beside a nav item */
+.nav a .count { margin-left: auto; min-width: 28px; height: 24px; padding: 0 var(--space-2); display: grid; place-items: center; border-radius: var(--radius-pill); background: rgba(255, 255, 255, .1); font-size: 14px; font-weight: 600; }
+.me > span { white-space: nowrap; }
+
+/* the scene: the business's own photo, melted into the dark behind the
+   figure so the screen says what it is for before the words do. One photo,
+   their own (product, room, work), never stock that could be anyone's. */
+.stage > .scene { position: absolute; z-index: 0; top: 0; right: 0; width: 62%; height: 440px; pointer-events: none;
+  -webkit-mask-image: radial-gradient(120% 100% at 100% 0%, #000 30%, transparent 72%); mask-image: radial-gradient(120% 100% at 100% 0%, #000 30%, transparent 72%); }
+.stage > .scene img { width: 100%; height: 100%; object-fit: cover; opacity: .42; filter: saturate(.9) contrast(1.05); }
+.stage > .scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--ground), transparent 45%), linear-gradient(0deg, rgb(5 5 6 / .85), transparent 40%); }
+/* words over the picture: brighter, with a shadow, so they keep 4.5:1 */
+.stage:has(> .scene) .figure .label, .stage:has(> .scene) .figure .hint { color: #e6e6ea; text-shadow: 0 1px 12px rgba(0, 0, 0, .95), 0 0 2px rgba(0, 0, 0, .8); }
+
+/* ------------------------------------------------------------- sign-in */
+
+.signin { position: relative; z-index: 1; height: calc(100vh - 64px); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 4px; }
+.wordmark-img { display: block; margin: -4px 0 0; line-height: 0; }
+.wordmark { font: 600 64px/.9 var(--ui-display); letter-spacing: .01em; margin-top: -6px;
+  background: linear-gradient(180deg, #ffffff 30%, #c9c9d0 62%, #f2f2f5 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 14px rgba(255, 255, 255, .25)); }
+.tagline { margin: 16px 0 36px; font: 400 16px/1 var(--ui-font); letter-spacing: .46em; padding-left: .46em; color: #f2f2f5; }
+.tagline i { font-style: normal; margin: 0 1.1em; color: var(--ink-quiet); letter-spacing: 0; }
+/* Spaced as the reference is, piece by piece, rather than one gap. */
+.card-signin { width: 628px; padding: 32px 56px 32px; display: flex; flex-direction: column; }
+.card-signin > * + * { margin-top: 18px; }
+.card-signin .row { height: 28px; display: flex; justify-content: space-between; align-items: center; }
+.card-signin .btn-white { margin-top: 20px; }
+.card-signin .or { margin-top: 16px; height: 20px; }
+.card-signin .socials { margin-top: 15px; }
+.card-signin .signup { margin-top: 24px; height: 24px; line-height: 24px; }
+.socials { display: flex; justify-content: center; gap: 32px; }
+.signup { margin: 0; text-align: center; color: #b5b5bd; font-size: 20px; }
+.signup a { color: var(--ink); font-weight: 600; margin-left: var(--space-4); text-decoration-thickness: 2px; text-underline-offset: 5px; }
+
+/* -------------------------------------------------------------- motion */
+
+/* Screens arrive: things rise 12px and fade in, one after another, on the
+   strong ease-out. The window bar and the art are there from the start. */
+/* Hidden only once the script is running, so with scripts off everything
+   is simply there. */
+.dg-js .dg [data-enter] { opacity: 0; translate: 0 12px; }
+.dg-in.dg-js .dg [data-enter] {
+  opacity: 1; translate: 0 0;
+  transition: opacity 520ms var(--ease-out) calc(var(--i, 0) * 60ms + 80ms), translate 620ms var(--ease-out) calc(var(--i, 0) * 60ms + 80ms);
+}
+/* The sidebar slides in from the left, the side panels from the right. */
+.dg-js .dg [data-enter="side-l"] { translate: -16px 0; }
+.dg-js .dg [data-enter="side-r"] { translate: 16px 0; }
+
+/* Hover moves only where there is a mouse, and only where motion is
+   welcome: a tap must not leave a card lifted on a touch screen. The glow
+   on hover stays for everyone. */
+.tile:hover { border-color: rgba(255, 255, 255, .45); box-shadow: 0 0 30px rgba(255, 255, 255, .09); }
+.social:hover { border-color: rgba(255, 255, 255, .45); }
+.card:hover .play { opacity: 1; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .btn-white:hover .end { transform: translateX(4px); }
+  .social:hover { border-color: rgba(255, 255, 255, .45); box-shadow: 0 0 26px rgba(255, 255, 255, .1); translate: 0 -2px; }
+  .tile:hover { translate: 0 -4px; border-color: rgba(255, 255, 255, .45); background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .015)); box-shadow: 0 14px 40px rgba(0, 0, 0, .6), 0 0 30px rgba(255, 255, 255, .09); }
+  .tile:hover .go { transform: translateX(4px); }
+  .card:hover { translate: 0 -4px; }
+  .card:hover .frame img { transform: scale(1.06); }
+  .card:hover .play { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dg-streak, .dg-sheen { animation: none; }
+  .dg-sweep::before { animation: none; translate: 250% 0; }
+  .dg-sheen { opacity: 0; }
+  .dg [data-enter] { opacity: 1; translate: none; transition: none !important; }
+  .dg * { transition-duration: 1ms !important; }
+}
+
+/* --------------------------------------------------------------- media */
+
+/* For screens whose light comes from pictures (a streaming home, a gallery,
+   a store): the photo is the light source, so the streaks stay off and the
+   photo fades into the ground instead. */
+.topnav { position: relative; z-index: 3; height: 76px; padding: 0 var(--space-12); display: flex; align-items: center; gap: var(--space-10); }
+.topnav .wordmark-sm { font: 700 22px/1 var(--ui-display); letter-spacing: .28em; padding-left: .28em; }
+.tabs { display: flex; gap: var(--space-1); }
+.tabs a { height: 40px; padding: 0 var(--space-4); display: flex; align-items: center; border-radius: var(--radius-pill); text-decoration: none; font-size: 15px; color: #d6d6dc; transition: background var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out); }
+.tabs a:hover { color: var(--ink); background: rgba(255, 255, 255, .06); }
+.tabs a[aria-current="page"] { color: var(--ink); background: rgba(255, 255, 255, .12); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16), inset 0 1px 0 rgba(255, 255, 255, .14); font-weight: 600; }
+.topnav .tools { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); }
+
+.billboard { position: absolute; inset: 0 0 auto 0; height: 78vh; overflow: hidden; z-index: 0; }
+.billboard img { position: absolute; right: 0; top: 0; width: 72%; height: 100%; object-fit: cover; object-position: 50% 40%; transform-origin: 70% 40%; animation: dg-push 24s var(--ease-in-out) infinite alternate; }
+/* The fade is two gradients, not one: left to right for the words, top to
+   bottom for the rows. One gradient leaves a visible seam where they meet. */
+.billboard::after { content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, var(--ground) 26%, rgba(5, 5, 6, .86) 40%, rgba(5, 5, 6, .25) 62%, rgba(5, 5, 6, 0) 80%),
+    linear-gradient(180deg, rgba(5, 5, 6, .55) 0%, rgba(5, 5, 6, 0) 18%, rgba(5, 5, 6, 0) 52%, var(--ground) 100%); }
+@keyframes dg-push { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+.feature { position: relative; z-index: 2; width: 600px; padding: 72px 0 0 var(--space-12); }
+.eyebrow { display: inline-flex; align-items: center; gap: var(--space-3); font: 600 13px/1 var(--ui-font); letter-spacing: .22em; color: #e6e6ea; }
+.eyebrow .new { padding: 5px 8px; border-radius: 6px; background: var(--accent-hot, #e50914); color: #fff; letter-spacing: .08em; }
+.feature h1 { margin: var(--space-5) 0 var(--space-4); font: 700 76px/.95 var(--ui-display); letter-spacing: -.025em; }
+.meta { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; color: #d0d0d6; font-size: 15px; }
+.meta > span:not(.rating) + span::before { content: "·"; margin-right: var(--space-3); color: #7d7d86; }
+.meta .rating { padding: 2px 7px; border: 1px solid rgba(255, 255, 255, .4); border-radius: 4px; font-size: 13px; }
+.feature p.synopsis { margin: var(--space-5) 0 var(--space-8); font-size: 18px; line-height: 1.5; color: #ececf0; max-width: 520px; }
+.actions { display: flex; gap: var(--space-3); align-items: center; }
+.actions .btn-white { width: auto; padding: 0 var(--space-8) 0 var(--space-6); height: 56px; font-size: 18px; }
+.actions .btn-glass { height: 56px; font-size: 18px; padding: 0 var(--space-6); background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .22); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.circle { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .24); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transition: background var(--t-quick) var(--ease-out), transform var(--t-press) var(--ease-out); }
+.circle:hover { background: rgba(255, 255, 255, .2); }
+.circle:active { transform: scale(.94); }
+
+.rows { position: relative; z-index: 2; padding: 0 0 var(--space-10) var(--space-12); margin-top: 64px; display: flex; flex-direction: column; gap: var(--space-8); }
+.row h2 { margin: 0 0 var(--space-4); display: flex; align-items: baseline; gap: var(--space-4); font: 600 22px/1 var(--ui-display); }
+.row h2 a { min-height: 24px; display: inline-flex; align-items: center; font: 400 15px/1 var(--ui-font); color: var(--ink-quiet); text-decoration: none; }
+/* a row that runs off the edge is a row you can scroll: the cut card says "more" */
+.strip { display: flex; gap: var(--space-4); overflow: auto hidden; scrollbar-width: none; padding: 10px 0 14px; margin: -10px 0 -14px; }
+.strip::-webkit-scrollbar { display: none; }
+.card { position: relative; flex: none; width: 320px; text-decoration: none; transition: translate var(--t-enter) var(--ease-out); }
+.card .frame { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius-m); overflow: hidden; background: #111; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1); transition: box-shadow var(--t-enter) var(--ease-out), transform var(--t-enter) var(--ease-out); }
+.card .frame img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 700ms var(--ease-out); }
+.card .frame::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); background: linear-gradient(180deg, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, .55)); }
+.card .play { position: absolute; z-index: 1; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .92); color: #050506; opacity: 0; transform: scale(.85); transition: opacity var(--t-quick) var(--ease-out), transform var(--t-enter) var(--ease-out); }
+.card .bar { position: absolute; z-index: 1; left: 12px; right: 12px; bottom: 10px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .25); overflow: hidden; }
+.card .bar i { display: block; height: 100%; background: var(--accent-hot, #e50914); border-radius: inherit; }
+.card .label { margin-top: var(--space-3); display: flex; justify-content: space-between; gap: var(--space-3); font-size: 15px; }
+.card .label b { font-weight: 600; }
+.card .label span { color: var(--ink-quiet); white-space: nowrap; }
+.card:hover .frame { box-shadow: 0 18px 40px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .35), 0 0 30px rgba(255, 255, 255, .08); }
+.card.tall { width: 210px; }
+.card.tall .frame { aspect-ratio: 2 / 3; }
+.card .num { position: absolute; z-index: 1; left: 14px; bottom: 6px; font: 700 64px/1 var(--ui-display); color: #fff; text-shadow: 0 2px 16px rgba(0, 0, 0, .7), 0 0 2px rgba(0, 0, 0, .8); letter-spacing: -.04em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .billboard img { animation: none; }
+}
+
+/* A screen that scrolls (a streaming home, a feed). */
+.dg.scrolls { overflow: hidden auto; height: 100vh; }
+
+/* A narrow window: the sign-in still works; the home is a desktop layout and
+   says so in its README rather than pretending to be a phone screen. */
+@media (max-width: 700px) {
+  .winbar { padding: 0 var(--space-2) 0 var(--space-4); }
+  .card-signin { width: calc(100vw - 32px); padding: var(--space-6) var(--space-5); }
+  .wordmark { font-size: 48px; }
+  .tagline { letter-spacing: .2em; font-size: 13px; }
+  .tagline i { margin: 0 .5em; }
+  #mark-lg { width: 170px; height: auto; }
+  .wordmark-img img { width: 240px; height: auto; }
+  .card-signin .link { min-height: 44px; display: inline-flex; align-items: center; }
+  .signin { overflow-y: auto; padding-bottom: var(--space-8); }
+  /* the box stays 24px to the eye; a clear 10px border makes it 44px to a thumb */
+  .check input { width: 44px; height: 44px; margin: -10px -6px -10px -10px; border: 10px solid transparent; background-clip: padding-box; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .7); border-radius: 15px; }
+
+  /* the streaming home: the still on top, the words under it */
+  .topnav { height: 64px; padding: 0 var(--space-5); gap: var(--space-4); }
+  .tabs { display: none; }
+  .billboard { height: 62vh; }
+  .billboard img { width: 100%; }
+  .billboard::after { background: linear-gradient(180deg, rgba(5, 5, 6, .5) 0%, rgba(5, 5, 6, 0) 22%, rgba(5, 5, 6, 0) 45%, var(--ground) 96%); }
+  .feature { width: auto; padding: 38vh var(--space-5) 0; }
+  .feature h1 { font-size: 48px; }
+  .feature p.synopsis { font-size: 15px; }
+  .actions .btn-white { flex: 1; }
+  .rows { padding-left: var(--space-5); margin-top: var(--space-10); }
+  .strip { padding-right: var(--space-5); }
+  .card { width: 260px; }
+  .card.tall { width: 150px; }
+  .row h2 a { min-height: 44px; min-width: 44px; }
+}

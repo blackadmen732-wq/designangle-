@@ -1,0 +1,487 @@
+#!/usr/bin/env node
+/*
+ * Make a named preview for a prospect, in about thirty seconds.
+ *
+ *   node tools/preview.js --name "Mario's Pizza" --trade restaurant --city "Columbus, OH"
+ *   node tools/preview.js --name "Hartley Heating" --trade hvac --city "Dublin, OH" --accent "#0b63ce"
+ *
+ * Why this exists
+ * ---------------
+ * A prospect cannot picture themselves inside someone else's website. Showing
+ * them Pomelo Kitchen and saying "yours would look like this" asks them to do
+ * imaginative work while they are deciding whether to trust you. Most will not.
+ *
+ * But hand-building a real site for every enquiry is hours of unpaid work, and
+ * most enquiries do not close.
+ *
+ * The preview is the middle: their name, their town, their trade, in the real
+ * template, built from a copy of an example site. It takes under a minute and
+ * it converts like the real thing, because the only thing most people need to
+ * see is their own name at the top.
+ *
+ * The rule this obeys
+ * -------------------
+ * CLAUDE.md: never invent a client fact. A preview that says "24/7 emergency
+ * response" or quotes a price or a review count the business did not give you
+ * is worse than no preview. If they sign and the site goes live with that text
+ * still in it, you have published a claim on their behalf that may be untrue.
+ *
+ * So this script does the opposite of inventing. Every fact it cannot know is
+ * replaced with a visible placeholder, and a banner says the preview is a
+ * layout, not a claim. What it fills in is only what is already public: the
+ * business name, the town, the trade.
+ *
+ * The phone number is deliberately left as a placeholder rather than a
+ * plausible-looking fake. A made-up number is somebody's real number.
+ */
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const { execFileSync } = require('child_process');
+
+const ROOT = path.join(__dirname, '..');
+const SITES = path.join(ROOT, 'sites');
+
+/* ---- arguments ---------------------------------------------------------- */
+
+function arg(flag, fallback) {
+  const i = process.argv.indexOf(flag);
+  return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : fallback;
+}
+
+const name   = arg('--name');
+const trade  = (arg('--trade', 'restaurant') || '').toLowerCase();
+const city   = arg('--city', '');
+const accent = arg('--accent');
+const slugIn = arg('--slug');
+
+if (!name) {
+  console.log(`
+  node tools/preview.js --name "<business name>" [options]
+
+    --name    the business, as they write it            (required)
+    --trade   restaurant | hvac | barber                (default restaurant)
+    --city    "Columbus, OH" — shown in the contact block
+    --accent  #rrggbb, if you know their brand colour
+    --slug    folder name, otherwise made from --name
+
+  Builds sites/<slug>/ and dist/<slug>/. Nothing is invented: every fact the
+  business has not given you is left as a visible placeholder.
+`);
+  process.exit(2);
+}
+
+const BASE = { restaurant: 'restaurant', hvac: 'hvac', barber: 'barber' }[trade];
+if (!BASE) {
+  console.error(`  --trade must be restaurant, hvac or barber. Got "${trade}".`);
+  process.exit(2);
+}
+// A trade whose example is too particular to copy (named people, counts, a
+// history) has a base written for previews in tools/preview-bases/, which
+// says nothing that is not true of every business in the trade. Its photos
+// still come from the example's folder.
+const PREVIEW_BASE = path.join(__dirname, 'preview-bases', `${trade}.js`);
+const FROM = fs.existsSync(PREVIEW_BASE) ? PREVIEW_BASE : path.join(SITES, BASE, 'content.js');
+
+const slug = (slugIn || name)
+  .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/['\u2019]/g, '')              // Mario's -> marios, not mario-s
+  .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+
+/* ---- a short name for the header, where a long one will not fit ---------- */
+
+function shortName(full) {
+  const drop = /\b(the|and|&|llc|l\.l\.c\.|inc|inc\.|ltd|co|co\.|company|services?|service|group|plumbing|heating|air|hvac|restaurant|kitchen|cafe|café|bar|grill|pizzeria|barbers?|barbershop|shop|grooming)\b/gi;
+  const words = full.replace(drop, ' ').replace(/(^|\s)[&+](?=\s|$)/g, ' ')
+    .replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  // Nothing left once the trade words go ("The Barber Shop"): the whole name,
+  // if a header can hold it.
+  if (!words.length) return full.length <= 16 ? full : full.split(' ')[0];
+  // Two words when both fit a header: "Fresh Lines", not "Fresh", which made
+  // the story read "About Fresh".
+  const two = words.slice(0, 2).join(' ');
+  if (words.length > 1 && two.length <= 14) return two;
+  if (words[0].length >= 3) return words[0];
+  return full.length <= 16 ? full : full.split(' ')[0];   // "A1 Barbers", not "A1"
+}
+
+/* ---- the placeholder ----------------------------------------------------
+   One visible marker, used for every fact we are not allowed to guess. It has
+   to be obvious on screen, so that nothing unfilled can reach a live site by
+   being quietly plausible. */
+const P = (what) => `[${what}]`;
+
+/* ---- build the content file --------------------------------------------- */
+
+const base = require(FROM);
+const short = shortName(name);
+
+// Deep copy, then replace. Working from the real example keeps the preview
+// identical in structure to what they would actually get.
+const c = JSON.parse(JSON.stringify(base));
+
+c.name = name;
+c.short = short;
+
+// Search engines read seo as facts about the business: the example's street
+// address, opening hours and price range went into a stranger's preview this
+// way. Only the type of business and their town are public.
+c.seo = {
+  type: (base.seo && base.seo.type) || 'LocalBusiness',
+  title: `${name} — preview`,
+  description: `Preview layout for ${name}${city ? ', ' + city : ''}. Not a live website.`,
+  telephone: P('phone number')
+};
+if (city) c.seo.address = { addressLocality: city };
+
+if (accent) c.theme = Object.assign({}, c.theme, { accent });
+
+// Hero: their name does the work. The headline stays the example's, because a
+// headline is a claim about the business and we have not been given one.
+if (c.hero) {
+  c.hero.eyebrow = city ? `${name} · ${city}` : name;
+  c.hero.headlineAccent = c.hero.headlineAccent || '';
+}
+
+if (c.footer) {
+  c.footer.mark = short;
+  c.footer.left = `Preview layout for ${name}. Not a live site.`;
+  c.footer.right = P('your details here');
+}
+
+/* ---- strip every fact we were not given --------------------------------- */
+
+// Anything that reads as a promise, a price, a count or a credential has to go.
+// This list is deliberately wide: a false negative here ships a claim.
+// Each pattern is anchored on its own. The first version wrapped the whole
+// alternation in \b...\b, which meant the money pattern could never fire: a
+// space and a "$" are both non-word characters, so there is no word boundary
+// between them, and "From $249" shipped as a real price on every preview.
+const CLAIMY = [
+  /\$\s?\d/,                                   // $249, $ 12
+  /\b\d+\s*%/,                                 // 20%
+  /\b\d+\s*(?:\+|plus)?\s*(?:years?|reviews?|stars?|customers?|jobs?|clients?)\b/i,
+  /\b24\s*\/\s*7\b/,
+  /\b(?:same|next)[- ]day\b/i,
+  /\bwithin\s+\d/i,
+  /\b(?:in|within)\s+(?:one|two|a single)\s+(?:visit|day|hour)/i,
+  /\bguarantee\w*\b/i,
+  /\bwarrant\w+\b/i,
+  /\blicen[cs]ed\b/i,
+  /\binsured\b/i,
+  /\bcertified\b/i,
+  /\baward\w*\b/i,
+  /\brated\b/i,
+  /\bno\s+call[- ]out\b/i,
+  /\bfree\s+(?:quote|estimate|call[- ]out)\b/i,
+  /\bfrom\s+[£€\$]/i,                // "From £", "From €"
+  /\bfixed[- ]price\b/i,               // the wordings the examples use for
+  /\bin writing\b/i,                   // promises, which the patterns above
+  /\b(?:at )?any hour\b/i,             // did not see: "a fixed price in
+  /\bround[- ]the[- ]clock\b/i,        // writing", "we answer the phone at
+  /\bevery (?:day|night|time)\b/i,     // any hour"
+  /\bnever\b/i
+];
+const isClaim = (t) => CLAIMY.some((re) => re.test(t));
+
+let stripped = 0, dropped = 0;
+
+/* Replacing every claim with the same bracket is what made the first version
+   look broken rather than unfinished. The HVAC pricing list came out as
+   fourteen identical [their own words], which reads as a bug, and a preview
+   that reads as a bug cannot do the only job it has.
+
+   Three different treatments instead, by what the text actually is: */
+
+// 1. A PRICE is an offer. Inventing one gets somebody calling expecting it,
+//    and a bracket where a number should be looks broken. So the line goes
+//    away entirely and the service name carries the row on its own.
+const MONEY = /\$\s?\d|\bfrom\s+[£€\$]|\b\d+\s*(?:\/|per)\s*month\b/i;
+
+// 2. A PROMISE is falsifiable and specific to them. Swapped for neutral
+//    descriptive copy that any business in the trade can stand behind, so the
+//    page still reads as finished prose.
+const NEUTRAL = {
+  barber: ['Cuts and fades', 'Beards and shaves', 'Clipper and scissor work',
+           'Line-ups between cuts', 'Hair and beard care', 'Styling'],
+  hvac: ['Heating and cooling', 'Repairs and installs', 'Service and maintenance',
+         'Local engineers', 'Domestic and commercial', 'Boilers and heat pumps'],
+  restaurant: ['Cooked to order', 'Seasonal menu', 'Dine in and takeaway',
+               'Local suppliers', 'Open for lunch and dinner', 'Private hire']
+};
+let neutralAt = 0;
+const nextNeutral = () => {
+  const pool = NEUTRAL[trade] || NEUTRAL.restaurant;
+  return pool[neutralAt++ % pool.length];
+};
+
+// 3. Anything else the business must supply is one tidy marker, not a shout.
+function scrub(node, key, parent) {
+  if (typeof node === 'string') {
+    if (MONEY.test(node)) { parent[key] = ''; dropped++; return; }
+    if (isClaim(node)) {
+      // A short string is a label or a tag. Substituting prose into one reads
+      // wrong — "After-hours call-out · Boilers and heat pumps" — so a label
+      // is emptied and only running copy gets a neutral replacement.
+      parent[key] = node.trim().length < 26 ? '' : nextNeutral();
+      stripped++;
+      return;
+    }
+    return;
+  }
+  if (Array.isArray(node)) { node.forEach((v, i) => scrub(v, i, node)); return; }
+  if (node && typeof node === 'object') {
+    for (const k of Object.keys(node)) {
+      if (/^(img|id|href|type|fontsUrl|display|body|endpoint|siteId)$/.test(k)) continue;
+      scrub(node[k], k, node);
+    }
+  }
+}
+scrub(c, null, null);
+
+/* ---- contact: their town is public, everything else is not --------------- */
+
+if (c.contact) {
+  if (Array.isArray(c.contact.blocks)) {
+    c.contact.blocks = c.contact.blocks.map((b) => {
+      const out = Object.assign({}, b);
+      if (Array.isArray(out.lines)) {
+        // A phone, an email and their town are handled; every other line is
+        // the EXAMPLE's street, unit or area, and the first version left
+        // "214 Harbour Street, the old sail loft" on a stranger's preview as
+        // though it were theirs. One [address] per block stands for all of it.
+        let addressed = false;
+        out.lines = out.lines.map((l) => {
+          const t = String(l).trim();
+          if (/^[+(]?[0-9][0-9().\-\s]{6,}$/.test(t) || /^\[phone number\]$/.test(t)) return P('phone number');
+          if (/@/.test(t) || /^\[email\]$/.test(t)) return P('email');
+          if (city && /,\s*[A-Z]{2}\b/.test(t)) return city;
+          if (addressed) return null;
+          addressed = true;
+          return P('address');
+        }).filter((l) => l !== null);
+      }
+      return out;
+    });
+  }
+  // hours are [label, value] pairs, not objects. The first version mapped them
+  // as objects, which silently did nothing and left the EXAMPLE's opening hours
+  // on the page as though they were this business's. That is precisely the
+  // invented-client-fact failure this script exists to prevent.
+  if (Array.isArray(c.contact.hours)) {
+    c.contact.hours = c.contact.hours.map((h) =>
+      Array.isArray(h) ? [h[0], '\u2014'] : h);
+  }
+}
+
+/* ---- the story: theirs to tell ---------------------------------------
+   The example's story is its history, its people and its numbers: "Everything
+   at Pomelo passes through a single oak-fired oven", "the technician who
+   quotes the job is the one who does it", a 450 degree oven, a 90-minute
+   visit. None of it is true of the business being previewed, and the scrub
+   above cannot recognise it, because it reads as plain prose. So the story
+   keeps only what is public (their name, their trade, their town) and asks
+   for the rest, and the numbers go: a counter with nothing true to count is
+   an invented fact. */
+const TRADE_NOUN = { restaurant: 'restaurant', hvac: 'heating and cooling company', barber: 'barbershop' };
+if (c.story) {
+  c.story.eyebrow = 'About';
+  c.story.title = `About ${short}`;
+  c.story.paragraphs = [
+    `${name} is a ${TRADE_NOUN[trade] || 'local business'}${city ? ' in ' + city : ''}.`,
+    P('their story, in their words')
+  ];
+  c.story.facts = [];
+}
+
+// The collector must not be wired up. A preview that posts a stranger's
+// details into a client's panel is a data problem, and site.js now tells the
+// visitor honestly when there is nowhere to send a form.
+delete c.track;
+
+/* ---- the banner ---------------------------------------------------------
+   Not decoration. It is what makes sending this safe: the person looking at
+   it is told, on the page, that the words are a layout and not a quote. */
+c.preview = `This is a layout for ${name}, not a live site. The design is real. `
+          + `The words, photos and anything in [brackets] are placeholders until `
+          + `you give us yours — nothing here is a claim about your business.`;
+
+/* ---- write and build ----------------------------------------------------- */
+
+const dir = path.join(SITES, slug);
+if (fs.existsSync(dir) && !process.argv.includes('--force')) {
+  console.error(`  sites/${slug}/ already exists. Pass --force to overwrite it.`);
+  process.exit(1);
+}
+fs.mkdirSync(dir, { recursive: true });
+
+// Photos come from the example for the trade. They are stock and they are
+// labelled as such; swapping in the client's own is the first thing you do
+// once they are a client rather than a prospect.
+// A preview base takes only the photos it uses: the barbershop example's
+// nail-bar photos have no place on a barbershop that has no nail bar.
+const used = new Set();
+(function walk(n, k) {
+  if (typeof n === 'string') { if (k === 'img') used.add(n); return; }
+  if (Array.isArray(n)) { n.forEach((v) => walk(v, k)); return; }
+  if (n && typeof n === 'object') for (const [kk, v] of Object.entries(n)) walk(v, kk);
+})(c);
+if (FROM === PREVIEW_BASE) {
+  fs.mkdirSync(path.join(dir, 'img'), { recursive: true });
+  for (const f of used) fs.copyFileSync(path.join(SITES, BASE, 'img', f), path.join(dir, 'img', f));
+} else {
+  fs.cpSync(path.join(SITES, BASE, 'img'), path.join(dir, 'img'), { recursive: true });
+}
+
+const header = `/* PREVIEW — generated by tools/preview.js on ${new Date().toISOString().slice(0, 10)}.
+ *
+ * Built for: ${name}${city ? ' · ' + city : ''}
+ * Based on:  ${path.relative(ROOT, FROM)}${FROM === PREVIEW_BASE ? `, photos from sites/${BASE}/img` : ''}
+ *
+ * Everything in [brackets] is a placeholder for a fact this business has not
+ * given us. Do not replace a placeholder with a guess. Ask them, or leave it.
+ *
+ * ${stripped} claim(s) from the example were replaced with neutral copy and
+ * ${dropped} price(s) were removed. Check the page for any the pattern missed.
+ */
+`;
+
+fs.writeFileSync(path.join(dir, 'content.js'),
+  header + 'module.exports = ' + JSON.stringify(c, null, 2) + ';\n');
+
+
+/* ---- the intake sheet ----------------------------------------------------
+   Written now, not after they sign. The photographs are what you will wait
+   days for, so the ask has to go out at the first sign of interest. */
+
+const PHOTO_COUNT = fs.readdirSync(path.join(dir, 'img'))
+  .filter((f) => /\.(webp|jpe?g|png)$/i.test(f)).length;
+
+const TRADE_WORDS = {
+  hvac: { thing: 'services', ex: 'Diagnostic call-out, thermostat replacement, system install',
+          shots: 'a van or a team photo, two or three jobs in progress, a finished install,\n  a clean plant room, and one of you', site: 'trades', verb: 'do' },
+  barber: { thing: 'services', ex: 'Skin fade, beard trim, kids’ cut',
+            shots: 'the shop with the chairs in use, four or five finished cuts (fades,\n  curls, beards), your station or tools, and one of each barber', site: 'barbershop', verb: 'do' },
+  restaurant: { thing: 'dishes', ex: 'Margherita, carbonara, the Sunday roast',
+                shots: 'the room with people in it, five or six dishes shot from above,\n  the bar or pass, and one of the kitchen team', site: 'restaurant', verb: 'serve' }
+}[trade];
+
+const intake = `# What we need from ${name}
+
+Everything on this list goes on your website. Nothing here is optional unless
+it says so, and nothing gets written for you — what you send is what goes up,
+under your name.
+
+Send it however is easiest. A long email is fine.
+
+---
+
+## 1. How people reach you
+
+- [ ] Phone number, exactly as you want it shown
+- [ ] Email for enquiries
+- [ ] Street address${city ? ` — we have ${city}, we need the rest` : ''}
+- [ ] Opening hours, including any days you are closed
+- [ ] Anything different about evenings, weekends or holidays
+
+## 2. What you ${TRADE_WORDS.verb}
+
+- [ ] Your ${TRADE_WORDS.thing}, with a sentence about each
+      *(e.g. ${TRADE_WORDS.ex})*
+- [ ] Prices, or a starting price, or tell us not to show prices at all
+
+**On prices.** Whatever number you give us goes on the page and people will
+call expecting it. If a job varies, give us a "from" price or say so and we
+will leave prices off entirely. We will not invent one.
+
+## 3. Things you want to say about yourself
+
+Only send these if they are true and you can back them up. They go out under
+your name, not ours.
+
+- [ ] Years in business
+- [ ] Licences, certifications, insurance
+- [ ] Guarantees or warranties, and exactly what they cover
+- [ ] Response times you can actually meet
+- [ ] Review scores or counts, and where they are from
+
+Leave any of these blank and we leave it off the site. A page with fewer
+claims and no exaggeration sells better than one with both.
+
+## 4. Photographs — ${PHOTO_COUNT} of them
+
+This is the part that takes the longest, so start here.
+
+**What we need:**
+  ${TRADE_WORDS.shots}
+
+**How to send them:**
+- Straight off a modern phone is fine. Landscape, good light, no flash.
+- Do not crop them. We need the full frame to fit different slots.
+- Do not send stock photos or anything off Google Images.
+
+If you cannot supply these, say so now. We can shoot them, and that is a
+separate cost, or we use stock — which will make your site look like every
+other ${TRADE_WORDS.site} site, and is the single
+biggest reason a site looks cheap.
+
+## 5. Your brand
+
+- [ ] Logo, as a PNG or SVG, as large as you have it
+- [ ] Your main colour, if you know the code
+- [ ] Your domain name, if you already own one
+
+The domain stays in your name. You keep it whatever happens.
+
+## 6. Booking
+
+- [ ] Do you already use a booking or reservation system?
+- [ ] If so, which one — we link to it rather than replacing it
+- [ ] If not, the form on the site sends enquiries to your panel
+
+---
+
+## What happens once we have it
+
+1. We build it — about a day after everything above arrives
+2. You review it and tell us what to change
+3. We run the checks and put it live
+4. You get a login to your panel: visitors, phone taps, enquiries
+
+## What you get
+
+- The website, on your own domain
+- Your enquiries and customer data, exported whenever you ask
+- The panel, for as long as the subscription runs
+
+**The site goes offline at the end of the paid period unless you buy it out.**
+The domain is yours either way. The buyout price is in your agreement.
+`;
+
+fs.writeFileSync(path.join(dir, 'intake.md'), intake);
+
+try {
+  execFileSync('node', [path.join(ROOT, 'build.js'), slug], { cwd: ROOT, stdio: 'inherit' });
+} catch (e) {
+  console.error('\n  build failed — the content file is at sites/' + slug + '/content.js');
+  process.exit(1);
+}
+
+console.log(`
+  Preview ready for ${name}
+
+    sites/${slug}/content.js     edit to fill in what they tell you
+    dist/${slug}/                send or host this
+
+  ${stripped} claim${stripped === 1 ? '' : 's'} replaced with neutral copy.
+  ${dropped} price${dropped === 1 ? '' : 's'} removed — a price is an offer, and
+  the preview must not make one on their behalf.
+
+  Search for "[" before you send it: what is left is only what they must give
+  you, and it is meant to be visible.
+
+  Check it first:
+    node tools/audit.js dist/${slug}/index.html --width 400
+    node tools/audit.js dist/${slug}/index.html --width 1280
+`);

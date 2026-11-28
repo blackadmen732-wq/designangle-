@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fbfaf7">
+<title>Studio Handbook</title>
+<!--
+  A redesign of DokuWiki's reading, contents and editing screens, from the
+  same pages. DokuWiki is a real, open-source wiki; it was run here,
+  photographed and audited (11, 9 and 10 usability failures on a phone),
+  then redesigned with only what this repo had, plus what the test showed it
+  lacked. The pages are a studio handbook written from this repo's own rules
+  (source/seed.sh); the HTML is DokuWiki's own rendering, exported by
+  source/export.py. The studio and its people are invented.
+
+  The job:       read the rule you need, now, on whatever is in your hand;
+                 fix a line when it is wrong.
+  The one thing: the page itself, set to be read.
+  Cut:           the clip-art logo, "skip to content" colliding with the
+                 title, the Tools menu, an Edit button after every section,
+                 the licence and "powered by" badges, the trace breadcrumb.
+  Ground:        light, a warm paper white.
+  Accent:        one blue, spent on links and the reading bar: what you can
+                 follow, and how far you are.
+  Locks:         DokuWiki says "Page locked" and shows the raw source. Here a
+                 locked page says who is editing it and until when.
+  Motion:        pages slide in like a book's (view transitions, push and
+                 pop); a hairline fills as you read (a scroll timeline, so it
+                 moves only when you do); the editor rises as a sheet.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../../app-style.css">
+<link rel="stylesheet" href="../../app-icons.css">
+<style>
+  body { margin: 0; background: #fbfaf7; }
+  .wk { --page: #fbfaf7; --accent: #1f5fbf; --on-accent: #fff; --ink-3: #686965; min-height: 100dvh; }
+  .wk :focus-visible { outline-color: var(--ink); }
+  .wk-app { max-width: 1280px; margin-inline: auto; }
+  .wk-side, .wk-toc { display: none; }
+  .wk-main { min-width: 0; padding: 0 var(--gutter) 96px; }
+  .wk-col { max-width: 680px; margin-inline: auto; }
+
+  /* ---- the top: back to the contents, and edit ---------------------------- */
+  .wk-top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin-inline: calc(-1 * var(--gutter)); padding: max(44px, env(safe-area-inset-top, 0px)) var(--gutter) 8px; background: color-mix(in srgb, var(--page) 92%, transparent); }
+  .wk-top .circle { background: var(--surface); box-shadow: var(--shadow); }
+  .wk-top b { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wk-top .spacer { width: 44px; }
+  .wk-kicker { margin-top: 24px; font-size: 13px; font-weight: 500; color: var(--ink-3); }
+  .wk-h1 { margin-top: 8px; font-size: 36px; font-weight: 500; line-height: 40px; letter-spacing: -0.025em; text-wrap: balance; }
+  .wk-h1 .dim { display: block; }
+  .wk-lead { margin-top: 16px; font-size: 17px; line-height: 1.6; color: var(--ink-2); max-width: 60ch; }
+
+  /* ---- Contents ------------------------------------------------------------ */
+  .wk-search { margin-top: 24px; position: relative; }
+  .wk-search .ic { position: absolute; left: 16px; top: 50%; translate: 0 -50%; --ic: 20px; color: var(--ink-3); pointer-events: none; }
+  .wk .wk-search input { padding-left: 48px; }
+  .wk-pages { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 4px; }
+  .wk-pages .list-row { padding: 12px 8px; }
+  .wk-pages h3 { font-size: 17px; font-weight: 500; }
+  .wk-pages p { margin-top: 4px; font-size: 13px; line-height: 1.45; color: var(--ink-3); }
+  .wk-pages .ic { --ic: 20px; color: var(--ink-3); flex: none; }
+  .wk-none { padding: 24px 8px; font-size: 15px; color: var(--ink-3); }
+
+  /* ---- a page ------------------------------------------------------------- */
+  .wk-on { margin: 24px calc(-1 * var(--gutter)) 0; padding-inline: var(--gutter); }
+  .wk-on .chip { height: 44px; font-size: 15px; padding-inline: 16px; }
+  .wk-body { margin-top: 32px; }
+  .wk-next { display: flex; align-items: center; gap: 12px; margin-top: 48px; padding: 20px; }
+  .wk-next .txt { flex: 1; min-width: 0; }
+  .wk-next small { display: block; font-size: 13px; color: var(--ink-3); }
+  .wk-next b { display: block; margin-top: 2px; font-size: 17px; font-weight: 500; }
+  .wk-next .circle { background: var(--fill); }
+  .wk-fine { margin-top: 24px; font-size: 13px; color: var(--ink-3); }
+
+  /* ---- the editor ------------------------------------------------------- */
+  /* Flex only while open: a display set on the dialog itself would override
+     the browser's "a closed dialog is not shown", and it would sit over the
+     page, catching taps. */
+  .wk-edit { max-width: 760px; height: calc(100dvh - 40px); }
+  .wk-edit[open] { display: flex; flex-direction: column; }
+  .wk-edit-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 12px; }
+  .wk-edit-head h2 { font-size: 20px; font-weight: 500; }
+  .wk-lock { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; padding: 12px 16px; border-radius: 16px; background: var(--fill); font-size: 15px; line-height: 1.45; }
+  .wk-lock .ic { --ic: 20px; flex: none; margin-top: 1px; }
+  .wk-lock.theirs { background: #fff4e5; }
+  .wk-edit .seg-radio { margin-bottom: 12px; }
+  .wk-src { flex: 1; min-height: 240px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace !important; font-size: 15px !important; line-height: 1.6 !important; resize: none !important; }
+  .wk-preview { flex: 1; overflow: auto; padding: 16px; border-radius: 16px; background: var(--surface); box-shadow: var(--shadow); }
+  .wk-preview[hidden], .wk-src[hidden] { display: none; }
+  .wk-edit-foot { display: flex; align-items: center; gap: 8px; margin-top: 16px; }
+  .wk-edit-foot .pill { flex: 1; }
+  .wk-hint { margin-top: 8px; font-size: 13px; color: var(--ink-3); }
+
+  /* ---- wide: contents beside the page, and the page's own contents -------- */
+  @media (min-width: 900px) {
+    .wk-app { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 32px; padding-inline: 32px; }
+    .wk-main { padding-inline: 0; }
+    .wk-side { display: block; position: sticky; top: 0; height: 100dvh; overflow-y: auto; padding: 40px 0 24px; }
+    .wk-side h2 { font-size: 13px; font-weight: 600; color: var(--ink-3); margin: 0 0 12px 12px; }
+    .wk-side a { display: flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 12px; font-size: 15px; line-height: 1.3; color: var(--ink-2); }
+    .wk-side a:hover { background: rgba(0, 0, 0, .03); color: var(--ink); }
+    .wk-side a[aria-current] { background: var(--surface); box-shadow: var(--shadow); color: var(--ink); font-weight: 500; }
+    .wk-side .wk-home { margin-bottom: 16px; font-size: 17px; font-weight: 600; color: var(--ink); }
+    .wk-top .back { visibility: hidden; }
+    .wk-top b { visibility: hidden; }
+  }
+  @media (min-width: 1180px) {
+    .wk-app { grid-template-columns: 240px minmax(0, 1fr) 220px; }
+    .wk-toc { display: block; position: sticky; top: 0; height: 100dvh; padding: 120px 0 24px; }
+    .wk-toc h2 { font-size: 13px; font-weight: 600; color: var(--ink-3); margin-bottom: 8px; }
+    .wk-toc a { display: block; padding: 8px 0 8px 12px; font-size: 13px; line-height: 1.4; color: var(--ink-3); box-shadow: inset 2px 0 0 var(--hair); transition: color var(--t-quick) var(--ease-out), box-shadow var(--t-quick) var(--ease-out); }
+    .wk-toc a[aria-current] { color: var(--ink); box-shadow: inset 2px 0 0 var(--accent); }
+    .wk-on { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="ui ui-light wk" id="app">
+  <div class="read-bar" id="readBar" aria-hidden="true" hidden></div>
+  <noscript><p class="wk-main">This handbook needs JavaScript to show its pages.</p></noscript>
+  <div class="wk-app">
+    <nav class="wk-side" id="side" aria-label="Pages"></nav>
+    <main class="wk-main" id="main"></main>
+    <aside class="wk-toc" id="toc" aria-label="On this page"></aside>
+  </div>
+
+  <dialog class="sheet wk-edit" id="editSheet" aria-labelledby="editTitle" closedby="any">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="wk-edit-head"><h2 id="editTitle">Editing</h2><button class="circle" type="button" data-close aria-label="Close without saving"><i class="ic ic-close"></i></button></div>
+    <p class="wk-lock" id="lock"></p>
+    <div class="seg-radio" role="radiogroup" aria-label="Show">
+      <label><input type="radio" name="mode" value="write" checked><span>Write</span></label>
+      <label><input type="radio" name="mode" value="preview"><span>Preview</span></label>
+    </div>
+    <textarea class="wk-src" id="src" aria-label="The page, in wiki text" spellcheck="true"></textarea>
+    <div class="wk-preview prose" id="preview" hidden></div>
+    <p class="wk-hint">Headings: ===== Like this =====. Lists: two spaces, then * or -. Code: ''like this''.</p>
+    <div class="wk-edit-foot"><button class="pill" type="button" id="save">Save</button></div>
+  </dialog>
+  <div class="toast" id="toast" role="status" hidden><span></span><button type="button"></button></div>
+</div>
+
+<script type="application/json" id="motion-tour">
+[
+  { "click": "#main [data-page=\"launch_checklist\"]", "why": "open a page: it slides in" },
+  { "click": "#main .wk-on [data-jump=\"the_owner\"]", "phone": true, "why": "jump to a section: the page scrolls" },
+  { "click": "#editBtn", "why": "edit: the sheet rises" },
+  { "click": "#editSheet label:has(input[value=\"preview\"])", "why": "preview: instant" },
+  { "click": "#save", "why": "save: the sheet leaves, a toast says so" },
+  { "click": "#main .wk-top .back", "phone": true, "why": "back to the contents: it slides away" }
+]
+</script>
+<script src="data.js"></script>
+<script src="../../app-motion.js"></script>
+<script>
+(() => {
+  const W = window.WIKI, NOW = new Date(W.exported);
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const root = document.documentElement;
+  const P = W.pages, byId = (id) => P.find((p) => p.id === id);
+  const start = byId('start');
+  const reading = (p) => Math.max(1, Math.round(p.words / 200));
+  // The first paragraph as plain text: tags out, and entities decoded, so they
+  // are not escaped twice when written back ("client's", not "client&#039;s").
+  const decode = (s) => { const t = document.createElement('textarea'); t.innerHTML = s; return t.value; };
+  const first = (p) => decode((p.html.match(/<p>\s*([\s\S]*?)\s*<\/p>/) || [, ''])[1].replace(/<[^>]+>/g, '').trim());
+  // One page is being edited by someone else, to show what a lock looks like.
+  const LOCKS = { checking: { who: 'Priya', until: new Date(NOW.getTime() + 12 * 6e4) } };
+  const hm = (d) => d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
+
+  // ---- the wiki's text, rendered (the subset these pages use) ---------------
+  function wikiToHtml(src) {
+    const inline = (t) => esc(t).replace(/''(.+?)''/g, '<code>$1</code>').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\[\[([a-z_]+)\|([^\]]+)\]\]/g, '<a href="#/$1" data-page="$1">$2</a>');
+    let html = '', para = [], list = null, code = null;
+    const endP = () => { if (para.length) { html += `<p>${inline(para.join(' '))}</p>`; para = []; } };
+    const endL = () => { if (list) { html += `<${list.tag}>${list.items.map((i) => `<li>${inline(i)}</li>`).join('')}</${list.tag}>`; list = null; } };
+    for (const line of src.split('\n')) {
+      if (code) { if (line.trim() === '</code>') { html += `<pre><code>${esc(code.join('\n'))}</code></pre>`; code = null; } else code.push(line); continue; }
+      if (line.trim() === '<code>') { endP(); endL(); code = []; continue; }
+      let m;
+      if ((m = line.match(/^(={2,6})\s*(.+?)\s*={2,6}\s*$/))) {
+        endP(); endL(); const lvl = 7 - m[1].length;
+        if (lvl > 1) html += `<h${lvl} id="${m[2].toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')}">${inline(m[2])}</h${lvl}>`;
+        continue;
+      }
+      if ((m = line.match(/^ {2,}([*-])\s+(.*)$/))) { endP(); const tag = m[1] === '*' ? 'ul' : 'ol'; if (!list || list.tag !== tag) { endL(); list = { tag, items: [] }; } list.items.push(m[2]); continue; }
+      if ((m = line.match(/^>\s?(.*)$/))) { endP(); endL(); html += `<blockquote><p>${inline(m[1])}</p></blockquote>`; continue; }
+      if (!line.trim()) { endP(); endL(); continue; }
+      endL(); para.push(line.trim());
+    }
+    endP(); endL();
+    return html;
+  }
+  const titleOf = (src) => (src.match(/^======\s*(.+?)\s*======/m) || [, ''])[1];
+
+  // ---- render --------------------------------------------------------------
+  function side(current) {
+    $('#side').innerHTML = `<a class="wk-home" href="#/">${esc(W.wiki)}</a><h2>Pages</h2>` +
+      P.filter((p) => p !== start).map((p) => `<a href="#/${p.id}" data-page="${p.id}" ${p.id === current ? 'aria-current="page"' : ''}>${esc(p.title)}</a>`).join('');
+  }
+  function contents(q = '') {
+    const words = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const found = P.filter((p) => p !== start && words.every((w) => (p.title + ' ' + p.raw).toLowerCase().includes(w)));
+    $('#pages').innerHTML = found.map((p) => `<li><a class="list-row" href="#/${p.id}" data-page="${p.id}"><span class="txt"><h3>${esc(p.title)}</h3><p>${esc(first(p))}</p></span><i class="ic ic-chev-right"></i></a></li>`).join('')
+      || `<li class="wk-none">No page mentions "${esc(q)}". Try one word.</li>`;
+  }
+  function showIndex() {
+    side(null); $('#toc').innerHTML = ''; $('#readBar').hidden = true;
+    $('#main').innerHTML = `<div class="wk-col">
+      <header class="wk-top"><span class="spacer"></span><b></b><span class="spacer"></span></header>
+      <p class="wk-kicker">${P.length - 1} pages</p>
+      <h1 class="wk-h1">${esc(W.wiki)}. <span class="dim">How we build, check and launch.</span></h1>
+      <p class="wk-lead">${esc(first(start))}</p>
+      <div class="wk-search"><i class="ic ic-search"></i><input type="search" id="q" placeholder="Search the handbook" aria-label="Search the handbook" autocomplete="off"></div>
+      <ol class="wk-pages" id="pages"></ol></div>`;
+    contents();
+    $('#q').addEventListener('input', (e) => contents(e.target.value));
+  }
+  function showPage(p) {
+    side(p.id); $('#readBar').hidden = false;
+    const i = P.indexOf(p), next = P[i + 1] || null;
+    const lock = LOCKS[p.id];
+    $('#main').innerHTML = `<article class="wk-col" aria-labelledby="pageTitle">
+      <header class="wk-top"><a class="circle back" href="#/" aria-label="All pages"><i class="ic ic-chev-left"></i></a><b>${esc(W.wiki)}</b>
+        <button class="circle" type="button" id="editBtn" aria-label="Edit this page" aria-haspopup="dialog"><i class="ic ic-pencil"></i></button></header>
+      <p class="wk-kicker">${reading(p)} min read${lock ? ` · ${esc(lock.who)} is editing it` : ''}</p>
+      <h1 class="wk-h1" id="pageTitle">${esc(p.title)}</h1>
+      ${p.toc.length > 1 ? `<div class="chips wk-on" role="group" aria-label="On this page">${p.toc.map((t) => `<button class="chip" type="button" data-jump="${t.id}">${esc(t.text)}</button>`).join('')}</div>` : ''}
+      <div class="prose wk-body" id="body">${p.html}</div>
+      ${next ? `<a class="card wk-next" href="#/${next.id}" data-page="${next.id}"><span class="txt"><small>Next</small><b>${esc(next.title)}</b></span><span class="circle"><i class="ic ic-arrow-right"></i></span></a>` : ''}
+      <p class="wk-fine">Edited ${p.edited ? 'just now' : 'today'}. Anyone at the studio can change a page; every change is kept.</p></article>`;
+    $('#toc').innerHTML = p.toc.length ? `<h2>On this page</h2>${p.toc.map((t) => `<a href="#${t.id}" data-jump="${t.id}">${esc(t.text)}</a>`).join('')}` : '';
+    spy();
+  }
+
+  // The section being read, marked in the wide contents.
+  let spyObs;
+  function spy() {
+    spyObs?.disconnect();
+    const links = $$('#toc a'); if (!links.length) return;
+    spyObs = new IntersectionObserver((es) => {
+      for (const e of es) if (e.isIntersecting) links.forEach((a) => a.toggleAttribute('aria-current', a.dataset.jump === e.target.id));
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    $$('#body h2').forEach((h) => spyObs.observe(h));
+  }
+
+  // ---- moving between pages: a book's pages, pushed and popped ---------------
+  let here = null;
+  const depth = (h) => (h && h !== '#/' ? 1 : 0);
+  function route() {
+    const id = (location.hash.match(/^#\/([a-z_]+)/) || [])[1];
+    const p = id && byId(id), to = p && p !== start ? p : null;
+    const prev = here; here = to ? to.id : null;
+    const update = () => { to ? showPage(to) : showIndex(); scrollTo(0, 0); };
+    if (!document.startViewTransition || prev === here) return update();
+    const nav = !prev && here ? 'push' : prev && !here ? 'pop' : P.findIndex((x) => x.id === here) > P.findIndex((x) => x.id === prev) ? 'push' : 'pop';
+    root.dataset.nav = nav;
+    document.startViewTransition(update).finished.finally(() => delete root.dataset.nav);
+  }
+  addEventListener('hashchange', route);
+
+  // ---- presses ---------------------------------------------------------------
+  document.addEventListener('click', (e) => {
+    const j = e.target.closest('[data-jump]');
+    if (j) { e.preventDefault(); document.getElementById(j.dataset.jump)?.scrollIntoView({ behavior: AppMotion.still() ? 'auto' : 'smooth', block: 'start' }); return; }
+    if (e.target.closest('#editBtn')) openEditor();
+  });
+
+  // ---- the editor --------------------------------------------------------
+  const editSheet = AppMotion.sheet($('#editSheet'));
+  function openEditor() {
+    const p = byId(here), lock = LOCKS[p.id];
+    $('#editTitle').textContent = `Editing ${p.title}`;
+    $('#src').value = p.raw;
+    $('#src').disabled = !!lock; $('#save').disabled = !!lock;
+    const L = $('#lock');
+    L.className = 'wk-lock' + (lock ? ' theirs' : '');
+    L.innerHTML = lock
+      ? `<i class="ic ic-clock"></i><span><b>${esc(lock.who)} is editing this page</b> until ${hm(lock.until)}. You can read it now, and change it after.</span>`
+      : `<i class="ic ic-info"></i><span>While this is open, others see "Jo is editing" for up to 15 minutes. Saving or closing ends it.</span>`;
+    $('#save').textContent = lock ? `Free at ${hm(lock.until)}` : 'Save';
+    $('#editSheet input[value="write"]').checked = true; setMode('write');
+    editSheet.showModal();
+  }
+  function setMode(m) {
+    const pv = m === 'preview';
+    if (pv) $('#preview').innerHTML = wikiToHtml($('#src').value);
+    $('#src').hidden = pv; $('#preview').hidden = !pv;
+  }
+  $('#editSheet').addEventListener('change', (e) => { if (e.target.name === 'mode') setMode(e.target.value); });
+  $('#save').addEventListener('click', () => {
+    const p = byId(here), src = $('#src').value;
+    if (src === p.raw) { editSheet.close(); AppMotion.toast($('#toast'), 'Nothing changed'); return; }
+    const before = { raw: p.raw, html: p.html, title: p.title };
+    p.raw = src; p.html = wikiToHtml(src); p.title = titleOf(src) || p.title; p.edited = true;
+    p.toc = $$('h2', Object.assign(document.createElement('div'), { innerHTML: p.html })).map((h) => ({ id: h.id, text: h.textContent }));
+    editSheet.close(); showPage(p);
+    AppMotion.toast($('#toast'), 'Saved. Everyone sees it now.', 'Undo', () => { Object.assign(p, before); showPage(p); });
+  });
+
+  route();
+})();
+</script>
+</body>
+</html>

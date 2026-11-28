@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="platform" content="desktop">
+<title>Recipe: Add to cart</title>
+<link rel="stylesheet" href="../recipes.css"></head>
+<body><main>
+<h1>Add to cart</h1><p class="why">The photo travels into the cart and the count bumps, so the person sees where it went.</p>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px"><span></span><button id="cart" aria-label="Cart">Cart <b id="count">0</b></button></div>
+<div class="card" style="width:260px"><img id="photo" src="../../../sites/restaurant/img/pizza.webp" alt=""><b>Margherita</b><br><button class="primary" id="add">Add to cart</button></div>
+</main>
+<script type="application/json" id="motion-tour">[{"click": "#add", "why": "the photo flies into the cart; the count bumps"}]</script>
+<script src="../../app-motion.js"></script>
+<script src="../../interactions.js"></script>
+<script>var n=0;document.getElementById('add').onclick=function(){n++;document.getElementById('count').textContent=n;AppMotion.flyTo(document.getElementById('photo'),document.getElementById('cart'));};</script>
+</body></html>

@@ -1,0 +1,83 @@
+{
+ "sandwich.webp": {
+  "source": "https://images.unsplash.com/photo-1606755962773-d324e0a13086",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-26",
+  "size": [
+   1800,
+   2700
+  ]
+ },
+ "strips.webp": {
+  "source": "https://images.unsplash.com/photo-1562967914-608f82629710",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-26",
+  "size": [
+   1000,
+   665
+  ]
+ },
+ "nuggets.webp": {
+  "source": "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-26",
+  "size": [
+   1000,
+   667
+  ]
+ },
+ "sauce.webp": {
+  "source": "https://images.unsplash.com/photo-1562967916-eb82221dfb92",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-26",
+  "size": [
+   1000,
+   1504
+  ]
+ },
+ "fries.webp": {
+  "source": "https://images.unsplash.com/photo-1630384060421-cb20d0e0649d",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-26",
+  "size": [
+   1000,
+   800
+  ]
+ },
+ "lemonade.webp": {
+  "source": "https://images.unsplash.com/photo-1523371054106-bbf80586c38c",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-26",
+  "size": [
+   1000,
+   1500
+  ]
+ },
+ "tea.webp": {
+  "source": "https://images.unsplash.com/photo-1556679343-c7306c1976bc",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-26",
+  "size": [
+   1000,
+   1250
+  ]
+ },
+ "shake.webp": {
+  "source": "https://images.unsplash.com/photo-1572490122747-3968b75cc699",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-26",
+  "size": [
+   1000,
+   1500
+  ]
+ },
+ "salad.webp": {
+  "source": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
+  "licence": "Unsplash License (https://unsplash.com/license)",
+  "fetched": "2026-11-26",
+  "size": [
+   1000,
+   1000
+  ]
+ }
+}

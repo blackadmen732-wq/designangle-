@@ -1,0 +1,23 @@
+{
+  "name": "design-angle",
+  "private": true,
+  "description": "Websites, phone app screens and an owner panel, from one design system.",
+  "scripts": {
+    "build": "node build.js",
+    "test": "node tools/test-sections.js && node tools/tokens.js",
+    "check": "node build.js && node tools/check.js",
+    "check:app": "node tools/check.js app-style/styles app-style/examples/podcast app-style/examples/tickets app-style/examples/kanboard app-style/examples/dokuwiki app-style/examples/chick-fil-a app-style/examples/front-desk app-style/screens/*.html",
+    "launch-check": "node tools/launch-check.js",
+    "match": "node tools/match.js",
+    "sheet": "node tools/sheet.js",
+    "decide": "node tools/decide.js",
+    "regress": "node tools/regress.js",
+    "recipes": "node tools/recipes-test.js"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

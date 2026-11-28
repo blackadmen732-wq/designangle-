@@ -1,0 +1,55 @@
+/* =========================================================================
+   Plain: a second look for the same parts.
+
+   Her look (app-style.css on its own) is editorial: large type in regular
+   weight, headings in two tones, capsules, glass over photos. That suits a
+   brand people browse. Plain is for an app people work in, a back office, a
+   booking screen, a utility, where the screen should feel like a tool:
+
+     - headings semibold, in one tone, at ordinary sizes
+     - controls with 12pt corners instead of capsules
+     - solid surfaces instead of glass
+     - cards edged with a hairline instead of floating on a shadow
+     - Inter's text cut at text sizes, not the display cut everywhere
+
+   What does not change: the grounds and their colours, the spacing, the
+   touch sizes, the motion (tokens/tokens.css), and the markup. A screen
+   takes this look by linking this file after app-style.css and adding
+   style-plain to its .ui element. Nothing else.
+
+   The values it may set are listed in app-style.css, under "the look, as
+   values a style can swap". styles/README.md says how to add another style.
+   ========================================================================= */
+.ui.style-plain {
+  --fs-mega: 96px;
+  --w-mega: 600;
+  --fs-display: 34px;
+  --w-display: 700;
+  --fs-title: 26px;
+  --fs-title-2: 20px;
+  --w-title: 600;
+  --w-head: 600;
+  --track-title: -0.015em;
+  --two-tone: currentColor;          /* one tone: the second half reads as the first */
+  --r-control: var(--radius-m);      /* 12: rounded, not capsules */
+  --r-field: var(--radius-m);
+  --r-card: 16px;                    /* off the corner scale on purpose: 12 inside, 16 outside */
+  --r-card-xl: var(--radius-l);
+  --r-tile: var(--radius-m);
+  --r-media: var(--radius-m);
+  --blur: none;
+  font-optical-sizing: auto;
+  font-variation-settings: normal;
+}
+
+/* Solid where hers is glass. */
+.ui-light.style-plain { --glass: #ffffff; --hair: rgba(12, 14, 11, .12); }
+.ui-dark.style-plain { --glass: #1f1f1f; }
+
+/* Cards and the dock sit on a hairline, not a shadow. A ring rather than a
+   border, so nothing moves by a pixel when the style changes. */
+.ui.style-plain :is(.card, .dock-bar) { box-shadow: 0 0 0 1px var(--hair); }
+.ui-light.style-plain .topbar .circle { box-shadow: 0 0 0 1px var(--hair); }
+
+/* The selected segment is the control's own surface, not a white capsule. */
+.ui-dark.style-plain .segmented > :is(a[aria-current], [aria-selected="true"]) { background: var(--surface-solid); color: var(--ink); }

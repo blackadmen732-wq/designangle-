@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050506">
+<meta name="platform" content="desktop">
+<title>Tally · Home</title>
+<!--
+  EXAMPLE: a screen built on one number. It shows a STRUCTURE for any home
+  whose job is a figure (money owed, sales today, bookings this week,
+  tickets open): the order of parts below. Its black, metallic-light look
+  belongs to an invoicing tool and is not part of the example: choose the
+  colour, type, imagery, materials and motion fresh from your own brief.
+
+  Where it came from: Opus built it from this repo for a short brief
+  (brief in docs/WHY-AI-DESIGN-IS-GENERIC.md), and a blind reviewer rated
+  it best of four. Its page styles were then moved into dark-glass.css as
+  parts, so this file has no <style> block, and the review's two notes
+  (a fussy ".00" and a key hint in the button) were taken out.
+
+  The order, top to bottom:
+    1. .figure     the number, what it is made of (urgent part in the
+                   warning tone), and the one white button beside it
+    2. .facts      three supporting figures in one strip, hairlines between
+    3. .list-head + .ledger   the latest rows; the urgent row gets its own
+                   quiet action (.btn-quiet), the rest an arrow (.chev)
+    4. .side       panels that add what the ledger does not: a breakdown
+                   with .meter bars, and .bars over time
+  Six rows at most, so nothing is cut at 1280 x 900.
+
+  The job:       a freelancer opens Tally a few times a week to see what is
+                 owed and send the next invoice.
+  The one thing: $4,820 outstanding across 3 invoices, with New invoice.
+  Accent:        none. Green and amber only for status.
+  Motion:        sidebar from the left, panels from the right, the rest
+                 rises in order; bars grow once; rows answer hover with
+                 light; the streaks drift. Still under reduced motion.
+  Content:       ALL INVENTED. Unpaid invoices sum to $4,820; paid this
+                 month sum to $7,350. "Today" is 28 November 2026.
+-->
+<link rel="stylesheet" href="../../desktop/dark-glass.css">
+</head>
+<body class="dg">
+<div class="dg-art" id="art"></div>
+
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-word">Tally</span></a>
+    <span class="vrule" aria-hidden="true"></span>
+    <label class="search">
+      <svg class="i"><use href="#i-search"/></svg>
+      <input type="search" placeholder="Search clients and invoices" aria-label="Search clients and invoices">
+      <span class="kbd">Ctrl + K</span>
+    </label>
+    <div class="tools">
+      <button class="iconbtn" aria-label="Notifications"><svg class="i"><use href="#i-bell"/></svg></button>
+      <div class="me">
+        <span class="avatar" aria-hidden="true">A</span>
+        <span><b>Ari Moreno</b><small>Moreno Studio</small></span>
+        <button class="iconbtn" aria-label="Account menu" style="width:44px;height:44px;margin-left:var(--space-2)"><svg class="i"><use href="#i-chev-down"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <aside class="sidebar" data-enter="side-l">
+    <nav class="nav" aria-label="Main">
+      <a href="#" aria-current="page"><svg class="i"><use href="#i-home"/></svg>Home</a>
+      <a href="#"><svg class="i"><use href="#i-list"/></svg>Invoices<span class="count">3</span></a>
+      <a href="#"><svg class="i"><use href="#i-users"/></svg>Clients</a>
+      <a href="#"><svg class="i"><use href="#i-activity"/></svg>Payments</a>
+      <a href="#"><svg class="i"><use href="#i-settings"/></svg>Settings</a>
+    </nav>
+  </aside>
+
+  <div class="work">
+    <main class="stage">
+      <section class="figure" data-enter aria-labelledby="owed-label">
+        <div>
+          <p class="label" id="owed-label">Outstanding</p>
+          <p class="amount"><sup>$</sup>4,820</p>
+          <p class="sub">3 invoices from 3 clients, <em>1 overdue</em></p>
+        </div>
+        <div class="act">
+          <button class="btn-white"><svg class="i"><use href="#i-plus-plain"/></svg>New invoice</button>
+          <span class="hint">Last sent 4 days ago</span>
+        </div>
+      </section>
+
+      <div class="facts" data-enter>
+        <div><b>$7,350</b><span>Paid this month</span></div>
+        <div><b>3</b><span>Invoices paid</span></div>
+        <div><b>11 days</b><span>Average time to pay</span></div>
+      </div>
+
+      <div data-enter>
+        <div class="list-head">
+          <h2>Recent invoices</h2>
+          <a class="more" href="#">All invoices <svg class="i i-sm"><use href="#i-chev-right"/></svg></a>
+        </div>
+        <table class="ledger">
+          <thead>
+            <tr><th scope="col">Client</th><th scope="col" class="num">Amount</th><th scope="col">Status</th><th scope="col"><span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Actions</span></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="who"><b>Northwind Studio</b><span>TL-0148 · Brand system, phase 2</span></td>
+              <td class="num amt">$2,400</td>
+              <td class="state"><span class="status late">Overdue 12 days</span><small>16 Nov</small></td>
+              <td class="go"><button class="btn-quiet">Remind</button></td>
+            </tr>
+            <tr>
+              <td class="who"><b>Okafor &amp; Lee</b><span>TL-0151 · Website build, milestone 2</span></td>
+              <td class="num amt">$1,620</td>
+              <td class="state"><span class="status wait">Due in 5 days</span><small>3 Dec</small></td>
+              <td class="go"><a class="chev" href="#" aria-label="Open TL-0151"><svg class="i"><use href="#i-chev-right"/></svg></a></td>
+            </tr>
+            <tr>
+              <td class="who"><b>Halcyon Coffee</b><span>TL-0152 · Menu boards</span></td>
+              <td class="num amt">$800</td>
+              <td class="state"><span class="status wait">Due in 14 days</span><small>12 Dec</small></td>
+              <td class="go"><a class="chev" href="#" aria-label="Open TL-0152"><svg class="i"><use href="#i-chev-right"/></svg></a></td>
+            </tr>
+            <tr class="done">
+              <td class="who"><b>Parcel &amp; Pine</b><span>TL-0150 · Checkout redesign</span></td>
+              <td class="num amt">$3,150</td>
+              <td class="state"><span class="status good">Paid</span><small>24 Nov</small></td>
+              <td class="go"><a class="chev" href="#" aria-label="Open TL-0150"><svg class="i"><use href="#i-chev-right"/></svg></a></td>
+            </tr>
+            <tr class="done">
+              <td class="who"><b>Lumen Type</b><span>TL-0149 · Specimen site</span></td>
+              <td class="num amt">$2,700</td>
+              <td class="state"><span class="status good">Paid</span><small>18 Nov</small></td>
+              <td class="go"><a class="chev" href="#" aria-label="Open TL-0149"><svg class="i"><use href="#i-chev-right"/></svg></a></td>
+            </tr>
+            <tr class="done">
+              <td class="who"><b>Okafor &amp; Lee</b><span>TL-0147 · Website build, milestone 1</span></td>
+              <td class="num amt">$1,500</td>
+              <td class="state"><span class="status good">Paid</span><small>6 Nov</small></td>
+              <td class="go"><a class="chev" href="#" aria-label="Open TL-0147"><svg class="i"><use href="#i-chev-right"/></svg></a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <aside class="side" data-enter="side-r">
+      <section class="glass flat panel">
+        <h3>Who owes you<span class="aside">$4,820</span></h3>
+        <ul class="breakdown">
+          <li><b>Northwind Studio</b><span>$2,400</span><span class="meter late"><i style="width:50%"></i></span><small class="late">12 days overdue</small></li>
+          <li><b>Okafor &amp; Lee</b><span>$1,620</span><span class="meter"><i style="width:34%"></i></span><small>Due 3 Dec</small></li>
+          <li><b>Halcyon Coffee</b><span>$800</span><span class="meter"><i style="width:16%"></i></span><small>Due 12 Dec</small></li>
+        </ul>
+      </section>
+      <section class="glass flat panel">
+        <h3>Paid by week<span class="aside">November</span></h3>
+        <p class="lede"><b>Week 4</b> was your best · 3 of 5 clients paid</p>
+        <div class="bars" aria-label="Paid each week in November: week 1 $1,500, week 2 none, week 3 $2,700, week 4 $3,150">
+          <div style="--n:0"><i style="height:38%"></i><span>Wk 1</span></div>
+          <div style="--n:1"><i style="height:6%"></i><span>Wk 2</span></div>
+          <div style="--n:2"><i style="height:62%"></i><span>Wk 3</span></div>
+          <div class="now" style="--n:3"><i style="height:72%"></i><span>Wk 4</span></div>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script src="../../desktop/icons.js"></script>
+<script src="../../desktop/art.js"></script>
+<script>
+  var art = document.getElementById('art');
+
+  DG.streaks(art, [
+    /* the light behind the amount: rises past the button toward the side panels */
+    { d: 'M780 300 C 920 250, 1080 170, 1260 92', from: [780, 300], to: [1260, 92], hot: .6, width: 2.8, glow: 50,
+      sheet: 'M560 310 C 760 300, 980 230, 1260 92 L 1260 140 C 1060 230, 900 290, 780 300 Z', sheetFrom: [560, 310], sheetTo: [1260, 100], sheetOpacity: .2, drift: [10, -5, .3], dur: 32 },
+    { d: 'M860 290 C 980 250, 1100 190, 1230 130', from: [860, 290], to: [1230, 130], hot: .5, width: 1, glow: 14, opacity: .4, drift: [8, -4, .3], dur: 26 },
+    /* a line rising out of the sidebar's empty lower corner */
+    { d: 'M-20 930 C 80 900, 190 840, 290 740', from: [-20, 930], to: [290, 740], hot: .65, width: 2, glow: 34, drift: [6, -4, .3], dur: 36 }
+  ]);
+
+  /* light behind the side panels and the amount, so the glass has something to blur */
+  DG.glow(art, 1480, 330, 640, .06);
+  DG.glow(art, 640, 260, 900, .045);
+
+  DG.enter();
+</script>
+</body>
+</html>

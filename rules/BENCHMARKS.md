@@ -1,0 +1,129 @@
+# Benchmarks: does Design Angel make a model design better?
+
+Kept as they happened, negative results included. Scores are out of 10
+from blind reviewers (Sonnet) who did not build the screens; tokens are
+per screen, as reported by each run.
+
+## Summary
+
+| Round | What Haiku had | Haiku with it | Haiku alone | Opus alone | Tokens, with vs alone |
+|---|---|---|---|---|---|
+| 0 (same invoicing brief, all dark glass) | the repo | 6.5 | n/a | 7.5 | similar |
+| 0b (new brief, still dark glass) | the repo plus a copied example | 6.5 | n/a | 6.5 (same reviewer) | similar |
+| 1 (two unseen briefs) | the dark glass style and tools | 5.4 | 7.35 | 8.3 | 216k to 231k vs 210k to 227k |
+| 2 (three unseen briefs) | a style-free process, all checks, self-repair | 6.65 | 7.5 | 8.3 | 211k to 251k vs 210k to 227k |
+| 3 (same three) | breakage checks only, repairs from a blind reviewer | 6.45 | 6.98 | 8.27 | about 480k vs about 215k |
+
+Rounds 0 and 0b only looked like progress because every screen was in the
+house style. On unseen briefs nothing in the repo beat Haiku alone, and
+Opus alone led every round by more than a point. Reviewers move about half
+a point between rounds on the same screens.
+
+What changed because of this: no house look (dark glass is a preset);
+taste checks are advice, only breakage blocks; layout decisions, extra
+review passes and regeneration are optional and off by default.
+
+## Next tests: isolated components, not whole apps
+
+A whole screen costs about 200k tokens per agent call and mixes everything
+together. Test motion and interaction in isolation instead, one small part
+per run: a product opening into its detail (shared element), a bottom sheet
+that follows the finger, a swipe or drag gesture, moving between steps and
+back, a microinteraction (add to cart, favourite, switch). Compare a model
+with and without the motion skill on the same part, blind. Keep a part only
+if it measurably helps.
+
+# Round details
+
+## Round 1, 28 November 2026: with and without Design Angel
+
+Two briefs no part of the engine was built for (a yoga studio's week, a
+music app's home), desktop, 1440 x 900. Three builds each: Haiku with the
+repo (Fast mode), Haiku alone, Opus alone. One blind reviewer (Sonnet) who
+did not build any of them scored the renders with tools/critic.md.
+
+| Build | Yoga | Music | Mean | Tokens (each) | Time |
+|---|---|---|---|---|---|
+| Haiku + Design Angel | 5.3 | 5.5 | 5.4 | 216k, 231k | 153 s, 155 s |
+| Haiku alone | 7.1 | 7.6 | 7.35 | 227k, 215k | 154 s, 130 s |
+| Opus alone | 8.2 | 8.4 | 8.3 | 223k, 203k | 317 s, 183 s |
+
+Result: the engine made Haiku worse by about two points. The reviewer's
+reason for both engine builds: "a generic dark template that says little
+about the business"; the yoga brief asked for calm, and the engine made
+it black. Both bare builds chose their own look (light paper and sage for
+the yoga studio; a waveform table for the music app).
+
+Root cause, as far as two briefs show: the desktop style imposes one look
+(dark glass, streaks, a white pill button) and a sparse layout on every
+brief. It helps when the brief is that look (the Cinema screens) and hurts
+when it is not. One disclosed change was made after seeing a held-out
+brief and before any build: decide.js learned the words "ways in".
+
+Two briefs and one reviewer is a small sample. It is enough to say the
+engine does not beat Opus alone today, and does not even beat Haiku alone.
+
+## Round 2: the process without the style
+
+The same two briefs plus a third (a bike workshop's day), all unseen.
+Haiku followed a short, style-free process instead: choose the look from
+the brief, type and colour rules, render, run tools/check.js and
+tools/slop.js, critique the screenshot, one repair pass. Haiku alone and
+Opus alone were built for the new brief too. Two blind reviewers (Sonnet,
+different prompts) scored all nine.
+
+| Build | Yoga | Music | Bikes | Mean (two reviewers) | Tokens | Time |
+|---|---|---|---|---|---|---|
+| Haiku + process | 6.4 / 6.5 | 6.8 / 7.0 | 6.7 / 6.5 | 6.65 | 211k to 251k | 2 to 5 min |
+| Haiku alone | 7.2 / 7.5 | 7.4 / 8.0 | 7.5 / 7.5 | 7.5 | 210k to 227k | 2 to 2.5 min |
+| Opus alone | 8.2 / 8.0 | 8.0 / 8.5 | 8.4 / 8.5 | 8.3 | 203k to 223k | 3 to 5 min |
+
+The two reviewers agreed within half a point on every screen.
+
+Result: the process also made Haiku worse, by almost a point, and took
+longer. What the repairs did: they followed the checks (no text under 12px,
+no badges, spacing on the grid), and the reviewers marked the results
+plainer ("empty pill artifacts", "a web page, not a tool"). The checks and
+the reviewers disagree: Opus's yoga screen, the reviewers' best, fails
+tools/check.js (10.5px labels) and scores 70 on tools/slop.js.
+
+What this shows: today nothing in this repo makes a model design better on
+an unseen brief. Opus alone is about 0.8 above Haiku alone. The automatic
+checks are useful for real breakage (clipping, overlap, contrast) but
+their taste rules push away from what reviewers like, so they should not
+drive repairs.
+
+## Round 3: checks for breakage only, repairs from a blind reviewer
+
+Same three briefs. Haiku chose the look from the brief, built, and fixed
+only what tools/check.js failed (cut-off words, overlap, contrast, edges).
+A blind reviewer then wrote three concrete fixes per screen and Haiku made
+them. Two blind reviewers re-scored all nine, Haiku alone and Opus alone
+included, in a new order.
+
+| Build | Yoga | Music | Bikes | Mean (two reviewers) | Tokens per screen |
+|---|---|---|---|---|---|
+| Haiku + breakage checks + reviewer repairs | 6.3 / 6.0 | 6.2 / 6.0 | 7.2 / 7.0 | 6.45 | about 480k (build, a third of the critic, repair) |
+| Haiku alone | 6.6 / 5.5 | 7.8 / 8.0 | 7.0 / 7.0 | 6.98 | about 215k |
+| Opus alone | 8.1 / 8.5 | 8.0 / 8.5 | 8.0 / 8.5 | 8.27 | about 215k |
+
+Haiku alone scored 7.5 in round 2 and 6.98 here, from the same screens:
+the reviewers move about half a point between rounds. So round 3 is about
+level with Haiku alone, at a little over twice the tokens. Opus alone led
+every round by more than a point.
+
+## Where the tokens go (from the runs above; no new builds)
+
+Every agent call cost 190k to 250k tokens, whatever it did: a reviewer that
+worked for 11 seconds used 200k; a repair that made one edit used 203k; a
+build with 48 steps used 251k. About 190k of each call is the agent's fixed
+starting context in this environment (instructions and tool definitions),
+not the design work. Reading Design Angel added about 10k per build. So:
+
+- the cost of a pipeline is mostly its number of agent calls;
+- a separate critic and a separate repair call each add about 200k;
+- one reviewer scoring many screens at once costs the same as one screen.
+
+Cheapest shape: build, check, look and repair in one call; review screens
+in batches. Outside this environment the fixed part may be smaller; it was
+not measured.

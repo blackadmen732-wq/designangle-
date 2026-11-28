@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="design-check" content="gutter 13: the stars number sits 13pt in, measured from the original frame">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Starbucks Rewards Study</title>
+<!-- A study of the Starbucks Rewards redesign by uidesignmahsa, rebuilt from
+     measured frames. Brand names belong to their owners; the photos are the
+     kit's own free-licence stock. Not for shipping. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../app-style.css">
+<link rel="stylesheet" href="../app-icons.css">
+<style>
+  body { margin: 0; }
+  .sb { --page: #011e15; --ink-3: #87a199; --gold: #fbbb4d; background: linear-gradient(to bottom, #011e15 60%, #00150d); }
+  /* The photo behind the number, tinted into the brand's green. */
+  .sb-photo { position: absolute; inset: 0 0 auto 0; height: 560px; overflow: hidden; }
+  .sb-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 70% 40%; filter: saturate(.8) brightness(.85) blur(2px); transform: scale(1.04); }
+  .sb-photo::after { content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(to right, rgba(1, 30, 21, .55), rgba(1, 30, 21, .1) 75%),
+      linear-gradient(to bottom, rgba(1, 30, 21, .35) 0%, rgba(1, 30, 21, .55) 45%, #011e15 96%); }
+  .sb-head { font-size: 18px; font-weight: 500; text-align: center; color: #eaede9; }
+  .sb-head span { color: #90a99c; }
+  .sb-seg { position: absolute; left: 18px; right: 16px; top: 109px; height: 49px; padding: 4px; border-radius: 999px; display: flex;
+    background: rgba(255, 255, 255, .12); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+  .sb-seg a { flex: 1; display: grid; place-items: center; border-radius: 999px; font-size: 15px; font-weight: 500; color: #e0d3c0; }
+  .sb-seg a[aria-current] { background: #eaeae5; color: #1d3027; box-shadow: 0 2px 8px rgba(0, 0, 0, .18); }
+  .sb-have { font-size: 15px; color: #abb8b4; }
+  .sb-num { font-size: 131px; font-weight: 200; line-height: .9; letter-spacing: -0.03em; color: #fff; font-variant-numeric: lining-nums; }
+  .sb-title { font-size: 29.5px; font-weight: 400; line-height: 1.14; letter-spacing: -0.01em; color: #f0fef8; }
+  .sb-title span, .sb-menu span { color: var(--ink-3); }
+  .sb-progress { position: absolute; left: 17px; top: 425px; right: 16px; display: flex; align-items: center; gap: 12px; }
+  .sb-track { position: relative; width: 169px; height: 3px; border-radius: 2px; background: #27453d; }
+  .sb-track i { position: absolute; inset: 0 auto 0 0; width: 71px; border-radius: 2px; background: #f7c06c; }
+  .sb-track i::after { content: ""; position: absolute; right: -7px; top: 50%; width: 14px; height: 14px; margin-top: -7px; border-radius: 50%;
+    background: #f7c06c; box-shadow: 0 0 0 2px rgba(1, 30, 21, .6); }
+  .sb-progress p { font-size: 14px; font-weight: 500; color: #e1e9e5; white-space: nowrap; }
+  .sb-menu { font-size: 21.5px; font-weight: 400; letter-spacing: -0.01em; color: #e9efec; }
+  .sb-card { position: relative; width: 167.5px; height: 232px; padding: 7.5px; border-radius: 24px; background: #132823; }
+  .sb-card .img { position: relative; height: 89px; border-radius: 20px; overflow: hidden; background: #253c37; }
+  .sb-card .img img { width: 100%; height: 100%; object-fit: cover; }
+  .sb-card .new { position: absolute; left: 8px; top: 8px; height: 24px; padding: 0 10px; border-radius: 999px; display: grid; place-items: center;
+    background: rgba(16, 24, 20, .5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font-size: 13.5px; font-weight: 500; color: #fff; }
+  .sb-card .val { display: flex; align-items: center; gap: 6px; margin: 13px 0 0 3px; font-size: 22px; font-weight: 400; line-height: 1.2; }
+  .sb-card .val .ic { --ic: 15px; color: #f4be6a; }
+  .sb-card .what { margin: 4px 0 0 3px; font-size: 13.3px; color: #a9bab5; }
+  .sb-card .redeem::after { content: ""; position: absolute; inset: -2px 0; }   /* 40 to look at, 44 to press */
+  .sb-card .redeem { position: absolute; left: 7.5px; right: 7.5px; bottom: 8.5px; height: 40px; border-radius: 999px;
+    display: grid; place-items: center; background: var(--gold); color: #242100; font-size: 14px; font-weight: 600; }
+  .sb .dock { left: 17px; right: 16.5px; bottom: 26.5px; gap: 12.5px; }
+  .sb .dock-bar { height: 63px; background: rgba(11, 30, 26, .82); }
+  .sb .dock-bar a { color: #8c9e9a; gap: 6px; }
+  .sb .dock-fab { width: 64px; height: 64px; background: #f1f1ec; color: #0b3d2c; }
+  .sb .dock-fab .ic { --ic: 27px; }
+</style>
+</head>
+<body>
+<div class="ui ui-dark ui-phone sb" style="--accent:#fbbb4d">
+  <div class="sb-photo"><img src="../../sites/restaurant/img/room.webp" alt=""></div>
+  <div class="ui-status"><span>9:41</span><span class="ui-status-icons"><i class="ic ic-signal"></i><i class="ic ic-wifi"></i><i class="ic ic-battery"></i></span></div>
+  <div class="ui-island"></div>
+
+  <p class="sb-head" style="position:absolute; left:0; right:0; top:66.8px">Starbucks <span>Rewards</span></p>
+  <nav class="sb-seg"><a aria-current="page">Earn &amp; Redeem</a><a>Status &amp; Benefits</a></nav>
+
+  <p class="sb-have" style="position:absolute; left:17px; top:220.7px">You have</p>
+  <p class="sb-num" style="position:absolute; left:13px; top:246.6px">142</p>
+  <h1 class="sb-title" style="position:absolute; left:17px; top:373.9px">Stars <span>ready to redeem</span></h1>
+  <div class="sb-progress"><div class="sb-track"><i></i></div><p>58 Stars to your next reward</p></div>
+
+  <h2 class="sb-menu" style="position:absolute; left:17px; top:476.9px">Rewards <span>menu</span></h2>
+  <div class="rail" style="position:absolute; left:0; right:0; top:515.5px; padding-inline:17.5px; gap:9.5px">
+    <article class="sb-card">
+      <div class="img"><img src="../../sites/restaurant/img/cake.webp" alt=""></div>
+      <p class="val">25<i class="ic ic-star"></i></p><p class="what">$1 off drink add ons</p>
+      <button class="redeem">Redeem</button>
+    </article>
+    <article class="sb-card">
+      <div class="img"><img src="../../sites/restaurant/img/pannacotta.webp" alt=""><span class="new">New</span></div>
+      <p class="val">60<i class="ic ic-star"></i></p><p class="what">Up to $2 off your order</p>
+      <button class="redeem">Redeem</button>
+    </article>
+    <article class="sb-card">
+      <div class="img"><img src="../../sites/restaurant/img/salad.webp" alt=""></div>
+      <p class="val">100<i class="ic ic-star"></i></p><p class="what">Coffee or a bakery item</p>
+      <button class="redeem">Redeem</button>
+    </article>
+  </div>
+
+  <nav class="dock" aria-label="Main">
+    <div class="dock-bar labelled">
+      <a><i class="ic ic-home"></i>Home</a><a><i class="ic ic-qr"></i>Scan</a><a><i class="ic ic-cup"></i>Order</a><a><i class="ic ic-gift"></i>Gift</a>
+    </div>
+    <a class="dock-fab" aria-label="Rewards" aria-current="page"><i class="ic ic-star"></i></a>
+  </nav>
+  <div class="ui-home-bar"></div>
+</div>
+</body>
+</html>

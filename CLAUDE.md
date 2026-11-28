@@ -62,10 +62,19 @@ node tools/test-sections.js              # a wrong section list or kind cannot r
 node tools/tokens.js                     # one set of tokens
 node tools/check.js [page]               # 400x860 and 1280x900: contrast, tap size, sideways scroll; shots in .check/
 node tools/audit.js <page> --width 400   # one page in depth: contrast against the painted ground, with the fix
-node tools/slop.js <page>                # does it look AI-made? 18 points, and the bottleneck to fix first
+node tools/slop.js <page>                # advice only: taste signals, never a reason to change a design
 node tools/motion.js <page>              # every animation measured; filmstrips in .check/motion/
 node tools/match.js <page> <ref.png>     # against a reference: side by side and a score out of 100
 ```
+
+**What blocks and what does not.** `check.js` and `motion.js` catch
+breakage: words cut off, overlap, sideways scroll, contrast, broken images,
+motion that ignores reduced motion. Fix those always. `slop.js` measures
+taste (type sizes, badges, spacing grid, radii); it is advice and never
+blocks. On unseen briefs, repairs made to satisfy it scored lower with
+blind reviewers, and it fails screens reviewers rated best
+(`rules/bench-2026-11-28.md`). Change a design for taste only on a blind
+reviewer's notes.
 
 Never ask a model whether a ratio passes. Do open the screenshots, and for
 anything that moves, the filmstrips: a recording once caught a tab hidden

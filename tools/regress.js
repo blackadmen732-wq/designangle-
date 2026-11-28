@@ -6,8 +6,8 @@
  *   node tools/regress.js            check them all against rules/baselines.json
  *   node tools/regress.js --update   after a deliberate improvement, store the new scores
  *
- * A screen fails when tools/check.js no longer passes it, or when its
- * tools/slop.js score falls more than 2 points below its baseline. A new
+ * A screen fails when tools/check.js no longer passes it (breakage). Its
+ * tools/slop.js score is shown beside it as advice, never as a failure. A new
  * rule (rules/RULES.md) is kept only when this passes.
  *
  * Where Playwright's own browser cannot be downloaded, point CHROME_PATH at
@@ -29,7 +29,7 @@ for (const s of base.screens) {
   const slop = run('slop.js', [s.page, ...(s.desktop ? ['--desktop'] : [])]);
   const m = (slop.stdout || '').match(/score\s+(\d+)\/100/);
   const score = m ? +m[1] : null;
-  const ok = pass && score != null && score >= s.slop - 2;
+  const ok = pass;   // breakage blocks; the taste score is shown, never a failure
   if (!ok) bad++;
   console.log(`${ok ? 'ok  ' : 'FAIL'}  ${s.page.padEnd(44)} check ${pass ? 'pass' : 'FAIL'}   slop ${score} (was ${s.slop})`);
   if (update && pass && score != null) s.slop = score;

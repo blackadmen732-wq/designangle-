@@ -382,4 +382,4 @@ Use **400×860** for a phone and **1280×900** for desktop. Check both.
 - [ ] No item from the generated-design list above
 - [ ] Real content and real images, no placeholder anything
 - [ ] `node tools/check.js` passes, and you have opened the screenshots
-- [ ] `node tools/slop.js` names no bottleneck (app screens: see the app-style skill)
+- [ ] `node tools/slop.js` read as advice; taste changed only on a blind reviewer's notes

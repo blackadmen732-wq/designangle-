@@ -337,5 +337,7 @@ function audit() {
   const score = Math.round(items.reduce((t, i) => t + (i.status === 'fail' ? 0 : i.status === 'warn' ? 0.6 : 1), 0) / items.length * 100);
   console.log(`\n  score ${score}/100   ${fails} fail, ${warns} warn, ${items.filter((i) => i.status === 'look').length} for a person to look at`);
   console.log(cost(worst) ? `  BOTTLENECK  ${worst.n}. ${worst.name}: ${worst.evidence}` : '  no bottleneck: nothing measurable fails. Now look at it.');
-  process.exit(fails ? 1 : 0);
+  // Advice only: taste never blocks (CLAUDE.md, "What blocks and what does not").
+  // --strict restores the old exit code for anyone who wants it as a gate.
+  process.exit(fails && process.argv.includes('--strict') ? 1 : 0);
 })();

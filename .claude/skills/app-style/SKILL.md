@@ -160,8 +160,10 @@ node tools/check.js path/to/screen.html       # usability, both sizes, screensho
 node tools/motion.js path/to/screen.html      # every animation measured; filmstrips in .check/motion/
 ```
 
-Fix only the bottleneck slop.js names, run it again, repeat. When nothing
-fails, look at the screenshots: the audits cannot see a broken layout, an
+Fix everything check.js and motion.js fail: that is breakage. slop.js is
+advice: read its bottleneck, but change the design for taste only when a
+reviewer who has not seen the work agrees (rules/bench-2026-11-28.md).
+Then look at the screenshots: the audits cannot see a broken layout, an
 image of the wrong subject, or a weak idea. A test on Earshot found two
 things only looking caught (an image blown up to full size, and the show's
 name said twice); the second is now measured.

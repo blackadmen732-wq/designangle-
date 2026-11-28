@@ -30,8 +30,31 @@ file that fixes it.
 ## What a score means
 
 `tools/match.js` scores out of 100 from structure, layout and tone. On the
-two Cinema screens: layout above 85 meant every block was within a few
-pixels of the reference; what kept the total near 76 was the art (a drawn
-mark against a 3D render, drawn streaks against photographed light) and the
-font (Inter where the reference used Segoe UI). Those are the honest
-limits of code; a rendered logo and streak image close most of the gap.
+two Cinema screens (79 and 76): layout of 86 to 95 meant every block was
+within a few pixels of the reference; what kept the totals there was the
+light (drawn streaks against photographed or rendered light) and the font
+(Inter where the reference used Segoe UI). Taking the logos from the
+picture moved the sign-in from 75 to 79.
+
+## Found by review, and made into rules
+
+Two reviewers with fresh eyes compared the Cinema screens with Mark's
+references. Every problem they found became a rule in the system, not a
+patch on one page:
+
+| Problem | Rule now in the system |
+|---|---|
+| Glass card looked like grey plastic | Dark glass is mostly dark: a diagonal sheen from 6% to under 2%, a 4% grain, no brightness lift (`--glass`, `--grain`) |
+| Rim was a flat grey stroke | Rim light is directional: bright top left and bottom right, nearly gone between (`.glass.rim::after`) |
+| Fields lighter than the card they sit in | A nested surface is darker than its parent, with an inner shadow (`.field`) |
+| Icons thin and small everywhere | Icon sizes by role: 30 navigation, 26 buttons, 44 tiles, 24 inline |
+| Selected sidebar item barely different | A selected state is clearly lighter, with a bright edge and a glow |
+| Streaks thin, dim, too many hairlines | Fewer, bolder streaks; a hot core with stacked glows, screen-blended |
+| Logo drawn by hand looked wrong | Logos are taken from the picture (`tools/trace-logo.py`, skill `logo-recreate`) |
+| Text running into a tile's arrow | Leave room for a corner control in the text's padding; checks catch overlap |
+| Dashed borders invisible on black | Decorative strokes at 26% or more on a black ground |
+| Primary button looked soft | The primary is solid white and bold; glass is for everything else |
+
+What the reviewers flagged that is not a system problem: the font (the
+references use Segoe UI, a Windows font this computer does not have) and the
+references' own photographed light, which needs an image, not code.

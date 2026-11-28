@@ -16,6 +16,8 @@ short questions, each with a suggested answer); do not guess. Why:
 | A client's website | `sites/CLAUDE.md` | `DESIGN.md`, the locked values |
 | A web page that is not a business: a product, a portfolio, docs | `sites/CLAUDE.md`, the part on `kind` | `DESIGN.md` |
 | A desktop app screen: an editor, a studio, a launcher, a dashboard | `app-style/desktop/README.md` | the design skill |
+| A logo in a reference picture | `.claude/skills/logo-recreate/SKILL.md` | `tools/trace-logo.py` |
+| A background, or making one move | `.claude/skills/animated-backgrounds/SKILL.md` | `app-style/desktop/art.js` |
 | A phone app screen | `.claude/skills/app-style/SKILL.md` | `app-style/styles/` when the brief wants a tool, not a brand |
 | Redesigning an existing app or screen | `.claude/skills/app-redesign/SKILL.md` | `.claude/skills/redesign-eye/SKILL.md`, to brief and present it her way |
 | The owner panel, the database, the edge functions | `portal/CLAUDE.md` | the app-style skill, for the panel's screens |
@@ -86,5 +88,6 @@ app-style/            the app style: parts, icons, styles/, recreations, example
 tools/                checks: check, audit, slop, motion, tokens, test-sections, launch-check
                       makers: preview, photos.py, reel, watch.py, compare, critique.py
 docs/research/        the research the design decisions came from
-.claude/skills/       design, app-style, app-redesign, redesign-eye, animate, review-animations
+.claude/skills/       design, app-style, app-redesign, redesign-eye, animate, review-animations,
+                      logo-recreate, animated-backgrounds
 ```

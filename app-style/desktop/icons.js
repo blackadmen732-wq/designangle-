@@ -37,6 +37,8 @@
     diamond: '<path d="M6.5 4.5h11l3.3 4.3L12 20 3.2 8.8Z"/><path d="M3.2 8.8h17.6M9.3 4.5 8 8.8l4 11.2 4-11.2-1.3-4.3"/>',
     activity: '<path d="M2.8 12.5h4l2.5-6 4.3 12 2.6-6h5"/>',
     minus: '<path d="M5 12h14"/>',
+    'plus-plain': '<path d="M12 5v14M5 12h14"/>',
+    play: '<path d="M8 5.2v13.6a.8.8 0 0 0 1.2.7l10.6-6.8a.8.8 0 0 0 0-1.4L9.2 4.5A.8.8 0 0 0 8 5.2Z" fill="currentColor" stroke="none"/>',
     square: '<rect x="5.5" y="5.5" width="13" height="13" rx="1"/>',
     close: '<path d="m6 6 12 12M18 6 6 18"/>'
   };

@@ -27,7 +27,8 @@ art.js           DG.streaks(), DG.mark(), DG.enter()
 
 | Material | Recipe |
 |---|---|
-| Glass | `linear-gradient(180deg, white 6.5%, white 1.8%)`, `blur(18px)`, 1px edge at 16% white, an inset 1px highlight at the top |
+| Glass | `linear-gradient(180deg, white 6.5%, white 1.8%)` under a 5% grain, `blur(26px) saturate(140%) brightness(1.08)`, 1px edge at 16% white, an inset 1px highlight at the top |
+| Light behind glass | `DG.glow()` at 3 to 8%: glass over pure black cannot look like glass, so put a little light behind it |
 | Rim glass | edge at 32%, inset highlight at 22%, a 32px white glow at 6% |
 | Hot white button | `#fff` to `#d9d9df` top to bottom, an inner shadow line at the bottom, a white glow that grows on hover |
 | Outlined button | 2.5% white fill, 16% edge; on hover the edge goes to 42% and a soft glow appears |
@@ -45,7 +46,10 @@ with an active item (`.sidebar`, `.nav`, `.promo`), the work area
 empty states (`.empty`), quick actions (`.tools-row`, `.btn-glass`), side
 panels (`.panel`), sign-in (`.signin`, `.wordmark`, `.tagline`,
 `.card-signin`, `.field`, `.check`, `.link`, `.btn-white`, `.or`,
-`.socials`, `.social`, `.signup`).
+`.socials`, `.social`, `.signup`), media screens where photos carry the
+light (`.topnav`, `.tabs`, `.billboard`, `.feature`, `.actions`,
+`.circle`, `.rows`, `.strip`, `.card` with `.bar` progress and `.num`
+ranks; first used in `app-style/examples/streaming-study`, a private study).
 
 ## Motion
 
@@ -61,11 +65,15 @@ panels (`.panel`), sign-in (`.signin`, `.wordmark`, `.tagline`,
 
 ## The art step
 
-Code draws the streaks and the mark well enough to match the composition.
-It cannot draw a 3D chrome logo or photographed light. When a brief needs
-those, make them in an image tool and drop them in: the art layer takes an
-`<img>` in place of `DG.streaks()`, and the mark's slot takes an `<img>`.
-Nothing else changes. Say which you did.
+- **Logos:** never draw one by hand. Take it from the reference with
+  `tools/trace-logo.py` (skill: `logo-recreate`): a cutout for big uses, a
+  traced SVG for small ones. The Cinema mark, wordmark and CINEVORA lockup
+  in `app-style/examples/cinema-art/` were made this way.
+- **Light:** `DG.glow()`, `DG.streaks()` and `DG.sweep()` (skill:
+  `animated-backgrounds`).
+- **Pictures code cannot draw** (photographed or 3D-rendered light, smoke,
+  metal): render them in an image tool and put an `<img>` in `.dg-art`.
+  Nothing else changes. Say which you did.
 
 ## Scoring
 

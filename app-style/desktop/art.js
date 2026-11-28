@@ -50,13 +50,13 @@
       var o = l.opacity == null ? 1 : l.opacity;
       body += '<g class="dg-streak" style="--dx:' + (l.drift ? l.drift[0] : 14) + 'px;--dy:' + (l.drift ? l.drift[1] : -8) + 'px;--rot:' + (l.drift ? l.drift[2] : 0.6) + 'deg;--dur:' + (l.dur || 28) + 's;--delay:' + (-i * 3.1) + 's;opacity:' + o + '">'
         + (l.sheet ? '<path d="' + l.sheet + '" fill="url(#' + s + ')"/>' : '')
-        + '<path d="' + l.d + '" fill="none" stroke="url(#' + g + ')" stroke-width="' + (l.glow || 26) + '" stroke-linecap="round" opacity=".22" filter="url(#' + id + 'bb)"/>'
-        + '<path d="' + l.d + '" fill="none" stroke="url(#' + g + ')" stroke-width="' + ((l.width || 2) * 3) + '" stroke-linecap="round" opacity=".55" filter="url(#' + id + 'b)"/>'
+        + '<path d="' + l.d + '" fill="none" stroke="url(#' + g + ')" stroke-width="' + (l.glow || 26) + '" stroke-linecap="round" opacity=".34" filter="url(#' + id + 'bb)"/>'
+        + '<path d="' + l.d + '" fill="none" stroke="url(#' + g + ')" stroke-width="' + ((l.width || 2) * 3) + '" stroke-linecap="round" opacity=".8" filter="url(#' + id + 'b)"/>'
         + '<path d="' + l.d + '" fill="none" stroke="url(#' + g + ')" stroke-width="' + (l.width || 2) + '" stroke-linecap="round"/>'
         + '<path class="dg-sheen" pathLength="100" d="' + l.d + '" fill="none" stroke="#fff" stroke-width="' + ((l.width || 2) + 0.6) + '" stroke-linecap="round" filter="url(#' + id + 'b)"/>'
         + '</g>';
     });
-    el.innerHTML = '<svg xmlns="' + NS + '" viewBox="0 0 1672 941" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>' + defs + '</defs>' + body + '</svg>';
+    el.innerHTML = '<svg xmlns="' + NS + '" viewBox="0 0 1672 941" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="mix-blend-mode:screen"><defs>' + defs + '</defs>' + body + '</svg>';
   }
 
   /* The mark: a C cut at an angle, an inner blade, and three slanted bars,
@@ -86,8 +86,28 @@
   function enter(root) {
     var items = (root || document).querySelectorAll('[data-enter]');
     items.forEach(function (el, i) { el.style.setProperty('--i', i); });
-    requestAnimationFrame(function () { document.documentElement.classList.add('dg-in'); });
+    document.documentElement.classList.add('dg-js');
+    requestAnimationFrame(function () { requestAnimationFrame(function () { document.documentElement.classList.add('dg-in'); }); });
   }
 
-  window.DG = { streaks: streaks, mark: mark, enter: enter };
+  /* A soft light spot behind something, so the glass over it has light to
+     blur: DG.glow(el, x, y, size, strength) in the reference's pixels. */
+  function glow(el, x, y, size, a) {
+    var g = document.createElement('div');
+    g.className = 'dg-glow';
+    g.style.cssText = 'left:' + (x - size / 2) / 16.72 + 'vw;top:' + (y - size / 2) / 9.41 + 'vh;width:' + size / 16.72 + 'vw;height:' + size * .7 / 9.41 + 'vh;--a:' + (a || .1);
+    el.appendChild(g);
+  }
+
+  /* A broad band of light that crosses the screen slowly and rests:
+     DG.sweep(el, {strength, seconds}). Stops half way under reduced motion. */
+  function sweep(el, o) {
+    o = o || {};
+    var s = document.createElement('div');
+    s.className = 'dg-sweep';
+    s.style.cssText = '--a:' + (o.strength || .06) + ';--dur:' + (o.seconds || 14) + 's';
+    el.appendChild(s);
+  }
+
+  window.DG = { streaks: streaks, mark: mark, enter: enter, glow: glow, sweep: sweep };
 })();

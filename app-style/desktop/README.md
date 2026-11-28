@@ -13,12 +13,20 @@ art.js           DG.streaks(), DG.mark(), DG.enter()
 
 ## Start here
 
-1. Copy the closest example as your starting file:
-   `app-style/examples/tally-home` (a home or dashboard built on one
-   number: money, orders, bookings, tickets; keep its order of parts),
-   `app-style/examples/cinevora-home` (an app home with a sidebar),
-   `cinema-login` (a sign-in or splash), `streaming-study` (a screen
-   carried by photos).
+1. Pick the pattern from the screen's job, and copy its example as your
+   starting file. Do not invent a layout; the patterns are how the screen
+   gets composed, and you change the words, figures, colour and picture.
+
+   | The screen's job | Pattern | Copy |
+   |---|---|---|
+   | Show one figure and act on it: money owed, orders today, bookings tonight, tickets open | number | `app-style/examples/tally-home` |
+   | Get somewhere: a launcher, a studio's home, four or five doors | doors | `app-style/examples/cinevora-home` |
+   | Sign in, sign up, a splash | auth | `app-style/examples/cinema-login` |
+   | Browse things with pictures: films, products, a gallery | media | `app-style/examples/streaming-study` |
+   | Anything else | nearest of the four; say which and what you changed | |
+
+   A list with a detail pane, and a settings screen, have no example yet:
+   use "number" without the figure for a list, and say so.
 2. Put `<meta name="platform" content="desktop">` in its head. The checks
    then test it at 1280 and 1440 wide and skip phone size.
 3. Design for 1280 to 1440 wide. Nothing important may sit off screen at
@@ -30,6 +38,19 @@ art.js           DG.streaks(), DG.mark(), DG.enter()
 6. Check: `node tools/slop.js <page> --desktop`, `node tools/check.js
    <page>`, and `node tools/match.js <page> <ref.png>` when there is a
    reference.
+
+## Final pass (optional, costs one more render and one review)
+
+When the screen matters, do not ship the first version:
+
+1. Make a second version that differs in one big way: the figure on its
+   own with the action under it, a picture-led stage, or a different
+   pattern. Keep both in their own folders.
+2. `node tools/sheet.js <first> <second>` puts them side by side as A and B.
+3. Give the sheet and the brief, not the file names, to a reviewer who has
+   not seen the work (a fresh session or subagent): "Which would a paying
+   client pick, and what three things would most improve it?"
+4. Fix those three in the winner, delete the loser, run the checks again.
 
 ## Depth: four layers, always
 

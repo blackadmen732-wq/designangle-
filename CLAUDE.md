@@ -15,7 +15,7 @@ short questions, each with a suggested answer); do not guess. Why:
 |---|---|---|
 | A client's website | `sites/CLAUDE.md` | `DESIGN.md`, the locked values |
 | A web page that is not a business: a product, a portfolio, docs | `sites/CLAUDE.md`, the part on `kind` | `DESIGN.md` |
-| A desktop app screen: an editor, a studio, a launcher, a dashboard, a business tool | `app-style/desktop/README.md` (start at "Start here") | `.claude/skills/design/SKILL.md` for the method |
+| A desktop app screen: an editor, a studio, a launcher, a dashboard, a business tool | `app-style/desktop/README.md` (start at "Start here": pick the pattern, copy its example) | `.claude/skills/design/SKILL.md` for the method |
 | A logo in a reference picture | `.claude/skills/logo-recreate/SKILL.md` | `tools/trace-logo.py` |
 | A background, or making one move | `.claude/skills/animated-backgrounds/SKILL.md` | `app-style/desktop/art.js` |
 | A phone app screen | `.claude/skills/app-style/SKILL.md` | `app-style/styles/` when the brief wants a tool, not a brand |

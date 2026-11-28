@@ -371,7 +371,20 @@ async function audit(target, opts) {
          button, then reported the label as 1.08:1 against it. */
       await page.$eval(sel, function (e) {
         e.setAttribute('data-da-colour', e.style.color || '');
+        /* No transition while the letters are hidden: a button that fades
+           its colour over .25s was photographed with its white letters still
+           fading out, and they were read as the ground behind themselves. */
+        e.setAttribute('data-da-transition', e.style.transition || '');
+        e.style.transition = 'none';
         e.style.color = 'transparent'; e.style.textShadow = 'none';
+        /* An outline button paints a ring and no ground: the ring is the
+           button, not what lies behind it. Counted as ground, the white ring
+           of a header's "Book" over a photograph reported 1.07:1. */
+        var bg = getComputedStyle(e).backgroundColor;
+        if (bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent') {
+          e.setAttribute('data-da-ring', JSON.stringify([e.style.boxShadow, e.style.borderColor]));
+          e.style.boxShadow = 'none'; e.style.borderColor = 'transparent';
+        }
         /* Child elements are beside the glyphs, not behind them. A logo's mark
            sits inside the same box as its wordmark, and taking the worst pixel
            in that box reported the white mark as the background of the white
@@ -385,6 +398,11 @@ async function audit(target, opts) {
       await page.$eval(sel, function (e) {
         e.style.color = e.getAttribute('data-da-colour') || '';
         e.style.textShadow = ''; e.removeAttribute('data-da-colour');
+        e.style.transition = e.getAttribute('data-da-transition') || ''; e.removeAttribute('data-da-transition');
+        if (e.hasAttribute('data-da-ring')) {
+          var ring = JSON.parse(e.getAttribute('data-da-ring'));
+          e.style.boxShadow = ring[0]; e.style.borderColor = ring[1]; e.removeAttribute('data-da-ring');
+        }
         Array.prototype.forEach.call(e.children, function (c) {
           c.style.visibility = c.getAttribute('data-da-vis') || '';
           c.removeAttribute('data-da-vis');

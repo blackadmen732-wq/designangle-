@@ -37,7 +37,11 @@ pressed during the row's exit lost the row; a filter changed twice quickly
 lost items; Escape did nothing while the product was still opening; a slow
 load could overwrite a newer state. Firefox and WebKit cannot be installed
 in the environment these were built in, so they run in GitHub's free check
-(`.github/workflows/recipes.yml`) on every change. Checked by hand as well: the dropdown
+(`.github/workflows/recipes.yml`) on every change. **Firefox and WebKit are
+unverified:** GitHub will not start the check while the owner's account is
+locked over billing ("The job was not started because your account is
+locked due to a billing issue", 28 November 2026). Only Chromium has
+passed so far. Checked by hand as well: the dropdown
 flips above its button near the bottom of the screen, and the list
 animations run on transform and opacity only.
 

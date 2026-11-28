@@ -16,7 +16,8 @@ app-style skill or `tools/motion.js`; **CHECKED** is measured by
 | github.com/vercel-labs/web-interface-guidelines | Vercel's interface rules for agents (AGENTS.md); one short Animation section. |
 | github.com/lottiefiles/motion-design-skill | A motion-design skill aimed at Lottie and explainer animation: choreography, Disney principles, emotion. |
 | github.com/Owl-Listener/designer-skills | Broad designer skills, including animation-principles and a motion-system skill. |
-| npm @formkit/auto-animate 0.10.2 | FLIP animation for lists whose children come, go and move. Vendored as `app-style/vendor/auto-animate.js`. |
+| npm @formkit/auto-animate 0.11.0 | FLIP animation for lists whose children come, go and move. Vendored as `app-style/vendor/auto-animate.js`. |
+| npm @floating-ui/dom 1.8.0 | Places a menu next to its trigger and flips it at the screen's edge. Vendored in `app-style/vendor/`. See `reuse-inventory.md`. |
 
 ## Rules
 

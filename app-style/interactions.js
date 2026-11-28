@@ -11,20 +11,32 @@
    - works from the keyboard and puts focus where the person expects it;
    - under reduced motion changes state at once, with no travel.
 
+   Reuse first: the browser and two small MIT libraries do the heavy work.
+   This file only joins them up and adds the personality.
+     native View Transitions   expand and return
+     native popover + <dialog> dropdown and modal: top layer, Escape, light dismiss
+     Floating UI (vendor/)     where the dropdown sits, flipping at the edges
+     AutoAnimate (vendor/)     lists: remove, undo, filter, sort
+   Load vendor/floating-ui.core.umd.min.js, vendor/floating-ui.dom.umd.min.js
+   and vendor/auto-animate.js before this file when you use dropdown or lists.
+
    expand(card, detail, opts)   a product opens into its detail from where
-                                it was (View Transitions where supported,
-                                else a FLIP); close() returns it, focus and
-                                scroll restored
-   dropdown(trigger, menu)      opens from its trigger; arrows, Escape, click
-                                outside; focus returns to the trigger
+                                it was (View Transitions; where a browser has
+                                none it changes at once); close() returns it,
+                                focus and scroll restored
+   dropdown(trigger, menu)      a popover placed by Floating UI; arrows move,
+                                Escape and a click outside close it (native);
+                                focus returns to the trigger
    modal(dialog, opener)        a <dialog> scales up a touch and fades;
                                 Escape and the backdrop close it, animated
    steps(root)                  next goes left, back goes right; focus moves
                                 to the new step's heading
    removeWithUndo(row, toast)   the row leaves, the rest close the gap, and
-                                Undo puts it back where it was
+                                Undo puts it back where it was (AutoAnimate)
    reflow(list, change)         filter or sort: items move to their new
-                                places instead of jumping
+                                places instead of jumping (AutoAnimate). Add
+                                and remove the children; hiding them is not
+                                seen
    state(el, name, message)     loading, success, error, empty or ready, with
                                 aria-busy and a polite announcement
    The bottom sheet, the toast and add-to-cart are AppMotion's (app-motion.js).
@@ -46,7 +58,7 @@
   };
   function P() { return PERSONA[root.dataset.motion] || PERSONA.calm; }
   function personality(name) {
-    if (name) { root.dataset.motion = name; root.style.setProperty('--ia-k', P().k); }
+    if (name) { root.dataset.motion = name; root.style.setProperty('--ia-k', P().k); root.style.setProperty('--ia-travel', P().travel); }
     return root.dataset.motion || 'calm';
   }
   var q = new URLSearchParams(location.search).get('motion') || (/^#(calm|lively)$/.test(location.hash) ? location.hash.slice(1) : ''); if (q) personality(q);
@@ -61,13 +73,19 @@
     a.finished.then(function () { if (el._ia === a) el._ia = null; }, function () {});
     return a;
   }
-  function rects(nodes) { var m = new Map(); nodes.forEach(function (n) { m.set(n, n.getBoundingClientRect()); }); return m; }
-  function flip(before, dur) {
-    if (still()) return;
-    before.forEach(function (r, n) {
-      if (!n.isConnected) return;
-      var now = n.getBoundingClientRect(), dx = r.left - now.left, dy = r.top - now.top;
-      if (dx || dy) play(n, [{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'none' }], { duration: dur });
+  /* Lists: AutoAnimate does the FLIP. The plugin keeps it to transform and
+     opacity on the personality's timing; a plugin skips AutoAnimate's own
+     reduced-motion check, so that is made here (see docs/research/motion-sources.md). */
+  function lists(list) {
+    if (list._ia_aa || still()) return;
+    if (!window.autoAnimate) throw new Error('Interact lists need vendor/auto-animate.js loaded first');
+    var d = ms('--t-quick', 180), o = { easing: P().ease };
+    list._ia_aa = autoAnimate(list, function (el, action, from, to) {
+      if (action === 'add') return new KeyframeEffect(el, [{ opacity: 0, transform: 'scale(.98)' }, { opacity: 1, transform: 'none' }], Object.assign({ duration: d * 1.2 }, o));
+      if (action === 'remove') return new KeyframeEffect(el, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(' + px(-16) + 'px)' }], Object.assign({ duration: d }, o));
+      var dx = from.left - to.left, dy = from.top - to.top;
+      if (el === list || (!dx && !dy)) return new KeyframeEffect(el, [], { duration: 0 });
+      return new KeyframeEffect(el, [{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'none' }], Object.assign({ duration: ms('--t-page', 280) }, o));
     });
   }
 
@@ -92,17 +110,6 @@
       t.finished.finally(function () { from.style.viewTransitionName = ''; to.style.viewTransitionName = ''; after(); });
       return t;
     }
-    function flipMove(open, after) {
-      var a = (open ? from : to).getBoundingClientRect();
-      show(open);
-      var target = open ? to : from, b = target.getBoundingClientRect();
-      var anim = play(target, [
-        { transform: 'translate(' + (a.left - b.left) + 'px,' + (a.top - b.top) + 'px) scale(' + a.width / b.width + ',' + a.height / b.height + ')', transformOrigin: '0 0' },
-        { transform: 'none', transformOrigin: '0 0' }
-      ], { duration: ms('--t-expand', 360) });
-      anim.finished.then(after, after);
-      return anim;
-    }
     function go(open) {
       if (busy && busy.skipTransition) busy.skipTransition();
       var after = function () {
@@ -112,7 +119,8 @@
       };
       if (open) scrollY = window.scrollY;
       if (still()) { show(open); after(); return; }
-      busy = document.startViewTransition ? vt(open, after) : flipMove(open, after);
+      if (!document.startViewTransition) { show(open); after(); return; }
+      busy = vt(open, after);
     }
     card.addEventListener('click', function (e) { e.preventDefault(); go(true); });
     detail.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', function () { go(false); }); });
@@ -121,35 +129,45 @@
   }
 
   /* ------------------------------------------------ dropdown */
+  var popCss = false;
   function dropdown(trigger, menu) {
-    var items = function () { return Array.prototype.slice.call(menu.querySelectorAll('[role="menuitem"], a, button')); };
-    var open = false;
-    trigger.setAttribute('aria-haspopup', 'true'); trigger.setAttribute('aria-expanded', 'false');
-    menu.hidden = true;
-    function set(on, focusBack) {
-      if (on === open) return; open = on;
-      trigger.setAttribute('aria-expanded', String(on));
-      if (on) {
-        menu.hidden = false;
-        if (!still()) play(menu, [{ opacity: 0, transform: 'translateY(' + px(-4) + 'px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: ms('--t-dropdown', 180) });
-        var f = items()[0]; if (f) f.focus();
-      } else {
-        var done = function () { if (!open) menu.hidden = true; };
-        if (still()) done(); else play(menu, [{ opacity: 1 }, { opacity: 0 }], { duration: ms('--t-dropdown', 180) * 0.7 }).finished.then(done, done);
-        if (focusBack) trigger.focus();
-      }
+    var F = window.FloatingUIDOM;
+    if (!F) throw new Error('Interact.dropdown needs vendor/floating-ui.core.umd.min.js and floating-ui.dom.umd.min.js loaded first');
+    if (!popCss) {   // the enter and exit motion is CSS, so a second press retargets it
+      popCss = true;
+      var st = document.createElement('style');
+      st.textContent = '[data-ia-pop]{position:fixed;inset:auto;margin:0;transform-origin:var(--ia-origin,top left);' +
+        'transition:opacity calc(var(--t-dropdown,180ms)*var(--ia-k,1.15)) var(--ease-out,ease-out),transform calc(var(--t-dropdown,180ms)*var(--ia-k,1.15)) var(--ease-out,ease-out),display calc(var(--t-dropdown,180ms)*var(--ia-k,1.15)) allow-discrete,overlay calc(var(--t-dropdown,180ms)*var(--ia-k,1.15)) allow-discrete}' +
+        '[data-ia-pop]:not(:popover-open){opacity:0;transform:translateY(calc(-4px*var(--ia-travel,.75))) scale(.97)}' +
+        '@starting-style{[data-ia-pop]:popover-open{opacity:0;transform:translateY(calc(-4px*var(--ia-travel,.75))) scale(.97)}}' +
+        '[data-motion="lively"] [data-ia-pop]:popover-open{transition-timing-function:var(--spring-sheet,ease-out)}' +
+        '@media (prefers-reduced-motion:reduce){[data-ia-pop]{transition:opacity 120ms ease-out}[data-ia-pop]:not(:popover-open),[data-ia-pop]:popover-open{transform:none}}';
+      document.head.appendChild(st);
     }
-    trigger.addEventListener('click', function () { set(!open, false); });
+    var items = function () { return Array.prototype.slice.call(menu.querySelectorAll('[role="menuitem"], a, button')); };
+    if (!menu.id) menu.id = 'ia-menu-' + Math.random().toString(36).slice(2, 8);
+    menu.hidden = false; menu.setAttribute('popover', 'auto'); menu.setAttribute('data-ia-pop', '');
+    trigger.setAttribute('popovertarget', menu.id);
+    trigger.setAttribute('aria-haspopup', 'true'); trigger.setAttribute('aria-expanded', 'false');
+    var stop = null;
+    function place() {
+      F.computePosition(trigger, menu, { placement: 'bottom-start', strategy: 'fixed', middleware: [F.offset(6), F.flip(), F.shift({ padding: 8 })] })
+        .then(function (r) { menu.style.left = r.x + 'px'; menu.style.top = r.y + 'px'; menu.style.setProperty('--ia-origin', r.placement.indexOf('top') === 0 ? 'bottom left' : 'top left'); });
+    }
+    menu.addEventListener('toggle', function (e) {
+      var on = e.newState === 'open';
+      trigger.setAttribute('aria-expanded', String(on));
+      if (on) { stop = F.autoUpdate(trigger, menu, place); var f = items()[0]; if (f) f.focus(); }
+      else if (stop) { stop(); stop = null; }
+    });
     menu.addEventListener('keydown', function (e) {
       var list = items(), i = list.indexOf(document.activeElement);
       if (e.key === 'ArrowDown') { e.preventDefault(); list[(i + 1) % list.length].focus(); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); list[(i - 1 + list.length) % list.length].focus(); }
-      else if (e.key === 'Escape') { e.preventDefault(); set(false, true); }
-      else if (e.key === 'Tab') set(false, false);
+      else if (e.key === 'Tab') menu.hidePopover();
     });
-    menu.addEventListener('click', function (e) { if (e.target.closest('[role="menuitem"], a, button')) set(false, true); });
-    document.addEventListener('pointerdown', function (e) { if (open && !menu.contains(e.target) && !trigger.contains(e.target)) set(false, false); });
-    return { open: function () { set(true); }, close: function () { set(false, true); } };
+    menu.addEventListener('click', function (e) { if (e.target.closest('[role="menuitem"], a, button')) { menu.hidePopover(); trigger.focus(); } });
+    return { open: function () { menu.showPopover(); }, close: function () { menu.hidePopover(); trigger.focus(); } };
   }
 
   /* ------------------------------------------------ modal */
@@ -192,34 +210,19 @@
 
   /* ------------------------------------------------ remove with undo */
   function removeWithUndo(row, toastEl, label) {
-    var list = row.parentNode, after = row.nextSibling;
-    var others = Array.prototype.slice.call(list.children).filter(function (n) { return n !== row; });
+    var list = row.parentNode, after = row.nextElementSibling;
     var focusNext = row.nextElementSibling || row.previousElementSibling;
-    function out() {
-      var before = rects(others);
-      row.remove();
-      flip(before, ms('--t-quick', 180));
-      if (focusNext) { var f = focusNext.querySelector('button, a') || focusNext; f.focus({ preventScroll: true }); }
-    }
-    if (still()) out();
-    else play(row, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(' + px(-16) + 'px)' }], { duration: ms('--t-quick', 180) }).finished.then(out, out);
+    lists(list);
+    row.remove();
+    if (focusNext) { var f = focusNext.querySelector('button, a') || focusNext; f.focus({ preventScroll: true }); }
     if (toastEl && window.AppMotion) AppMotion.toast(toastEl, (label || 'Removed') + '.', 'Undo', function () {
-      var before = rects(others);
       list.insertBefore(row, after && after.parentNode === list ? after : null);
-      flip(before, ms('--t-quick', 180));
-      if (!still()) play(row, [{ opacity: 0 }, { opacity: 1 }], { duration: ms('--t-quick', 180) });
-      var f = row.querySelector('button, a') || row; f.focus({ preventScroll: true });
+      var g = row.querySelector('button, a') || row; g.focus({ preventScroll: true });
     });
   }
 
   /* ------------------------------------------------ reflow */
-  function reflow(list, change) {
-    var kids = Array.prototype.slice.call(list.children), before = rects(kids);
-    change();
-    var now = Array.prototype.slice.call(list.children);
-    flip(new Map(Array.from(before).filter(function (e) { return now.indexOf(e[0]) >= 0 && !e[0].hidden; })), ms('--t-page', 280));
-    if (!still()) now.forEach(function (n) { if (!before.has(n) && !n.hidden) play(n, [{ opacity: 0 }, { opacity: 1 }], { duration: ms('--t-quick', 180) }); });
-  }
+  function reflow(list, change) { lists(list); change(); }
 
   /* ------------------------------------------------ states */
   var live;
@@ -230,5 +233,5 @@
     if (message) live.textContent = message;
   }
 
-  window.Interact = { personality: personality, expand: expand, dropdown: dropdown, modal: modal, steps: steps, removeWithUndo: removeWithUndo, reflow: reflow, state: state, still: still };
+  window.Interact = { personality: personality, expand: expand, dropdown: dropdown, modal: modal, steps: steps, removeWithUndo: removeWithUndo, reflow: reflow, lists: lists, state: state, still: still };
 })();

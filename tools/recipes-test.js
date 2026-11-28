@@ -95,12 +95,17 @@ const R = {
     await p.goto(url(n)); await p.waitForTimeout(150);
     res.keyboard = await t.keys(p).catch(() => false);
     await p.close();
-    // 4. reduced motion: the state still changes, nothing travels
+    // 4. reduced motion: the state still changes, nothing travels (a fade may stay)
     p = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
     await p.goto(url(n)); await p.waitForTimeout(150);
     const b2 = t.state ? await t.state(p) : null;
     await p.click(t.press); await p.waitForTimeout(20);
-    const moving = await p.evaluate(() => document.getAnimations().filter(a => a.playState === 'running' && a.effect && a.effect.getTiming().duration > 0 && !String(a.animationName || '').includes('skel')).length);
+    // a fade may stay (reduced motion means gentler, not none); nothing may travel or grow
+    const moving = await p.evaluate(() => document.getAnimations().filter(a => {
+      if (a.playState !== 'running' || !a.effect || !(a.effect.getTiming().duration > 0) || String(a.animationName || '').includes('skel')) return false;
+      const props = a.transitionProperty ? [a.transitionProperty] : a.effect.getKeyframes().flatMap(k => Object.keys(k));
+      return props.some(k => /transform|translate|scale|rotate|top|left|width|height/.test(k));
+    }).length);
     res.still = moving === 0 && (t.state ? (await t.state(p)) !== b2 : await visible(p, t.open));
     await p.close();
     const ok = res.answers && res.interrupt && res.keyboard && res.still;

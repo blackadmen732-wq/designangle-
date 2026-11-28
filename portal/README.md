@@ -273,3 +273,31 @@ sandbox this was built in rewrites the API key on outbound requests, so
 Supabase refused the sign-in there. The panel's own rendering was verified
 against fixed data instead. Open the panel once from your own machine and sign
 in before giving the URL to a client.
+
+## Edge functions
+
+Four functions are deployed to Supabase. All four are in `functions/`, and all
+four read their credentials from the environment — no key is in this repo.
+
+| function | `verify_jwt` | what it does |
+|---|---|---|
+| `collect` | off | takes events and leads from a client website |
+| `settings` | off | public read of phone, hours and a closure notice |
+| `service-area` | off | answers "do you come out to me, and how far?" |
+| `load-zips` | **on** | one-off loader for Census ZIP centroids |
+
+The first three are called by anonymous visitors, so they verify no JWT and
+validate their own input. `load-zips` writes 33,800 rows and requires a token.
+
+Deploy with the Supabase CLI, or paste a file into the dashboard:
+
+```bash
+supabase functions deploy service-area --project-ref <ref>
+```
+
+**`service-area` carries a known bug.** It divides road miles by a flat
+`avg_speed_mph`, which treats a 110-mile motorway run as the same speed as a
+two-mile town errand — a 129-mile enquiry reported "about 242 min" against a
+real drive of about 110. `mk_drive_minutes()` in `schema.sql` is the fix and is
+already live in the database; the function has not yet been changed to call it.
+Until it is, the panel shows that number to owners.

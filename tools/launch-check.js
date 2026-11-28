@@ -31,7 +31,11 @@ const ROOT = path.join(__dirname, '..');
 const SITES = path.join(ROOT, 'sites');
 
 // Sites that are meant to contain example content and are never launched.
-const EXAMPLES = new Set(['restaurant', 'hvac']);
+// Named here on purpose, not detected from the "EXAMPLE CONTENT" header: a
+// client's site begun as a copy of an example keeps that header, and must
+// still be checked. A new example site goes in this list; a stale list only
+// checks too much.
+const EXAMPLES = new Set(['restaurant', 'hvac', 'salon', 'meditation', 'barber']);
 
 /* Things that must not reach a live client site. ------------------------- */
 
@@ -148,4 +152,7 @@ if (failed) {
   console.log(`\n  ${failed} site${failed === 1 ? '' : 's'} not ready.\n`);
   process.exit(1);
 }
-console.log('');
+const checked = sites.filter((n) => wanted.length || !EXAMPLES.has(n));
+console.log(checked.length
+  ? `\n  ${checked.length} site${checked.length === 1 ? '' : 's'} ready to launch.\n`
+  : `\n  No client sites yet: the ${EXAMPLES.size} in sites/ are examples. Name one to check it anyway.\n`);

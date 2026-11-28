@@ -34,6 +34,14 @@
 @import url("../../tokens/tokens.css");
 
 .dg {
+  /* the brand's one colour, as three numbers (red green blue), so light,
+     meters and the selected item can take it: style="--accent: 232 163 61".
+     White by default: a screen with no brand colour stays monochrome. */
+  --accent: 255 255 255;
+  /* status tones, as numbers too. If the brand colour is close to one,
+     move the status tone away, never the brand: --late: 255 107 107 */
+  --late: 255 196 107;
+  --good: 58 209 107;
   /* the colour roles every system gives */
   --ground: #050506;
   --surface: rgba(255, 255, 255, .035);
@@ -114,7 +122,7 @@
 /* Glow and sweep: light that sits behind glass, so the glass has something
    to blur. A glass panel over pure black cannot look like glass. */
 .dg-glow { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(60px);
-  background: radial-gradient(closest-side, rgba(255, 255, 255, var(--a, .1)), rgba(255, 255, 255, 0)); }
+  background: radial-gradient(closest-side, rgb(var(--c, 255 255 255) / var(--a, .1)), rgb(var(--c, 255 255 255) / 0)); }
 .dg-sweep { position: absolute; inset: -20%; pointer-events: none; overflow: hidden; }
 .dg-sweep::before { content: ""; position: absolute; top: 0; bottom: 0; left: -30%; width: 30%;
   background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, var(--a, .06)) 50%, rgba(255, 255, 255, 0));
@@ -272,7 +280,8 @@
 .nav a:hover { background: rgba(255, 255, 255, .05); }
 /* The selected item must read at a glance: clearly lighter, a bright edge,
    a soft glow. A selected state only a shade off rest has no hierarchy. */
-.nav a[aria-current="page"] { background: linear-gradient(180deg, rgba(255, 255, 255, .17), rgba(255, 255, 255, .07)); border-color: rgba(255, 255, 255, .45); font-weight: 600; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 0 18px rgba(255, 255, 255, .08); }
+.nav a[aria-current="page"] { background: linear-gradient(180deg, rgba(255, 255, 255, .17), rgba(255, 255, 255, .07)); border-color: rgb(var(--accent) / .45); font-weight: 600; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 0 18px rgb(var(--accent) / .1); }
+.nav a[aria-current="page"] .i { color: rgb(var(--accent)); }
 .promo { margin-top: auto; padding: var(--space-4); border-radius: var(--radius-l); text-align: center; }
 .promo h3 { margin: 0; display: flex; justify-content: center; align-items: center; gap: var(--space-3); font: 600 18px/1.2 var(--ui-font); }
 .promo p { margin: 4px 0 var(--space-3); color: var(--ink-quiet); font-size: 15px; }
@@ -361,10 +370,10 @@
    list); the dot glows in its tone */
 .status { justify-self: start; width: max-content; display: inline-flex; align-items: center; gap: var(--space-2); font-size: 16px; color: #e6e6ea; }
 .status::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
-.status.good::before { background: #3ad16b; box-shadow: 0 0 8px rgba(58, 209, 107, .5); }
+.status.good::before { background: rgb(var(--good)); box-shadow: 0 0 8px rgb(var(--good) / .5); }
 .status.wait::before { background: none; box-shadow: none; border: 1.5px solid #f0f0f3; width: 9px; height: 9px; }
-.status.late { color: #ffc46b; }
-.status.late::before { background: #ffb347; box-shadow: 0 0 10px rgba(255, 179, 71, .6); }
+.status.late { color: rgb(var(--late)); }
+.status.late::before { background: rgb(var(--late)); box-shadow: 0 0 10px rgb(var(--late) / .6); }
 
 /* ---------------------------------------------- screens built on a number
    The layout a blind review rated best (app-style/examples/tally-home):
@@ -376,11 +385,12 @@
 
 /* the figure: the one thing on the screen */
 .figure { display: flex; align-items: flex-end; gap: var(--space-8); padding: var(--space-4) var(--space-6) var(--space-8); }
-.figure .label { margin: 0; color: var(--ink-quiet); font-size: 18px; }
+.figure .label { margin: 0; display: flex; align-items: center; gap: var(--space-3); color: var(--ink-quiet); font-size: 18px; }
+.figure .label .i { width: 26px; height: 26px; color: rgb(var(--accent)); filter: drop-shadow(0 0 8px rgb(var(--accent) / .5)); }
 .figure .amount { margin: var(--space-2) 0 0; font: 600 104px/.92 var(--ui-display); letter-spacing: -.045em; color: #fff; text-shadow: 0 0 48px rgba(255, 255, 255, .16); }
 .figure .amount sup { font-size: 40px; vertical-align: .95em; margin-right: .06em; letter-spacing: 0; color: #d8d8de; }
 .figure .sub { margin: var(--space-4) 0 0; font-size: 18px; color: #e6e6ea; }
-.figure .sub em { font-style: normal; color: #ffc46b; }   /* what is urgent, in the warning tone */
+.figure .sub em { font-style: normal; color: rgb(var(--late)); }   /* what is urgent, in the warning tone */
 .figure .act { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-3); padding-bottom: var(--space-2); }
 .figure .btn-white { width: auto; height: 56px; padding: 0 var(--space-6) 0 var(--space-5); font-size: 18px; border-radius: var(--radius-m); }
 .figure .hint { color: var(--ink-quiet); font-size: 14px; }
@@ -433,16 +443,16 @@
 .breakdown li { display: grid; grid-template-columns: 1fr auto; row-gap: var(--space-2); font-size: 16px; }
 .breakdown li b { font-weight: 600; }
 .breakdown li small { grid-column: 1 / -1; color: var(--ink-quiet); font-size: 14px; }
-.breakdown li small.late { color: #ffc46b; }
+.breakdown li small.late { color: rgb(var(--late)); }
 .meter { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .08); overflow: hidden; }
-.meter i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, rgba(255, 255, 255, .5), #fff); box-shadow: 0 0 10px rgba(255, 255, 255, .4); }
-.meter.late i { background: linear-gradient(90deg, rgba(255, 179, 71, .55), #ffc46b); box-shadow: 0 0 10px rgba(255, 179, 71, .45); }
+.meter i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, rgb(var(--accent) / .5), rgb(var(--accent))); box-shadow: 0 0 10px rgb(var(--accent) / .4); }
+.meter.late i { background: linear-gradient(90deg, rgb(var(--late) / .55), rgb(var(--late))); box-shadow: 0 0 10px rgb(var(--late) / .45); }
 .panel .lede { margin: 0 0 var(--space-5); color: var(--ink-quiet); font-size: 16px; }
 .panel .lede b { color: var(--ink); font-weight: 600; }
 .bars { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--space-3); align-items: end; height: 96px; }
 .bars div { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: var(--space-2); height: 100%; }
 .bars i { display: block; width: 100%; border-radius: 8px 8px 4px 4px; background: linear-gradient(180deg, rgba(255, 255, 255, .26), rgba(255, 255, 255, .06)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3); transform-origin: bottom; }
-.bars .now i { background: linear-gradient(180deg, #fff, rgba(255, 255, 255, .35)); box-shadow: 0 0 18px rgba(255, 255, 255, .2); }
+.bars .now i { background: linear-gradient(180deg, rgb(var(--accent)), rgb(var(--accent) / .35)); box-shadow: 0 0 18px rgb(var(--accent) / .25); }
 .bars span { font-size: 14px; color: var(--ink-quiet); }
 .bars .now span { color: var(--ink); }
 .dg-in.dg-js .bars i { animation: dg-grow 700ms var(--ease-out) both; animation-delay: calc(var(--n, 0) * 60ms + 500ms); }
@@ -452,6 +462,16 @@
 /* a count beside a nav item */
 .nav a .count { margin-left: auto; min-width: 28px; height: 24px; padding: 0 var(--space-2); display: grid; place-items: center; border-radius: var(--radius-pill); background: rgba(255, 255, 255, .1); font-size: 14px; font-weight: 600; }
 .me > span { white-space: nowrap; }
+
+/* the scene: the business's own photo, melted into the dark behind the
+   figure so the screen says what it is for before the words do. One photo,
+   their own (product, room, work), never stock that could be anyone's. */
+.stage > .scene { position: absolute; z-index: 0; top: 0; right: 0; width: 62%; height: 440px; pointer-events: none;
+  -webkit-mask-image: radial-gradient(120% 100% at 100% 0%, #000 30%, transparent 72%); mask-image: radial-gradient(120% 100% at 100% 0%, #000 30%, transparent 72%); }
+.stage > .scene img { width: 100%; height: 100%; object-fit: cover; opacity: .42; filter: saturate(.9) contrast(1.05); }
+.stage > .scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--ground), transparent 45%), linear-gradient(0deg, rgb(5 5 6 / .85), transparent 40%); }
+/* words over the picture: brighter, with a shadow, so they keep 4.5:1 */
+.stage:has(> .scene) .figure .label, .stage:has(> .scene) .figure .hint { color: #e6e6ea; text-shadow: 0 1px 12px rgba(0, 0, 0, .95), 0 0 2px rgba(0, 0, 0, .8); }
 
 /* ------------------------------------------------------------- sign-in */
 

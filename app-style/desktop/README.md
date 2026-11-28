@@ -95,12 +95,22 @@ Found by a blind review of the same screen built by Haiku, Sonnet and Opus:
 - **Never cut a row in half.** Fit the rows to 900 tall, or end the list
   with "View all".
 - **Make it theirs.** Copying `tally-home` gets the layout right, but a
-  flower shop and an invoicing app must not look the same. Give each
-  screen one thing only that business could have: a photo of its product
-  in `.dg-art` or a side panel, an icon from its world in the figure's
-  label, or its one accent (from the brief's brand) on the live state.
-  A reviewer's first question is "what is this for?"; the screen should
-  answer before the words do.
+  flower shop and an invoicing app must not look the same. Do all three
+  that apply; the screen should say what it is for before the words do:
+  1. **Their colour.** Brand colour in the brief? Put it on the page as
+     three numbers: `<body class="dg" style="--accent: 232 163 61">`. The
+     selected nav item, the figure's icon, meters and the current bar take
+     it. Give the light the same colour: `color: '#e8a33d'` on each
+     `DG.streaks` line and the colour as the last argument of `DG.glow`.
+     The white button stays white; one colour, nothing else.
+  2. **Their picture.** Photos supplied? Put the best one behind the
+     figure: `<div class="scene" aria-hidden="true"><img src="..."
+     alt=""></div>` as the first thing in `.stage`. It melts into the dark
+     on its own. Their product or room, never a stock picture.
+  3. **Their world.** An icon from what they sell in the figure's label
+     (`<p class="label"><svg class="i"><use href="#i-flower"/></svg>
+     Deliveries today</p>`) and in the nav: a flower shop has `flower`
+     and `truck`, a restaurant `calendar` and `users`, a shop `bag`.
 - **Three stat cards in a row read as a template.** Prefer one strip of
   figures divided by thin lines, inside the hero.
 

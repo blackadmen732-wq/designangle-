@@ -35,12 +35,14 @@
       var a = l.from || [0, 0], b = l.to || [1672, 941];
       // the core is hottest at l.hot (0..1 along the line) and fades out to both ends
       var hot = l.hot == null ? 0.55 : l.hot;
+      // c: the brand colour the light carries; the hottest point stays white
+      var c = l.color || '#fff';
       defs += '<linearGradient id="' + g + '" gradientUnits="userSpaceOnUse" x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '">'
-        + '<stop offset="0" stop-color="#fff" stop-opacity="0"/>'
-        + '<stop offset="' + Math.max(0, hot - 0.3) + '" stop-color="#fff" stop-opacity=".35"/>'
+        + '<stop offset="0" stop-color="' + c + '" stop-opacity="0"/>'
+        + '<stop offset="' + Math.max(0, hot - 0.3) + '" stop-color="' + c + '" stop-opacity=".35"/>'
         + '<stop offset="' + hot + '" stop-color="#fff" stop-opacity="1"/>'
-        + '<stop offset="' + Math.min(1, hot + 0.25) + '" stop-color="#fff" stop-opacity=".45"/>'
-        + '<stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>';
+        + '<stop offset="' + Math.min(1, hot + 0.25) + '" stop-color="' + c + '" stop-opacity=".45"/>'
+        + '<stop offset="1" stop-color="' + c + '" stop-opacity="0"/></linearGradient>';
       if (l.sheet) {
         defs += '<linearGradient id="' + s + '" gradientUnits="userSpaceOnUse" x1="' + (l.sheetFrom || a)[0] + '" y1="' + (l.sheetFrom || a)[1] + '" x2="' + (l.sheetTo || b)[0] + '" y2="' + (l.sheetTo || b)[1] + '">'
           + '<stop offset="0" stop-color="#fff" stop-opacity="0"/>'
@@ -91,11 +93,12 @@
   }
 
   /* A soft light spot behind something, so the glass over it has light to
-     blur: DG.glow(el, x, y, size, strength) in the reference's pixels. */
-  function glow(el, x, y, size, a) {
+     blur: DG.glow(el, x, y, size, strength, colour) in the reference's pixels;
+     colour is three numbers, '232 163 61', and white when left out. */
+  function glow(el, x, y, size, a, color) {
     var g = document.createElement('div');
     g.className = 'dg-glow';
-    g.style.cssText = 'left:' + (x - size / 2) / 16.72 + 'vw;top:' + (y - size / 2) / 9.41 + 'vh;width:' + size / 16.72 + 'vw;height:' + size * .7 / 9.41 + 'vh;--a:' + (a || .1);
+    g.style.cssText = 'left:' + (x - size / 2) / 16.72 + 'vw;top:' + (y - size / 2) / 9.41 + 'vh;width:' + size / 16.72 + 'vw;height:' + size * .7 / 9.41 + 'vh;--a:' + (a || .1) + (color ? ';--c:' + color : '');
     el.appendChild(g);
   }
 

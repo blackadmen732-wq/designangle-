@@ -78,3 +78,4 @@ became rules:
 | Status pills read as badges and crowded the list | `.status` is a dot and a word |
 | A row of cards running off the edge failed the edge check | `.strip` scrolls sideways, so the cut card means "more" |
 | With the example, Haiku matched Opus on a new brief, but the flower shop looked like the invoicing app with new words | "Make it theirs" rule in `app-style/desktop/README.md`; product icons (truck, map-pin, box, flower, bag, cart) |
+| No way to give a screen its business's colour or picture | `--accent` on the page tints the selected item, icons, meters and bars; `DG.streaks` lines take `color`, `DG.glow` a colour; `.scene` puts their own photo behind the figure and keeps words over it readable; `--late` and `--good` move if the brand colour clashes |

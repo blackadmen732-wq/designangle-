@@ -13,9 +13,15 @@ art.js           DG.streaks(), DG.mark(), DG.enter()
 
 ## Start here
 
-1. Pick the pattern from the screen's job, and copy its example as your
-   starting file. Do not invent a layout; the patterns are how the screen
-   gets composed, and you change the words, figures, colour and picture.
+0. Run `node tools/decide.js brief/<project>.md` (add `--mode=fast`,
+   `pro` or `studio`). It makes the decisions code can make: the pattern,
+   the layout candidates ranked before anything is built, the figure's
+   size, the brand colour and where it may go, status tones that clash
+   with it, the picture, the icons and what moves. Paste its block at the
+   top of your file and build the first layout. Write your own words.
+1. The patterns behind it, and their examples. The example shows the
+   parts in use; the layout comes from decide.js, so two businesses on one
+   pattern do not get the same screen.
 
    | The screen's job | Pattern | Copy |
    |---|---|---|
@@ -39,18 +45,18 @@ art.js           DG.streaks(), DG.mark(), DG.enter()
    <page>`, and `node tools/match.js <page> <ref.png>` when there is a
    reference.
 
-## Final pass (optional, costs one more render and one review)
+## Final pass (Pro and Studio modes)
 
 When the screen matters, do not ship the first version:
 
-1. Make a second version that differs in one big way: the figure on its
-   own with the action under it, a picture-led stage, or a different
-   pattern. Keep both in their own folders.
+1. Make the second-ranked layout from decide.js as a second version, in
+   its own folder. (Fast mode skips this: build one, review once.)
 2. `node tools/sheet.js <first> <second>` puts them side by side as A and B.
 3. Give the sheet and the brief, not the file names, to a reviewer who has
-   not seen the work (a fresh session or subagent): "Which would a paying
-   client pick, and what three things would most improve it?"
-4. Fix those three in the winner, delete the loser, run the checks again.
+   not seen the work, with the prompt in `tools/critic.md`.
+4. Fix the named weaknesses in the winner, delete the loser, check again.
+   Repair passes: Pro 2, Studio up to 5. A weakness that would hit every
+   screen goes to `rules/RULES.md`.
 
 ## Depth: four layers, always
 

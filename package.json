@@ -9,7 +9,9 @@
     "check:app": "node tools/check.js app-style/styles app-style/examples/podcast app-style/examples/tickets app-style/examples/kanboard app-style/examples/dokuwiki app-style/examples/chick-fil-a app-style/examples/front-desk app-style/screens/*.html",
     "launch-check": "node tools/launch-check.js",
     "match": "node tools/match.js",
-    "sheet": "node tools/sheet.js"
+    "sheet": "node tools/sheet.js",
+    "decide": "node tools/decide.js",
+    "regress": "node tools/regress.js"
   },
   "devDependencies": {
     "playwright": "1.63.0"

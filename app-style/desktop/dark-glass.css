@@ -341,7 +341,7 @@
 /* Numbers people act on: a big figure, a table of rows, a status. Added
    when Haiku, Sonnet and Opus were each given an invoicing brief and all
    three had to invent these by hand (Nov 28). */
-.brand-word { font: 650 24px/1 var(--ui-display); letter-spacing: .02em; text-shadow: 0 0 18px rgba(255, 255, 255, .25); }
+.brand-word { font: 650 24px/1 var(--ui-display); letter-spacing: .02em; text-shadow: 0 0 18px rgba(255, 255, 255, .25); white-space: nowrap; flex: none; }   /* a two-word name must not wrap in the top bar at 1280 */
 .stat-label { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-quiet); font-size: 15px; }
 .stat-num { margin: var(--space-2) 0 var(--space-1); font: 600 64px/1 var(--ui-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
 .stat-num small { font-size: .45em; font-weight: 500; color: var(--ink-quiet); letter-spacing: 0; margin-left: var(--space-2); }
@@ -395,6 +395,13 @@
 .figure .btn-white { width: auto; height: 56px; padding: 0 var(--space-6) 0 var(--space-5); font-size: 18px; border-radius: var(--radius-m); }
 .figure .hint { color: var(--ink-quiet); font-size: 14px; }
 @media (max-width: 1360px) { .figure { gap: var(--space-6); } .figure .amount { font-size: 92px; } }
+/* the figure alone, centred, its action under it: version B of the number
+   pattern, and the better one when the stage has a picture behind it */
+.figure.stacked { flex-direction: column; align-items: center; text-align: center; padding-top: var(--space-10); }
+.figure.stacked .label { justify-content: center; }
+.figure.stacked .act { margin: var(--space-6) 0 0; align-items: center; }
+/* a busy day: denser rows when the list is long (decide.js says when) */
+.ledger.dense td { height: 48px; }
 
 /* facts: a strip of figures with hairlines between, not a row of cards */
 .facts { display: grid; grid-template-columns: repeat(3, auto) 1fr; margin: 0 var(--space-6); padding: var(--space-5) 0; border-top: 1px solid rgba(255, 255, 255, .1); border-bottom: 1px solid rgba(255, 255, 255, .1); }

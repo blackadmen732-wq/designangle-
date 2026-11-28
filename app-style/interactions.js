@@ -49,7 +49,7 @@
     if (name) { root.dataset.motion = name; root.style.setProperty('--ia-k', P().k); }
     return root.dataset.motion || 'calm';
   }
-  var q = new URLSearchParams(location.search).get('motion'); if (q) personality(q);
+  var q = new URLSearchParams(location.search).get('motion') || (/^#(calm|lively)$/.test(location.hash) ? location.hash.slice(1) : ''); if (q) personality(q);
   function ms(name, fallback) { var v = parseFloat(css.getPropertyValue(name)); return (isNaN(v) ? fallback : v) * P().k; }
   function px(n) { return n * P().travel; }
   function still() { return matchMedia('(prefers-reduced-motion: reduce)').matches; }

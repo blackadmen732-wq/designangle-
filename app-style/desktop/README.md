@@ -125,7 +125,8 @@ Found by a blind review of the same screen built by Haiku, Sonnet and Opus:
   is clutter; use it for who owes what, or a trend.
 - **Never cut a row in half.** Fit the rows to 900 tall, or end the list
   with "View all".
-- **Make it theirs.** Copying `tally-home` gets the layout right, but a
+- **Make it theirs.** `tally-home` lends its structure, never its black
+  metallic look. Copying it gets the layout right, but a
   flower shop and an invoicing app must not look the same. Do all three
   that apply; the screen should say what it is for before the words do:
   1. **Their colour.** Brand colour in the brief? Put it on the page as

@@ -12,6 +12,11 @@ Benchmarks on unseen briefs showed that rules, layouts and review loops
 imposed on the model made its designs worse, not better
 (`rules/BENCHMARKS.md`). Everything creative in this repo is optional.
 
+**Examples teach structure, never appearance.** Take an example's
+hierarchy, grouping, primary action and interactions; choose colour, type,
+imagery, materials and motion fresh from each product's brief. A flower
+shop does not inherit an invoicing app's black and metallic light.
+
 **Before designing anything, get a brief.** Fill `brief/TEMPLATE.md` from
 what you were told. If a line marked *needed* is empty, ask (at most five
 short questions, each with a suggested answer); do not guess. Why:

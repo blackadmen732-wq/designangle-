@@ -302,3 +302,103 @@ create or replace view mk_site_daily with (security_invoker = true) as
          count(*) filter (where kind = 'book_click')  as book_clicks,
          count(distinct visitor)                      as visitors
   from mk_events group by 1, 2;
+
+-- ======================================================================
+-- Service area: "do you come out to me, and how far is it?"
+-- ----------------------------------------------------------------------
+-- Synced from the live database on 26 November 2026. These four objects had
+-- been created by migration (mk_service_area, mk_site_settings) and never
+-- written back, so the repo described a database that could not answer the
+-- question the HVAC site asks on every enquiry.
+-- ======================================================================
+
+-- ------------------------------------------------------------ mk_zip_points
+-- US ZIP centroids from the Census Bureau Gazetteer, public domain. Loaded
+-- once by the load-zips edge function; about 33,800 rows.
+--
+-- Holding these locally is what makes the distance answer free: no maps key,
+-- no per-lookup fee, no rate limit, and nothing about the visitor leaves the
+-- database.
+create table if not exists mk_zip_points (
+  zip text primary key,
+  lat double precision not null,
+  lon double precision not null
+);
+
+alter table mk_zip_points enable row level security;
+
+-- Public reference data, so every signed-in account may read it. There is no
+-- write policy: only the loader, running as the service role, puts rows here.
+create policy zip_read on mk_zip_points for select to authenticated using (true);
+
+-- --------------------------------------------------------- mk_site_settings
+-- The handful of details an owner changes themselves without waiting for a
+-- rebuild: phone, hours, and a temporary notice. The website fetches these on
+-- load through the settings edge function.
+create table if not exists mk_site_settings (
+  site_id      uuid primary key references mk_sites(id) on delete cascade,
+  phone        text,
+  hours        jsonb not null default '[]'::jsonb,
+  notice       text,
+  notice_until date,
+  updated_at   timestamptz not null default now(),
+  updated_by   uuid references auth.users(id)
+);
+
+alter table mk_site_settings enable row level security;
+
+create policy settings_read on mk_site_settings for select to authenticated
+  using (site_id in (select id from mk_sites));
+
+create policy settings_insert on mk_site_settings for insert to authenticated
+  with check (site_id in (select id from mk_sites));
+
+create policy settings_write on mk_site_settings for update to authenticated
+  using (site_id in (select id from mk_sites))
+  with check (site_id in (select id from mk_sites));
+
+-- ----------------------------------------------------------------- mk_miles
+-- Great-circle distance in statute miles (haversine). Straight line, not a
+-- routed one; callers multiply by the account's road_factor.
+--
+-- search_path is pinned because a function without one can be made to resolve
+-- a different table if someone controls the caller's search_path.
+create or replace function mk_miles(
+  lat1 double precision, lon1 double precision,
+  lat2 double precision, lon2 double precision
+) returns double precision
+language sql immutable parallel safe
+set search_path to 'public', 'pg_temp'
+as $$
+  select 3958.7613 * 2 * asin(least(1, sqrt(
+    power(sin(radians(lat2 - lat1) / 2), 2) +
+    cos(radians(lat1)) * cos(radians(lat2)) *
+    power(sin(radians(lon2 - lon1) / 2), 2)
+  )))
+$$;
+
+-- ----------------------------------------------------------- mk_nearest_zip
+-- Turns coordinates from the browser's location button into the nearest ZIP
+-- we already hold, so the phone answers the question with no geocoding
+-- service involved.
+create or replace function mk_nearest_zip(
+  in_lat double precision, in_lon double precision
+) returns table(zip text, miles double precision)
+language sql stable parallel safe
+set search_path to 'public', 'pg_temp'
+as $$
+  select z.zip, mk_miles(in_lat, in_lon, z.lat, z.lon) as miles
+  from mk_zip_points z
+  -- A rough box first, so this never scans all 33,791 rows. One degree of
+  -- latitude is about 69 miles, so 1.5 degrees comfortably covers any ZIP.
+  where z.lat between in_lat - 1.5 and in_lat + 1.5
+    and z.lon between in_lon - 1.5 and in_lon + 1.5
+  order by miles
+  limit 1
+$$;
+
+-- These functions run with the caller's own rights, so a signed-in owner
+-- reaches them and an anonymous visitor does not. The edge functions call
+-- them with the service role.
+revoke execute on function mk_miles(double precision, double precision, double precision, double precision) from public, anon;
+revoke execute on function mk_nearest_zip(double precision, double precision) from public, anon;

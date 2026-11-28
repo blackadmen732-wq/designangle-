@@ -1,4 +1,41 @@
-# Benchmark, 28 November 2026: with and without Design Angel
+# Benchmarks: does Design Angel make a model design better?
+
+Kept as they happened, negative results included. Scores are out of 10
+from blind reviewers (Sonnet) who did not build the screens; tokens are
+per screen, as reported by each run.
+
+## Summary
+
+| Round | What Haiku had | Haiku with it | Haiku alone | Opus alone | Tokens, with vs alone |
+|---|---|---|---|---|---|
+| 0 (same invoicing brief, all dark glass) | the repo | 6.5 | n/a | 7.5 | similar |
+| 0b (new brief, still dark glass) | the repo plus a copied example | 6.5 | n/a | 6.5 (same reviewer) | similar |
+| 1 (two unseen briefs) | the dark glass style and tools | 5.4 | 7.35 | 8.3 | 216k to 231k vs 210k to 227k |
+| 2 (three unseen briefs) | a style-free process, all checks, self-repair | 6.65 | 7.5 | 8.3 | 211k to 251k vs 210k to 227k |
+| 3 (same three) | breakage checks only, repairs from a blind reviewer | 6.45 | 6.98 | 8.27 | about 480k vs about 215k |
+
+Rounds 0 and 0b only looked like progress because every screen was in the
+house style. On unseen briefs nothing in the repo beat Haiku alone, and
+Opus alone led every round by more than a point. Reviewers move about half
+a point between rounds on the same screens.
+
+What changed because of this: no house look (dark glass is a preset);
+taste checks are advice, only breakage blocks; layout decisions, extra
+review passes and regeneration are optional and off by default.
+
+## Next tests: isolated components, not whole apps
+
+A whole screen costs about 200k tokens per agent call and mixes everything
+together. Test motion and interaction in isolation instead, one small part
+per run: a product opening into its detail (shared element), a bottom sheet
+that follows the finger, a swipe or drag gesture, moving between steps and
+back, a microinteraction (add to cart, favourite, switch). Compare a model
+with and without the motion skill on the same part, blind. Keep a part only
+if it measurably helps.
+
+# Round details
+
+## Round 1, 28 November 2026: with and without Design Angel
 
 Two briefs no part of the engine was built for (a yoga studio's week, a
 music app's home), desktop, 1440 x 900. Three builds each: Haiku with the

@@ -1,8 +1,16 @@
 # Design Angle
 
-Websites, phone app screens, desktop app screens, and the owner panel behind
-a client's website, all from one design system. Read this page, then only
-what your job needs.
+A lightweight design-engineering toolkit. It helps a capable model build,
+animate and check its own design: parts, tokens, motion, accessibility and
+breakage checks, and matching against a reference. It does not replace the
+model's creative judgment, and it imposes no house look. Read this page,
+then only what your job needs.
+
+**Start from the product, not a layout.** Understand what the business
+sells, who uses the screen and what they do there, then design for that.
+Benchmarks on unseen briefs showed that rules, layouts and review loops
+imposed on the model made its designs worse, not better
+(`rules/BENCHMARKS.md`). Everything creative in this repo is optional.
 
 **Before designing anything, get a brief.** Fill `brief/TEMPLATE.md` from
 what you were told. If a line marked *needed* is empty, ask (at most five
@@ -15,7 +23,7 @@ short questions, each with a suggested answer); do not guess. Why:
 |---|---|---|
 | A client's website | `sites/CLAUDE.md` | `DESIGN.md`, the locked values |
 | A web page that is not a business: a product, a portfolio, docs | `sites/CLAUDE.md`, the part on `kind` | `DESIGN.md` |
-| A desktop app screen: an editor, a studio, a launcher, a dashboard, a business tool | Choose the look from the brief. `app-style/desktop/` (dark glass) is one preset, only for briefs that ask for dark, cinematic or glass, or give a reference like it. Benchmarks: `rules/bench-2026-11-28.md` | `.claude/skills/design/SKILL.md` for the method |
+| A desktop app screen: an editor, a studio, a launcher, a dashboard, a business tool | Choose the look from the brief. `app-style/desktop/` (dark glass) is one preset, only for briefs that ask for dark, cinematic or glass, or give a reference like it. Benchmarks: `rules/BENCHMARKS.md` | `.claude/skills/design/SKILL.md` for the method |
 | A logo in a reference picture | `.claude/skills/logo-recreate/SKILL.md` | `tools/trace-logo.py` |
 | A background, or making one move | `.claude/skills/animated-backgrounds/SKILL.md` | `app-style/desktop/art.js` |
 | A phone app screen | `.claude/skills/app-style/SKILL.md` | `app-style/styles/` when the brief wants a tool, not a brand |
@@ -73,7 +81,7 @@ motion that ignores reduced motion. Fix those always. `slop.js` measures
 taste (type sizes, badges, spacing grid, radii); it is advice and never
 blocks. On unseen briefs, repairs made to satisfy it scored lower with
 blind reviewers, and it fails screens reviewers rated best
-(`rules/bench-2026-11-28.md`). Change a design for taste only on a blind
+(`rules/BENCHMARKS.md`). Change a design for taste only on a blind
 reviewer's notes.
 
 Never ask a model whether a ratio passes. Do open the screenshots, and for

@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 /*
+ * OPTIONAL. On unseen briefs, building to these decisions scored lower than
+ * the model's own choices (rules/BENCHMARKS.md); use it as a second opinion,
+ * not an order. Fast mode (one layout, no extra review) is the default.
+ *
  * Make the design decisions a brief implies, by rule, so the model building
  * the screen does not have to: the layout pattern, the figure's size, the
  * brand colour and what it may touch, the status tones, the picture, the
@@ -117,7 +121,7 @@ const MOTION = {
 // Scores use the critic's weights (tools/critic.json) on what the brief
 // says: the figure's length, whether there is a picture, how long the list
 // is, and whether the brand has a colour.
-const modeArg = (process.argv.find(a => a.startsWith('--mode=')) || '--mode=pro').split('=')[1];
+const modeArg = (process.argv.find(a => a.startsWith('--mode=')) || '--mode=fast').split('=')[1];
 const MODES = { fast: { n: 1, repairs: 1, critic: 'basic' }, pro: { n: 3, repairs: 2, critic: 'detailed' }, studio: { n: 5, repairs: 5, critic: 'independent, two reviewers' } };
 const mode = MODES[modeArg] || MODES.pro;
 const content = (B[8] || '').toLowerCase();

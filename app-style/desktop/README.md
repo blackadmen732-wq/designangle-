@@ -2,7 +2,7 @@
 
 Use this only when the brief asks for a dark, cinematic or glass look, or
 gives a reference like it. On briefs that did not, it scored about two
-points lower than building without it (`rules/bench-2026-11-28.md`).
+points lower than building without it (`rules/BENCHMARKS.md`).
 
 Desktop app screens on a near-black ground: a creative tool, an editor, a
 launcher, a studio. The first two screens built with it are Mark's Cinema
@@ -17,8 +17,8 @@ art.js           DG.streaks(), DG.mark(), DG.enter()
 
 ## Start here
 
-0. Run `node tools/decide.js brief/<project>.md` (add `--mode=fast`,
-   `pro` or `studio`). It makes the decisions code can make: the pattern,
+0. Optional: `node tools/decide.js brief/<project>.md` gives a second
+   opinion (Fast mode by default; `--mode=pro` or `studio` only when asked). It makes the decisions code can make: the pattern,
    the layout candidates ranked before anything is built, the figure's
    size, the brand colour and where it may go, status tones that clash
    with it, the picture, the icons and what moves. Paste its block at the
@@ -49,7 +49,7 @@ art.js           DG.streaks(), DG.mark(), DG.enter()
    <page>`, and `node tools/match.js <page> <ref.png>` when there is a
    reference.
 
-## Final pass (Pro and Studio modes)
+## Final pass (off by default; only when asked, it costs about 200k tokens a call)
 
 When the screen matters, do not ship the first version:
 

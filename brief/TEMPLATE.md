@@ -13,6 +13,10 @@ a suggested answer they can accept with one word. Lines not marked needed
 can be decided by the designer; say what was decided and why, in one line
 each, at the top of the screen's file.
 
+**When every needed line is filled, do not ask.** Start designing. A
+complete brief is the person's answer already; more questions only slow
+them down.
+
 ---
 
 ## 1. What it is *(needed)*

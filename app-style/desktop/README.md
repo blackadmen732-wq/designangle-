@@ -11,6 +11,24 @@ icons.js         one stroke icon family plus Google, Discord and GitHub marks
 art.js           DG.streaks(), DG.mark(), DG.enter()
 ```
 
+## Start here
+
+1. Copy the closest example as your starting file:
+   `app-style/examples/cinevora-home` (an app home with a sidebar),
+   `cinema-login` (a sign-in or splash), `streaming-study` (a screen
+   carried by photos).
+2. Put `<meta name="platform" content="desktop">` in its head. The checks
+   then test it at 1280 and 1440 wide and skip phone size.
+3. Design for 1280 to 1440 wide. Nothing important may sit off screen at
+   1280 x 900.
+4. No logo file? Use `.brand-word`: the product name as type, never a
+   drawn imitation of a logo.
+5. Need a part that is not listed below? Add it to `dark-glass.css` with a
+   comment, not a `<style>` block in the page, so the next screen has it.
+6. Check: `node tools/slop.js <page> --desktop`, `node tools/check.js
+   <page>`, and `node tools/match.js <page> <ref.png>` when there is a
+   reference.
+
 ## Depth: four layers, always
 
 1. **Ground** `#050506`. Black with the faintest lift. Never grey.
@@ -49,7 +67,12 @@ panels (`.panel`), sign-in (`.signin`, `.wordmark`, `.tagline`,
 `.socials`, `.social`, `.signup`), media screens where photos carry the
 light (`.topnav`, `.tabs`, `.billboard`, `.feature`, `.actions`,
 `.circle`, `.rows`, `.strip`, `.card` with `.bar` progress and `.num`
-ranks; first used in `app-style/examples/streaming-study`, a private study).
+ranks; first used in `app-style/examples/streaming-study`, a private study),
+and data (`.brand-word`, `.stat-label`, `.stat-num`, `.delta`, `.stats`,
+`.table` with `.tr`, `.th`, `.name`, `.initials`, `.muted`, `.num`, and
+`.status` in three tones: `.good`, `.wait`, `.late`).
+
+Icon names are listed at the top of `icons.js`.
 
 ## Motion
 

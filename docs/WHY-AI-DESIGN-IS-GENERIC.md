@@ -58,3 +58,19 @@ patch on one page:
 What the reviewers flagged that is not a system problem: the font (the
 references use Segoe UI, a Windows font this computer does not have) and the
 references' own photographed light, which needs an image, not code.
+
+## Found by giving the same brief to Haiku, Sonnet and Opus
+
+The same short brief (`Tally`, an invoicing home screen) went to three
+fresh sessions that had only this repo. What the smaller models got wrong
+became rules:
+
+| Problem | Rule now in the system |
+|---|---|
+| Nothing for numbers and tables, so each model wrote its own in a `<style>` block | Data parts in the style: `.stats`, `.stat-num`, `.delta`, `.table`, `.status` in three tones |
+| Icons guessed by name and missing | Every icon name listed at the top of `icons.js`, with invoice, money and status icons added |
+| Checks tested a desktop screen at phone size and failed it | `<meta name="platform" content="desktop">` makes `tools/check.js` test 1280 and 1440 wide only |
+| No obvious first step | "Start here" in `app-style/desktop/README.md`: copy the closest example, mark it desktop, check it |
+| Drawn imitation logos when there was no logo | `.brand-word`: the name as type, never a fake mark |
+| Asked questions the brief already answered | A complete brief means start; ask only for empty needed lines |
+| A copied example carried a bug (glow code run twice) | Fixed in the example, since examples are copied as they are |

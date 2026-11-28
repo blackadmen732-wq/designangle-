@@ -1,5 +1,10 @@
 /*
  * Desktop icons: one stroke family, drawn on a 24 grid at 1.6 weight, put
+ * (names: home plus layers film folder users user-plus settings search bell
+ * chev-down chev-right arrow-right user lock eye clock history cube bolt
+ * sparkle record import grid list diamond activity minus plus-plain play
+ * check receipt dollar send calendar alert download filter trend-up square
+ * close; brands: google discord github) and
  * into the page as an SVG sprite so a screen opened from disk still shows
  * them. Use: <svg class="i"><use href="#i-home"/></svg>
  *
@@ -38,6 +43,15 @@
     activity: '<path d="M2.8 12.5h4l2.5-6 4.3 12 2.6-6h5"/>',
     minus: '<path d="M5 12h14"/>',
     'plus-plain': '<path d="M12 5v14M5 12h14"/>',
+    check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+    receipt: '<path d="M6 3.5h12v17l-2.4-1.6-2.4 1.6-2.4-1.6-2.4 1.6L6 20.5Z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/>',
+    dollar: '<path d="M12 3.5v17M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.6 0-4.5 1.3-4.5 3.4 0 4.7 9.5 2.4 9.5 7.2 0 2-1.9 3.4-4.8 3.4-2.4 0-4.2-1-4.8-2.8"/>',
+    send: '<path d="M20.5 3.5 10 14M20.5 3.5l-6.5 17-4-6.5-6.5-4Z"/>',
+    calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+    alert: '<path d="M12 3.8 21 19.5H3Z"/><path d="M12 10v4.2M12 17v.2"/>',
+    download: '<path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M4.5 19.5h15"/>',
+    filter: '<path d="M4 5.5h16l-6.2 7.2v5.6l-3.6 1.8v-7.4Z"/>',
+    'trend-up': '<path d="m3.5 16.5 6-6 4 4 7-7M15 7.5h5.5V13"/>',
     play: '<path d="M8 5.2v13.6a.8.8 0 0 0 1.2.7l10.6-6.8a.8.8 0 0 0 0-1.4L9.2 4.5A.8.8 0 0 0 8 5.2Z" fill="currentColor" stroke="none"/>',
     square: '<rect x="5.5" y="5.5" width="13" height="13" rx="1"/>',
     close: '<path d="m6 6 12 12M18 6 6 18"/>'

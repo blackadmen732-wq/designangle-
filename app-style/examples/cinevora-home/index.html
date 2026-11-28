@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#050506">
+<meta name="platform" content="desktop">
 <title>CINEVORA · Home</title>
 <!--
   CINEVORA's home, built from the dark glass style as its second test
@@ -152,12 +153,7 @@
 
   document.querySelectorAll('.seg button').forEach(function (b) {
     b.addEventListener('click', function () {
-      var art = document.getElementById('art');
-  DG.glow(art, 1500, 300, 700, .06);
-  DG.glow(art, 760, 330, 1000, .05);
-  DG.sweep(art, { strength: .04, seconds: 18 });
-
-  document.querySelectorAll('.seg button').forEach(function (o) { o.setAttribute('aria-pressed', o === b); });
+      document.querySelectorAll('.seg button').forEach(function (o) { o.setAttribute('aria-pressed', o === b); });
     });
   });
 

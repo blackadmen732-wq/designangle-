@@ -534,7 +534,18 @@ async function check(browser, file) {
   };
   const blockedHosts = new Set(), shots = [];
 
-  for (const size of SIZES) {
+  /* A desktop app screen says so with <meta name="platform" content="desktop">
+     (or the run passes --desktop-only). It is then checked at the two widths
+     a desktop window really has, 1280 and 1440, and not at phone size, where
+     its failures would only be noise. A website never sets this: it has to
+     work on a phone. */
+  let html = '';
+  try { html = fs.readFileSync(file, 'utf8'); } catch {}
+  const desktopOnly = process.argv.includes('--desktop-only') || /<meta\s+name=["']platform["']\s+content=["']desktop["']/i.test(html);
+  const sizes = desktopOnly ? [SIZES[1], { name: 'desktop-wide', width: 1440, height: 900 }] : SIZES;
+  if (desktopOnly) console.log(`  ${rel}: desktop app screen, checked at 1280 and 1440 wide`);
+
+  for (const size of sizes) {
     const { context, page, blocked, errors } = await open(browser, file, { viewport: { width: size.width, height: size.height } });
     await page.mouse.move(size.width / 2, 10);
     await scrollThrough(page);
@@ -585,7 +596,7 @@ async function check(browser, file) {
   const browser = await chromium.launch();
   let failed = 0;
   try {
-    for (const file of pages(process.argv.slice(2))) failed += (await check(browser, file)) ? 1 : 0;
+    for (const file of pages(process.argv.slice(2).filter((a) => !a.startsWith('--')))) failed += (await check(browser, file)) ? 1 : 0;
   } finally {
     await browser.close();
   }

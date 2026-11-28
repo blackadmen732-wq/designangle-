@@ -326,6 +326,42 @@
 .panel h3 { margin: 0 0 var(--space-4); display: flex; align-items: center; gap: var(--space-3); font: 600 18px/1.2 var(--ui-display); }
 .dot-live { width: 10px; height: 10px; border-radius: 50%; background: #3ad16b; box-shadow: 0 0 10px rgba(58, 209, 107, .6); }
 
+/* ---------------------------------------------------------------- data */
+
+/* Numbers people act on: a big figure, a table of rows, a status. Added
+   when Haiku, Sonnet and Opus were each given an invoicing brief and all
+   three had to invent these by hand (Nov 28). */
+.brand-word { font: 650 24px/1 var(--ui-display); letter-spacing: .02em; text-shadow: 0 0 18px rgba(255, 255, 255, .25); }
+.stat-label { display: flex; align-items: center; gap: var(--space-2); color: var(--ink-quiet); font-size: 15px; }
+.stat-num { margin: var(--space-2) 0 var(--space-1); font: 600 64px/1 var(--ui-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.stat-num small { font-size: .45em; font-weight: 500; color: var(--ink-quiet); letter-spacing: 0; margin-left: var(--space-2); }
+.delta { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; color: var(--ink-quiet); }
+.delta.up { color: #5fe08a; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-5); }
+.stats .panel { padding: var(--space-6); }
+.stats .stat-num { font-size: 36px; }
+
+/* A table that reads as a list: each row one line, the amount last and
+   right-aligned in tabular figures so the columns of digits line up. */
+.table { display: flex; flex-direction: column; }
+.table .tr { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1fr) 120px; align-items: center; gap: var(--space-4);
+  min-height: 60px; padding: 0 var(--space-4); border-radius: var(--radius-m); text-decoration: none; transition: background var(--t-quick) var(--ease-out); }
+.table .tr + .tr { border-top: 1px solid rgba(255, 255, 255, .06); }
+.table a.tr:hover { background: rgba(255, 255, 255, .05); }
+.table .th { min-height: 40px; color: var(--ink-quiet); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; border-top: 0; }
+.table .name { display: flex; align-items: center; gap: var(--space-3); min-width: 0; font-weight: 600; }
+.table .name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.table .muted { color: var(--ink-quiet); font-size: 15px; }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.initials { width: 36px; height: 36px; flex: none; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .1); font: 600 14px/1 var(--ui-font); }
+
+/* Status: a dot and a word, never colour alone. Three tones only. */
+.status { display: inline-flex; align-items: center; gap: var(--space-2); height: 28px; padding: 0 var(--space-3); border-radius: var(--radius-pill); font-size: 14px; font-weight: 600; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .1); }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.status.good { color: #5fe08a; }
+.status.wait { color: #d8d8de; }
+.status.late { color: #ffb15c; }
+
 /* ------------------------------------------------------------- sign-in */
 
 .signin { position: relative; z-index: 1; height: calc(100vh - 64px); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 4px; }

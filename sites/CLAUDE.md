@@ -25,7 +25,8 @@ fix there improves every site; a client's own look is the `theme` in
 
 No guarantee, response time, price, review count or certification unless the
 client said it. The example sites (hvac, restaurant, salon, meditation,
-barber) are invented, and each says so at the top of its `content.js`.
+barber, ninefold) are invented, and each says so at the top of its
+`content.js`.
 
 This applies at launch, not to a sales preview. A preview full of gaps looks
 broken, and a broken-looking preview cannot do the only job it has.
@@ -44,9 +45,10 @@ node tools/preview.js --name "Mario's Pizza" --trade restaurant --city "Columbus
 `tools/launch-check.js` refuses to ship a site that still holds placeholder or
 example text: a [bracket], the preview banner, an example's name, its address,
 or any sentence written for an example business. It reads those from the
-example sites themselves, so a new example is covered the day it is added. It flags claims rather than blocking them, because a client is
-entitled to make claims about their own business; it only asks that somebody
-confirm the client made them.
+example sites themselves, so a new example is covered the day it is added
+(name it in the tool's EXAMPLES list). It flags claims rather than blocking
+them, because a client is entitled to make claims about their own business;
+it only asks that somebody confirm the client made them.
 
 ```bash
 node tools/launch-check.js <site>    # exit 1 means do not ship

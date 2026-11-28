@@ -10,6 +10,8 @@ Google Maps, Airbnb, Uber Eats, Starbucks, Netflix and Gmail
 (`docs/research/her-redesigns.md`). This skill is how she thinks. The
 `app-style` skill is how it looks, `app-redesign` is the order of work in
 this repo, and `tools/watch.py` reads her next video the same way.
+The techniques behind her moves, in one table with the rest of the repo's
+quality bar: `docs/design-techniques.md`.
 
 ## 1. Look at it as the person using it
 

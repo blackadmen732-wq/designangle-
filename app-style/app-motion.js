@@ -19,12 +19,15 @@
   var EASE_OUT = 'cubic-bezier(.23, 1, .32, 1)';
   function still() { return matchMedia('(prefers-reduced-motion: reduce)').matches; }
 
+  /* For new work use vendor/pure-web-bottom-sheet.js (native scrolling, snap
+     points, drag from anywhere). This stays for the examples built on it. */
   function sheet(el) {
     el.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', function () { el.close(); }); });
     // A tap on the dim backdrop closes it, where closedby="any" is not yet understood.
     el.addEventListener('click', function (e) { if (e.target === el && e.clientY < el.getBoundingClientRect().top) el.close(); });
     var grip = el.querySelector('.sheet-grip');
     if (!grip) return el;
+    grip.style.touchAction = 'none';   // without this a finger's drag becomes a page scroll and the drag is cancelled
     var y0 = 0, trail = [], held = false;
     grip.addEventListener('pointerdown', function (e) {
       held = true; grip.setPointerCapture(e.pointerId); y0 = e.clientY; trail = [[e.clientY, e.timeStamp]]; el.style.transition = 'none';

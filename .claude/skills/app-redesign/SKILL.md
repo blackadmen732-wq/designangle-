@@ -9,6 +9,9 @@ The method is the design skill, the look is the app-style skill, the motion
 is the animate skill. This is the order of work that made them hold up on
 four real apps, and the traps each one hit.
 
+Techniques to reach for while deciding what changes, each with where it
+is worked out: `docs/design-techniques.md`. They are options, not checks.
+
 ## 1. Get the real before
 
 - **If it can run here, run it.** Open-source apps start in seconds:

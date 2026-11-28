@@ -39,7 +39,8 @@
                                 seen
    state(el, name, message)     loading, success, error, empty or ready, with
                                 aria-busy and a polite announcement
-   The bottom sheet, the toast and add-to-cart are AppMotion's (app-motion.js).
+   The bottom sheet is pure-web-bottom-sheet (vendor/); the toast and add-to-cart
+   are AppMotion's (app-motion.js).
    ========================================================================= */
 (function () {
   var root = document.documentElement, css = getComputedStyle(root);
@@ -89,6 +90,17 @@
     });
   }
 
+  /* AutoAnimate keeps a removed element on the page while it fades out, then
+     removes it when the fade ends. If the app puts it back during the fade
+     (Undo, or a filter changed twice quickly), that late removal would take
+     it away again. rescue() stops the fade and clears its styles first. */
+  function rescue(el) {
+    if (!el || !el.__aa_del) return;
+    el.getAnimations().forEach(function (a) { a.cancel(); });
+    ['position', 'top', 'left', 'width', 'height', 'margin', 'pointerEvents', 'transformOrigin', 'zIndex'].forEach(function (k) { el.style[k] = ''; });
+    delete el.__aa_del;
+  }
+
   /* ------------------------------------------------ expand and return */
   function expand(card, detail, opts) {
     opts = opts || {};
@@ -124,7 +136,8 @@
     }
     card.addEventListener('click', function (e) { e.preventDefault(); go(true); });
     detail.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', function () { go(false); }); });
-    detail.addEventListener('keydown', function (e) { if (e.key === 'Escape') go(false); });
+    // on the document, so Escape works even while the opening is still moving
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !detail.hidden) go(false); });
     return { open: function () { go(true); }, close: function () { go(false); } };
   }
 
@@ -216,13 +229,21 @@
     row.remove();
     if (focusNext) { var f = focusNext.querySelector('button, a') || focusNext; f.focus({ preventScroll: true }); }
     if (toastEl && window.AppMotion) AppMotion.toast(toastEl, (label || 'Removed') + '.', 'Undo', function () {
-      list.insertBefore(row, after && after.parentNode === list ? after : null);
+      rescue(row);
+      list.insertBefore(row, after && after.parentNode === list && !after.__aa_del ? after : null);
       var g = row.querySelector('button, a') || row; g.focus({ preventScroll: true });
     });
   }
 
   /* ------------------------------------------------ reflow */
-  function reflow(list, change) { lists(list); change(); }
+  function reflow(list, change) {
+    lists(list);
+    // anything the change puts back while it is still fading out is rescued first
+    var add = list.appendChild, ins = list.insertBefore;
+    list.appendChild = function (n) { rescue(n); return add.call(list, n); };
+    list.insertBefore = function (n, ref) { rescue(n); return ins.call(list, n, ref); };
+    try { change(); } finally { delete list.appendChild; delete list.insertBefore; }
+  }
 
   /* ------------------------------------------------ states */
   var live;

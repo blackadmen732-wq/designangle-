@@ -22,7 +22,7 @@ examples/dokuwiki/    DokuWiki redesigned from its own pages: reading, editing, 
 examples/chick-fil-a/ an unofficial Chick-fil-A study (not affiliated), Unsplash stand-ins
 examples/front-desk/  a barbershop's front-desk screen in the plain style: the second look's test
 app-motion.js         sheet(), toast(), flyTo(), bump(): the motion CSS cannot do alone
-vendor/               auto-animate 0.11.0 and Floating UI 1.8.0 (both MIT), licences in vendor/licenses/
+vendor/               auto-animate 0.11.0, Floating UI 1.8.0, pure-web-bottom-sheet 1.1.1 (all MIT), licences in vendor/licenses/
 tools/                make-icons.py, inline-icons.py, spring.js (a spring as a CSS curve)
 ```
 

@@ -38,6 +38,9 @@ looks:
 - **One action leads.** The thing the person came to do is the one
   primary button, next to what it acts on.
 
+More techniques to reach for, each in a line with where it is worked out:
+`docs/design-techniques.md`. Use what this product needs; none is a rule.
+
 ---
 
 ## 1. What it is *(needed)*

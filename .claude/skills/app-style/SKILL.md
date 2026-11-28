@@ -14,7 +14,8 @@ applied in, and the checks that prove it worked.
 
 | Path | What it is |
 |---|---|
-| `app-style/app-style.css` | The system: tokens, two grounds, the components. Every value measured from the recordings, in iOS points. |
+| `app-style/app-style.css` | The system: two grounds and the components, her look as the default. Every value measured from the recordings, in iOS points. The shared scales and motion come from `tokens/tokens.css`. |
+| `app-style/styles/` | Other looks for the same parts and markup. `plain.css` (semibold one-tone headings, 12pt corners, solid surfaces) is for an app people work in rather than browse; add `style-plain` to `.ui`. Her look stays the default; use another only when the brief asks for a tool rather than a brand. `styles/index.html` shows one screen in both. |
 | `app-style/app-icons.css` | 91 icons drawn as CSS masks (`<i class="ic ic-play-fill">`). Generated: edit `app-style/tools/make-icons.py`. |
 | `app-style/screens/` | Eight recreations of the redesigns (Netflix x2, Uber Eats, Maps, Airbnb, Starbucks, Gmail, sign-in). Studies: read them to see the style used. |
 | `app-style/examples/podcast/` | Earshot, an original app designed with this skill as its test, and `ai-default.html`, the deliberately bad version both audits are proved on. Start from Earshot's structure, not from a recreation. |

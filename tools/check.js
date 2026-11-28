@@ -175,7 +175,14 @@ function audit({ phone }) {
   const overPicture = (el) => {
     const r = el.getBoundingClientRect();
     if (!r.width || !r.height || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) return false;
+    // Text that ignores presses (a status bar, a caption laid over a photo)
+    // is not hit-tested, so it is missing from the stack and everything
+    // under it went unseen: a dark clock over a dark photo passed against
+    // the page colour. Let it be hit for the one reading.
+    const pe = el.style.pointerEvents;
+    if (getComputedStyle(el).pointerEvents === 'none') el.style.pointerEvents = 'auto';
     const stack = document.elementsFromPoint(Math.min(innerWidth - 1, Math.max(0, r.left + r.width / 2)), Math.min(innerHeight - 1, Math.max(0, r.top + r.height / 2)));
+    el.style.pointerEvents = pe;
     const at = stack.indexOf(el);
     if (at < 0) return false;
     for (let k = at; k < stack.length; k++) {

@@ -12,6 +12,8 @@ app-style.css         two grounds (.ui-dark, .ui-light) and the parts; it import
                       ../tokens/tokens.css, the space, corners, sizes and motion it
                       shares with the websites (check: node tools/tokens.js)
 app-icons.css         91 icons as CSS masks; edit tools/make-icons.py, not this
+styles/               other looks for the same parts: plain.css, and a page showing one
+                      screen in both (styles/README.md says how to add one)
 screens/              eight recreations that line up with their reference frames
 examples/podcast/     Earshot: an original app built with the system as its test
 examples/tickets/     Trac 1.6 redesigned from its own data, with motion: the second test

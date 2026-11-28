@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One Screen, Two Styles</title>
+<!-- One screen, the same markup twice. The first phone is her look, which is
+     what app-style.css draws on its own. The second is made by cloning the
+     first and adding one class, style-plain, with styles/plain.css linked.
+     If a style ever needs the screen's markup or its own CSS changed, it is
+     not a style; see styles/README.md.
+
+     Comb & Coat is the kit's invented barbershop (sites/barber): every name,
+     time and price is made up, and the photos are the kit's free-licence
+     stock. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
+<link rel="stylesheet" href="../app-style.css">
+<link rel="stylesheet" href="../app-icons.css">
+<link rel="stylesheet" href="plain.css">
+<style>
+  /* The page around the phones. */
+  body { margin: 0; background: #e8e8e4; color: #1b1c1a; font: 16px/1.45 Inter, system-ui, sans-serif; }
+  .intro { box-sizing: border-box; max-width: 826px; margin: 0 auto; padding: 40px 16px 8px; }
+  .intro h1 { margin: 0; font-size: 40px; font-weight: 400; line-height: 1.1; letter-spacing: -0.02em; }
+  .intro h1 span { color: #5d5f5b; }
+  .intro p { margin: 12px 0 0; max-width: 60ch; color: #4a4c48; }
+  .pair { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; padding: 24px 0 48px; }
+  .pair figure { margin: 0; }
+  .pair figcaption { box-sizing: border-box; width: 393px; padding: 14px 16px 0; font-size: 15px; color: #4a4c48; }
+  .pair figcaption b { color: #1b1c1a; font-weight: 600; }
+
+  /* The screen's own layout. Positions and sizes only: the look is the
+     style's, so nothing here may set a weight, a corner or a colour. */
+  /* The photo sits in a card below the bar, not under the clock: its top
+     is a row of pendant lamps, and the status bar cannot be read over them. */
+  .cc-body { padding-top: 113px; }
+  .cc-photo { height: 176px; overflow: hidden; }
+  .cc-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 70%; }
+  .cc-body .t-sub { margin-top: 16px; }
+  .cc-body h1 { margin-top: 6px; }
+  .cc-tags { margin-top: 14px; }
+  .cc-seg { margin-top: 20px; }
+  .cc-body .list-row .circle .ic { --ic: 18px; }
+</style>
+</head>
+<body>
+<header class="intro">
+  <h1>One screen, <span>two styles</span></h1>
+  <p>The same markup twice. On the left, her look: what app-style.css draws on its own.
+    On the right, the plain style: the first phone cloned, with one class added.</p>
+</header>
+
+<main class="pair">
+  <figure>
+    <div class="ui ui-light ui-phone" id="screen">
+      <div class="ui-status"><span>9:41</span><span class="ui-status-icons"><i class="ic ic-signal"></i><i class="ic ic-wifi"></i><i class="ic ic-battery"></i></span></div>
+      <div class="ui-island"></div>
+      <div class="topbar">
+        <a class="circle" href="#" aria-label="Back"><i class="ic ic-chev-left"></i></a>
+        <div class="end">
+          <button class="circle" type="button" aria-label="Share"><i class="ic ic-share"></i></button>
+          <button class="circle" type="button" aria-label="Save the shop"><i class="ic ic-heart"></i></button>
+        </div>
+      </div>
+      <div class="pad cc-body">
+        <div class="card cc-photo"><img src="../../sites/barber/img/shop.webp" alt="Three leather barber chairs under warm pendant lights against a brick wall"></div>
+        <p class="t-sub">Olde Towne East, Columbus</p>
+        <h1 class="t-title">Comb &amp; Coat <span class="dim">barbers and a nail bar</span></h1>
+        <div class="tags cc-tags">
+          <span class="tag"><i class="ic ic-clock"></i>Open until 19:00</span>
+          <span class="tag"><i class="ic ic-walk"></i>Walk-ins at the chairs</span>
+        </div>
+        <div class="segmented cc-seg" role="tablist" aria-label="What you want">
+          <button type="button" role="tab" aria-selected="true">Cut</button>
+          <button type="button" role="tab" aria-selected="false">Beard</button>
+          <button type="button" role="tab" aria-selected="false">Nails</button>
+        </div>
+        <section class="sec">
+          <div class="sec-head"><h2>Free today <span class="dim">at the chairs</span></h2><a class="go" href="#" aria-label="Every barber"><i class="ic ic-arrow-right"></i></a></div>
+          <div class="list">
+            <a class="list-row" href="#"><span class="cover sm"><img src="../../sites/barber/img/hero-fade.webp" alt=""></span>
+              <span class="txt"><h3>Dre</h3><p>Fades and cuts, next free at 14:20</p></span><span class="circle" aria-hidden="true"><i class="ic ic-chev-right"></i></span></a>
+            <a class="list-row" href="#"><span class="cover sm"><img src="../../sites/barber/img/curls.webp" alt=""></span>
+              <span class="txt"><h3>Sam</h3><p>Curls and texture, next free at 15:00</p></span><span class="circle" aria-hidden="true"><i class="ic ic-chev-right"></i></span></a>
+            <a class="list-row" href="#"><span class="cover sm"><img src="../../sites/barber/img/razor.webp" alt=""></span>
+              <span class="txt"><h3>Jun</h3><p>Shaves and beards, next free at 16:40</p></span><span class="circle" aria-hidden="true"><i class="ic ic-chev-right"></i></span></a>
+          </div>
+        </section>
+      </div>
+      <div class="thumb-fade"></div>
+      <div class="thumb-cta">
+        <button class="pill" type="button">Book Dre at 14:20 <span class="sub">$38</span></button>
+        <a class="circle lg" href="#" aria-label="Call the shop"><i class="ic ic-phone"></i></a>
+      </div>
+      <div class="ui-home-bar"></div>
+    </div>
+    <figcaption><b>Hers, the default.</b> Large regular-weight type, the heading in two tones, capsules, glass circles, a card on a soft shadow.</figcaption>
+  </figure>
+  <figure id="plainFig">
+    <figcaption><b>Plain.</b> Semibold headings in one tone, 12pt corners, solid surfaces, cards on a hairline.</figcaption>
+  </figure>
+</main>
+
+<script>
+  /* The proof: the plain phone is the first one, cloned, with one class. */
+  const copy = document.getElementById('screen').cloneNode(true);
+  copy.removeAttribute('id');
+  copy.classList.add('style-plain');
+  document.getElementById('plainFig').prepend(copy);
+</script>
+</body>
+</html>

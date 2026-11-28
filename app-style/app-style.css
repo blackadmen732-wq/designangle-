@@ -139,20 +139,36 @@
   transform: translateX(-50%); border-radius: 3px; background: var(--home-bar);
 }
 
+/* ---- the look, as values a style can swap ------------------------------
+   Her look is the default, and it is written as the fallback inside each
+   var() below, so a screen that names no style is exactly hers. A file in
+   styles/ sets these on .ui.style-<name> and the same parts and markup take
+   another look (styles/plain.css is the first; styles/README.md says what a
+   style may change). The names, with her values:
+     --fs-mega 132px   --w-mega 200      one huge thin number
+     --fs-display 44px --w-display 500
+     --fs-title 29px   --fs-title-2 22px --w-title 400   large type, regular weight
+     --w-head 500      --track-title -0.01em
+     --two-tone        the quiet half of a heading: --ink-3 (#9a9590 in a dark title)
+     --r-control 999px pills, chips, tags, tracks and the dock are capsules
+     --blur            the glass behind a control over a photo
+   Corners of cards and tiles are --r-card, --r-card-xl, --r-tile, --r-media
+   on .ui; a style re-sets those directly. */
+
 /* ---- type -------------------------------------------------------------- */
 /* Sizes are the ones measured, rounded to the half point. Weights stay at
    400 or 500 for anything large: bold is for buttons and short labels. */
-.t-mega    { font-size: 132px; font-weight: 200; line-height: .9; letter-spacing: -0.03em; }
-.t-display { font-size: 44px; font-weight: 500; line-height: 1.05; letter-spacing: -0.02em; }
-.t-title   { font-size: 29px; font-weight: 400; line-height: 1.14; letter-spacing: -0.01em; }
-.t-title-2 { font-size: 22px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; }
-.t-head    { font-size: 17px; font-weight: 500; line-height: 1.3; }
+.t-mega    { font-size: var(--fs-mega, 132px); font-weight: var(--w-mega, 200); line-height: .9; letter-spacing: -0.03em; }
+.t-display { font-size: var(--fs-display, 44px); font-weight: var(--w-display, 500); line-height: 1.05; letter-spacing: -0.02em; }
+.t-title   { font-size: var(--fs-title, 29px); font-weight: var(--w-title, 400); line-height: 1.14; letter-spacing: var(--track-title, -0.01em); }
+.t-title-2 { font-size: var(--fs-title-2, 22px); font-weight: var(--w-title, 400); line-height: 1.2; letter-spacing: var(--track-title, -0.01em); }
+.t-head    { font-size: 17px; font-weight: var(--w-head, 500); line-height: 1.3; }
 .t-body    { font-size: 15.5px; font-weight: 400; line-height: 1.38; }
 .t-sub     { font-size: 13px; font-weight: 400; line-height: 1.35; color: var(--ink-3); }
 .t-micro   { font-size: 11.5px; font-weight: 500; line-height: 1.2; }
 /* Two tones: the same size and weight, the second half in grey. */
-.dim { color: var(--ink-3); }
-.ui-dark .t-title .dim, .ui-dark .t-title-2 .dim, .ui-dark .t-display .dim { color: #9a9590; }
+.dim { color: var(--two-tone, var(--ink-3)); }
+.ui-dark .t-title .dim, .ui-dark .t-title-2 .dim, .ui-dark .t-display .dim { color: var(--two-tone, #9a9590); }
 .accent { color: var(--accent); }
 
 /* ---- layout ------------------------------------------------------------ */
@@ -187,7 +203,7 @@
 /* Glass only where a control floats over a photo: the top bar, or .glass.
    Blur behind every circle is one of the tells (unslop 15). */
 .topbar .circle, .circle.glass {
-  background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4);
+  background: var(--glass); -webkit-backdrop-filter: var(--blur, blur(16px) saturate(1.4)); backdrop-filter: var(--blur, blur(16px) saturate(1.4));
 }
 .circle:hover { filter: brightness(1.15); }
 .circle:active { scale: .94; }
@@ -203,7 +219,7 @@
 /* ---- the action row: one filled pill, circles of the same height ------- */
 .actions { display: flex; align-items: center; gap: 8px; }
 .pill {
-  flex: 1; min-width: 0; height: var(--control); border-radius: 999px;
+  flex: 1; min-width: 0; height: var(--control); border-radius: var(--r-control, 999px);
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   background: var(--pill); color: var(--on-pill); font-size: 17px; font-weight: 600;
   transition: scale var(--t-press) var(--ease-out), filter var(--t-quick) var(--ease-out);
@@ -219,7 +235,7 @@
 /* ---- tags: information, not controls, so they never look pressable ---- */
 .tags { display: flex; flex-wrap: wrap; gap: 8px; }
 .tag {
-  height: var(--tag); padding-inline: 8px; border-radius: 999px;
+  height: var(--tag); padding-inline: 8px; border-radius: var(--r-control, 999px);
   display: inline-flex; align-items: center; gap: 5px;
   background: var(--fill); color: #c8c8c8; font-size: 13px; font-weight: 500; white-space: nowrap;
 }
@@ -232,7 +248,7 @@
 .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-block: 8px; margin-block: -8px; }
 .chips::-webkit-scrollbar { display: none; }
 .chip {
-  position: relative; flex: none; height: var(--chip); padding-inline: 16px 18px; border-radius: 999px;
+  position: relative; flex: none; height: var(--chip); padding-inline: 16px 18px; border-radius: var(--r-control, 999px);
   display: inline-flex; align-items: center; gap: 9px;
   background: var(--fill); color: var(--ink); font-size: 17px; font-weight: 500; white-space: nowrap;
   transition: scale var(--t-press) var(--ease-out), background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out);
@@ -263,21 +279,27 @@
 
 /* ---- segmented: a track with one white pill (Starbucks, Maps) --------- */
 .segmented {
-  display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px;
+  display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: var(--r-control, 999px);
   background: var(--fill); overflow-x: auto; scrollbar-width: none;
 }
 .segmented::-webkit-scrollbar { display: none; }
 .segmented > :is(a, button) {
-  flex: 1 0 auto; height: 36px; padding-inline: 14px; border-radius: 999px;
+  position: relative; flex: 1 0 auto; height: 36px; padding-inline: 14px; border-radius: calc(var(--r-control, 999px) - 4px);
   display: grid; place-items: center; font-size: 15px; font-weight: 500; color: var(--ink-3); white-space: nowrap;
   transition: background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out);
 }
+/* A segment looks 36 tall and catches presses over 44: the track's 4pt
+   padding is the room, as with chips. */
+.segmented > :is(a, button)::after { content: ""; position: absolute; inset: -4px 0; }
+/* On the light track the label grey is darker than --ink-3: #6b6d6a on
+   #ebebe8 is 4.37:1, this is 5.08:1. The selected segment stays ink. */
+.ui-light .segmented > :is(a, button) { color: #616360; }
 .segmented > :is(a[aria-current], [aria-selected="true"]) { background: #ffffff; color: #111111; }
 .ui-light .segmented > :is(a[aria-current], [aria-selected="true"]) { box-shadow: 0 1px 3px rgba(40, 40, 20, .12); }
 
 /* ---- facts in a row: the number loud, the label quiet ------------------ */
 .stats { display: flex; gap: 24px; }
-.stats b { display: block; font-size: 17.5px; font-weight: 400; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.stats b { display: block; font-size: 17.5px; font-weight: var(--w-title, 400); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 .stats span { display: block; font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
 
 /* ---- the floating bar: a pill, an active item, and a separate circle --- */
@@ -286,14 +308,14 @@
   display: flex; align-items: center; gap: 16px;
 }
 .dock-bar {
-  flex: 1; height: 60px; border-radius: 999px; padding: 6px;
+  flex: 1; height: 60px; border-radius: var(--r-control, 999px); padding: 6px;
   display: flex; align-items: center; justify-content: space-between;
-  background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
+  background: var(--glass); -webkit-backdrop-filter: var(--blur, blur(20px) saturate(1.4)); backdrop-filter: var(--blur, blur(20px) saturate(1.4));
 }
 .ui-light .dock-bar { box-shadow: var(--shadow); }
 .dock-bar a { flex: 1; display: grid; place-items: center; color: var(--ink-3); }
 .dock-bar a[aria-current] {
-  flex: none; height: 47px; padding-inline: 16px 20px; border-radius: 999px;
+  flex: none; height: 47px; padding-inline: 16px 20px; border-radius: calc(var(--r-control, 999px) - 6px);
   display: flex; gap: 8px; align-items: center; background: var(--pill); color: var(--on-pill);
   font-size: 16px; font-weight: 500;
 }
@@ -325,7 +347,7 @@
    at 400, the second half grey, 16pt above what they head; the way in is a
    36pt circle with an arrow (.go), not a "See all" link. */
 .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
-.sec-head h2 { font-size: 22px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; }
+.sec-head h2 { font-size: var(--fs-title-2, 22px); font-weight: var(--w-title, 400); line-height: 1.2; letter-spacing: var(--track-title, -0.01em); }
 .sec-head a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: flex-end; font-size: 15px; color: var(--ink-3); }
 .sec-head a:hover { color: var(--ink); }
 .sec-head .go { position: relative; flex: none; width: 36px; height: 36px; min-width: 0; min-height: 0; border-radius: 50%;
@@ -353,7 +375,7 @@
 .ui-light .list-row:hover { background: rgba(0, 0, 0, .03); }
 .list-row:active { scale: .98; }
 .list-row .txt { flex: 1; min-width: 0; }
-.list-row h3 { font-size: 15px; font-weight: 500; line-height: 1.3; }
+.list-row h3 { font-size: 15px; font-weight: var(--w-head, 500); line-height: 1.3; }
 .list-row p { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
 .list-row .circle .ic { --ic: 18px; }
 

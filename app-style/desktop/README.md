@@ -94,6 +94,13 @@ Found by a blind review of the same screen built by Haiku, Sonnet and Opus:
   is clutter; use it for who owes what, or a trend.
 - **Never cut a row in half.** Fit the rows to 900 tall, or end the list
   with "View all".
+- **Make it theirs.** Copying `tally-home` gets the layout right, but a
+  flower shop and an invoicing app must not look the same. Give each
+  screen one thing only that business could have: a photo of its product
+  in `.dg-art` or a side panel, an icon from its world in the figure's
+  label, or its one accent (from the brief's brand) on the live state.
+  A reviewer's first question is "what is this for?"; the screen should
+  answer before the words do.
 - **Three stat cards in a row read as a template.** Prefer one strip of
   figures divided by thin lines, inside the hero.
 

@@ -4,7 +4,7 @@
  * chev-down chev-right arrow-right user lock eye clock history cube bolt
  * sparkle record import grid list diamond activity minus plus-plain play
  * check receipt dollar send calendar alert download filter trend-up square
- * close; brands: google discord github) and
+ * close truck map-pin box flower bag cart; brands: google discord github) and
  * into the page as an SVG sprite so a screen opened from disk still shows
  * them. Use: <svg class="i"><use href="#i-home"/></svg>
  *
@@ -47,6 +47,12 @@
     receipt: '<path d="M6 3.5h12v17l-2.4-1.6-2.4 1.6-2.4-1.6-2.4 1.6L6 20.5Z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/>',
     dollar: '<path d="M12 3.5v17M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.6 0-4.5 1.3-4.5 3.4 0 4.7 9.5 2.4 9.5 7.2 0 2-1.9 3.4-4.8 3.4-2.4 0-4.2-1-4.8-2.8"/>',
     send: '<path d="M20.5 3.5 10 14M20.5 3.5l-6.5 17-4-6.5-6.5-4Z"/>',
+    truck: '<path d="M2.5 6.5h11v10h-11Z"/><path d="M13.5 10h4l3 3.2v3.3h-7"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>',
+    'map-pin': '<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.4"/>',
+    box: '<path d="m12 3 8 4v10l-8 4-8-4V7Z"/><path d="m4 7 8 4 8-4M12 11v10"/>',
+    flower: '<circle cx="12" cy="9" r="2"/><path d="M12 7c-1.8-3.2 1.8-3.2 0 0M14 9c3.2-1.8 3.2 1.8 0 0M12 11c1.8 3.2-1.8 3.2 0 0M10 9c-3.2 1.8-3.2-1.8 0 0"/><path d="M12 12.5V21M12 17c-2.5-.2-4-1.6-4.5-3.5 2.4 0 4 1.2 4.5 3.5ZM12 18.5c2.3-.3 3.8-1.6 4.3-3.6-2.3 0-3.9 1.2-4.3 3.6Z"/>',
+    bag: '<path d="M5 8h14l-1 12.5H6Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+    cart: '<path d="M3 4h2.5l2.2 11h10.8l2-8H6.6"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>',
     calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
     alert: '<path d="M12 3.8 21 19.5H3Z"/><path d="M12 10v4.2M12 17v.2"/>',
     download: '<path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M4.5 19.5h15"/>',

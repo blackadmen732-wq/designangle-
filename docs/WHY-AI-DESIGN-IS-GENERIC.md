@@ -74,3 +74,6 @@ became rules:
 | Drawn imitation logos when there was no logo | `.brand-word`: the name as type, never a fake mark |
 | Asked questions the brief already answered | A complete brief means start; ask only for empty needed lines |
 | A copied example carried a bug (glow code run twice) | Fixed in the example, since examples are copied as they are |
+| Smaller models had the parts but still laid them out like a template (button far from the number, a row of stat cards, a side panel repeating the table) | A finished example to copy, `app-style/examples/tally-home`, built from the best-rated build; its layout is now parts in the style (`.figure`, `.facts`, `.ledger`, `.breakdown`, `.bars`) |
+| Status pills read as badges and crowded the list | `.status` is a dot and a word |
+| A row of cards running off the edge failed the edge check | `.strip` scrolls sideways, so the cut card means "more" |

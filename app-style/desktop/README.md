@@ -14,6 +14,8 @@ art.js           DG.streaks(), DG.mark(), DG.enter()
 ## Start here
 
 1. Copy the closest example as your starting file:
+   `app-style/examples/tally-home` (a home or dashboard built on one
+   number: money, orders, bookings, tickets; keep its order of parts),
    `app-style/examples/cinevora-home` (an app home with a sidebar),
    `cinema-login` (a sign-in or splash), `streaming-study` (a screen
    carried by photos).
@@ -68,9 +70,14 @@ panels (`.panel`), sign-in (`.signin`, `.wordmark`, `.tagline`,
 light (`.topnav`, `.tabs`, `.billboard`, `.feature`, `.actions`,
 `.circle`, `.rows`, `.strip`, `.card` with `.bar` progress and `.num`
 ranks; first used in `app-style/examples/streaming-study`, a private study),
-and data (`.brand-word`, `.stat-label`, `.stat-num`, `.delta`, `.stats`,
+data (`.brand-word`, `.stat-label`, `.stat-num`, `.delta`, `.stats`,
 `.table` with `.tr`, `.th`, `.name`, `.initials`, `.muted`, `.num`, and
-`.status` in three tones: `.good`, `.wait`, `.late`).
+`.status`, a dot and a word in three tones: `.good`, `.wait`, `.late`),
+and screens built on a number (`.figure` with `.label`, `.amount`, `.sub`,
+`.act`, `.hint`; `.facts`; `.list-head`; `.ledger` with `.who`, `.amt`,
+`.state`, `.go`, `tr.done`; `.btn-quiet`; `.chev`; `.breakdown` with
+`.meter`; `.lede`; `.bars` with `.now`; `.nav .count`). See
+`tally-home` for all of them in place.
 
 Icon names are listed at the top of `icons.js`.
 

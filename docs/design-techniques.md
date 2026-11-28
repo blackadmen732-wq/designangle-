@@ -45,13 +45,31 @@ private studies, never client material.
 - **Cinema sign-in:** the same identity-first idea as Halo, kept as a direct desktop form with believable glass and one light source.
 - **REEL:** the film still is the atmosphere, Play is the brightest action, continue-watching links the hero to ongoing activity, and the shell stays quiet.
 
-## Light, dark or both
+## Appearance directions
 
-Choose by the task, the content, the brand and where it is used. Light
-often suits reading, commerce, scheduling and health; dark suits media,
-editing and art-led work; a hybrid (dark image hero, light reading area)
-is often right. Black is not premium by itself. Check contrast on the real
-backgrounds and images.
+Options chosen from the brief, never a default. Each one fits some products
+and is wrong for others.
+
+- **Light:** reading, commerce, scheduling, health, daytime work. Precise
+  edges, dark text; deep accent panels are still allowed.
+- **Dark:** media, editing, games, night use, art-led work, where images
+  and active controls should glow against the ground.
+- **Hybrid:** a dark image hero over a light reading area, or a light
+  workspace with a dark preview; the switch should mean a change of context.
+- **Translucent:** glass for the control layer (bars, sheets, menus) that
+  floats over content, so content shows through. Never on every card.
+  Always with a solid fallback.
+- **Metallic:** brushed or polished surfaces with a rim light, for products
+  whose world is tools and machines (CINEVORA, Cinema). One light direction.
+- **Content-driven:** the product's own imagery is the atmosphere and the
+  shell stays quiet (REEL, Airbnb, Netflix).
+- **Functional:** dense, calm and fast, for tools used all day; craft shows
+  in alignment, type and state, not effects.
+- **Editorial:** type-led, generous space, imagery as illustration, for
+  stories, brands and content sites.
+
+Black is not premium by itself. Check contrast on the real backgrounds and
+images. Where each idea comes from: `docs/design-sources.md`.
 
 ## Defects and taste
 

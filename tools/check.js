@@ -416,6 +416,45 @@ function audit({ phone }) {
   }).length;
   if (crowd > 24) warns.push(`${crowd} controls on the first screen; the design skill says count the things and cut`);
 
+  // Words cut off: a line too long for its box spills out of it, and an
+  // ancestor that hides overflow cuts the spill. The footer wordmark ran 41px
+  // off a phone this way on two sites and every check passed, because the
+  // footer hides what overflows instead of letting the page scroll sideways.
+  // Decorative text counts too: a cut word is seen whether or not a screen
+  // reader skips it. A row that moves or scrolls past its edge is left alone.
+  const cut = new Map();
+  for (const el of document.body.querySelectorAll('*')) {
+    const cs = getComputedStyle(el);
+    if (cs.overflowX !== 'visible' || el.scrollWidth <= el.clientWidth + 2 || !el.clientWidth) continue;
+    if (!shown(el, cs) || moving(el) || inScroller(el) || el.getBoundingClientRect().width > innerWidth + 1) continue;
+    let clip = null;
+    for (let a = el.parentElement; a && a !== document.documentElement; a = a.parentElement) {
+      const o = getComputedStyle(a).overflowX;
+      if (o === 'hidden' || o === 'clip') { clip = a; break; }
+      if (o === 'auto' || o === 'scroll') break;
+    }
+    if (!clip) continue;
+    const c = clip.getBoundingClientRect();
+    if (c.width < 4 || c.height < 4) continue;   // visually hidden on purpose
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let over = 0, words = '';
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      const host = n.parentElement;
+      if (!n.textContent.trim() || getComputedStyle(host).textOverflow === 'ellipsis') continue;
+      // Words in a row that scrolls sideways are reached by scrolling, and
+      // words in a moving row by waiting: neither is cut.
+      if (inScroller(host) || moving(host)) continue;
+      const rg = document.createRange(); rg.selectNodeContents(n);
+      for (const q of rg.getClientRects()) {
+        if (q.bottom < c.top || q.top > c.bottom) continue;
+        const o = Math.max(c.left - q.left, q.right - c.right);
+        if (o > over) { over = o; words = n.textContent; }
+      }
+    }
+    if (over > 2) cut.set(name(el), `${Math.round(over)}px of "${words.trim().replace(/\s+/g, ' ').slice(0, 30)}" is cut off`);
+  }
+  for (const [k, v] of cut) fails.push(`words cut off by their container: ${v}  ${k}`);
+
   const wide = document.documentElement.scrollWidth;
   if (wide > innerWidth + 1) fails.push(`the page scrolls sideways: ${wide}px of content in a ${innerWidth}px window`);
   for (const [k, v] of contrast) fails.push(`contrast ${v}  ${k}`);

@@ -20,6 +20,7 @@ examples/tickets/     Trac 1.6 redesigned from its own data, with motion: the se
 examples/kanboard/    Kanboard redesigned from its own data: a board, drag that springs
 examples/dokuwiki/    DokuWiki redesigned from its own pages: reading, editing, locks
 examples/chick-fil-a/ an unofficial Chick-fil-A study (not affiliated), Unsplash stand-ins
+examples/front-desk/  a barbershop's front-desk screen in the plain style: the second look's test
 app-motion.js         sheet(), toast(), flyTo(), bump(): the motion CSS cannot do alone
 vendor/               auto-animate 0.10.2 (MIT) as a classic script
 tools/                make-icons.py, inline-icons.py, spring.js (a spring as a CSS curve)

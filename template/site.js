@@ -352,6 +352,32 @@
     });
   })();
 
+  /* ---------- The footer wordmark fits its name ----------
+     site.css sets it as large as the screen allows, which is too large for a
+     long name in a wide face: "Comb & Coat." ran 41px off a phone and was
+     cut. Measure what is actually drawn (split into letters for the reveal,
+     which loses the kerning and widens it) and shrink it until it fits, with
+     the page's gutter either side. Again once the font has loaded. */
+  (function fitMark() {
+    var m = $('mark'); if (!m) return;
+    function width() { var r = document.createRange(); r.selectNodeContents(m); return r.getBoundingClientRect().width; }
+    function fit() {
+      var before = m.style.fontSize, room = m.clientWidth - 40;
+      m.style.fontSize = '';
+      // Twice: split letters do not scale quite in proportion, so the first
+      // step lands a few pixels wide and the second corrects it.
+      for (var i = 0; i < 2; i++) {
+        var w = width();
+        if (w <= room) break;
+        m.style.fontSize = (parseFloat(getComputedStyle(m).fontSize) * room / w).toFixed(1) + 'px';
+      }
+      if (m.style.fontSize !== before && window.ScrollTrigger) window.ScrollTrigger.refresh();
+    }
+    fit();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    var t; window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(fit, 150); });
+  })();
+
   /* ---------- Details the owner changes in their panel ----------
      The page already contains the hours and phone built into it, so if this
      fetch fails or is slow the visitor still sees correct information. This
@@ -399,6 +425,9 @@
      The confirmation is only shown once the collector has accepted the lead.
      If it has not, the person is told so and given the phone number. */
   var form = $('reqForm'), msg = $('bk-msg'), date = $('bk-date');
+  // A page that is not a business (kind in content.js) has no form, and
+  // everything from here to the end is the form's.
+  if (!form) return;
   var submitBtn = form.querySelector('button[type="submit"], button:not([type])');
   var now = new Date(), iso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   date.min = iso; if (!date.value) date.value = iso;

@@ -150,7 +150,8 @@
      --fs-title 29px   --fs-title-2 22px --w-title 400   large type, regular weight
      --w-head 500      --track-title -0.01em
      --two-tone        the quiet half of a heading: --ink-3 (#9a9590 in a dark title)
-     --r-control 999px pills, chips, tags, tracks and the dock are capsules
+     --r-control 999px pills, chips, tags, tracks, toasts and the dock are capsules
+     --r-field 16px    text fields and choice rows
      --blur            the glass behind a control over a photo
    Corners of cards and tiles are --r-card, --r-card-xl, --r-tile, --r-media
    on .ui; a style re-sets those directly. */
@@ -474,7 +475,7 @@
 .field legend { margin-bottom: 8px; }
 .field .err { font-size: 13px; font-weight: 500; color: var(--accent); }
 .ui :is(textarea, select, input[type="text"], input[type="email"], input[type="tel"], input[type="search"]) {
-  width: 100%; min-height: 52px; padding: 14px 16px; border: 0; border-radius: 16px;
+  width: 100%; min-height: 52px; padding: 14px 16px; border: 0; border-radius: var(--r-field, 16px);
   background: var(--fill); color: var(--ink); font: inherit; font-size: 16px; line-height: 24px; resize: vertical;
 }
 .ui select { appearance: none; padding-right: 44px; background: var(--fill) url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath d="m6 9 6 6 6-6" fill="none" stroke="%23888" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/%3E%3C/svg%3E') no-repeat right 14px center / 20px; }
@@ -483,14 +484,14 @@
 /* Radio choices that look like the controls around them: a segmented track,
    or chips. Real <input type=radio>, so the keyboard and screen readers get a
    radio group. */
-.seg-radio { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--fill); }
+.seg-radio { display: flex; gap: 4px; padding: 4px; border-radius: var(--r-control, 999px); background: var(--fill); }
 .seg-radio label, .chip-radio label { position: relative; flex: 1 0 auto; }
 .chip-radio label { flex: none; }
 .seg-radio input, .chip-radio input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
-.seg-radio span { display: grid; place-items: center; height: 44px; padding-inline: 12px; border-radius: 999px; font-size: 15px; font-weight: 500; color: var(--ink-3); transition: background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out); }
+.seg-radio span { display: grid; place-items: center; height: 44px; padding-inline: 12px; border-radius: calc(var(--r-control, 999px) - 4px); font-size: 15px; font-weight: 500; color: var(--ink-3); transition: background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out); }
 .seg-radio input:checked + span { background: #ffffff; color: #111111; box-shadow: 0 1px 3px rgba(40, 40, 20, .12); }
 .chip-radio { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip-radio span { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding-inline: 16px; border-radius: 999px; background: var(--fill); font-size: 15px; font-weight: 500; transition: background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out); }
+.chip-radio span { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding-inline: 16px; border-radius: var(--r-control, 999px); background: var(--fill); font-size: 15px; font-weight: 500; transition: background-color var(--t-quick) var(--ease-out), color var(--t-quick) var(--ease-out); }
 .chip-radio input:checked + span { background: var(--pill); color: var(--on-pill); }
 :is(.seg-radio, .chip-radio) label:active span { scale: .97; }
 :is(.seg-radio, .chip-radio) input:focus-visible + span { outline: 3px solid var(--ink); outline-offset: 2px; }
@@ -498,7 +499,7 @@
 /* Choices with more to say (payment, pickup): a row each, the chosen one
    ringed. A real radio, so it is one group. */
 .choices { display: grid; gap: 8px; }
-.choice { position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 16px 8px 12px; border-radius: 16px; background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--hair); cursor: pointer; transition: box-shadow var(--t-quick) var(--ease-out); }
+.choice { position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 16px 8px 12px; border-radius: var(--r-field, 16px); background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--hair); cursor: pointer; transition: box-shadow var(--t-quick) var(--ease-out); }
 .ui-light .choice { box-shadow: inset 0 0 0 1.5px #e4e4e0; }
 .choice input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
 .choice .txt { flex: 1; min-width: 0; font-size: 15px; font-weight: 500; }
@@ -576,7 +577,7 @@
 .toast {
   position: fixed; z-index: 60; left: 50%; bottom: calc(108px + env(safe-area-inset-bottom, 0px));
   display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100% - 32px);
-  min-height: 56px; padding: 6px 6px 6px 20px; border-radius: 999px;
+  min-height: 56px; padding: 6px 6px 6px 20px; border-radius: var(--r-control, 999px);
   background: var(--pill); color: var(--on-pill); box-shadow: 0 12px 32px rgba(0, 0, 0, .2);
   font-size: 15px; font-weight: 500;
   translate: -50% 0; opacity: 1;
@@ -584,7 +585,7 @@
 }
 .toast[hidden] { display: none; translate: -50% 12px; opacity: 0; }
 @starting-style { .toast:not([hidden]) { translate: -50% 12px; opacity: 0; } }
-.toast button { height: 44px; padding-inline: 16px; border-radius: 999px; background: rgba(255, 255, 255, .16); font-weight: 600; }
+.toast button { height: 44px; padding-inline: 16px; border-radius: calc(var(--r-control, 999px) - 6px); background: rgba(255, 255, 255, .16); font-weight: 600; }
 .ui-dark .toast button { background: rgba(0, 0, 0, .08); }
 
 /* ---- moving between screens: view transitions ------------------------- */

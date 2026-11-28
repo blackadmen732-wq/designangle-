@@ -35,7 +35,7 @@ const SITES = path.join(ROOT, 'sites');
 // client's site begun as a copy of an example keeps that header, and must
 // still be checked. A new example site goes in this list; a stale list only
 // checks too much.
-const EXAMPLES = new Set(['restaurant', 'hvac', 'salon', 'meditation', 'barber']);
+const EXAMPLES = new Set(['restaurant', 'hvac', 'salon', 'meditation', 'barber', 'ninefold']);
 
 /* Things that must not reach a live client site. ------------------------- */
 

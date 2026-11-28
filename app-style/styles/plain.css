@@ -32,6 +32,7 @@
   --track-title: -0.015em;
   --two-tone: currentColor;          /* one tone: the second half reads as the first */
   --r-control: var(--radius-m);      /* 12: rounded, not capsules */
+  --r-field: var(--radius-m);
   --r-card: 16px;                    /* off the corner scale on purpose: 12 inside, 16 outside */
   --r-card-xl: var(--radius-l);
   --r-tile: var(--radius-m);

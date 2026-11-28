@@ -12,8 +12,12 @@
   --on-photo-bg: #140c0a;   /* what sits behind text over a photo, dark in every theme */
   --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --body: "Instrument Sans", "Helvetica Neue", Arial, system-ui, sans-serif;
-  --ease: cubic-bezier(.65, 0, .2, 1);
+  --ease: var(--ease-reveal);   /* tokens/tokens.css, which build.js puts above this file */
   --wrap: 1180px;
+  /* The colour roles every system gives (tokens/tokens.css). */
+  --ground: var(--bg);
+  --surface: var(--soft);
+  --ink-quiet: var(--muted);
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { color-scheme: light; }

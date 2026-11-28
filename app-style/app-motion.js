@@ -13,7 +13,7 @@
 
    Every one respects prefers-reduced-motion: nothing travels, nothing
    bumps; the state still changes. Durations and curves are the tokens in
-   app-style.css; tools/motion.js checks them.
+   tokens/tokens.css; tools/motion.js checks them.
    ========================================================================= */
 (function () {
   var EASE_OUT = 'cubic-bezier(.23, 1, .32, 1)';

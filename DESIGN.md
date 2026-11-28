@@ -7,6 +7,14 @@ brand says otherwise. The client's wishes beat this file; this file beats person
 An AI coding agent working in this repository should read this file before changing
 anything in `template/` or adding a site.
 
+**The shared values are set once, in `tokens/tokens.css`:** the space scale, the
+corners, the touch sizes and the motion, for the websites, the app screens and the
+owner panel alike. `build.js` puts the file at the top of every site's stylesheet;
+`app-style/app-style.css` imports it; the panel carries a copy. To change one of those
+values, change it there, then run `node tools/tokens.js --sync` (it rewrites the
+panel's copy) and `node tools/tokens.js` (it fails if anything still sets its own).
+Colours and fonts stay per client, in `content.js`, under the role names that file lists.
+
 ---
 
 ## 1. The one rule above all others
@@ -82,7 +90,10 @@ client, but keep the pairing shape: one characterful, one neutral.
 ## 4. Spacing and layout
 
 - **One scale:** 2, 4, 8, 12, 16, 24, 32, 40, 48, 64. Above 64, this kit uses
-  96 on marketing pages, which is its own choice and not a cited one.
+  96 on marketing pages, which is its own choice and not a cited one. As
+  tokens it is `--space-1` (4px) to `--space-24` (96px) in `tokens/tokens.css`,
+  where `--space-N` is N × 4px; 2px stays a literal hairline gap, and 20 and 28
+  are in the file because the app screens measured them.
 
   Two corrections live in this line. It first read "multiples of 8: 8, 16, 24,
   32, 44, 64" — 44 is the minimum touch target, not a spacing step, and 8 as a

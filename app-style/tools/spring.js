@@ -10,7 +10,7 @@
  *   damping   1 settles without overshoot; 0.8 overshoots by about 1.5%
  *   response  seconds; how quickly it gets there (not the duration)
  *
- *   node app-style/tools/spring.js              the springs app-style.css uses
+ *   node app-style/tools/spring.js              the springs tokens/tokens.css uses
  *   node app-style/tools/spring.js 0.8 0.3      any other
  *
  * Prints the linear() curve, the duration to pair it with, and when the

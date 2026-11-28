@@ -21,25 +21,30 @@
      - the main action floats at the bottom, at the thumb
    ========================================================================= */
 
+/* The shared scales and motion: one file for the websites and the apps. */
+@import url("../tokens/tokens.css");
+
 .ui {
   /* Inter, with its display optical size, everywhere; SF Pro on Apple devices
      (below), which is what the redesigns were drawn in. Never put
      -apple-system first unconditionally: Chromium reads it as "system UI"
      on every platform and gives Segoe or Roboto instead of Inter. */
   --font: Inter, system-ui, sans-serif;
-  --gutter: 16px;
-  --tap: 44px;              /* top-bar circles */
-  --control: 56px;          /* the primary pill and the circles beside it */
+  /* --gutter, --tap and --control come from tokens/tokens.css. */
   --control-sm: 52px;
-  --chip: 40px;
-  --tag: 24px;
-  --r-card: 24px;
-  --r-card-xl: 32px;        /* rating cards and host rows: nearly a capsule */
-  --r-tile: 18px;
-  --r-media: 18px;
-  --space-block: 16px;      /* between blocks in a section */
-  --space-sec: 28px;        /* above a section head */
+  --chip: var(--space-10);
+  --tag: var(--space-6);
+  --r-card: var(--radius-xl);
+  --r-card-xl: var(--radius-2xl);
+  --r-tile: var(--radius-l);
+  --r-media: var(--radius-l);
+  --space-block: var(--space-4);   /* between blocks in a section */
+  --space-sec: var(--space-7);     /* above a section head */
   --ease: var(--ease-out);
+  /* The colour roles every system gives (tokens/tokens.css). */
+  --ground: var(--page);
+  --ink-quiet: var(--ink-3);
+  --line: var(--hair);
   font-family: var(--font);
   /* The display cut at every size, as the designs were drawn (SF Pro Display
      in Figma). Inter's text cut is about 5% wider below 32pt and stops the
@@ -54,27 +59,10 @@
   line-height: 1.3;
 }
 /* ---- motion ------------------------------------------------------------- */
-/* One tempo. A strong ease-out for anything that enters, leaves or is
-   pressed; a spring for anything that travels across the screen. Values
-   from Emil Kowalski's animation standards (github.com/emilkowalski/skills)
-   and Apple's "Designing Fluid Interfaces": damping 1 and response .3 for
-   moves, .8 and .3 for sheets. The springs are CSS linear() curves made by
-   tools/spring.js; pair each with its duration. On :root as well as .ui,
-   because view transitions run on pseudo-elements of the root.
-   tools/motion.js (repo root) checks a screen's motion against these. */
-:root, .ui {
-  --ease-out: cubic-bezier(.23, 1, .32, 1);
-  --ease-in-out: cubic-bezier(.77, 0, .175, 1);
-  --t-press: 120ms;   /* a press: scale to .97 the moment it is touched */
-  --t-quick: 180ms;   /* small state: a chip, a toggle, a colour */
-  --t-enter: 280ms;   /* something arriving: a toast, a menu */
-  /* damping 1, response .3: done to the eye at 230ms */
-  --spring: linear(0, 0.005 1.1%, 0.0204 2.3%, 0.0461 3.6%, 0.0816 5%, 0.1615 7.6%, 0.3667 13.6%, 0.4635 16.6%, 0.5593 19.9%, 0.6398 23.1%, 0.7103 26.4%, 0.7704 29.8%, 0.8206 33.3%, 0.8638 37.1%, 0.9017 41.5%, 0.9322 46.4%, 0.9558 51.9%, 0.9729 58.1%, 0.9844 65%, 0.9922 73.4%, 1);
-  --t-spring: 450ms;
-  /* damping .8, response .3: overshoots 1.5%, done to the eye at 160ms */
-  --spring-sheet: linear(0, 0.0068 1.4%, 0.0254 2.8%, 0.0559 4.3%, 0.1006 6%, 0.1433 7.4%, 0.1967 9%, 0.4301 15.5%, 0.5358 18.6%, 0.6343 21.8%, 0.7176 24.9%, 0.7881 28%, 0.8464 31.1%, 0.8946 34.3%, 0.934 37.7%, 0.9647 41.3%, 0.9879 45.3%, 1.0034 49.7%, 1.0122 54.7%, 1.0147 64%, 1);
-  --t-sheet: 410ms;
-}
+/* One tempo, set in tokens/tokens.css: --ease-out for anything that enters,
+   leaves or is pressed, --spring for anything that travels, --spring-sheet
+   for sheets, each with its --t- duration. They sit on :root there, which
+   is also where view transitions read them. */
 
 /* Only WebKit understands this font keyword, and WebKit means an Apple
    device (Safari, or any browser on iOS): there, use the real SF Pro. */

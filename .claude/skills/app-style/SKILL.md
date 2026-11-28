@@ -128,7 +128,7 @@ was read and what was left.
 4. **Only `transform` and `opacity`** (and `translate`, `scale`). Never
    width, height, top, left, margin or padding. Never from `scale(0)`: start
    at .95 to .98 with opacity 0.
-5. **One tempo, from the tokens in app-style.css:** `--ease-out` for what
+5. **One tempo, from the tokens in `tokens/tokens.css`:** `--ease-out` for what
    enters, leaves or is pressed; `--spring` with `--t-spring` for what
    travels; `--spring-sheet` with `--t-sheet` for sheets. Never ease-in.
    Done to the eye (95% of the way) within 300ms. `tools/spring.js` makes

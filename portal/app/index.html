@@ -10,6 +10,59 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap">
 <style>
+/* tokens:begin. A copy of tokens/tokens.css, written by `node tools/tokens.js --sync`. Change that file, not this block. */
+:root {
+  /* Space: a 4-point scale; --space-N is N x 4px. 16 is the phone gutter and
+     the gap between blocks; 28 opens a section in an app (measured from her
+     screens); 64 and 96 separate a website's sections. A value off the
+     scale needs a reason written next to it. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+
+  /* Corners. */
+  --radius-s: 4px;          /* nearly square: an arch would be decoration */
+  --radius-m: 12px;         /* inputs, messages, small panels */
+  --radius-l: 18px;         /* an app's tiles and photos */
+  --radius-xl: 24px;        /* an app's cards */
+  --radius-2xl: 32px;       /* rating cards and host rows: nearly a capsule */
+  --radius-pill: 999px;
+
+  /* Touch. */
+  --tap: 44px;              /* the smallest thing a finger is asked to hit; tools/check.js fails below it */
+  --control: 56px;          /* the primary pill, and the circles beside it */
+  --gutter: 16px;           /* a phone screen's side margin */
+
+  /* Motion. A strong ease-out for anything that enters, leaves or is
+     pressed; a spring for anything that travels across the screen. From
+     Emil Kowalski's animation standards and Apple's "Designing Fluid
+     Interfaces" (docs/research/motion-sources.md): damping 1 and response
+     .3 for moves, .8 and .3 for sheets. The springs are CSS linear() curves
+     made by app-style/tools/spring.js; pair each with its duration.
+     tools/motion.js checks a screen's motion against these. */
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --ease-in-out: cubic-bezier(.77, 0, .175, 1);
+  --ease-reveal: cubic-bezier(.65, 0, .2, 1);   /* a website's large reveals as the page scrolls */
+  --t-press: 120ms;         /* a press: scale to .97 the moment it is touched */
+  --t-quick: 180ms;         /* small state: a chip, a toggle, a colour */
+  --t-enter: 280ms;         /* something arriving: a toast, a menu */
+  /* damping 1, response .3: done to the eye at 230ms */
+  --spring: linear(0, 0.005 1.1%, 0.0204 2.3%, 0.0461 3.6%, 0.0816 5%, 0.1615 7.6%, 0.3667 13.6%, 0.4635 16.6%, 0.5593 19.9%, 0.6398 23.1%, 0.7103 26.4%, 0.7704 29.8%, 0.8206 33.3%, 0.8638 37.1%, 0.9017 41.5%, 0.9322 46.4%, 0.9558 51.9%, 0.9729 58.1%, 0.9844 65%, 0.9922 73.4%, 1);
+  --t-spring: 450ms;
+  /* damping .8, response .3: overshoots 1.5%, done to the eye at 160ms */
+  --spring-sheet: linear(0, 0.0068 1.4%, 0.0254 2.8%, 0.0559 4.3%, 0.1006 6%, 0.1433 7.4%, 0.1967 9%, 0.4301 15.5%, 0.5358 18.6%, 0.6343 21.8%, 0.7176 24.9%, 0.7881 28%, 0.8464 31.1%, 0.8946 34.3%, 0.934 37.7%, 0.9647 41.3%, 0.9879 45.3%, 1.0034 49.7%, 1.0122 54.7%, 1.0147 64%, 1);
+  --t-sheet: 410ms;
+}
+/* tokens:end */
 /* The owner panel, in the app style of app-style/ (measured from the app
    redesign recordings). This file stands alone when deployed, so the parts
    of app-style.css and app-icons.css it uses are copied in below; change
@@ -36,8 +89,12 @@
   --on-gold: #241c00;
   --good: #7fd8a8;
   --bad: #ff9b8f;
-  --gutter: 16px;
-  --ease: cubic-bezier(.33, 1, .68, 1);
+  /* --gutter and the motion come from the tokens above. */
+  --ease: var(--ease-out);
+  /* The colour roles every system gives (tokens/tokens.css). */
+  --ground: var(--page);
+  --ink-quiet: var(--ink-3);
+  --line: var(--hair);
   font-family: var(--font);
   font-optical-sizing: none;
   font-variation-settings: "opsz" 32;
@@ -62,13 +119,13 @@ b, strong { font-weight: 600; }
 
 /* ---- controls from app-style ---- */
 .circle { width: 44px; height: 44px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--fill);
-  transition: transform .18s var(--ease), background-color .18s ease-out; }
+  transition: transform var(--t-quick) var(--ease), background-color var(--t-quick) ease-out; }
 /* Glass only where a control floats over the photo (unslop 15). */
 .topbar .circle { background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
 .circle:hover { background: rgba(255, 255, 255, .16); }
 .circle:active { transform: scale(.94); }
 .pill { height: 52px; padding-inline: 24px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  font-size: 17px; font-weight: 600; white-space: nowrap; transition: transform .18s var(--ease), filter .18s ease-out; }
+  font-size: 17px; font-weight: 600; white-space: nowrap; transition: transform var(--t-quick) var(--ease), filter var(--t-quick) ease-out; }
 .pill:active { transform: scale(.98); }
 .pill:disabled { opacity: .6; cursor: default; }
 .pill.gold { background: var(--gold); color: var(--on-gold); }
@@ -202,12 +259,12 @@ b, strong { font-weight: 600; }
 .grid-line { stroke: var(--hair); stroke-width: 1; }
 .axis-txt { fill: var(--ink-3); font-family: var(--font); font-size: 13px; }
 .tip { position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap; padding: 8px 12px; border-radius: 12px;
-  background: #ffffff; color: #0b1310; font-size: 13px; transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity .12s ease-out; }
+  background: #ffffff; color: #0b1310; font-size: 13px; transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity var(--t-press) ease-out; }
 .tip.on { opacity: 1; }
 details summary { list-style: none; cursor: pointer; }
 details summary::-webkit-details-marker { display: none; }
 .chart-table summary { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; font-size: 15px; color: var(--ink-3); }
-.chart-table summary .ic, .locked summary .ic { --ic: 18px; transition: transform .18s ease-out; }
+.chart-table summary .ic, .locked summary .ic { --ic: 18px; transition: transform var(--t-quick) ease-out; }
 details[open] > summary .ic { transform: rotate(180deg); }
 .scroll-x { overflow-x: auto; }
 table { width: 100%; max-width: 360px; border-collapse: collapse; margin-bottom: 8px; }
@@ -251,11 +308,11 @@ main { padding-bottom: calc(128px + env(safe-area-inset-bottom, 0px)); }
   background: rgba(10, 28, 22, .84); -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
   box-shadow: 0 10px 30px rgba(0, 0, 0, .35); }
 .dock-bar a { flex: 1; height: 52px; border-radius: 999px; display: grid; place-items: center; align-content: center; gap: 4px;
-  font-size: 13px; font-weight: 500; color: var(--ink-3); transition: background-color .18s ease-out, color .18s ease-out; }
+  font-size: 13px; font-weight: 500; color: var(--ink-3); transition: background-color var(--t-quick) ease-out, color var(--t-quick) ease-out; }
 .dock-bar a .ic { --ic: 22px; }
 .dock-bar a[aria-current] { background: rgba(255, 255, 255, .1); color: var(--ink); }
 .dock-fab { width: 64px; height: 64px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--gold); color: var(--on-gold);
-  box-shadow: 0 10px 24px rgba(245, 194, 91, .25); transition: transform .18s var(--ease); }
+  box-shadow: 0 10px 24px rgba(245, 194, 91, .25); transition: transform var(--t-quick) var(--ease); }
 .dock-fab:active { transform: scale(.95); }
 .dock-fab .ic { --ic: 26px; }
 /* While there are unsaved changes and the form's own button is off screen,

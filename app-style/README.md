@@ -8,7 +8,9 @@ redesigns by uidesignmahsa, and a sign-in screen by nuhushaik.
 The how-to is the skill: `.claude/skills/app-style/SKILL.md`.
 
 ```
-app-style.css         tokens (motion included), two grounds (.ui-dark, .ui-light), the parts
+app-style.css         two grounds (.ui-dark, .ui-light) and the parts; it imports
+                      ../tokens/tokens.css, the space, corners, sizes and motion it
+                      shares with the websites (check: node tools/tokens.js)
 app-icons.css         91 icons as CSS masks; edit tools/make-icons.py, not this
 screens/              eight recreations that line up with their reference frames
 examples/podcast/     Earshot: an original app built with the system as its test

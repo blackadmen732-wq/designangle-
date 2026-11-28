@@ -598,7 +598,12 @@ function build(name) {
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
   fs.writeFileSync(path.join(out, 'index.html'), render(site, sections));
-  for (const f of ['site.css', 'site.js']) fs.copyFileSync(path.join(TEMPLATE, f), path.join(out, f));
+  /* The shared tokens go at the top of the site's one stylesheet, so a
+     website still makes a single request for its styles. */
+  fs.writeFileSync(path.join(out, 'site.css'),
+    fs.readFileSync(path.join(ROOT, 'tokens', 'tokens.css'), 'utf8') + '\n'
+    + fs.readFileSync(path.join(TEMPLATE, 'site.css'), 'utf8'));
+  fs.copyFileSync(path.join(TEMPLATE, 'site.js'), path.join(out, 'site.js'));
   if (site.track) fs.copyFileSync(path.join(TEMPLATE, 'track.js'), path.join(out, 'track.js'));
   fs.cpSync(path.join(SITES, name, 'img'), path.join(out, 'img'), { recursive: true });
   // The first hero photo again, at a path that never changes. The owner

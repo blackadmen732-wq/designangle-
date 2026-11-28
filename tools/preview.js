@@ -61,7 +61,7 @@ if (!name) {
   node tools/preview.js --name "<business name>" [options]
 
     --name    the business, as they write it            (required)
-    --trade   restaurant | hvac                         (default restaurant)
+    --trade   restaurant | hvac | barber                (default restaurant)
     --city    "Columbus, OH" — shown in the contact block
     --accent  #rrggbb, if you know their brand colour
     --slug    folder name, otherwise made from --name
@@ -72,11 +72,17 @@ if (!name) {
   process.exit(2);
 }
 
-const BASE = { restaurant: 'restaurant', hvac: 'hvac' }[trade];
+const BASE = { restaurant: 'restaurant', hvac: 'hvac', barber: 'barber' }[trade];
 if (!BASE) {
-  console.error(`  --trade must be restaurant or hvac. Got "${trade}".`);
+  console.error(`  --trade must be restaurant, hvac or barber. Got "${trade}".`);
   process.exit(2);
 }
+// A trade whose example is too particular to copy (named people, counts, a
+// history) has a base written for previews in tools/preview-bases/, which
+// says nothing that is not true of every business in the trade. Its photos
+// still come from the example's folder.
+const PREVIEW_BASE = path.join(__dirname, 'preview-bases', `${trade}.js`);
+const FROM = fs.existsSync(PREVIEW_BASE) ? PREVIEW_BASE : path.join(SITES, BASE, 'content.js');
 
 const slug = (slugIn || name)
   .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -86,10 +92,18 @@ const slug = (slugIn || name)
 /* ---- a short name for the header, where a long one will not fit ---------- */
 
 function shortName(full) {
-  const drop = /\b(the|and|&|llc|l\.l\.c\.|inc|inc\.|ltd|co|co\.|company|services?|service|group|plumbing|heating|air|hvac|restaurant|kitchen|cafe|café|bar|grill|pizzeria)\b/gi;
-  const core = full.replace(drop, ' ').replace(/\s+/g, ' ').trim();
-  const first = (core || full).split(' ')[0];
-  return first.length >= 3 ? first : full.split(' ')[0];
+  const drop = /\b(the|and|&|llc|l\.l\.c\.|inc|inc\.|ltd|co|co\.|company|services?|service|group|plumbing|heating|air|hvac|restaurant|kitchen|cafe|café|bar|grill|pizzeria|barbers?|barbershop|shop|grooming)\b/gi;
+  const words = full.replace(drop, ' ').replace(/(^|\s)[&+](?=\s|$)/g, ' ')
+    .replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  // Nothing left once the trade words go ("The Barber Shop"): the whole name,
+  // if a header can hold it.
+  if (!words.length) return full.length <= 16 ? full : full.split(' ')[0];
+  // Two words when both fit a header: "Fresh Lines", not "Fresh", which made
+  // the story read "About Fresh".
+  const two = words.slice(0, 2).join(' ');
+  if (words.length > 1 && two.length <= 14) return two;
+  if (words[0].length >= 3) return words[0];
+  return full.length <= 16 ? full : full.split(' ')[0];   // "A1 Barbers", not "A1"
 }
 
 /* ---- the placeholder ----------------------------------------------------
@@ -100,7 +114,7 @@ const P = (what) => `[${what}]`;
 
 /* ---- build the content file --------------------------------------------- */
 
-const base = require(path.join(SITES, BASE, 'content.js'));
+const base = require(FROM);
 const short = shortName(name);
 
 // Deep copy, then replace. Working from the real example keeps the preview
@@ -189,6 +203,8 @@ const MONEY = /\$\s?\d|\bfrom\s+[£€\$]|\b\d+\s*(?:\/|per)\s*month\b/i;
 //    descriptive copy that any business in the trade can stand behind, so the
 //    page still reads as finished prose.
 const NEUTRAL = {
+  barber: ['Cuts and fades', 'Beards and shaves', 'Clipper and scissor work',
+           'Line-ups between cuts', 'Hair and beard care', 'Styling'],
   hvac: ['Heating and cooling', 'Repairs and installs', 'Service and maintenance',
          'Local engineers', 'Domestic and commercial', 'Boilers and heat pumps'],
   restaurant: ['Cooked to order', 'Seasonal menu', 'Dine in and takeaway',
@@ -268,7 +284,7 @@ if (c.contact) {
    keeps only what is public (their name, their trade, their town) and asks
    for the rest, and the numbers go: a counter with nothing true to count is
    an invented fact. */
-const TRADE_NOUN = { restaurant: 'restaurant', hvac: 'heating and cooling company' };
+const TRADE_NOUN = { restaurant: 'restaurant', hvac: 'heating and cooling company', barber: 'barbershop' };
 if (c.story) {
   c.story.eyebrow = 'About';
   c.story.title = `About ${short}`;
@@ -303,12 +319,25 @@ fs.mkdirSync(dir, { recursive: true });
 // Photos come from the example for the trade. They are stock and they are
 // labelled as such; swapping in the client's own is the first thing you do
 // once they are a client rather than a prospect.
-fs.cpSync(path.join(SITES, BASE, 'img'), path.join(dir, 'img'), { recursive: true });
+// A preview base takes only the photos it uses: the barbershop example's
+// nail-bar photos have no place on a barbershop that has no nail bar.
+const used = new Set();
+(function walk(n, k) {
+  if (typeof n === 'string') { if (k === 'img') used.add(n); return; }
+  if (Array.isArray(n)) { n.forEach((v) => walk(v, k)); return; }
+  if (n && typeof n === 'object') for (const [kk, v] of Object.entries(n)) walk(v, kk);
+})(c);
+if (FROM === PREVIEW_BASE) {
+  fs.mkdirSync(path.join(dir, 'img'), { recursive: true });
+  for (const f of used) fs.copyFileSync(path.join(SITES, BASE, 'img', f), path.join(dir, 'img', f));
+} else {
+  fs.cpSync(path.join(SITES, BASE, 'img'), path.join(dir, 'img'), { recursive: true });
+}
 
 const header = `/* PREVIEW — generated by tools/preview.js on ${new Date().toISOString().slice(0, 10)}.
  *
  * Built for: ${name}${city ? ' · ' + city : ''}
- * Based on:  sites/${BASE}/
+ * Based on:  ${path.relative(ROOT, FROM)}${FROM === PREVIEW_BASE ? `, photos from sites/${BASE}/img` : ''}
  *
  * Everything in [brackets] is a placeholder for a fact this business has not
  * given us. Do not replace a placeholder with a guess. Ask them, or leave it.
@@ -326,14 +355,17 @@ fs.writeFileSync(path.join(dir, 'content.js'),
    Written now, not after they sign. The photographs are what you will wait
    days for, so the ask has to go out at the first sign of interest. */
 
-const PHOTO_COUNT = fs.readdirSync(path.join(SITES, BASE, 'img'))
+const PHOTO_COUNT = fs.readdirSync(path.join(dir, 'img'))
   .filter((f) => /\.(webp|jpe?g|png)$/i.test(f)).length;
 
-const TRADE_WORDS = trade === 'hvac'
-  ? { thing: 'services', ex: 'Diagnostic call-out, thermostat replacement, system install',
-      shots: 'a van or a team photo, two or three jobs in progress, a finished install,\n  a clean plant room, and one of you' }
-  : { thing: 'dishes', ex: 'Margherita, carbonara, the Sunday roast',
-      shots: 'the room with people in it, five or six dishes shot from above,\n  the bar or pass, and one of the kitchen team' };
+const TRADE_WORDS = {
+  hvac: { thing: 'services', ex: 'Diagnostic call-out, thermostat replacement, system install',
+          shots: 'a van or a team photo, two or three jobs in progress, a finished install,\n  a clean plant room, and one of you', site: 'trades', verb: 'do' },
+  barber: { thing: 'services', ex: 'Skin fade, beard trim, kids’ cut',
+            shots: 'the shop with the chairs in use, four or five finished cuts (fades,\n  curls, beards), your station or tools, and one of each barber', site: 'barbershop', verb: 'do' },
+  restaurant: { thing: 'dishes', ex: 'Margherita, carbonara, the Sunday roast',
+                shots: 'the room with people in it, five or six dishes shot from above,\n  the bar or pass, and one of the kitchen team', site: 'restaurant', verb: 'serve' }
+}[trade];
 
 const intake = `# What we need from ${name}
 
@@ -353,7 +385,7 @@ Send it however is easiest. A long email is fine.
 - [ ] Opening hours, including any days you are closed
 - [ ] Anything different about evenings, weekends or holidays
 
-## 2. What you ${trade === 'hvac' ? 'do' : 'serve'}
+## 2. What you ${TRADE_WORDS.verb}
 
 - [ ] Your ${TRADE_WORDS.thing}, with a sentence about each
       *(e.g. ${TRADE_WORDS.ex})*
@@ -391,7 +423,7 @@ This is the part that takes the longest, so start here.
 
 If you cannot supply these, say so now. We can shoot them, and that is a
 separate cost, or we use stock — which will make your site look like every
-other ${trade === 'hvac' ? 'trades' : 'restaurant'} site, and is the single
+other ${TRADE_WORDS.site} site, and is the single
 biggest reason a site looks cheap.
 
 ## 5. Your brand

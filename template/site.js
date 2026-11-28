@@ -352,6 +352,28 @@
     });
   })();
 
+  /* ---------- A preview's banner and a pinned header ----------
+     The atelier header is pinned to the top of the screen over the photo,
+     and a preview's banner is part of the page: the header sat on the
+     banner and "Preview" ran into the shop's name. Keep the header just
+     under the banner, rising with it as the page scrolls, then pinned. */
+  (function underBanner() {
+    var bar = document.querySelector('.preview-bar'), top = $('top');
+    if (!bar || !top || getComputedStyle(top).position !== 'fixed') return;
+    function place() {
+      top.style.top = Math.max(0, bar.getBoundingClientRect().bottom) + 'px';
+      // The photo gives up the banner's height, so the first screen still
+      // ends where the photo does, "Scroll" and all.
+      root.style.setProperty('--preview-h', bar.offsetHeight + 'px');
+    }
+    place();
+    window.addEventListener('scroll', place, { passive: true });
+    // The banner changes height when its font arrives and when the screen
+    // turns; the header follows it.
+    if (window.ResizeObserver) new ResizeObserver(place).observe(bar);
+    else window.addEventListener('resize', place);
+  })();
+
   /* ---------- The footer wordmark fits its name ----------
      site.css sets it as large as the screen allows, which is too large for a
      long name in a wide face: "Comb & Coat." ran 41px off a phone and was

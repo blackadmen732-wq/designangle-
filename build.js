@@ -535,7 +535,7 @@ function render(site, sections) {
 <style>:root{--bg:${t.bg};--ink:${t.ink};--muted:${t.muted};--line:${t.line};--soft:${t.soft};--accent:${t.accent};--accent-text:${textSafe(t.accent, t.bg)};--leaf:${t.tag};--tint:${t.tint};--display:${t.display};--body:${t.body}}</style>
 ${jsonLd(site)}
 </head>
-<body class="layout-${esc(site.layout || 'studio')}">
+<body class="layout-${esc(site.layout || 'studio')}${site.preview ? ' has-preview' : ''}">
 ${site.preview ? `<div class="preview-bar"><div class="wrap"><b>Preview</b><span>${esc(site.preview)}</span></div></div>` : ''}
 <div class="notice-bar" id="noticeBar" hidden><div class="wrap"><span></span></div></div>
 <header class="top" id="top">

@@ -33,13 +33,15 @@ broken, and a broken-looking preview cannot do the only job it has.
 `tools/preview.js` builds one from the public name, town and trade: every
 promise it recognises becomes neutral copy, prices go, every fact it cannot
 know (a phone number, an address, their story) stays in [brackets], and a
-banner says the words are a layout. It starts from the restaurant or the
-heating example; a barbershop preview needs a barber base written for
-previews first, because the barber example is full of named people and counts
-that no pattern can tell from prose.
+banner says the words are a layout. A restaurant or a heating company starts
+from its example site. A barbershop starts from `tools/preview-bases/barber.js`,
+a base written for previews, because the barber example is full of named
+people and counts that no pattern can tell from prose. A new trade gets a base
+there the same way.
 
 ```bash
 node tools/preview.js --name "Mario's Pizza" --trade restaurant --city "Columbus, OH"
+node tools/preview.js --name "Fresh Lines Barbers" --trade barber --city "Dayton, OH"
 ```
 
 `tools/launch-check.js` refuses to ship a site that still holds placeholder or

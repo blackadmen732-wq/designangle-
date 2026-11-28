@@ -457,10 +457,17 @@ main a:not(.btn):not(.sel):not(.logo)::after {
 }
 .preview-bar .wrap{ display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
 .preview-bar b{
-  font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
   background: var(--accent); color: #fff; padding: 4px 9px; border-radius: 999px; flex: none;
 }
 .preview-bar span{ color: #e8dfda; min-width: 0; }
+/* Under a preview's banner, the atelier header sits lower on the photograph,
+   wherever that photograph happens to be bright. The banner's own dark runs
+   down behind the header and fades into the picture, so the header reads on
+   any photo, and the photo gives up the banner's height so the first screen
+   still ends with it. Only on previews: a live site has no banner. */
+.layout-atelier.has-preview .top:not(.scrolled) { background: linear-gradient(to bottom, #1e1512 0%, rgba(30, 21, 18, .6) 55%, rgba(30, 21, 18, 0) 100%); }
+.layout-atelier.has-preview .hero-atelier { min-height: calc(100dvh - var(--preview-h, 0px)); }
 
 /* ===========================================================================
    LAYOUT: still

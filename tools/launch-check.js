@@ -57,7 +57,7 @@ const BLOCKERS = [
     why: 'an example email or domain' },
 
   { id: 'demo-note',
-    re: /\bdemonstration site\b|\bdemo panel\b/i,
+    re: /\bdemonstration site\b|\bdemo panel\b|\bthis is a preview\b/i,
     why: "the example form's demo note: say what really happens to a request" },
 
   { id: 'lorem',
@@ -100,6 +100,10 @@ function textOf(site) {
    first version knew two full names, so "Everything at Pomelo passes through
    a single oak-fired oven" would have shipped. */
 let examples = null;
+// Keys that hold no words a visitor reads as a claim: the design (fonts,
+// colours), file names, links, a photo's description (true for as long as the
+// photo is used, on anyone's site) and the page's structure.
+const NOT_WORDS = /^(theme|img|href|id|type|layout|lang|kind|sections|alt|tint)$/;
 function exampleText() {
   if (examples) return examples;
   const names = new Set(), places = new Set(), prose = new Set();
@@ -117,12 +121,26 @@ function exampleText() {
     // we know who to ask for"), which fit any business; the form's demo note
     // is a blocker of its own above.
     (function walk(n, key, inForm) {
-      if (typeof n === 'string') { if (key !== 'alt' && !inForm && n.trim().length >= 24) prose.add(n.trim()); return; }
+      if (typeof n === 'string') { if (!inForm && n.trim().length >= 24) prose.add(n.trim()); return; }
       if (Array.isArray(n)) { n.forEach((v) => walk(v, key, inForm)); return; }
-      if (n && typeof n === 'object') for (const [k, v] of Object.entries(n)) walk(v, k, inForm || k === 'form');
+      if (n && typeof n === 'object') for (const [k, v] of Object.entries(n)) if (!NOT_WORDS.test(k)) walk(v, k, inForm || k === 'form');
     })(c);
   }
-  return (examples = { names, places, prose });
+  // The preview bases (tools/preview-bases/) say nothing untrue of a trade,
+  // but nothing in them came from the client either: each sentence is listed
+  // for somebody to confirm it describes this business, or to rewrite it.
+  const neutral = new Set();
+  const bases = path.join(ROOT, 'tools', 'preview-bases');
+  for (const f of fs.existsSync(bases) ? fs.readdirSync(bases) : []) {
+    if (!f.endsWith('.js')) continue;
+    const b = require(path.join(bases, f));
+    (function walk(n, key, inForm) {
+      if (typeof n === 'string') { if (!inForm && n.trim().length >= 16 && !/^\[/.test(n.trim())) neutral.add(n.trim()); return; }
+      if (Array.isArray(n)) { n.forEach((v) => walk(v, key, inForm)); return; }
+      if (n && typeof n === 'object') for (const [k, v] of Object.entries(n)) if (!NOT_WORDS.test(k)) walk(v, k, inForm || k === 'form');
+    })(b);
+  }
+  return (examples = { names, places, prose, neutral });
 }
 const escRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -148,6 +166,8 @@ function check(site) {
         blocked.push({ id: 'example-place', why: "an example site's address, not this business's", line });
       else if (ex.prose.has(line.trim()))
         blocked.push({ id: 'example-copy', why: 'written for an example business: rewrite it in their words, or delete it', line });
+      else if (ex.neutral.has(line.trim()))
+        confirm.push({ id: 'preview-copy', why: 'preview wording, not theirs', line });
     }
   }
   if (got.content.preview) {

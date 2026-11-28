@@ -56,9 +56,9 @@ const BLOCKERS = [
     re: /@(?:pomelokitchen|northwindhvac)\.exam|\.example\b|\.test\b/i,
     why: 'an example email or domain' },
 
-  { id: 'example-name',
-    re: /\bPomelo Kitchen\b|\bNorthwind Heating\b/i,
-    why: 'an example business name' },
+  { id: 'demo-note',
+    re: /\bdemonstration site\b|\bdemo panel\b/i,
+    why: "the example form's demo note: say what really happens to a request" },
 
   { id: 'lorem',
     re: /\blorem ipsum\b|\bTODO\b|\bFIXME\b|\bXXX\b/i,
@@ -92,6 +92,40 @@ function textOf(site) {
   return { lines: out, content: c };
 }
 
+/* What the example sites say about themselves. A client site begins as a copy
+   of one (tools/preview.js), so anything still carried over is a fact about a
+   business that does not exist, presented as the client's: the example's
+   name, its street address, a sentence written for it. Read from the example
+   sites themselves, so a new example is covered the day it is added. The
+   first version knew two full names, so "Everything at Pomelo passes through
+   a single oak-fired oven" would have shipped. */
+let examples = null;
+function exampleText() {
+  if (examples) return examples;
+  const names = new Set(), places = new Set(), prose = new Set();
+  for (const ex of EXAMPLES) {
+    const got = textOf(ex);
+    if (!got) continue;
+    const c = got.content;
+    for (const n of [c.name, c.short, c.footer && c.footer.mark]) if (n && String(n).length > 2) names.add(String(n));
+    for (const b of (c.contact && c.contact.blocks) || []) for (const l of b.lines || []) places.add(String(l).trim());
+    const a = (c.seo && c.seo.address) || {};
+    for (const k of ['streetAddress', 'postalCode']) if (a[k]) places.add(String(a[k]).trim());
+    // Sentences, from 24 characters up ("Evenings, weekends and holidays."
+    // is a promise in 31). Not a photo's description, which stays true for as
+    // long as the photo does, and not the form's own words ("Add your name so
+    // we know who to ask for"), which fit any business; the form's demo note
+    // is a blocker of its own above.
+    (function walk(n, key, inForm) {
+      if (typeof n === 'string') { if (key !== 'alt' && !inForm && n.trim().length >= 24) prose.add(n.trim()); return; }
+      if (Array.isArray(n)) { n.forEach((v) => walk(v, key, inForm)); return; }
+      if (n && typeof n === 'object') for (const [k, v] of Object.entries(n)) walk(v, k, inForm || k === 'form');
+    })(c);
+  }
+  return (examples = { names, places, prose });
+}
+const escRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 function check(site) {
   const got = textOf(site);
   if (!got) return { site, missing: true };
@@ -100,6 +134,21 @@ function check(site) {
   for (const line of got.lines) {
     for (const b of BLOCKERS) if (b.re.test(line)) blocked.push({ ...b, line });
     for (const c of CONFIRM) if (c.re.test(line)) confirm.push({ ...c, line });
+  }
+  if (!EXAMPLES.has(site)) {
+    const ex = exampleText();
+    const own = `${got.content.name || ''} ${got.content.short || ''}`;
+    for (const line of got.lines) {
+      for (const n of ex.names) {
+        if (own.includes(n)) continue;   // their name happens to contain an example's
+        if (new RegExp(`(^|[^\\w])${escRe(n)}([^\\w]|$)`, 'i').test(line))
+          blocked.push({ id: 'example-name', why: `"${n}" is an example business, not this one`, line });
+      }
+      if (ex.places.has(line.trim()))
+        blocked.push({ id: 'example-place', why: "an example site's address, not this business's", line });
+      else if (ex.prose.has(line.trim()))
+        blocked.push({ id: 'example-copy', why: 'written for an example business: rewrite it in their words, or delete it', line });
+    }
   }
   if (got.content.preview) {
     blocked.push({ id: 'preview-key', why: 'content.js still has a `preview` key',

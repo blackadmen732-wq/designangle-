@@ -30,15 +30,21 @@ barber) are invented, and each says so at the top of its `content.js`.
 This applies at launch, not to a sales preview. A preview full of gaps looks
 broken, and a broken-looking preview cannot do the only job it has.
 `tools/preview.js` builds one from the public name, town and trade: every
-promise from the example becomes neutral copy, every fact it cannot know (a
-phone number, a price) stays in [brackets], and a banner says it is a preview.
+promise it recognises becomes neutral copy, prices go, every fact it cannot
+know (a phone number, an address, their story) stays in [brackets], and a
+banner says the words are a layout. It starts from the restaurant or the
+heating example; a barbershop preview needs a barber base written for
+previews first, because the barber example is full of named people and counts
+that no pattern can tell from prose.
 
 ```bash
 node tools/preview.js --name "Mario's Pizza" --trade restaurant --city "Columbus, OH"
 ```
 
 `tools/launch-check.js` refuses to ship a site that still holds placeholder or
-example text. It flags claims rather than blocking them, because a client is
+example text: a [bracket], the preview banner, an example's name, its address,
+or any sentence written for an example business. It reads those from the
+example sites themselves, so a new example is covered the day it is added. It flags claims rather than blocking them, because a client is
 entitled to make claims about their own business; it only asks that somebody
 confirm the client made them.
 

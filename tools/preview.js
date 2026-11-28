@@ -110,11 +110,16 @@ const c = JSON.parse(JSON.stringify(base));
 c.name = name;
 c.short = short;
 
-c.seo = Object.assign({}, c.seo, {
+// Search engines read seo as facts about the business: the example's street
+// address, opening hours and price range went into a stranger's preview this
+// way. Only the type of business and their town are public.
+c.seo = {
+  type: (base.seo && base.seo.type) || 'LocalBusiness',
   title: `${name} — preview`,
   description: `Preview layout for ${name}${city ? ', ' + city : ''}. Not a live website.`,
   telephone: P('phone number')
-});
+};
+if (city) c.seo.address = { addressLocality: city };
 
 if (accent) c.theme = Object.assign({}, c.theme, { accent });
 
@@ -156,7 +161,13 @@ const CLAIMY = [
   /\brated\b/i,
   /\bno\s+call[- ]out\b/i,
   /\bfree\s+(?:quote|estimate|call[- ]out)\b/i,
-  /\bfrom\s+[£€\$]/i                 // "From £", "From €"
+  /\bfrom\s+[£€\$]/i,                // "From £", "From €"
+  /\bfixed[- ]price\b/i,               // the wordings the examples use for
+  /\bin writing\b/i,                   // promises, which the patterns above
+  /\b(?:at )?any hour\b/i,             // did not see: "a fixed price in
+  /\bround[- ]the[- ]clock\b/i,        // writing", "we answer the phone at
+  /\bevery (?:day|night|time)\b/i,     // any hour"
+  /\bnever\b/i
 ];
 const isClaim = (t) => CLAIMY.some((re) => re.test(t));
 
@@ -220,11 +231,20 @@ if (c.contact) {
     c.contact.blocks = c.contact.blocks.map((b) => {
       const out = Object.assign({}, b);
       if (Array.isArray(out.lines)) {
-        out.lines = out.lines.map((l) =>
-          /^[+(]?[0-9][0-9().\-\s]{6,}$/.test(String(l).trim()) ? P('phone number')
-          : /@/.test(String(l)) ? P('email')
-          : city && /,\s*[A-Z]{2}\b/.test(String(l)) ? city
-          : l);
+        // A phone, an email and their town are handled; every other line is
+        // the EXAMPLE's street, unit or area, and the first version left
+        // "214 Harbour Street, the old sail loft" on a stranger's preview as
+        // though it were theirs. One [address] per block stands for all of it.
+        let addressed = false;
+        out.lines = out.lines.map((l) => {
+          const t = String(l).trim();
+          if (/^[+(]?[0-9][0-9().\-\s]{6,}$/.test(t) || /^\[phone number\]$/.test(t)) return P('phone number');
+          if (/@/.test(t) || /^\[email\]$/.test(t)) return P('email');
+          if (city && /,\s*[A-Z]{2}\b/.test(t)) return city;
+          if (addressed) return null;
+          addressed = true;
+          return P('address');
+        }).filter((l) => l !== null);
       }
       return out;
     });
@@ -237,6 +257,26 @@ if (c.contact) {
     c.contact.hours = c.contact.hours.map((h) =>
       Array.isArray(h) ? [h[0], '\u2014'] : h);
   }
+}
+
+/* ---- the story: theirs to tell ---------------------------------------
+   The example's story is its history, its people and its numbers: "Everything
+   at Pomelo passes through a single oak-fired oven", "the technician who
+   quotes the job is the one who does it", a 450 degree oven, a 90-minute
+   visit. None of it is true of the business being previewed, and the scrub
+   above cannot recognise it, because it reads as plain prose. So the story
+   keeps only what is public (their name, their trade, their town) and asks
+   for the rest, and the numbers go: a counter with nothing true to count is
+   an invented fact. */
+const TRADE_NOUN = { restaurant: 'restaurant', hvac: 'heating and cooling company' };
+if (c.story) {
+  c.story.eyebrow = 'About';
+  c.story.title = `About ${short}`;
+  c.story.paragraphs = [
+    `${name} is a ${TRADE_NOUN[trade] || 'local business'}${city ? ' in ' + city : ''}.`,
+    P('their story, in their words')
+  ];
+  c.story.facts = [];
 }
 
 // The collector must not be wired up. A preview that posts a stranger's

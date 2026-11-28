@@ -247,6 +247,9 @@ function listSection(site) {
 
 function storySection(site) {
   const story = site.story;
+  // A story with no numbers (a preview, which has been given none) draws no
+  // empty row where they would go.
+  const facts = (story.facts || []).map((f) => `<div><b data-count="${esc(f.value)}" data-suffix="${esc(f.suffix || '')}">${esc(f.value)}${esc(f.suffix || '')}</b><span>${esc(f.label)}</span></div>`);
   return `
   <section class="sec story" id="${esc(story.id)}">
     <div class="wrap">
@@ -255,9 +258,9 @@ function storySection(site) {
         <p class="eyebrow" data-reveal>${esc(story.eyebrow)}</p>
         <h2 data-split>${esc(story.title)}</h2>
         ${story.paragraphs.map((p) => `<p data-reveal>${esc(p)}</p>`).join('\n        ')}
-        <div class="facts" data-reveal>
-          ${story.facts.map((f) => `<div><b data-count="${esc(f.value)}" data-suffix="${esc(f.suffix || '')}">${esc(f.value)}${esc(f.suffix || '')}</b><span>${esc(f.label)}</span></div>`).join('\n          ')}
-        </div>
+        ${facts.length ? `<div class="facts" data-reveal>
+          ${facts.join('\n          ')}
+        </div>` : ''}
       </div>
     </div>
   </section>`;
